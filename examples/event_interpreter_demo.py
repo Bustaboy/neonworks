@@ -8,8 +8,8 @@ Demonstrates the event interpreter with sample events:
 - NPC dialogue event (with choices)
 """
 
-import sys
 import os
+import sys
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,18 +19,18 @@ from typing import Dict, List
 
 from neonworks.core.event_commands import (
     CommandType,
+    ControlSwitchesCommand,
+    ControlVariablesCommand,
     EventCommand,
     EventContext,
     EventPage,
     GameEvent,
     GameState,
-    TriggerType,
-    ShowTextCommand,
-    ShowChoicesCommand,
-    ControlSwitchesCommand,
-    ControlVariablesCommand,
-    WaitCommand,
     PlaySECommand,
+    ShowChoicesCommand,
+    ShowTextCommand,
+    TriggerType,
+    WaitCommand,
 )
 from neonworks.core.events import EventManager
 from neonworks.engine.core.event_interpreter import EventInterpreter

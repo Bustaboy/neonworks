@@ -5,19 +5,19 @@ Sophisticated interpreter for executing event commands with flow control,
 conditional branching, loops, and parallel execution support.
 """
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
-import logging
 
 from neonworks.core.event_commands import (
     CommandType,
+    ComparisonOperator,
     EventCommand,
     EventContext,
     EventPage,
     GameEvent,
     GameState,
-    ComparisonOperator,
 )
 from neonworks.core.events import Event, EventManager, EventType
 

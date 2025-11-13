@@ -5,34 +5,35 @@ Comprehensive tests for the event command interpreter including
 flow control, wait states, and sample game events.
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock
 from dataclasses import dataclass, field
-from typing import Dict, Any, List
+from typing import Any, Dict, List
+from unittest.mock import MagicMock, Mock
+
+import pytest
 
 from neonworks.core.event_commands import (
     CommandType,
+    ConditionalBranchCommand,
+    ControlSwitchesCommand,
+    ControlVariablesCommand,
     EventCommand,
     EventContext,
     EventPage,
     GameEvent,
     GameState,
-    TriggerType,
-    ShowTextCommand,
-    ShowChoicesCommand,
-    ConditionalBranchCommand,
-    ControlSwitchesCommand,
-    ControlVariablesCommand,
-    WaitCommand,
     PlayBGMCommand,
     PlaySECommand,
+    ShowChoicesCommand,
+    ShowTextCommand,
+    TriggerType,
+    WaitCommand,
 )
-from neonworks.core.events import EventManager, Event, EventType
+from neonworks.core.events import Event, EventManager, EventType
 from neonworks.engine.core.event_interpreter import (
-    EventInterpreter,
-    InterpreterState,
-    InterpreterInstance,
     CommandExecutionError,
+    EventInterpreter,
+    InterpreterInstance,
+    InterpreterState,
 )
 
 
