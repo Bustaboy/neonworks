@@ -227,12 +227,12 @@ class TestJRPGBattleSystem:
         # Create party
         hero = world.create_entity()
         hero.add_component(Health(max_hp=100))
-        hero.add_component(JRPGStats(level=1, strength=10, defense=5, speed=8))
+        hero.add_component(JRPGStats(level=1, attack=10, defense=5, speed=8))
 
         # Create enemies
         enemy = world.create_entity()
         enemy.add_component(Health(max_hp=50))
-        enemy.add_component(JRPGStats(level=1, strength=8, defense=3, speed=5))
+        enemy.add_component(JRPGStats(level=1, attack=8, defense=3, speed=5))
 
         jrpg_battle_system.start_battle(
             world, party=[hero], enemies=[enemy], can_escape=True, is_boss=False
@@ -249,11 +249,11 @@ class TestJRPGBattleSystem:
         # Create combatants with different speeds
         fast = world.create_entity()
         fast.add_component(Health(max_hp=100))
-        fast.add_component(JRPGStats(level=1, strength=10, defense=5, speed=20))
+        fast.add_component(JRPGStats(level=1, attack=10, defense=5, speed=20))
 
         slow = world.create_entity()
         slow.add_component(Health(max_hp=100))
-        slow.add_component(JRPGStats(level=1, strength=10, defense=5, speed=5))
+        slow.add_component(JRPGStats(level=1, attack=10, defense=5, speed=5))
 
         jrpg_battle_system.all_combatants = [slow, fast]
 
@@ -291,11 +291,11 @@ class TestJRPGBattleSystem:
     def test_execute_attack(self, world, jrpg_battle_system):
         """Test executing an attack"""
         attacker = world.create_entity()
-        attacker.add_component(JRPGStats(level=1, strength=15, defense=5, speed=10))
+        attacker.add_component(JRPGStats(level=1, attack=15, defense=5, speed=10))
 
         target = world.create_entity()
         target.add_component(Health(max_hp=50, hp=50))
-        target.add_component(JRPGStats(level=1, strength=5, defense=3, speed=5))
+        target.add_component(JRPGStats(level=1, attack=5, defense=3, speed=5))
         target.add_component(BattleState())
 
         initial_hp = target.get_component(Health).hp
@@ -308,11 +308,11 @@ class TestJRPGBattleSystem:
     def test_execute_attack_with_defend(self, world, jrpg_battle_system):
         """Test attack on defending target"""
         attacker = world.create_entity()
-        attacker.add_component(JRPGStats(level=1, strength=15, defense=5, speed=10))
+        attacker.add_component(JRPGStats(level=1, attack=15, defense=5, speed=10))
 
         target = world.create_entity()
         target.add_component(Health(max_hp=50, hp=50))
-        target.add_component(JRPGStats(level=1, strength=5, defense=3, speed=5))
+        target.add_component(JRPGStats(level=1, attack=5, defense=3, speed=5))
         battle_state = BattleState()
         battle_state.is_defending = True
         target.add_component(battle_state)
@@ -320,7 +320,7 @@ class TestJRPGBattleSystem:
         # Execute two attacks: one normal, one defended
         target_normal = world.create_entity()
         target_normal.add_component(Health(max_hp=50, hp=50))
-        target_normal.add_component(JRPGStats(level=1, strength=5, defense=3, speed=5))
+        target_normal.add_component(JRPGStats(level=1, attack=5, defense=3, speed=5))
         target_normal.add_component(BattleState())
 
         jrpg_battle_system._execute_attack(attacker, [target_normal])
@@ -417,8 +417,7 @@ class TestPuzzleSystem:
     def test_activate_switch_with_target(self, world, puzzle_system):
         """Test switch activating target door"""
         door_entity = world.create_entity()
-        door = Door()
-        door.is_open = False
+        door = Door(is_locked=False, requires_switch=True)
         door_entity.add_component(door)
         door_entity.add_component(Collider2D(is_solid=True))
 
@@ -467,7 +466,7 @@ class TestPuzzleSystem:
     def test_open_door(self, world, puzzle_system):
         """Test opening a door"""
         door_entity = world.create_entity()
-        door_entity.add_component(Door())
+        door_entity.add_component(Door(is_locked=False, requires_switch=False))
         door_entity.add_component(Collider2D(is_solid=True))
 
         puzzle_system.open_door(world, door_entity)
