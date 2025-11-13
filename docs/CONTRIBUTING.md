@@ -67,6 +67,43 @@ from core.events import EventManager
 from engine.core.event_interpreter import EventInterpreter
 ```
 
+### Import Ordering
+
+Imports must be sorted using isort with the black profile. The order is:
+
+1. **Standard library imports** (alphabetically sorted)
+2. **Third-party imports** (alphabetically sorted)
+3. **Local imports** with `neonworks.` prefix (alphabetically sorted)
+
+Within each import statement, names must be alphabetically sorted.
+
+**Example:**
+```python
+# ✅ Correct
+import logging
+from dataclasses import dataclass
+from typing import Dict, List
+
+import pytest
+
+from neonworks.core.events import Event, EventManager
+from neonworks.engine.core.event_interpreter import (
+    CommandExecutionError,
+    EventInterpreter,
+    InterpreterInstance,
+)
+
+# ❌ Incorrect (wrong order)
+import pytest
+from dataclasses import dataclass
+import logging
+
+from neonworks.engine.core.event_interpreter import (
+    EventInterpreter,
+    CommandExecutionError,
+)
+```
+
 ### Why?
 
 The project uses a package structure where all modules are accessed through the `neonworks` namespace. This ensures:
