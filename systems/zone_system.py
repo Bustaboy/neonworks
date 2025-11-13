@@ -346,7 +346,11 @@ class ZoneSystem(System):
         x = npc_data.get("x", 0)
         y = npc_data.get("y", 0)
         npc.add_component(GridPosition(grid_x=x, grid_y=y))
-        npc.add_component(Transform(x=x * zone.tile_size, y=y * zone.tile_size))
+        npc.add_component(
+            Transform(
+                x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size
+            )
+        )
 
         # Visual
         sprite_path = npc_data.get("sprite", "")

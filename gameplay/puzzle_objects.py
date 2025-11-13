@@ -4,7 +4,7 @@ Puzzle Object Components
 Components for dungeon puzzle mechanics like switches, plates, doors, etc.
 """
 
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Dict
 from dataclasses import dataclass, field
 from enum import Enum
 from neonworks.core.ecs import Component

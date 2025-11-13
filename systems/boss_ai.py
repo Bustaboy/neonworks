@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Any
 from neonworks.core.ecs import System, World, Entity
 from neonworks.core.events import Event, EventManager, EventType
 from gameplay.combat import Health
-from gameplay.jrpg_combat import BossPhase, BattleAI, JRPGStats
+from gameplay.jrpg_combat import BossPhase, BattleAI, JRPGStats, BattleRewards
 
 
 class BossAISystem(System):
