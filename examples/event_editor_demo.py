@@ -117,10 +117,14 @@ def create_sample_events():
         condition_switch1_id=5,
     )
     page5.commands = [
-        EventCommand(command_type=CommandType.FADEOUT_SCREEN, parameters={"duration": 60}),
+        EventCommand(
+            command_type=CommandType.FADEOUT_SCREEN, parameters={"duration": 60}
+        ),
         WaitCommand(60),
         ShowTextCommand("A cutscene begins..."),
-        EventCommand(command_type=CommandType.FADEIN_SCREEN, parameters={"duration": 60}),
+        EventCommand(
+            command_type=CommandType.FADEIN_SCREEN, parameters={"duration": 60}
+        ),
         EventCommand(
             command_type=CommandType.CONTROL_SWITCHES,
             parameters={"switch_id": 5, "value": False},
@@ -186,9 +190,7 @@ def main():
         if not event_editor.visible:
             font = pygame.font.Font(None, 48)
             text = font.render("Press ESC to open Event Editor", True, (150, 150, 150))
-            text_rect = text.get_rect(
-                center=(screen_width // 2, screen_height // 2)
-            )
+            text_rect = text.get_rect(center=(screen_width // 2, screen_height // 2))
             screen.blit(text, text_rect)
 
             # Show event count

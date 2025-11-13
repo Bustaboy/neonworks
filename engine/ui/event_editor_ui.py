@@ -304,7 +304,9 @@ class EventEditorUI:
 
             # Position info
             pos_font = pygame.font.Font(None, 16)
-            pos_text = pos_font.render(f"Pos: ({event.x}, {event.y})", True, (180, 180, 200))
+            pos_text = pos_font.render(
+                f"Pos: ({event.x}, {event.y})", True, (180, 180, 200)
+            )
             self.screen.blit(pos_text, (x + 15, current_y + 48))
 
             # Page count
@@ -363,9 +365,7 @@ class EventEditorUI:
             placeholder_text = placeholder_font.render(
                 "Select an event to view commands", True, (150, 150, 150)
             )
-            self.screen.blit(
-                placeholder_text, (x + width // 2 - 130, y + height // 2)
-            )
+            self.screen.blit(placeholder_text, (x + width // 2 - 130, y + height // 2))
             return
 
         # Page selector
@@ -532,10 +532,15 @@ class EventEditorUI:
                     max_width = width - 30 - indent
                     param_text = param_font.render(param_preview, True, (180, 180, 200))
                     if param_text.get_width() > max_width:
-                        while len(param_preview) > 0 and param_text.get_width() > max_width:
+                        while (
+                            len(param_preview) > 0
+                            and param_text.get_width() > max_width
+                        ):
                             param_preview = param_preview[:-1]
                         param_preview += "..."
-                        param_text = param_font.render(param_preview, True, (180, 180, 200))
+                        param_text = param_font.render(
+                            param_preview, True, (180, 180, 200)
+                        )
                     self.screen.blit(param_text, (x + 15 + indent, current_y + 26))
 
                 # Click to select
