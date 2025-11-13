@@ -322,6 +322,13 @@ class EventInterpreter:
             if self.on_command_execute:
                 self.on_command_execute(command, instance.context)
 
+            # Check if we've reached the end of a loop and need to jump back
+            if instance.loop_stack:
+                current_frame = instance.loop_stack[-1]
+                # If we've moved past the loop end, jump back to the start
+                if instance.context.command_index > current_frame.loop_end:
+                    instance.context.command_index = current_frame.loop_start + 1
+
             return True
         except Exception as e:
             raise CommandExecutionError(
@@ -807,10 +814,12 @@ class EventInterpreter:
                 "context": instance.context,
             }
             exec(script, context)
+            instance.context.advance()
         except Exception as e:
             logger.error(f"Script execution error: {e}")
-
-        instance.context.advance()
+            instance.context.advance()
+            # Re-raise to trigger error handling
+            raise
 
     # ========== Error Handling ==========
 

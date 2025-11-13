@@ -119,13 +119,13 @@ def test_wait_command(interpreter):
 
     instance = interpreter.start_event(event, page)
 
-    # Should be waiting
+    # First update executes the wait command
     interpreter.update(0.016)
-    assert instance.wait_frames == 29
+    assert instance.wait_frames == 30
     assert instance.is_waiting()
 
-    # Update 29 more times
-    for _ in range(29):
+    # Update 30 times to count down
+    for _ in range(30):
         interpreter.update(0.016)
 
     assert instance.wait_frames == 0
@@ -366,9 +366,21 @@ def create_door_event(door_id: int, locked: bool = False) -> GameEvent:
                 },
                 indent=0,
             ),
-            ShowTextCommand("You used the key!", indent=1),
-            ControlSwitchesCommand(switch_id=door_id, value=True, indent=1),
-            PlaySECommand("door_open", volume=80, indent=1),
+            EventCommand(
+                command_type=CommandType.SHOW_TEXT,
+                parameters={"text": "You used the key!"},
+                indent=1,
+            ),
+            EventCommand(
+                command_type=CommandType.CONTROL_SWITCHES,
+                parameters={"switch_id": door_id, "value": True, "end_id": None},
+                indent=1,
+            ),
+            EventCommand(
+                command_type=CommandType.PLAY_SE,
+                parameters={"name": "door_open", "volume": 80, "pitch": 100, "pan": 0},
+                indent=1,
+            ),
         ]
     else:
         # Simple door that opens
@@ -439,8 +451,16 @@ def create_npc_dialogue_event(npc_id: int, npc_name: str) -> GameEvent:
             },
             indent=0,
         ),
-        ShowTextCommand("This is a bustling city full of adventure!", indent=1),
-        ShowTextCommand("Many travelers come here seeking their fortune.", indent=1),
+        EventCommand(
+            command_type=CommandType.SHOW_TEXT,
+            parameters={"text": "This is a bustling city full of adventure!"},
+            indent=1,
+        ),
+        EventCommand(
+            command_type=CommandType.SHOW_TEXT,
+            parameters={"text": "Many travelers come here seeking their fortune."},
+            indent=1,
+        ),
         # Choice 1: What can you do?
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
@@ -452,8 +472,16 @@ def create_npc_dialogue_event(npc_id: int, npc_name: str) -> GameEvent:
             },
             indent=0,
         ),
-        ShowTextCommand("I'm a merchant! I sell various goods.", indent=1),
-        ShowTextCommand("Come back when you have some gold!", indent=1),
+        EventCommand(
+            command_type=CommandType.SHOW_TEXT,
+            parameters={"text": "I'm a merchant! I sell various goods."},
+            indent=1,
+        ),
+        EventCommand(
+            command_type=CommandType.SHOW_TEXT,
+            parameters={"text": "Come back when you have some gold!"},
+            indent=1,
+        ),
         # Choice 2: Goodbye
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
@@ -465,7 +493,11 @@ def create_npc_dialogue_event(npc_id: int, npc_name: str) -> GameEvent:
             },
             indent=0,
         ),
-        ShowTextCommand("Safe travels, adventurer!", indent=1),
+        EventCommand(
+            command_type=CommandType.SHOW_TEXT,
+            parameters={"text": "Safe travels, adventurer!"},
+            indent=1,
+        ),
         # Mark as talked to
         ControlSwitchesCommand(switch_id=npc_id, value=True),
     ]
@@ -652,11 +684,14 @@ def test_complex_event_flow(interpreter, game_state):
         ),
         # Loop to increment
         EventCommand(command_type=CommandType.LOOP, parameters={}, indent=0),
-        ControlVariablesCommand(
-            variable_id=1,
-            operation="add",
-            operand_type="constant",
-            operand_value=1,
+        EventCommand(
+            command_type=CommandType.CONTROL_VARIABLES,
+            parameters={
+                "variable_id": 1,
+                "operation": "add",
+                "operand_type": "constant",
+                "operand_value": 1,
+            },
             indent=1,
         ),
         # Break if >= 3
@@ -682,7 +717,11 @@ def test_complex_event_flow(interpreter, game_state):
             },
             indent=0,
         ),
-        ControlSwitchesCommand(switch_id=1, value=True, indent=1),
+        EventCommand(
+            command_type=CommandType.CONTROL_SWITCHES,
+            parameters={"switch_id": 1, "value": True, "end_id": None},
+            indent=1,
+        ),
     ]
 
     instance = interpreter.start_event(event, page)
