@@ -423,7 +423,9 @@ class TestLicenseValidator:
 
             assert validator.license_file == license_file
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_save_and_load_license(self):
         """Test saving and loading a license"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -479,7 +481,9 @@ class TestLicenseValidator:
             assert not is_valid
             assert "No license found" in error
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_validate_for_export_valid_license(self):
         """Test export validation with valid license"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -506,7 +510,9 @@ class TestLicenseValidator:
             assert is_valid
             assert error is None
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_validate_for_export_expired_license(self):
         """Test export validation with expired license"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -531,7 +537,9 @@ class TestLicenseValidator:
             assert not is_valid
             assert "expired" in error.lower()
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_validate_for_export_hardware_mismatch(self):
         """Test export validation with hardware mismatch"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -598,7 +606,9 @@ class TestLicenseValidator:
             assert not features["remove_watermark"]
             assert not features["commercial_use"]
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_get_features_indie(self):
         """Test getting features for indie tier"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -660,7 +670,9 @@ class TestLicenseValidator:
             assert info["licensee"] == "Unlicensed"
             assert info["status"] == "No license"
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_get_license_info_active(self):
         """Test getting license info with active license"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -685,7 +697,9 @@ class TestLicenseValidator:
             assert info["email"] == "test@example.com"
             assert info["status"] == "Active"
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_deactivate_license(self):
         """Test deactivating license"""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -742,7 +756,9 @@ class TestLicenseValidator:
 class TestLicensingIntegration:
     """Integration tests for licensing system"""
 
-    @pytest.mark.xfail(reason="Test environment issue with validate_for_export() - license not found after save")
+    @pytest.mark.xfail(
+        reason="Test environment issue with validate_for_export() - license not found after save"
+    )
     def test_full_license_lifecycle(self):
         """Test complete license lifecycle"""
         with tempfile.TemporaryDirectory() as tmpdir:
