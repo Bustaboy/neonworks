@@ -5,9 +5,8 @@ Manages turn order, action points, and turn-based gameplay.
 """
 
 from typing import List, Optional
-
-from neonworks.core.ecs import Entity, System, TurnActor, World
-from neonworks.core.events import Event, EventManager, EventType, get_event_manager
+from neonworks.core.ecs import System, World, Entity, TurnActor
+from neonworks.core.events import EventManager, Event, EventType, get_event_manager
 
 
 class TurnSystem(System):
@@ -68,16 +67,14 @@ class TurnSystem(System):
             self.is_player_turn = current_entity.has_tag("player")
 
             # Emit turn start event
-            self.event_manager.emit(
-                Event(
-                    EventType.TURN_START,
-                    {
-                        "entity_id": current_entity.id,
-                        "turn_number": self.turn_number,
-                        "is_player": self.is_player_turn,
-                    },
-                )
-            )
+            self.event_manager.emit(Event(
+                EventType.TURN_START,
+                {
+                    "entity_id": current_entity.id,
+                    "turn_number": self.turn_number,
+                    "is_player": self.is_player_turn
+                }
+            ))
 
     def end_turn(self):
         """End the current turn"""
@@ -87,12 +84,13 @@ class TurnSystem(System):
         current_entity = self.turn_order[self.current_turn_index]
 
         # Emit turn end event
-        self.event_manager.emit(
-            Event(
-                EventType.TURN_END,
-                {"entity_id": current_entity.id, "turn_number": self.turn_number},
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.TURN_END,
+            {
+                "entity_id": current_entity.id,
+                "turn_number": self.turn_number
+            }
+        ))
 
         # Move to next entity
         self.current_turn_index = (self.current_turn_index + 1) % len(self.turn_order)

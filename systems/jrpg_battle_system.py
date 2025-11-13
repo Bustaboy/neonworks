@@ -4,34 +4,22 @@ JRPG Battle System
 Traditional JRPG-style turn-based combat with side-view presentation.
 """
 
-import random
-from enum import Enum
-from typing import Dict, List, Optional, Tuple
-
 import pygame
-
+import random
+from typing import List, Optional, Dict, Tuple
+from enum import Enum
+from neonworks.core.ecs import System, World, Entity
+from neonworks.core.events import Event, EventManager, EventType
 from gameplay.combat import Health, Team
 from gameplay.jrpg_combat import (
-    BattleAI,
-    BattleCommand,
-    BattleFormation,
-    BattleRewards,
-    BattleState,
-    BossPhase,
-    EnemyData,
-    JRPGStats,
-    MagicPoints,
-    PartyMember,
-    SpellList,
-    TargetType,
+    MagicPoints, JRPGStats, SpellList, BattleState,
+    BattleFormation, BattleAI, BattleRewards, BossPhase,
+    PartyMember, EnemyData, BattleCommand, TargetType
 )
-from neonworks.core.ecs import Entity, System, World
-from neonworks.core.events import Event, EventManager, EventType
 
 
 class BattlePhase(Enum):
     """Phases of battle"""
-
     INTRO = "intro"
     PLAYER_TURN = "player_turn"
     ENEMY_TURN = "enemy_turn"
@@ -115,14 +103,8 @@ class JRPGBattleSystem(System):
         elif self.battle_phase == BattlePhase.DEFEAT:
             self._update_defeat_phase(world)
 
-    def start_battle(
-        self,
-        world: World,
-        party: List[Entity],
-        enemies: List[Entity],
-        can_escape: bool = True,
-        is_boss: bool = False,
-    ):
+    def start_battle(self, world: World, party: List[Entity], enemies: List[Entity],
+                    can_escape: bool = True, is_boss: bool = False):
         """Start a new battle"""
         self.in_battle = True
         self.battle_phase = BattlePhase.INTRO
@@ -149,17 +131,15 @@ class JRPGBattleSystem(System):
         self._calculate_turn_order()
 
         # Emit battle start event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "battle_start",
-                    "party_ids": [e.id for e in party],
-                    "enemy_ids": [e.id for e in enemies],
-                    "is_boss": is_boss,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "battle_start",
+                "party_ids": [e.id for e in party],
+                "enemy_ids": [e.id for e in enemies],
+                "is_boss": is_boss,
+            }
+        ))
 
     def end_battle(self, world: World, victory: bool):
         """End the current battle"""
@@ -167,16 +147,14 @@ class JRPGBattleSystem(System):
             return
 
         # Emit battle end event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "battle_end",
-                    "victory": victory,
-                    "turns": self.battle_turn,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "battle_end",
+                "victory": victory,
+                "turns": self.battle_turn,
+            }
+        ))
 
         # Clean up
         self.in_battle = False
@@ -186,13 +164,8 @@ class JRPGBattleSystem(System):
         self.turn_order.clear()
         self.current_actor = None
 
-    def player_select_action(
-        self,
-        world: World,
-        command: BattleCommand,
-        targets: List[Entity],
-        data: Optional[Dict] = None,
-    ):
+    def player_select_action(self, world: World, command: BattleCommand,
+                           targets: List[Entity], data: Optional[Dict] = None):
         """
         Player selects an action for current actor.
 
@@ -277,15 +250,13 @@ class JRPGBattleSystem(System):
         # Determine if player or enemy turn
         if self.current_actor in self.party_members:
             self.battle_phase = BattlePhase.PLAYER_TURN
-            self.event_manager.emit(
-                Event(
-                    EventType.CUSTOM,
-                    {
-                        "type": "player_turn_start",
-                        "actor_id": self.current_actor.id,
-                    },
-                )
-            )
+            self.event_manager.emit(Event(
+                EventType.CUSTOM,
+                {
+                    "type": "player_turn_start",
+                    "actor_id": self.current_actor.id,
+                }
+            ))
         else:
             self.battle_phase = BattlePhase.ENEMY_TURN
 
@@ -385,18 +356,16 @@ class JRPGBattleSystem(System):
                 target_health.is_alive = False
 
             # Emit damage event
-            self.event_manager.emit(
-                Event(
-                    EventType.CUSTOM,
-                    {
-                        "type": "battle_damage",
-                        "attacker_id": attacker.id,
-                        "target_id": target.id,
-                        "damage": damage,
-                        "is_critical": False,
-                    },
-                )
-            )
+            self.event_manager.emit(Event(
+                EventType.CUSTOM,
+                {
+                    "type": "battle_damage",
+                    "attacker_id": attacker.id,
+                    "target_id": target.id,
+                    "damage": damage,
+                    "is_critical": False,
+                }
+            ))
 
     def _execute_magic(self, world: World, caster: Entity, targets: List[Entity]):
         """Execute magic spell"""
@@ -413,7 +382,10 @@ class JRPGBattleSystem(System):
 
         if random.random() * 100 < escape_chance:
             self.battle_phase = BattlePhase.ESCAPED
-            self.event_manager.emit(Event(EventType.CUSTOM, {"type": "battle_escaped"}))
+            self.event_manager.emit(Event(
+                EventType.CUSTOM,
+                {"type": "battle_escaped"}
+            ))
             return True
 
         return False
@@ -470,9 +442,8 @@ class JRPGBattleSystem(System):
             return
 
         # Simple AI: attack random party member
-        alive_party = [
-            m for m in self.party_members if m.get_component(Health).is_alive
-        ]
+        alive_party = [m for m in self.party_members
+                      if m.get_component(Health).is_alive]
 
         if not alive_party:
             return
@@ -522,17 +493,15 @@ class JRPGBattleSystem(System):
                         items_gained.append(item_data)
 
         # Emit rewards event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "battle_rewards",
-                    "experience": total_exp,
-                    "gold": total_gold,
-                    "items": items_gained,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "battle_rewards",
+                "experience": total_exp,
+                "gold": total_gold,
+                "items": items_gained,
+            }
+        ))
 
     def _handle_custom_event(self, event: Event):
         """Handle custom events"""

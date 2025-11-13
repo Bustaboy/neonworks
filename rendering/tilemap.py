@@ -4,12 +4,10 @@ Tilemap System
 Grid-based level rendering with multiple layers, tilesets, and efficient culling.
 """
 
+import pygame
+from typing import List, Dict, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
-
-import pygame
-
 from neonworks.core.ecs import Component
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
@@ -18,7 +16,6 @@ from neonworks.rendering.camera import Camera
 @dataclass
 class Tile:
     """Represents a single tile in the tilemap"""
-
     tile_id: int = 0  # ID in the tileset (0 = empty)
     flags: int = 0  # Flip/rotation flags
 
@@ -44,7 +41,6 @@ class Tile:
 @dataclass
 class Tileset:
     """Tileset loaded from a sprite sheet"""
-
     name: str
     texture_path: str
     tile_width: int
@@ -88,7 +84,6 @@ class Tileset:
 @dataclass
 class TileLayer:
     """A single layer in the tilemap"""
-
     name: str
     width: int  # Width in tiles
     height: int  # Height in tiles
@@ -103,9 +98,7 @@ class TileLayer:
     def __post_init__(self):
         if not self.tiles:
             # Initialize empty tile grid
-            self.tiles = [
-                [Tile() for _ in range(self.width)] for _ in range(self.height)
-            ]
+            self.tiles = [[Tile() for _ in range(self.width)] for _ in range(self.height)]
 
     def get_tile(self, x: int, y: int) -> Optional[Tile]:
         """Get tile at grid position"""
@@ -224,7 +217,10 @@ class TilemapRenderer:
 
     def __init__(self, asset_manager: AssetManager):
         self.asset_manager = asset_manager
-        self._stats = {"tiles_rendered": 0, "tiles_culled": 0}
+        self._stats = {
+            'tiles_rendered': 0,
+            'tiles_culled': 0
+        }
 
     def render(self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera):
         """
@@ -235,8 +231,8 @@ class TilemapRenderer:
             tilemap: Tilemap to render
             camera: Camera for culling and positioning
         """
-        self._stats["tiles_rendered"] = 0
-        self._stats["tiles_culled"] = 0
+        self._stats['tiles_rendered'] = 0
+        self._stats['tiles_culled'] = 0
 
         # Get default tileset
         tileset = tilemap.get_tileset()
@@ -265,27 +261,21 @@ class TilemapRenderer:
             # Calculate tile range to render (with 1-tile buffer)
             start_tile_x = max(0, int(layer_camera_left / tilemap.tile_width) - 1)
             start_tile_y = max(0, int(layer_camera_top / tilemap.tile_height) - 1)
-            end_tile_x = min(
-                tilemap.width,
-                int((layer_camera_left + camera.width) / tilemap.tile_width) + 2,
-            )
-            end_tile_y = min(
-                tilemap.height,
-                int((layer_camera_top + camera.height) / tilemap.tile_height) + 2,
-            )
+            end_tile_x = min(tilemap.width, int((layer_camera_left + camera.width) / tilemap.tile_width) + 2)
+            end_tile_y = min(tilemap.height, int((layer_camera_top + camera.height) / tilemap.tile_height) + 2)
 
             # Render visible tiles
             for tile_y in range(start_tile_y, end_tile_y):
                 for tile_x in range(start_tile_x, end_tile_x):
                     tile = layer.get_tile(tile_x, tile_y)
                     if not tile or tile.is_empty():
-                        self._stats["tiles_culled"] += 1
+                        self._stats['tiles_culled'] += 1
                         continue
 
                     # Get tile sprite
                     tile_surface = tileset.tiles.get(tile.tile_id)
                     if not tile_surface:
-                        self._stats["tiles_culled"] += 1
+                        self._stats['tiles_culled'] += 1
                         continue
 
                     # Calculate world position
@@ -311,11 +301,9 @@ class TilemapRenderer:
 
                     # Render tile
                     screen.blit(render_surface, (screen_x, screen_y))
-                    self._stats["tiles_rendered"] += 1
+                    self._stats['tiles_rendered'] += 1
 
-    def _apply_tile_transforms(
-        self, surface: pygame.Surface, tile: Tile
-    ) -> pygame.Surface:
+    def _apply_tile_transforms(self, surface: pygame.Surface, tile: Tile) -> pygame.Surface:
         """Apply flip/rotation transformations to a tile"""
         result = surface
 
@@ -346,9 +334,8 @@ class TilemapBuilder:
         return tilemap
 
     @staticmethod
-    def create_layered_tilemap(
-        width: int, height: int, tile_size: int = 32, layer_names: List[str] = None
-    ) -> Tilemap:
+    def create_layered_tilemap(width: int, height: int, tile_size: int = 32,
+                               layer_names: List[str] = None) -> Tilemap:
         """Create a multi-layer tilemap"""
         if layer_names is None:
             layer_names = ["ground", "objects", "overlay"]
@@ -360,14 +347,9 @@ class TilemapBuilder:
         return tilemap
 
     @staticmethod
-    def create_tileset_from_sheet(
-        name: str,
-        texture_path: str,
-        tile_width: int,
-        tile_height: int,
-        columns: int,
-        rows: int,
-    ) -> Tileset:
+    def create_tileset_from_sheet(name: str, texture_path: str,
+                                  tile_width: int, tile_height: int,
+                                  columns: int, rows: int) -> Tileset:
         """Create a tileset from a sprite sheet"""
         tile_count = columns * rows
         return Tileset(
@@ -376,7 +358,7 @@ class TilemapBuilder:
             tile_width=tile_width,
             tile_height=tile_height,
             columns=columns,
-            tile_count=tile_count,
+            tile_count=tile_count
         )
 
     @staticmethod

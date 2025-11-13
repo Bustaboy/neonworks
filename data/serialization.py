@@ -5,26 +5,10 @@ Save and load game state, entities, and world data.
 """
 
 import json
-from datetime import datetime
+from typing import Dict, Any, Optional
 from pathlib import Path
-from typing import Any, Dict, Optional
-
-from neonworks.core.ecs import (
-    Building,
-    Collider,
-    Component,
-    Entity,
-    GridPosition,
-    Health,
-    Navmesh,
-    ResourceStorage,
-    RigidBody,
-    Sprite,
-    Survival,
-    Transform,
-    TurnActor,
-    World,
-)
+from datetime import datetime
+from neonworks.core.ecs import World, Entity, Component, GridPosition, Transform, Sprite, Health, Survival, Building, ResourceStorage, TurnActor, Navmesh, Collider, RigidBody
 from neonworks.core.project import Project
 
 
@@ -41,108 +25,86 @@ class GameSerializer:
 
         # Serialize known component types
         if isinstance(component, GridPosition):
-            data.update(
-                {
-                    "grid_x": component.grid_x,
-                    "grid_y": component.grid_y,
-                    "layer": component.layer,
-                }
-            )
+            data.update({
+                "grid_x": component.grid_x,
+                "grid_y": component.grid_y,
+                "layer": component.layer
+            })
         elif isinstance(component, Transform):
-            data.update(
-                {
-                    "x": component.x,
-                    "y": component.y,
-                    "rotation": component.rotation,
-                    "scale_x": component.scale_x,
-                    "scale_y": component.scale_y,
-                }
-            )
+            data.update({
+                "x": component.x,
+                "y": component.y,
+                "rotation": component.rotation,
+                "scale_x": component.scale_x,
+                "scale_y": component.scale_y
+            })
         elif isinstance(component, Sprite):
-            data.update(
-                {
-                    "texture": component.texture,
-                    "width": component.width,
-                    "height": component.height,
-                    "color": component.color,
-                    "visible": component.visible,
-                }
-            )
+            data.update({
+                "texture": component.texture,
+                "width": component.width,
+                "height": component.height,
+                "color": component.color,
+                "visible": component.visible
+            })
         elif isinstance(component, Health):
-            data.update(
-                {
-                    "current": component.current,
-                    "maximum": component.maximum,
-                    "regeneration": component.regeneration,
-                }
-            )
+            data.update({
+                "current": component.current,
+                "maximum": component.maximum,
+                "regeneration": component.regeneration
+            })
         elif isinstance(component, Survival):
-            data.update(
-                {
-                    "hunger": component.hunger,
-                    "thirst": component.thirst,
-                    "energy": component.energy,
-                    "hunger_rate": component.hunger_rate,
-                    "thirst_rate": component.thirst_rate,
-                    "energy_rate": component.energy_rate,
-                }
-            )
+            data.update({
+                "hunger": component.hunger,
+                "thirst": component.thirst,
+                "energy": component.energy,
+                "hunger_rate": component.hunger_rate,
+                "thirst_rate": component.thirst_rate,
+                "energy_rate": component.energy_rate
+            })
         elif isinstance(component, Building):
-            data.update(
-                {
-                    "building_type": component.building_type,
-                    "construction_progress": component.construction_progress,
-                    "is_constructed": component.is_constructed,
-                    "level": component.level,
-                    "max_level": component.max_level,
-                }
-            )
+            data.update({
+                "building_type": component.building_type,
+                "construction_progress": component.construction_progress,
+                "is_constructed": component.is_constructed,
+                "level": component.level,
+                "max_level": component.max_level
+            })
         elif isinstance(component, ResourceStorage):
-            data.update(
-                {"resources": component.resources, "capacity": component.capacity}
-            )
+            data.update({
+                "resources": component.resources,
+                "capacity": component.capacity
+            })
         elif isinstance(component, TurnActor):
-            data.update(
-                {
-                    "action_points": component.action_points,
-                    "max_action_points": component.max_action_points,
-                    "initiative": component.initiative,
-                    "has_acted": component.has_acted,
-                }
-            )
+            data.update({
+                "action_points": component.action_points,
+                "max_action_points": component.max_action_points,
+                "initiative": component.initiative,
+                "has_acted": component.has_acted
+            })
         elif isinstance(component, Navmesh):
-            data.update(
-                {
-                    "walkable_cells": list(component.walkable_cells),
-                    "cost_multipliers": {
-                        f"{x},{y}": cost
-                        for (x, y), cost in component.cost_multipliers.items()
-                    },
-                }
-            )
+            data.update({
+                "walkable_cells": list(component.walkable_cells),
+                "cost_multipliers": {f"{x},{y}": cost for (x, y), cost in component.cost_multipliers.items()}
+            })
         elif isinstance(component, Collider):
-            data.update(
-                {
-                    "width": component.width,
-                    "height": component.height,
-                    "offset_x": component.offset_x,
-                    "offset_y": component.offset_y,
-                    "is_trigger": component.is_trigger,
-                    "layer": component.layer,
-                    "mask": component.mask,
-                }
-            )
+            data.update({
+                "width": component.width,
+                "height": component.height,
+                "offset_x": component.offset_x,
+                "offset_y": component.offset_y,
+                "is_trigger": component.is_trigger,
+                "layer": component.layer,
+                "mask": component.mask
+            })
         elif isinstance(component, RigidBody):
-            data.update(
-                {
-                    "velocity_x": component.velocity_x,
-                    "velocity_y": component.velocity_y,
-                    "mass": component.mass,
-                    "friction": component.friction,
-                    "is_static": component.is_static,
-                    "gravity_scale": component.gravity_scale,
-                }
-            )
+            data.update({
+                "velocity_x": component.velocity_x,
+                "velocity_y": component.velocity_y,
+                "mass": component.mass,
+                "friction": component.friction,
+                "is_static": component.is_static,
+                "gravity_scale": component.gravity_scale
+            })
 
         return data
 
@@ -153,7 +115,9 @@ class GameSerializer:
 
         if component_type == "GridPosition":
             return GridPosition(
-                grid_x=data["grid_x"], grid_y=data["grid_y"], layer=data.get("layer", 0)
+                grid_x=data["grid_x"],
+                grid_y=data["grid_y"],
+                layer=data.get("layer", 0)
             )
         elif component_type == "Transform":
             return Transform(
@@ -161,7 +125,7 @@ class GameSerializer:
                 y=data["y"],
                 rotation=data.get("rotation", 0.0),
                 scale_x=data.get("scale_x", 1.0),
-                scale_y=data.get("scale_y", 1.0),
+                scale_y=data.get("scale_y", 1.0)
             )
         elif component_type == "Sprite":
             return Sprite(
@@ -169,13 +133,13 @@ class GameSerializer:
                 width=data.get("width", 32),
                 height=data.get("height", 32),
                 color=tuple(data.get("color", [255, 255, 255, 255])),
-                visible=data.get("visible", True),
+                visible=data.get("visible", True)
             )
         elif component_type == "Health":
             return Health(
                 current=data["current"],
                 maximum=data["maximum"],
-                regeneration=data.get("regeneration", 0.0),
+                regeneration=data.get("regeneration", 0.0)
             )
         elif component_type == "Survival":
             return Survival(
@@ -184,7 +148,7 @@ class GameSerializer:
                 energy=data["energy"],
                 hunger_rate=data.get("hunger_rate", 1.0),
                 thirst_rate=data.get("thirst_rate", 1.5),
-                energy_rate=data.get("energy_rate", 0.5),
+                energy_rate=data.get("energy_rate", 0.5)
             )
         elif component_type == "Building":
             return Building(
@@ -192,24 +156,25 @@ class GameSerializer:
                 construction_progress=data["construction_progress"],
                 is_constructed=data["is_constructed"],
                 level=data.get("level", 1),
-                max_level=data.get("max_level", 3),
+                max_level=data.get("max_level", 3)
             )
         elif component_type == "ResourceStorage":
             return ResourceStorage(
-                resources=data.get("resources", {}), capacity=data.get("capacity", {})
+                resources=data.get("resources", {}),
+                capacity=data.get("capacity", {})
             )
         elif component_type == "TurnActor":
             return TurnActor(
                 action_points=data["action_points"],
                 max_action_points=data["max_action_points"],
                 initiative=data.get("initiative", 10),
-                has_acted=data.get("has_acted", False),
+                has_acted=data.get("has_acted", False)
             )
         elif component_type == "Navmesh":
             walkable_cells = set(tuple(cell) for cell in data["walkable_cells"])
             cost_multipliers = {}
             for key, cost in data["cost_multipliers"].items():
-                x, y = map(int, key.split(","))
+                x, y = map(int, key.split(','))
                 cost_multipliers[(x, y)] = cost
 
             navmesh = Navmesh()
@@ -224,7 +189,7 @@ class GameSerializer:
                 offset_y=data.get("offset_y", 0.0),
                 is_trigger=data.get("is_trigger", False),
                 layer=data.get("layer", 0),
-                mask=data.get("mask", 0xFFFFFFFF),
+                mask=data.get("mask", 0xFFFFFFFF)
             )
         elif component_type == "RigidBody":
             return RigidBody(
@@ -233,7 +198,7 @@ class GameSerializer:
                 mass=data.get("mass", 1.0),
                 friction=data.get("friction", 0.1),
                 is_static=data.get("is_static", False),
-                gravity_scale=data.get("gravity_scale", 0.0),
+                gravity_scale=data.get("gravity_scale", 0.0)
             )
 
         return None
@@ -250,7 +215,7 @@ class GameSerializer:
             "id": entity.id,
             "tags": list(entity.tags),
             "active": entity.active,
-            "components": components,
+            "components": components
         }
 
     @staticmethod
@@ -279,7 +244,9 @@ class GameSerializer:
         for entity in world.get_entities():
             entities.append(GameSerializer.serialize_entity(entity))
 
-        return {"entities": entities}
+        return {
+            "entities": entities
+        }
 
     @staticmethod
     def deserialize_world(data: Dict[str, Any]) -> World:
@@ -299,9 +266,7 @@ class SaveGameManager:
     def __init__(self, project: Project):
         self.project = project
 
-    def save_game(
-        self, save_name: str, world: World, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    def save_game(self, save_name: str, world: World, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """
         Save the game state.
 
@@ -322,11 +287,11 @@ class SaveGameManager:
                 "timestamp": datetime.now().isoformat(),
                 "project": self.project.config.metadata.name,
                 "metadata": metadata or {},
-                "world": world_data,
+                "world": world_data
             }
 
             # Write to file
-            with open(save_path, "w") as f:
+            with open(save_path, 'w') as f:
                 json.dump(save_data, f, indent=2)
 
             print(f"✅ Game saved: {save_name}")
@@ -354,7 +319,7 @@ class SaveGameManager:
 
         try:
             # Read save file
-            with open(save_path, "r") as f:
+            with open(save_path, 'r') as f:
                 save_data = json.load(f)
 
             # Check version
@@ -401,7 +366,7 @@ class SaveGameManager:
             return None
 
         try:
-            with open(save_path, "r") as f:
+            with open(save_path, 'r') as f:
                 save_data = json.load(f)
 
             return {
@@ -409,7 +374,7 @@ class SaveGameManager:
                 "timestamp": save_data.get("timestamp"),
                 "project": save_data.get("project"),
                 "metadata": save_data.get("metadata", {}),
-                "entity_count": len(save_data.get("world", {}).get("entities", [])),
+                "entity_count": len(save_data.get("world", {}).get("entities", []))
             }
         except:
             return None
@@ -440,7 +405,10 @@ class AutoSaveManager:
         """Perform an auto-save"""
         auto_save_name = f"autosave_{self.auto_save_count % self.max_auto_saves}"
 
-        metadata = {"type": "auto_save", "auto_save_index": self.auto_save_count}
+        metadata = {
+            "type": "auto_save",
+            "auto_save_index": self.auto_save_count
+        }
 
         self.save_manager.save_game(auto_save_name, world, metadata)
         self.auto_save_count += 1

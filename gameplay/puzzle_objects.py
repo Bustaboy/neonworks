@@ -4,16 +4,14 @@ Puzzle Object Components
 Components for dungeon puzzle mechanics like switches, plates, doors, etc.
 """
 
+from typing import Optional, List, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable, List, Optional
-
 from neonworks.core.ecs import Component
 
 
 class PuzzleState(Enum):
     """State of puzzle elements"""
-
     INACTIVE = "inactive"
     ACTIVE = "active"
     LOCKED = "locked"
@@ -29,7 +27,6 @@ class Switch(Component):
 
     Can toggle doors, bridges, or other puzzle elements.
     """
-
     # State
     is_active: bool = False
     is_locked: bool = False  # Can't be toggled if locked
@@ -58,7 +55,6 @@ class PressurePlate(Component):
 
     Can require specific weight or number of objects.
     """
-
     # State
     is_pressed: bool = False
     is_locked: bool = False
@@ -94,7 +90,6 @@ class PushableBlock(Component):
 
     Can be pushed by player onto plates or to create paths.
     """
-
     # State
     is_being_pushed: bool = False
     can_be_pulled: bool = False  # Can also be pulled
@@ -120,7 +115,6 @@ class Door(Component):
 
     Can be opened by switches, keys, or triggers.
     """
-
     # State
     is_open: bool = False
     is_locked: bool = True
@@ -152,7 +146,6 @@ class TeleportPad(Component):
 
     Instantly transports to target location when stepped on.
     """
-
     # Destination
     target_x: int = 0
     target_y: int = 0
@@ -183,7 +176,6 @@ class IceTile(Component):
 
     Entities slide until hitting obstacle.
     """
-
     # Properties
     is_active: bool = True
     friction: float = 0.0  # Very low friction
@@ -201,7 +193,6 @@ class Chest(Component):
 
     Contains items/gold that can be looted once.
     """
-
     # State
     is_open: bool = False
     is_locked: bool = False
@@ -229,7 +220,6 @@ class CrackableWall(Component):
 
     Can be destroyed with special items/abilities.
     """
-
     # State
     is_destroyed: bool = False
 
@@ -257,7 +247,6 @@ class ConveyorBelt(Component):
 
     Automatically moves entities in a direction.
     """
-
     # Direction (0=up, 1=right, 2=down, 3=left)
     direction: int = 2
 
@@ -277,7 +266,6 @@ class PuzzleController(Component):
 
     Tracks completion state of complex puzzles.
     """
-
     # Puzzle definition
     puzzle_id: str = ""
     puzzle_type: str = "switch_combination"  # Type of puzzle
@@ -291,9 +279,7 @@ class PuzzleController(Component):
     is_solved: bool = False
 
     # Rewards
-    reward_target_ids: List[str] = field(
-        default_factory=list
-    )  # What to activate when solved
+    reward_target_ids: List[str] = field(default_factory=list)  # What to activate when solved
 
     # Callbacks
     on_solve: Optional[Callable] = None
@@ -304,9 +290,7 @@ class PuzzleController(Component):
         if len(self.required_switches) != len(self.required_states):
             return False
 
-        for switch_id, required_state in zip(
-            self.required_switches, self.required_states
-        ):
+        for switch_id, required_state in zip(self.required_switches, self.required_states):
             current_state = self.current_states.get(switch_id, False)
             if current_state != required_state:
                 return False
@@ -329,7 +313,6 @@ class OneWayGate(Component):
     """
     One-way gate component that only allows passage in one direction.
     """
-
     # Direction that can pass through (0=up, 1=right, 2=down, 3=left)
     passable_direction: int = 2
 

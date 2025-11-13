@@ -4,20 +4,12 @@ Comprehensive tests for Asset Manager and Sprite Loading
 Tests sprite loading, caching, sprite sheets, and transformations.
 """
 
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
-
-import pygame
 import pytest
-
-from neonworks.rendering.animation import (
-    Animation,
-    AnimationBuilder,
-    AnimationComponent,
-    AnimationFrame,
-    AnimationSystem,
-)
+import pygame
+from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
 from neonworks.rendering.assets import AssetManager, SpriteSheet
+from neonworks.rendering.animation import Animation, AnimationFrame, AnimationComponent, AnimationSystem, AnimationBuilder
 
 
 @pytest.fixture
@@ -55,7 +47,7 @@ class TestAssetLoading:
         assert sprite.get_width() == 32
         assert sprite.get_height() == 32
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_load_sprite_success(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test successfully loading a sprite"""
         # Create a fake image file
@@ -70,7 +62,7 @@ class TestAssetLoading:
         assert sprite is not None
         mock_load.assert_called_once()
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_sprite_caching(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test that sprites are cached after first load"""
         image_path = tmp_path / "test.png"
@@ -86,10 +78,8 @@ class TestAssetLoading:
         assert mock_load.call_count == 1
         assert sprite1 == sprite2
 
-    @patch("pygame.image.load")
-    def test_color_key_transparency(
-        self, mock_load, asset_manager, mock_sprite, tmp_path
-    ):
+    @patch('pygame.image.load')
+    def test_color_key_transparency(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test color key transparency"""
         image_path = tmp_path / "test.png"
         image_path.touch()
@@ -148,7 +138,7 @@ class TestSpriteSheets:
         sprite2 = sheet.get_sprite_by_index(2, columns=2)
         assert sprite2 is not None
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_load_sprite_sheet(self, mock_load, asset_manager, tmp_path):
         """Test loading a sprite sheet"""
         image_path = tmp_path / "sheet.png"
@@ -157,9 +147,7 @@ class TestSpriteSheets:
         surface = pygame.Surface((64, 64))
         mock_load.return_value = surface
 
-        sheet = asset_manager.load_sprite_sheet(
-            "sheet.png", tile_width=32, tile_height=32
-        )
+        sheet = asset_manager.load_sprite_sheet("sheet.png", tile_width=32, tile_height=32)
 
         assert isinstance(sheet, SpriteSheet)
         assert sheet.tile_width == 32
@@ -209,7 +197,7 @@ class TestSpriteTransformations:
 class TestCacheManagement:
     """Test asset cache management"""
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_clear_cache(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test clearing the asset cache"""
         image_path = tmp_path / "test.png"
@@ -227,7 +215,7 @@ class TestCacheManagement:
 
         assert len(asset_manager._sprites) == 0
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_memory_usage_tracking(self, mock_load, asset_manager, tmp_path):
         """Test memory usage tracking"""
         image_path = tmp_path / "test.png"
@@ -243,7 +231,7 @@ class TestCacheManagement:
         memory = asset_manager.get_memory_usage()
         assert memory > 0
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_cache_info(self, mock_load, asset_manager, tmp_path):
         """Test getting cache information"""
         image_path = tmp_path / "test.png"
@@ -260,7 +248,7 @@ class TestCacheManagement:
         assert "memory_bytes" in info
         assert info["sprites"] == 1
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_has_sprite(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test checking if sprite is in cache"""
         image_path = tmp_path / "test.png"
@@ -274,7 +262,7 @@ class TestCacheManagement:
 
         assert asset_manager.has_sprite("test.png")
 
-    @patch("pygame.image.load")
+    @patch('pygame.image.load')
     def test_remove_sprite(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test removing a sprite from cache"""
         image_path = tmp_path / "test.png"
@@ -305,7 +293,10 @@ class TestAnimation:
         sprite1 = pygame.Surface((32, 32))
         sprite2 = pygame.Surface((32, 32))
 
-        frames = [AnimationFrame(sprite1, 0.1), AnimationFrame(sprite2, 0.1)]
+        frames = [
+            AnimationFrame(sprite1, 0.1),
+            AnimationFrame(sprite2, 0.1)
+        ]
 
         animation = Animation("walk", frames, loop=True)
 
@@ -319,7 +310,7 @@ class TestAnimation:
         frames = [
             AnimationFrame(sprite, 0.1),
             AnimationFrame(sprite, 0.2),
-            AnimationFrame(sprite, 0.1),
+            AnimationFrame(sprite, 0.1)
         ]
 
         animation = Animation("test", frames)
@@ -342,7 +333,10 @@ class TestAnimation:
         sprite1 = pygame.Surface((32, 32))
         sprite2 = pygame.Surface((32, 32))
 
-        frames = [AnimationFrame(sprite1, 0.1), AnimationFrame(sprite2, 0.1)]
+        frames = [
+            AnimationFrame(sprite1, 0.1),
+            AnimationFrame(sprite2, 0.1)
+        ]
 
         animation = Animation("test", frames, loop=True)
 
@@ -367,12 +361,10 @@ class TestAnimation:
         sprite1 = pygame.Surface((32, 32))
         sprite2 = pygame.Surface((32, 32))
 
-        animation = (
-            AnimationBuilder("walk", loop=True)
-            .add_frame(sprite1, 0.1)
-            .add_frame(sprite2, 0.1)
-            .build()
-        )
+        animation = (AnimationBuilder("walk", loop=True)
+                    .add_frame(sprite1, 0.1)
+                    .add_frame(sprite2, 0.1)
+                    .build())
 
         assert animation.name == "walk"
         assert len(animation.frames) == 2

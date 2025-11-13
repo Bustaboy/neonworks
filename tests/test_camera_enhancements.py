@@ -5,9 +5,8 @@ Tests shake, bounds, multi-target tracking, deadzone, and utility methods.
 """
 
 import pytest
-
-from neonworks.core.ecs import Entity, GridPosition, Transform, World
 from neonworks.rendering.camera import Camera, EaseType
+from neonworks.core.ecs import World, Entity, Transform, GridPosition
 
 
 @pytest.fixture
@@ -430,6 +429,7 @@ class TestCameraIntegration:
         # Camera should not move (deadzone prevents it for multi-tracking too)
         # Note: Deadzone currently only applies to single entity tracking
         # This test documents current behavior
+
 
     def test_zoom_with_bounds(self, camera):
         """Test zoom level affects bounds calculation"""

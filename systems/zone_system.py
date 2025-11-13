@@ -5,13 +5,13 @@ Handles loading and transitioning between different maps/zones.
 """
 
 import json
+from typing import Optional, Dict, Any, Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
-
-from gameplay.movement import Direction, TileCollisionMap, ZoneTrigger
-from neonworks.core.ecs import Entity, GridPosition, Sprite, System, Transform, World
+from neonworks.core.ecs import System, World, Entity
+from neonworks.core.ecs import Transform, GridPosition, Sprite
 from neonworks.core.events import Event, EventManager, EventType
-from neonworks.rendering.tilemap import Tile, TileLayer, Tilemap, Tileset
+from neonworks.rendering.tilemap import Tilemap, TileLayer, Tileset, Tile
+from gameplay.movement import ZoneTrigger, TileCollisionMap, Direction
 
 
 class ZoneData:
@@ -79,9 +79,7 @@ class ZoneSystem(System):
         # Check for zone triggers
         self._check_zone_triggers(world)
 
-    def load_zone(
-        self, world: World, zone_id: str, spawn_point: str = "default"
-    ) -> bool:
+    def load_zone(self, world: World, zone_id: str, spawn_point: str = "default") -> bool:
         """
         Load a zone and spawn player at designated point.
 
@@ -118,28 +116,20 @@ class ZoneSystem(System):
         self._position_player_at_spawn(world, spawn_point)
 
         # Emit zone loaded event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "zone_loaded",
-                    "zone_id": zone_id,
-                    "zone_name": zone_data.name,
-                    "spawn_point": spawn_point,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "zone_loaded",
+                "zone_id": zone_id,
+                "zone_name": zone_data.name,
+                "spawn_point": spawn_point,
+            }
+        ))
 
         return True
 
-    def transition_to_zone(
-        self,
-        world: World,
-        zone_id: str,
-        spawn_point: str = "default",
-        transition_type: str = "fade",
-        duration: float = 0.5,
-    ):
+    def transition_to_zone(self, world: World, zone_id: str, spawn_point: str = "default",
+                          transition_type: str = "fade", duration: float = 0.5):
         """
         Transition to a new zone with visual effect.
 
@@ -156,17 +146,15 @@ class ZoneSystem(System):
         self.is_transitioning = True
 
         # Emit transition start event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "zone_transition_start",
-                    "zone_id": zone_id,
-                    "transition_type": transition_type,
-                    "duration": duration,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "zone_transition_start",
+                "zone_id": zone_id,
+                "transition_type": transition_type,
+                "duration": duration,
+            }
+        ))
 
         # TODO: In a real implementation, this would wait for transition effect
         # For now, load immediately
@@ -175,16 +163,14 @@ class ZoneSystem(System):
         self.is_transitioning = False
 
         # Emit transition complete event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "zone_transition_complete",
-                    "zone_id": zone_id,
-                    "success": success,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "zone_transition_complete",
+                "zone_id": zone_id,
+                "success": success,
+            }
+        ))
 
     def _load_zone_from_file(self, zone_id: str) -> Optional[ZoneData]:
         """Load zone data from JSON file"""
@@ -195,7 +181,7 @@ class ZoneSystem(System):
             return None
 
         try:
-            with open(zone_file, "r") as f:
+            with open(zone_file, 'r') as f:
                 data = json.load(f)
 
             zone = ZoneData(zone_id)
@@ -217,19 +203,13 @@ class ZoneSystem(System):
 
             # Ensure default spawn point exists
             if "default" not in zone.spawn_points:
-                zone.spawn_points["default"] = (
-                    zone.width // 2,
-                    zone.height // 2,
-                    Direction.DOWN,
-                )
+                zone.spawn_points["default"] = (zone.width // 2, zone.height // 2, Direction.DOWN)
 
             # Load tilemap
             zone.tilemap = self._load_tilemap(data.get("tilemap", {}), zone)
 
             # Load collision map
-            zone.collision_map = self._load_collision_map(
-                data.get("collision", {}), zone
-            )
+            zone.collision_map = self._load_collision_map(data.get("collision", {}), zone)
 
             # Load NPCs
             zone.npcs = data.get("npcs", [])
@@ -290,9 +270,7 @@ class ZoneSystem(System):
 
         return tilemap
 
-    def _load_collision_map(
-        self, collision_data: dict, zone: ZoneData
-    ) -> TileCollisionMap:
+    def _load_collision_map(self, collision_data: dict, zone: ZoneData) -> TileCollisionMap:
         """Load collision map from zone data"""
         collision_map = TileCollisionMap()
         collision_map.width = zone.width
@@ -310,9 +288,7 @@ class ZoneSystem(System):
                 collision_map.load_from_layer(layer_data, blocked_tiles)
         else:
             # Default: all tiles walkable
-            collision_map.collision_data = [
-                [True] * zone.width for _ in range(zone.height)
-            ]
+            collision_map.collision_data = [[True] * zone.width for _ in range(zone.height)]
 
         return collision_map
 
@@ -332,12 +308,7 @@ class ZoneSystem(System):
 
     def _spawn_npc(self, world: World, npc_data: dict):
         """Spawn an NPC entity"""
-        from gameplay.movement import (
-            AnimationState,
-            Interactable,
-            Movement,
-            NPCBehavior,
-        )
+        from gameplay.movement import NPCBehavior, Movement, AnimationState, Interactable
 
         npc = world.create_entity()
         npc.add_tag("npc")
@@ -374,9 +345,7 @@ class ZoneSystem(System):
         npc.add_component(behavior)
 
         # Animation
-        anim_state = AnimationState(
-            current_state="idle", current_direction=Direction.DOWN
-        )
+        anim_state = AnimationState(current_state="idle", current_direction=Direction.DOWN)
         npc.add_component(anim_state)
 
         # Interactable
@@ -398,11 +367,7 @@ class ZoneSystem(System):
         x = obj_data.get("x", 0)
         y = obj_data.get("y", 0)
         obj.add_component(GridPosition(grid_x=x, grid_y=y))
-        obj.add_component(
-            Transform(
-                x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size
-            )
-        )
+        obj.add_component(Transform(x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size))
 
         # Visual
         sprite_path = obj_data.get("sprite", "")
@@ -473,9 +438,7 @@ class ZoneSystem(System):
         # Get spawn point
         spawn_data = self.current_zone.spawn_points.get(spawn_point)
         if not spawn_data:
-            spawn_data = self.current_zone.spawn_points.get(
-                "default", (0, 0, Direction.DOWN)
-            )
+            spawn_data = self.current_zone.spawn_points.get("default", (0, 0, Direction.DOWN))
 
         x, y, direction = spawn_data
 
@@ -524,10 +487,7 @@ class ZoneSystem(System):
                 continue
 
             # Check if player is on trigger tile
-            if (
-                player_grid.grid_x == trigger_grid.grid_x
-                and player_grid.grid_y == trigger_grid.grid_y
-            ):
+            if player_grid.grid_x == trigger_grid.grid_x and player_grid.grid_y == trigger_grid.grid_y:
                 # Trigger zone transition
                 self.transition_to_zone(
                     world,

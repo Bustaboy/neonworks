@@ -4,16 +4,14 @@ JRPG Combat Components
 Components for traditional JRPG-style combat with MP, magic, formations, etc.
 """
 
+from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
-
 from neonworks.core.ecs import Component
 
 
 class ElementType(Enum):
     """Elemental types for spells and resistances"""
-
     NONE = "none"
     FIRE = "fire"
     ICE = "ice"
@@ -27,7 +25,6 @@ class ElementType(Enum):
 
 class TargetType(Enum):
     """Spell/ability target types"""
-
     SINGLE_ENEMY = "single_enemy"
     ALL_ENEMIES = "all_enemies"
     SINGLE_ALLY = "single_ally"
@@ -38,7 +35,6 @@ class TargetType(Enum):
 
 class BattleCommand(Enum):
     """Battle menu commands"""
-
     ATTACK = "attack"
     MAGIC = "magic"
     ITEM = "item"
@@ -52,7 +48,6 @@ class MagicPoints(Component):
     """
     MP (Magic Points) component for spell casting.
     """
-
     current_mp: int = 50
     max_mp: int = 50
     mp_regen_rate: float = 0.0  # MP per turn
@@ -86,7 +81,6 @@ class JRPGStats(Component):
 
     Traditional RPG stats for damage calculation and combat.
     """
-
     # Primary stats
     level: int = 1
     experience: int = 0
@@ -103,13 +97,13 @@ class JRPGStats(Component):
     # Status
     status_effects: List[str] = field(default_factory=list)
 
-    def calculate_physical_damage(self, target: "JRPGStats") -> int:
+    def calculate_physical_damage(self, target: 'JRPGStats') -> int:
         """Calculate physical damage to target"""
         base_damage = max(1, self.attack - target.defense // 2)
         variance = 1.0  # Can add randomness
         return int(base_damage * variance)
 
-    def calculate_magic_damage(self, power: int, target: "JRPGStats") -> int:
+    def calculate_magic_damage(self, power: int, target: 'JRPGStats') -> int:
         """Calculate magical damage to target"""
         base_damage = max(1, (self.magic_attack + power) - target.magic_defense // 2)
         return base_damage
@@ -141,19 +135,16 @@ class ElementalResistances(Component):
     - 0.0 = immune
     - -1.0 = absorb (heal from this element)
     """
-
-    resistances: Dict[ElementType, float] = field(
-        default_factory=lambda: {
-            ElementType.FIRE: 1.0,
-            ElementType.ICE: 1.0,
-            ElementType.LIGHTNING: 1.0,
-            ElementType.EARTH: 1.0,
-            ElementType.WIND: 1.0,
-            ElementType.WATER: 1.0,
-            ElementType.HOLY: 1.0,
-            ElementType.DARK: 1.0,
-        }
-    )
+    resistances: Dict[ElementType, float] = field(default_factory=lambda: {
+        ElementType.FIRE: 1.0,
+        ElementType.ICE: 1.0,
+        ElementType.LIGHTNING: 1.0,
+        ElementType.EARTH: 1.0,
+        ElementType.WIND: 1.0,
+        ElementType.WATER: 1.0,
+        ElementType.HOLY: 1.0,
+        ElementType.DARK: 1.0,
+    })
 
     def get_multiplier(self, element: ElementType) -> float:
         """Get damage multiplier for element"""
@@ -180,7 +171,6 @@ class ElementalResistances(Component):
 @dataclass
 class Spell:
     """Spell definition"""
-
     spell_id: str
     name: str
     description: str
@@ -210,13 +200,10 @@ class SpellList(Component):
 
     Tracks learned spells and spell data.
     """
-
     learned_spells: List[str] = field(default_factory=list)  # List of spell IDs
 
     # Spell cooldowns (for abilities with cooldowns)
-    cooldowns: Dict[str, int] = field(
-        default_factory=dict
-    )  # spell_id -> turns remaining
+    cooldowns: Dict[str, int] = field(default_factory=dict)  # spell_id -> turns remaining
 
     def knows_spell(self, spell_id: str) -> bool:
         """Check if spell is learned"""
@@ -255,7 +242,6 @@ class BattleFormation(Component):
 
     Determines position in battle (front row, back row, etc.)
     """
-
     row: int = 0  # 0 = front, 1 = back
     position: int = 0  # Position within row (0-3)
 
@@ -279,7 +265,6 @@ class BattleAI(Component):
 
     Defines AI patterns and decision making.
     """
-
     ai_type: str = "basic"  # basic, aggressive, defensive, healer, etc.
 
     # Targeting preferences
@@ -304,7 +289,6 @@ class BattleState(Component):
 
     Tracks turn order, actions, and battle-specific state.
     """
-
     # Turn state
     initiative: int = 0  # Turn order (higher goes first)
     has_acted: bool = False
@@ -331,12 +315,9 @@ class BattleRewards(Component):
 
     Attached to enemy entities.
     """
-
     experience: int = 10
     gold: int = 5
-    items: List[Dict[str, Any]] = field(
-        default_factory=list
-    )  # item_id, chance, quantity
+    items: List[Dict[str, Any]] = field(default_factory=list)  # item_id, chance, quantity
 
     # Special drops
     steal_items: List[Dict[str, Any]] = field(default_factory=list)
@@ -351,7 +332,6 @@ class BossPhase(Component):
 
     Defines different phases and triggers.
     """
-
     current_phase: int = 1
     max_phases: int = 1
 
@@ -362,9 +342,7 @@ class BossPhase(Component):
     phase_triggers: List[float] = field(default_factory=list)  # HP percentages
 
     # Callbacks
-    on_phase_change: Optional[Callable[[int, int], None]] = (
-        None  # (old_phase, new_phase)
-    )
+    on_phase_change: Optional[Callable[[int, int], None]] = None  # (old_phase, new_phase)
 
     def should_advance_phase(self, hp_percentage: float) -> bool:
         """Check if should advance to next phase"""
@@ -398,7 +376,6 @@ class PartyMember(Component):
 
     Tracks party position and availability.
     """
-
     character_id: str = ""  # Unique character ID
     party_index: int = 0  # Position in party (0-3)
     is_active: bool = True  # In active party?
@@ -419,7 +396,6 @@ class EnemyData(Component):
 
     Tracks enemy type, behavior, and encounter info.
     """
-
     enemy_id: str = ""
     enemy_name: str = ""
     enemy_type: str = "normal"  # normal, elite, boss

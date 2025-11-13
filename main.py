@@ -10,17 +10,16 @@ Usage:
 
 import sys
 from pathlib import Path
-
+from neonworks.core.project import load_project, Project
+from neonworks.core.game_loop import GameEngine, EngineConfig
 from neonworks.core.ecs import World
-from neonworks.core.game_loop import EngineConfig, GameEngine
-from neonworks.core.project import Project, load_project
 from neonworks.core.state import GameplayState, MenuState
-from neonworks.data.serialization import SaveGameManager
 from neonworks.rendering.renderer import Renderer
-from neonworks.systems.base_building import BuildingLibrary, BuildingSystem
-from neonworks.systems.pathfinding import PathfindingSystem
-from neonworks.systems.survival import SurvivalSystem
 from neonworks.systems.turn_system import TurnSystem
+from neonworks.systems.base_building import BuildingSystem, BuildingLibrary
+from neonworks.systems.survival import SurvivalSystem
+from neonworks.systems.pathfinding import PathfindingSystem
+from neonworks.data.serialization import SaveGameManager
 
 
 class GameApplication:
@@ -51,14 +50,14 @@ class GameApplication:
         # Initialize engine
         self.engine = GameEngine(
             target_fps=self.engine_config.target_fps,
-            fixed_timestep=self.engine_config.fixed_timestep,
+            fixed_timestep=self.engine_config.fixed_timestep
         )
 
         # Initialize renderer
         self.renderer = Renderer(
             self.engine_config.window_width,
             self.engine_config.window_height,
-            self.engine_config.tile_size,
+            self.engine_config.tile_size
         )
         self.renderer.set_title(self.project.config.settings.window_title)
 
@@ -72,12 +71,8 @@ class GameApplication:
         self._setup_states()
 
         print("✅ Engine initialized successfully")
-        print(
-            f"   Project: {self.project.config.metadata.name} v{self.project.config.metadata.version}"
-        )
-        print(
-            f"   Resolution: {self.engine_config.window_width}x{self.engine_config.window_height}"
-        )
+        print(f"   Project: {self.project.config.metadata.name} v{self.project.config.metadata.version}")
+        print(f"   Resolution: {self.engine_config.window_width}x{self.engine_config.window_height}")
         print(f"   Systems: {len(self.engine.world._systems)} active")
 
     def _create_engine_config(self) -> EngineConfig:
@@ -118,9 +113,7 @@ class GameApplication:
             # Load building definitions from project if available
             if settings.building_definitions:
                 building_config_path = self.project.get_config_path(
-                    settings.building_definitions.replace("config/", "").replace(
-                        ".json", ""
-                    )
+                    settings.building_definitions.replace("config/", "").replace(".json", "")
                 )
                 # TODO: Load building definitions from file
                 print(f"   Building definitions: {building_config_path}")
@@ -149,7 +142,6 @@ class GameApplication:
 
         # Start with the initial scene from project settings
         from neonworks.core.state import StateTransition
-
         initial_scene = self.project.config.settings.initial_scene
         state_manager.change_state(initial_scene, StateTransition.PUSH)
 
@@ -184,7 +176,6 @@ class GameApplication:
         print(f"\n📁 Available projects:")
 
         from neonworks.core.project import get_project_manager
-
         pm = get_project_manager()
         projects = pm.list_projects()
 
@@ -198,8 +189,7 @@ class GameApplication:
 
 def print_usage():
     """Print usage information"""
-    print(
-        """
+    print("""
 ╔═══════════════════════════════════════════════════════════════╗
 ║           NEON COLLAPSE CUSTOM GAME ENGINE                    ║
 ║                                                               ║
@@ -215,12 +205,10 @@ Examples:
     python -m engine.main my_game
 
 Available Projects:
-    """
-    )
+    """)
 
     # List available projects
     from neonworks.core.project import get_project_manager
-
     pm = get_project_manager()
     projects = pm.list_projects()
 
@@ -230,11 +218,9 @@ Available Projects:
     else:
         print("    (No projects found in projects/ directory)")
 
-    print(
-        """
+    print("""
 To create a new project, see the engine README.md for instructions.
-"""
-    )
+""")
 
 
 def main():
@@ -280,7 +266,6 @@ def main():
         print(f"   • See docs/ for documentation")
         print(f"   • Report bugs on GitHub")
         import traceback
-
         print(f"\nFull traceback:")
         traceback.print_exc()
         sys.exit(1)

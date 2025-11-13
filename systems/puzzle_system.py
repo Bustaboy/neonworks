@@ -4,22 +4,14 @@ Puzzle System for Dungeon Mechanics
 Handles switches, pressure plates, pushable blocks, and puzzle logic.
 """
 
-from typing import List, Optional
-
-from gameplay.movement import Collider2D, Direction, Movement
-from gameplay.puzzle_objects import (
-    Chest,
-    CrackableWall,
-    Door,
-    IceTile,
-    PressurePlate,
-    PushableBlock,
-    PuzzleController,
-    Switch,
-    TeleportPad,
-)
-from neonworks.core.ecs import Entity, GridPosition, System, World
+from typing import Optional, List
+from neonworks.core.ecs import System, World, Entity, GridPosition
 from neonworks.core.events import Event, EventManager, EventType
+from gameplay.puzzle_objects import (
+    Switch, PressurePlate, PushableBlock, Door, TeleportPad,
+    PuzzleController, IceTile, Chest, CrackableWall
+)
+from gameplay.movement import Movement, Direction, Collider2D
 
 
 class PuzzleSystem(System):
@@ -81,16 +73,14 @@ class PuzzleSystem(System):
                 self._activate_puzzle_element(world, target, switch.is_active)
 
         # Emit event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "switch_toggled",
-                    "switch_id": switch_entity.id,
-                    "is_active": switch.is_active,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "switch_toggled",
+                "switch_id": switch_entity.id,
+                "is_active": switch.is_active,
+            }
+        ))
 
         # Trigger callback
         if switch.is_active and switch.on_activate:
@@ -98,9 +88,7 @@ class PuzzleSystem(System):
         elif not switch.is_active and switch.on_deactivate:
             switch.on_deactivate()
 
-    def push_block(
-        self, world: World, block_entity: Entity, direction: Direction
-    ) -> bool:
+    def push_block(self, world: World, block_entity: Entity, direction: Direction) -> bool:
         """
         Push a block in a direction.
 
@@ -140,17 +128,15 @@ class PuzzleSystem(System):
         block.is_being_pushed = False
 
         # Emit event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "block_pushed",
-                    "block_id": block_entity.id,
-                    "new_x": target_x,
-                    "new_y": target_y,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "block_pushed",
+                "block_id": block_entity.id,
+                "new_x": target_x,
+                "new_y": target_y,
+            }
+        ))
 
         # Check if block is now on a pressure plate
         self._check_pressure_plate_at_position(world, target_x, target_y, block_entity)
@@ -171,15 +157,13 @@ class PuzzleSystem(System):
             collider.is_solid = False
 
         # Emit event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "door_opened",
-                    "door_id": door_entity.id,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "door_opened",
+                "door_id": door_entity.id,
+            }
+        ))
 
         # Trigger callback
         if door.on_open:
@@ -199,15 +183,13 @@ class PuzzleSystem(System):
             collider.is_solid = True
 
         # Emit event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "door_closed",
-                    "door_id": door_entity.id,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "door_closed",
+                "door_id": door_entity.id,
+            }
+        ))
 
         # Trigger callback
         if door.on_close:
@@ -229,8 +211,7 @@ class PuzzleSystem(System):
         grid_pos.grid_y = teleport.target_y
 
         # Update transform if exists
-        from neonworks.core.ecs import Transform
-
+        from engine.core.ecs import Transform
         transform = entity.get_component(Transform)
         if transform:
             # Assuming 32x32 tile size (should be configurable)
@@ -238,19 +219,17 @@ class PuzzleSystem(System):
             transform.y = teleport.target_y * 32
 
         # Emit event
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "entity_teleported",
-                    "entity_id": entity.id,
-                    "from_x": old_x,
-                    "from_y": old_y,
-                    "to_x": teleport.target_x,
-                    "to_y": teleport.target_y,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "entity_teleported",
+                "entity_id": entity.id,
+                "from_x": old_x,
+                "from_y": old_y,
+                "to_x": teleport.target_x,
+                "to_y": teleport.target_y,
+            }
+        ))
 
         # Trigger callback
         if teleport.on_teleport:
@@ -276,18 +255,16 @@ class PuzzleSystem(System):
         chest.is_open = True
 
         # Give contents (emit event for inventory system to handle)
-        self.event_manager.emit(
-            Event(
-                EventType.CUSTOM,
-                {
-                    "type": "chest_opened",
-                    "chest_id": chest_entity.id,
-                    "opener_id": opener.id,
-                    "gold": chest.gold,
-                    "items": chest.items,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.CUSTOM,
+            {
+                "type": "chest_opened",
+                "chest_id": chest_entity.id,
+                "opener_id": opener.id,
+                "gold": chest.gold,
+                "items": chest.items,
+            }
+        ))
 
         # Trigger callback
         if chest.on_open:
@@ -316,10 +293,7 @@ class PuzzleSystem(System):
             for entity in entities_here:
                 if entity.has_tag("player") and plate.can_activate_by_player:
                     valid_entities.append(entity)
-                elif (
-                    entity.has_component(PushableBlock)
-                    and plate.can_activate_by_objects
-                ):
+                elif entity.has_component(PushableBlock) and plate.can_activate_by_objects:
                     valid_entities.append(entity)
                 elif entity.has_tag("enemy") and plate.can_activate_by_enemies:
                     valid_entities.append(entity)
@@ -344,12 +318,10 @@ class PuzzleSystem(System):
                     if target:
                         self._activate_puzzle_element(world, target, True)
 
-                self.event_manager.emit(
-                    Event(
-                        EventType.CUSTOM,
-                        {"type": "pressure_plate_pressed", "plate_id": plate_entity.id},
-                    )
-                )
+                self.event_manager.emit(Event(
+                    EventType.CUSTOM,
+                    {"type": "pressure_plate_pressed", "plate_id": plate_entity.id}
+                ))
 
             elif not should_be_pressed and plate.is_pressed:
                 # Plate released (unless stays_pressed)
@@ -364,15 +336,10 @@ class PuzzleSystem(System):
                         if target:
                             self._activate_puzzle_element(world, target, False)
 
-                    self.event_manager.emit(
-                        Event(
-                            EventType.CUSTOM,
-                            {
-                                "type": "pressure_plate_released",
-                                "plate_id": plate_entity.id,
-                            },
-                        )
-                    )
+                    self.event_manager.emit(Event(
+                        EventType.CUSTOM,
+                        {"type": "pressure_plate_released", "plate_id": plate_entity.id}
+                    ))
 
     def _update_auto_close_doors(self, world: World, delta_time: float):
         """Update doors with auto-close"""
@@ -402,16 +369,14 @@ class PuzzleSystem(System):
                         self._activate_puzzle_element(world, target, True)
 
                 # Emit event
-                self.event_manager.emit(
-                    Event(
-                        EventType.CUSTOM,
-                        {
-                            "type": "puzzle_solved",
-                            "puzzle_id": controller.puzzle_id,
-                            "controller_id": controller_entity.id,
-                        },
-                    )
-                )
+                self.event_manager.emit(Event(
+                    EventType.CUSTOM,
+                    {
+                        "type": "puzzle_solved",
+                        "puzzle_id": controller.puzzle_id,
+                        "controller_id": controller_entity.id,
+                    }
+                ))
 
     def _activate_puzzle_element(self, world: World, target: Entity, activate: bool):
         """Activate/deactivate a puzzle element"""
@@ -427,9 +392,8 @@ class PuzzleSystem(System):
             teleport = target.get_component(TeleportPad)
             teleport.is_active = activate
 
-    def _is_position_walkable(
-        self, world: World, x: int, y: int, ignore_entity: Optional[Entity] = None
-    ) -> bool:
+    def _is_position_walkable(self, world: World, x: int, y: int,
+                              ignore_entity: Optional[Entity] = None) -> bool:
         """Check if position is walkable"""
         # Check for solid entities at position
         entities = self._get_entities_at_position(world, x, y, ignore_entity)
@@ -441,9 +405,8 @@ class PuzzleSystem(System):
 
         return True
 
-    def _get_entities_at_position(
-        self, world: World, x: int, y: int, ignore_entity: Optional[Entity] = None
-    ) -> List[Entity]:
+    def _get_entities_at_position(self, world: World, x: int, y: int,
+                                  ignore_entity: Optional[Entity] = None) -> List[Entity]:
         """Get all entities at a grid position"""
         entities_here = []
         all_entities = world.get_entities_with_component(GridPosition)
@@ -458,9 +421,8 @@ class PuzzleSystem(System):
 
         return entities_here
 
-    def _check_pressure_plate_at_position(
-        self, world: World, x: int, y: int, entity: Entity
-    ):
+    def _check_pressure_plate_at_position(self, world: World, x: int, y: int,
+                                         entity: Entity):
         """Check if there's a pressure plate at position"""
         plates = world.get_entities_with_components(PressurePlate, GridPosition)
 

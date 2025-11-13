@@ -4,24 +4,15 @@ Base Building System
 Manage construction, upgrades, and building functionality.
 """
 
-from dataclasses import dataclass
 from typing import Dict, Optional
-
-from neonworks.core.ecs import (
-    Building,
-    Entity,
-    GridPosition,
-    ResourceStorage,
-    System,
-    World,
-)
-from neonworks.core.events import Event, EventManager, EventType, get_event_manager
+from dataclasses import dataclass
+from neonworks.core.ecs import System, World, Entity, Building, ResourceStorage, GridPosition
+from neonworks.core.events import EventManager, Event, EventType, get_event_manager
 
 
 @dataclass
 class BuildingTemplate:
     """Template for building types"""
-
     building_type: str
     name: str
     description: str
@@ -62,101 +53,89 @@ class BuildingLibrary:
     def _initialize_default_buildings(self):
         """Initialize default building types"""
         # Storage
-        self.register_template(
-            BuildingTemplate(
-                building_type="warehouse",
-                name="Warehouse",
-                description="Stores resources",
-                construction_cost={"metal": 50, "energy": 20},
-                construction_time=3,
-                upgrade_costs={
-                    2: {"metal": 100, "energy": 40},
-                    3: {"metal": 200, "energy": 80},
-                },
-                provides_storage={"metal": 500, "food": 300, "water": 200},
-            )
-        )
+        self.register_template(BuildingTemplate(
+            building_type="warehouse",
+            name="Warehouse",
+            description="Stores resources",
+            construction_cost={"metal": 50, "energy": 20},
+            construction_time=3,
+            upgrade_costs={
+                2: {"metal": 100, "energy": 40},
+                3: {"metal": 200, "energy": 80}
+            },
+            provides_storage={"metal": 500, "food": 300, "water": 200}
+        ))
 
         # Production
-        self.register_template(
-            BuildingTemplate(
-                building_type="generator",
-                name="Power Generator",
-                description="Generates energy",
-                construction_cost={"metal": 100, "components": 20},
-                construction_time=5,
-                upgrade_costs={
-                    2: {"metal": 200, "components": 40},
-                    3: {"metal": 400, "components": 80},
-                },
-                produces_per_turn={"energy": 10},
-            )
-        )
+        self.register_template(BuildingTemplate(
+            building_type="generator",
+            name="Power Generator",
+            description="Generates energy",
+            construction_cost={"metal": 100, "components": 20},
+            construction_time=5,
+            upgrade_costs={
+                2: {"metal": 200, "components": 40},
+                3: {"metal": 400, "components": 80}
+            },
+            produces_per_turn={"energy": 10}
+        ))
 
         # Food production
-        self.register_template(
-            BuildingTemplate(
-                building_type="hydroponics",
-                name="Hydroponics Bay",
-                description="Grows food",
-                construction_cost={"metal": 80, "water": 50, "energy": 30},
-                construction_time=4,
-                upgrade_costs={
-                    2: {"metal": 160, "water": 100, "energy": 60},
-                    3: {"metal": 320, "water": 200, "energy": 120},
-                },
-                produces_per_turn={"food": 5},
-                consumes_per_turn={"water": 2, "energy": 3},
-            )
-        )
+        self.register_template(BuildingTemplate(
+            building_type="hydroponics",
+            name="Hydroponics Bay",
+            description="Grows food",
+            construction_cost={"metal": 80, "water": 50, "energy": 30},
+            construction_time=4,
+            upgrade_costs={
+                2: {"metal": 160, "water": 100, "energy": 60},
+                3: {"metal": 320, "water": 200, "energy": 120}
+            },
+            produces_per_turn={"food": 5},
+            consumes_per_turn={"water": 2, "energy": 3}
+        ))
 
         # Defense
-        self.register_template(
-            BuildingTemplate(
-                building_type="turret",
-                name="Defense Turret",
-                description="Automated defense",
-                construction_cost={"metal": 150, "components": 30, "energy": 40},
-                construction_time=6,
-                upgrade_costs={
-                    2: {"metal": 300, "components": 60, "energy": 80},
-                    3: {"metal": 600, "components": 120, "energy": 160},
-                },
-                consumes_per_turn={"energy": 2},
-            )
-        )
+        self.register_template(BuildingTemplate(
+            building_type="turret",
+            name="Defense Turret",
+            description="Automated defense",
+            construction_cost={"metal": 150, "components": 30, "energy": 40},
+            construction_time=6,
+            upgrade_costs={
+                2: {"metal": 300, "components": 60, "energy": 80},
+                3: {"metal": 600, "components": 120, "energy": 160}
+            },
+            consumes_per_turn={"energy": 2}
+        ))
 
         # Medical
-        self.register_template(
-            BuildingTemplate(
-                building_type="medbay",
-                name="Medical Bay",
-                description="Heals units",
-                construction_cost={"metal": 100, "medical_supplies": 50, "energy": 30},
-                construction_time=5,
-                upgrade_costs={
-                    2: {"metal": 200, "medical_supplies": 100, "energy": 60},
-                    3: {"metal": 400, "medical_supplies": 200, "energy": 120},
-                },
-                consumes_per_turn={"energy": 2, "medical_supplies": 1},
-            )
-        )
+        self.register_template(BuildingTemplate(
+            building_type="medbay",
+            name="Medical Bay",
+            description="Heals units",
+            construction_cost={"metal": 100, "medical_supplies": 50, "energy": 30},
+            construction_time=5,
+            upgrade_costs={
+                2: {"metal": 200, "medical_supplies": 100, "energy": 60},
+                3: {"metal": 400, "medical_supplies": 200, "energy": 120}
+            },
+            consumes_per_turn={"energy": 2, "medical_supplies": 1}
+        ))
 
         # Research
-        self.register_template(
-            BuildingTemplate(
-                building_type="lab",
-                name="Research Lab",
-                description="Unlocks new technologies",
-                construction_cost={"metal": 200, "components": 50, "energy": 50},
-                construction_time=8,
-                upgrade_costs={
-                    2: {"metal": 400, "components": 100, "energy": 100},
-                    3: {"metal": 800, "components": 200, "energy": 200},
-                },
-                consumes_per_turn={"energy": 5},
-            )
-        )
+        self.register_template(BuildingTemplate(
+            building_type="lab",
+            name="Research Lab",
+            description="Unlocks new technologies",
+            construction_cost={"metal": 200, "components": 50, "energy": 50},
+            construction_time=8,
+            upgrade_costs={
+                2: {"metal": 400, "components": 100, "energy": 100},
+                3: {"metal": 800, "components": 200, "energy": 200}
+            },
+            consumes_per_turn={"energy": 5}
+        ))
 
     def register_template(self, template: BuildingTemplate):
         """Register a building template"""
@@ -198,18 +177,11 @@ class BuildingSystem(System):
                 # Handle production/consumption
                 self._update_production(entity, building, template)
 
-    def _update_construction(
-        self,
-        entity: Entity,
-        building: Building,
-        template: BuildingTemplate,
-        delta_time: float,
-    ):
+    def _update_construction(self, entity: Entity, building: Building,
+                            template: BuildingTemplate, delta_time: float):
         """Update building construction"""
         # Progress construction (simplified - assumes one turn = 1.0 progress units)
-        progress_per_second = 1.0 / (
-            template.construction_time * 60
-        )  # Assuming 60s per turn
+        progress_per_second = 1.0 / (template.construction_time * 60)  # Assuming 60s per turn
         building.construction_progress += progress_per_second * delta_time
 
         if building.construction_progress >= 1.0:
@@ -217,12 +189,13 @@ class BuildingSystem(System):
             building.is_constructed = True
 
             # Emit completion event
-            self.event_manager.emit(
-                Event(
-                    EventType.BUILDING_COMPLETED,
-                    {"entity_id": entity.id, "building_type": building.building_type},
-                )
-            )
+            self.event_manager.emit(Event(
+                EventType.BUILDING_COMPLETED,
+                {
+                    "entity_id": entity.id,
+                    "building_type": building.building_type
+                }
+            ))
 
             # Add storage capacity if provided
             if template.provides_storage:
@@ -234,9 +207,8 @@ class BuildingSystem(System):
                 for resource, capacity in template.provides_storage.items():
                     storage.capacity[resource] = capacity * building.level
 
-    def _update_production(
-        self, entity: Entity, building: Building, template: BuildingTemplate
-    ):
+    def _update_production(self, entity: Entity, building: Building,
+                          template: BuildingTemplate):
         """Update resource production/consumption"""
         storage = entity.get_component(ResourceStorage)
         if not storage:
@@ -254,14 +226,9 @@ class BuildingSystem(System):
                 consumption = amount * building.level
                 storage.remove_resource(resource, consumption)
 
-    def place_building(
-        self,
-        world: World,
-        building_type: str,
-        grid_x: int,
-        grid_y: int,
-        player_resources: ResourceStorage,
-    ) -> Optional[Entity]:
+    def place_building(self, world: World, building_type: str,
+                      grid_x: int, grid_y: int,
+                      player_resources: ResourceStorage) -> Optional[Entity]:
         """Place a new building"""
         template = self.library.get_template(building_type)
         if not template:
@@ -282,34 +249,28 @@ class BuildingSystem(System):
 
         # Add components
         entity.add_component(GridPosition(grid_x=grid_x, grid_y=grid_y, layer=0))
-        entity.add_component(
-            Building(
-                building_type=building_type,
-                construction_progress=0.0,
-                is_constructed=False,
-                level=1,
-                max_level=3,
-            )
-        )
+        entity.add_component(Building(
+            building_type=building_type,
+            construction_progress=0.0,
+            is_constructed=False,
+            level=1,
+            max_level=3
+        ))
 
         # Emit placement event
-        self.event_manager.emit(
-            Event(
-                EventType.BUILDING_PLACED,
-                {
-                    "entity_id": entity.id,
-                    "building_type": building_type,
-                    "grid_x": grid_x,
-                    "grid_y": grid_y,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.BUILDING_PLACED,
+            {
+                "entity_id": entity.id,
+                "building_type": building_type,
+                "grid_x": grid_x,
+                "grid_y": grid_y
+            }
+        ))
 
         return entity
 
-    def upgrade_building(
-        self, entity: Entity, player_resources: ResourceStorage
-    ) -> bool:
+    def upgrade_building(self, entity: Entity, player_resources: ResourceStorage) -> bool:
         """Upgrade a building"""
         building = entity.get_component(Building)
         if not building or not building.is_constructed:
@@ -338,16 +299,14 @@ class BuildingSystem(System):
         building.level = next_level
 
         # Emit upgrade event
-        self.event_manager.emit(
-            Event(
-                EventType.BUILDING_UPGRADED,
-                {
-                    "entity_id": entity.id,
-                    "building_type": building.building_type,
-                    "new_level": building.level,
-                },
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.BUILDING_UPGRADED,
+            {
+                "entity_id": entity.id,
+                "building_type": building.building_type,
+                "new_level": building.level
+            }
+        ))
 
         return True
 
@@ -358,12 +317,13 @@ class BuildingSystem(System):
             return
 
         # Emit destruction event
-        self.event_manager.emit(
-            Event(
-                EventType.BUILDING_DESTROYED,
-                {"entity_id": entity.id, "building_type": building.building_type},
-            )
-        )
+        self.event_manager.emit(Event(
+            EventType.BUILDING_DESTROYED,
+            {
+                "entity_id": entity.id,
+                "building_type": building.building_type
+            }
+        ))
 
         # Remove entity
         world.remove_entity(entity.id)

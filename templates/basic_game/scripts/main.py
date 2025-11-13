@@ -13,25 +13,23 @@ Controls:
 - ESC: Quit game
 """
 
+import pygame
 import sys
 from pathlib import Path
-
-import pygame
 
 # Add engine to Python path
 engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
-from neonworks.core.ecs import Component, Entity, System, World
+from neonworks.core.ecs import World, Entity, Component, System
 from neonworks.core.game_loop import GameEngine
-from neonworks.input.input_manager import InputManager
 from neonworks.rendering.renderer import Renderer
+from neonworks.input.input_manager import InputManager
 
 
 # Components
 class Position(Component):
     """Position component"""
-
     def __init__(self, x: float = 0, y: float = 0):
         self.x = x
         self.y = y
@@ -39,7 +37,6 @@ class Position(Component):
 
 class Velocity(Component):
     """Velocity component"""
-
     def __init__(self, dx: float = 0, dy: float = 0):
         self.dx = dx
         self.dy = dy
@@ -47,7 +44,6 @@ class Velocity(Component):
 
 class Sprite(Component):
     """Simple sprite component"""
-
     def __init__(self, color: tuple = (255, 255, 255), size: int = 32):
         self.color = color
         self.size = size
@@ -55,7 +51,6 @@ class Sprite(Component):
 
 class PlayerController(Component):
     """Player controller component"""
-
     def __init__(self, speed: float = 200):
         self.speed = speed
 
@@ -126,7 +121,7 @@ class RenderSystem(System):
                 pygame.draw.rect(
                     self.screen,
                     sprite.color,
-                    (int(position.x), int(position.y), sprite.size, sprite.size),
+                    (int(position.x), int(position.y), sprite.size, sprite.size)
                 )
 
         # Display instructions
