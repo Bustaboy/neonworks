@@ -6,6 +6,8 @@ Handles switches, pressure plates, pushable blocks, and puzzle logic.
 
 from typing import List, Optional
 
+from neonworks.core.ecs import Entity, GridPosition, System, World
+from neonworks.core.events import Event, EventManager, EventType
 from neonworks.gameplay.movement import Collider2D, Direction, Movement
 from neonworks.gameplay.puzzle_objects import (
     Chest,
@@ -18,8 +20,6 @@ from neonworks.gameplay.puzzle_objects import (
     Switch,
     TeleportPad,
 )
-from neonworks.core.ecs import Entity, GridPosition, System, World
-from neonworks.core.events import Event, EventManager, EventType
 
 
 class PuzzleSystem(System):

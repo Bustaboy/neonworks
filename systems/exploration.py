@@ -8,6 +8,8 @@ from typing import List, Optional, Set, Tuple
 
 import pygame
 
+from neonworks.core.ecs import Entity, GridPosition, System, Transform, World
+from neonworks.core.events import Event, EventManager, EventType
 from neonworks.gameplay.movement import (
     AnimationState,
     Collider2D,
@@ -17,8 +19,6 @@ from neonworks.gameplay.movement import (
     NPCBehavior,
     TileCollisionMap,
 )
-from neonworks.core.ecs import Entity, GridPosition, System, Transform, World
-from neonworks.core.events import Event, EventManager, EventType
 from neonworks.input.input_manager import InputManager
 
 
