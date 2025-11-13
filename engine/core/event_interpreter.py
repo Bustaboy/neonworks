@@ -12,7 +12,6 @@ from typing import Any, Callable, Dict, List, Optional
 
 from neonworks.core.event_commands import (
     CommandType,
-    ComparisonOperator,
     EventCommand,
     EventContext,
     EventPage,
