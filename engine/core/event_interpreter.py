@@ -109,7 +109,11 @@ class InterpreterInstance:
 
     def is_finished(self) -> bool:
         """Check if interpreter has finished execution"""
-        return self.state == InterpreterState.FINISHED or self.context.is_finished()
+        return (
+            self.state == InterpreterState.FINISHED
+            or self.state == InterpreterState.ERROR
+            or self.context.is_finished()
+        )
 
     def is_waiting(self) -> bool:
         """Check if interpreter is waiting"""
