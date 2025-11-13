@@ -10,8 +10,10 @@ from typing import Dict, List, Optional, Tuple
 
 import pygame
 
-from gameplay.combat import Health, Team
-from gameplay.jrpg_combat import (
+from neonworks.core.ecs import Entity, System, World
+from neonworks.core.events import Event, EventManager, EventType
+from neonworks.gameplay.combat import Health, Team
+from neonworks.gameplay.jrpg_combat import (
     BattleAI,
     BattleCommand,
     BattleFormation,
@@ -25,8 +27,6 @@ from gameplay.jrpg_combat import (
     SpellList,
     TargetType,
 )
-from neonworks.core.ecs import Entity, System, World
-from neonworks.core.events import Event, EventManager, EventType
 
 
 class BattlePhase(Enum):

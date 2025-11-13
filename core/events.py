@@ -65,6 +65,9 @@ class EventType(Enum):
     GAME_SAVED = auto()
     GAME_LOADED = auto()
 
+    # Custom/Generic events
+    CUSTOM = auto()  # For custom game-specific events with data in event.data
+
 
 @dataclass
 class Event:

@@ -6,8 +6,10 @@ Handles spell casting, MP management, and magical effects.
 
 from typing import Dict, List, Optional
 
-from gameplay.combat import Health
-from gameplay.jrpg_combat import (
+from neonworks.core.ecs import Entity, System, World
+from neonworks.core.events import Event, EventManager, EventType
+from neonworks.gameplay.combat import Health
+from neonworks.gameplay.jrpg_combat import (
     ElementalResistances,
     ElementType,
     JRPGStats,
@@ -16,8 +18,6 @@ from gameplay.jrpg_combat import (
     SpellList,
     TargetType,
 )
-from neonworks.core.ecs import Entity, System, World
-from neonworks.core.events import Event, EventManager, EventType
 
 
 class SpellDatabase:

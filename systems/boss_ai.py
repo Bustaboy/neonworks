@@ -6,10 +6,10 @@ Advanced AI system for boss battles with multi-phase mechanics and patterns.
 
 from typing import Any, Dict, List, Optional
 
-from gameplay.combat import Health
-from gameplay.jrpg_combat import BattleAI, BattleRewards, BossPhase, JRPGStats
 from neonworks.core.ecs import Entity, System, World
 from neonworks.core.events import Event, EventManager, EventType
+from neonworks.gameplay.combat import Health
+from neonworks.gameplay.jrpg_combat import BattleAI, BattleRewards, BossPhase, JRPGStats
 
 
 class BossAISystem(System):

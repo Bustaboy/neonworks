@@ -10,7 +10,7 @@ import sys
 from getpass import getpass
 from pathlib import Path
 
-from export.exporter import ExportConfig, ProjectExporter
+from neonworks.export.exporter import ExportConfig, ProjectExporter
 
 
 def main():
