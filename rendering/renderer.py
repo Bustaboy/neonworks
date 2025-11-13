@@ -4,7 +4,7 @@
 Grid-based 2D rendering system with pygame.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import pygame
 
@@ -55,7 +55,7 @@ class Renderer:
         self.asset_manager = asset_manager or get_asset_manager()
 
         # Rendering layers
-        self.layers: dict[int, List[callable]] = {}
+        self.layers: Dict[int, List[Callable]] = {}
 
         # Font for text rendering
         self.font = pygame.font.Font(None, 24)

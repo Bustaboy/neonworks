@@ -6,7 +6,7 @@ Game state and scene management system.
 
 from abc import ABC, abstractmethod
 from enum import Enum, auto
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class StateTransition(Enum):
@@ -173,8 +173,8 @@ class StateManager:
 
     def __init__(self):
         self._states: Dict[str, GameState] = {}
-        self._state_stack: list[GameState] = []
-        self._pending_transition: Optional[tuple] = None
+        self._state_stack: List[GameState] = []
+        self._pending_transition: Optional[Tuple] = None
 
     def register_state(self, state: GameState) -> "StateManager":
         """Register a game state"""
