@@ -2,11 +2,14 @@
 NeonWorks Combat UI - Turn-Based Combat Visualization
 Provides complete visual interface for turn-based combat system.
 """
-from typing import Optional, List, Tuple
+
+from typing import List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Transform, Health, Sprite
-from ..systems.turn_system import TurnSystem, TurnActor
+
+from ..core.ecs import Health, Sprite, Transform, World
 from ..rendering.ui import UI
+from ..systems.turn_system import TurnActor, TurnSystem
 
 
 class CombatUI:
@@ -31,41 +34,41 @@ class CombatUI:
 
         # Ability definitions (can be loaded from config)
         self.abilities = {
-            'attack': {
-                'name': 'Attack',
-                'cost': 3,
-                'icon_color': (255, 0, 0),
-                'description': 'Basic melee attack',
+            "attack": {
+                "name": "Attack",
+                "cost": 3,
+                "icon_color": (255, 0, 0),
+                "description": "Basic melee attack",
             },
-            'defend': {
-                'name': 'Defend',
-                'cost': 2,
-                'icon_color': (0, 100, 255),
-                'description': 'Increase defense this turn',
+            "defend": {
+                "name": "Defend",
+                "cost": 2,
+                "icon_color": (0, 100, 255),
+                "description": "Increase defense this turn",
             },
-            'special': {
-                'name': 'Special',
-                'cost': 5,
-                'icon_color': (255, 200, 0),
-                'description': 'Powerful special ability',
+            "special": {
+                "name": "Special",
+                "cost": 5,
+                "icon_color": (255, 200, 0),
+                "description": "Powerful special ability",
             },
-            'heal': {
-                'name': 'Heal',
-                'cost': 4,
-                'icon_color': (0, 255, 0),
-                'description': 'Restore health',
+            "heal": {
+                "name": "Heal",
+                "cost": 4,
+                "icon_color": (0, 255, 0),
+                "description": "Restore health",
             },
-            'move': {
-                'name': 'Move',
-                'cost': 1,
-                'icon_color': (200, 200, 200),
-                'description': 'Move to adjacent tile',
+            "move": {
+                "name": "Move",
+                "cost": 1,
+                "icon_color": (200, 200, 200),
+                "description": "Move to adjacent tile",
             },
-            'skip': {
-                'name': 'Skip Turn',
-                'cost': 0,
-                'icon_color': (150, 150, 150),
-                'description': 'End your turn',
+            "skip": {
+                "name": "Skip Turn",
+                "cost": 0,
+                "icon_color": (150, 150, 150),
+                "description": "End your turn",
             },
         }
 
@@ -103,7 +106,9 @@ class CombatUI:
         panel_x = center_x - panel_width // 2
 
         self.ui.panel(panel_x, y, panel_width, panel_height, (0, 0, 0, 200))
-        self.ui.title("Initiative Order", panel_x + panel_width // 2 - 70, y + 5, size=18)
+        self.ui.title(
+            "Initiative Order", panel_x + panel_width // 2 - 70, y + 5, size=18
+        )
 
         # Display turn order
         slot_y = y + 35
@@ -124,7 +129,7 @@ class CombatUI:
             slot_x = start_x + i * (slot_width + slot_spacing)
 
             # Highlight current actor
-            is_current = (i == 0)
+            is_current = i == 0
             slot_color = (100, 150, 255) if is_current else (40, 40, 60)
 
             self.ui.panel(slot_x, slot_y, slot_width, slot_height, slot_color)
@@ -134,11 +139,19 @@ class CombatUI:
             health = self.world.get_component(entity_id, Health)
 
             # Entity ID
-            self.ui.label(f"#{entity_id}", slot_x + 5, slot_y + 5, size=14, color=(255, 255, 255))
+            self.ui.label(
+                f"#{entity_id}", slot_x + 5, slot_y + 5, size=14, color=(255, 255, 255)
+            )
 
             # Initiative
             if turn_actor:
-                self.ui.label(f"Init: {turn_actor.initiative}", slot_x + 5, slot_y + 22, size=11, color=(200, 200, 200))
+                self.ui.label(
+                    f"Init: {turn_actor.initiative}",
+                    slot_x + 5,
+                    slot_y + 22,
+                    size=11,
+                    color=(200, 200, 200),
+                )
 
             # Health bar (if available)
             if health:
@@ -149,9 +162,15 @@ class CombatUI:
                 bar_y = slot_y + slot_height - bar_height - 5
 
                 # Background
-                pygame.draw.rect(self.screen, (60, 0, 0), (bar_x, bar_y, bar_width, bar_height))
+                pygame.draw.rect(
+                    self.screen, (60, 0, 0), (bar_x, bar_y, bar_width, bar_height)
+                )
                 # Health
-                pygame.draw.rect(self.screen, (255, 0, 0), (bar_x, bar_y, int(bar_width * health_ratio), bar_height))
+                pygame.draw.rect(
+                    self.screen,
+                    (255, 0, 0),
+                    (bar_x, bar_y, int(bar_width * health_ratio), bar_height),
+                )
 
     def _render_ability_bar(self, center_x: int, y: int):
         """Render ability bar for the current turn actor."""
@@ -177,13 +196,25 @@ class CombatUI:
         self.ui.panel(panel_x, y, panel_width, panel_height, (0, 0, 0, 200))
 
         # Current actor info
-        self.ui.label(f"Entity #{current_actor_id} - Turn", panel_x + 10, y + 5, size=18, color=(255, 255, 100))
+        self.ui.label(
+            f"Entity #{current_actor_id} - Turn",
+            panel_x + 10,
+            y + 5,
+            size=18,
+            color=(255, 255, 100),
+        )
 
         # Action points bar
         ap_ratio = turn_actor.action_points / turn_actor.max_action_points
-        self.ui.progress_bar(panel_x + 10, y + 30, panel_width - 20, 25, ap_ratio,
-                            f"Action Points: {turn_actor.action_points}/{turn_actor.max_action_points}",
-                            bar_color=(0, 200, 255))
+        self.ui.progress_bar(
+            panel_x + 10,
+            y + 30,
+            panel_width - 20,
+            25,
+            ap_ratio,
+            f"Action Points: {turn_actor.action_points}/{turn_actor.max_action_points}",
+            bar_color=(0, 200, 255),
+        )
 
         # Ability buttons
         button_y = y + 65
@@ -199,28 +230,46 @@ class CombatUI:
             button_x = start_x + i * (button_width + button_spacing)
 
             # Check if can afford
-            can_afford = turn_actor.action_points >= ability_data['cost']
-            button_color = ability_data['icon_color'] if can_afford else (80, 80, 80)
+            can_afford = turn_actor.action_points >= ability_data["cost"]
+            button_color = ability_data["icon_color"] if can_afford else (80, 80, 80)
 
             # Highlight if selected
             if ability_id == self.selected_ability:
-                pygame.draw.rect(self.screen, (255, 255, 0),
-                               (button_x - 2, button_y - 2, button_width + 4, button_height + 4))
+                pygame.draw.rect(
+                    self.screen,
+                    (255, 255, 0),
+                    (button_x - 2, button_y - 2, button_width + 4, button_height + 4),
+                )
 
             # Button
-            if self.ui.button(ability_data['name'], button_x, button_y, button_width, button_height,
-                            color=button_color):
+            if self.ui.button(
+                ability_data["name"],
+                button_x,
+                button_y,
+                button_width,
+                button_height,
+                color=button_color,
+            ):
                 if can_afford:
                     self.select_ability(ability_id)
 
             # Cost
-            cost_text = f"{ability_data['cost']} AP" if ability_data['cost'] > 0 else "Free"
-            self.ui.label(cost_text, button_x + 5, button_y + button_height - 15,
-                         size=10, color=(255, 255, 255))
+            cost_text = (
+                f"{ability_data['cost']} AP" if ability_data["cost"] > 0 else "Free"
+            )
+            self.ui.label(
+                cost_text,
+                button_x + 5,
+                button_y + button_height - 15,
+                size=10,
+                color=(255, 255, 255),
+            )
 
         # End turn button
         end_turn_x = panel_x + panel_width - 100
-        if self.ui.button("End Turn", end_turn_x, button_y, 90, button_height, color=(200, 50, 50)):
+        if self.ui.button(
+            "End Turn", end_turn_x, button_y, 90, button_height, color=(200, 50, 50)
+        ):
             self.end_turn()
 
     def _render_combat_log(self, x: int, y: int):
@@ -233,7 +282,7 @@ class CombatUI:
 
         # Display log entries
         log_y = y + 35
-        for message, color in self.combat_log[-self.max_log_entries:]:
+        for message, color in self.combat_log[-self.max_log_entries :]:
             self.ui.label(message, x + 10, log_y, size=14, color=color)
             log_y += 20
 
@@ -265,19 +314,19 @@ class CombatUI:
             return False
 
         # Check if can afford
-        if turn_actor.action_points < ability_data['cost']:
+        if turn_actor.action_points < ability_data["cost"]:
             self.add_log("Not enough action points!", (255, 0, 0))
             return False
 
         # Deduct action points
-        turn_actor.action_points -= ability_data['cost']
+        turn_actor.action_points -= ability_data["cost"]
 
         # Execute ability (basic implementation)
-        if ability_id == 'attack' and target_entity:
+        if ability_id == "attack" and target_entity:
             self._execute_attack(current_actor_id, target_entity)
-        elif ability_id == 'heal':
+        elif ability_id == "heal":
             self._execute_heal(current_actor_id)
-        elif ability_id == 'defend':
+        elif ability_id == "defend":
             self._execute_defend(current_actor_id)
         else:
             self.add_log(f"{ability_data['name']} used!", (200, 200, 255))
@@ -291,7 +340,10 @@ class CombatUI:
         if target_health:
             damage = 10  # Base damage
             target_health.current -= damage
-            self.add_log(f"Entity #{attacker_id} attacks #{target_id} for {damage} damage!", (255, 100, 100))
+            self.add_log(
+                f"Entity #{attacker_id} attacks #{target_id} for {damage} damage!",
+                (255, 100, 100),
+            )
 
             if target_health.current <= 0:
                 self.add_log(f"Entity #{target_id} defeated!", (255, 0, 0))
@@ -338,7 +390,7 @@ class CombatUI:
 
     def handle_entity_click(self, entity_id: int):
         """Handle clicking on an entity (for targeting abilities)."""
-        if self.selected_ability and self.selected_ability in ['attack', 'special']:
+        if self.selected_ability and self.selected_ability in ["attack", "special"]:
             self.use_ability(self.selected_ability, entity_id)
             return True
         return False

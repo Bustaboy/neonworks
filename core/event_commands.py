@@ -5,14 +5,15 @@ RPG-style event command system for cutscenes, dialogue, and scripted sequences.
 Inspired by RPG Maker's event system but adapted for NeonWorks.
 """
 
-from typing import Any, Dict, List, Optional, Union
+import json
 from dataclasses import dataclass, field
 from enum import Enum, auto
-import json
+from typing import Any, Dict, List, Optional, Union
 
 
 class CommandType(Enum):
     """Types of event commands"""
+
     # Message commands
     SHOW_TEXT = auto()
     SHOW_CHOICES = auto()
@@ -93,15 +94,17 @@ class CommandType(Enum):
 
 class TriggerType(Enum):
     """Event trigger conditions"""
+
     ACTION_BUTTON = auto()  # Triggered when player presses action button
-    PLAYER_TOUCH = auto()   # Triggered when player touches event
-    EVENT_TOUCH = auto()    # Triggered when event touches player
-    AUTORUN = auto()        # Runs automatically every frame
-    PARALLEL = auto()       # Runs in parallel with other events
+    PLAYER_TOUCH = auto()  # Triggered when player touches event
+    EVENT_TOUCH = auto()  # Triggered when event touches player
+    AUTORUN = auto()  # Runs automatically every frame
+    PARALLEL = auto()  # Runs in parallel with other events
 
 
 class MoveType(Enum):
     """Event movement types"""
+
     FIXED = auto()
     RANDOM = auto()
     APPROACH = auto()
@@ -110,6 +113,7 @@ class MoveType(Enum):
 
 class MoveSpeed(Enum):
     """Movement speed levels"""
+
     SLOWEST = 1
     SLOWER = 2
     SLOW = 3
@@ -121,6 +125,7 @@ class MoveSpeed(Enum):
 
 class MoveFrequency(Enum):
     """Movement frequency levels"""
+
     LOWEST = 1
     LOWER = 2
     LOW = 3
@@ -130,6 +135,7 @@ class MoveFrequency(Enum):
 
 class ComparisonOperator(Enum):
     """Comparison operators for conditional branches"""
+
     EQUAL = "=="
     NOT_EQUAL = "!="
     GREATER = ">"
@@ -145,11 +151,12 @@ class EventCommand:
 
     Each command represents a single action in an event sequence.
     """
+
     command_type: CommandType
     parameters: Dict[str, Any] = field(default_factory=dict)
     indent: int = 0  # Indentation level for nested commands
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         """
         Execute this command.
 
@@ -166,17 +173,17 @@ class EventCommand:
         return {
             "command_type": self.command_type.name,
             "parameters": self.parameters,
-            "indent": self.indent
+            "indent": self.indent,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EventCommand':
+    def from_dict(cls, data: Dict[str, Any]) -> "EventCommand":
         """Deserialize from dictionary"""
         command_type = CommandType[data["command_type"]]
         return cls(
             command_type=command_type,
             parameters=data.get("parameters", {}),
-            indent=data.get("indent", 0)
+            indent=data.get("indent", 0),
         )
 
 
@@ -184,8 +191,14 @@ class EventCommand:
 class ShowTextCommand(EventCommand):
     """Display text message to the player"""
 
-    def __init__(self, text: str, face_name: Optional[str] = None,
-                 face_index: int = 0, background: int = 0, position: int = 2):
+    def __init__(
+        self,
+        text: str,
+        face_name: Optional[str] = None,
+        face_index: int = 0,
+        background: int = 0,
+        position: int = 2,
+    ):
         super().__init__(
             command_type=CommandType.SHOW_TEXT,
             parameters={
@@ -193,11 +206,11 @@ class ShowTextCommand(EventCommand):
                 "face_name": face_name,
                 "face_index": face_index,
                 "background": background,  # 0=normal, 1=dim, 2=transparent
-                "position": position  # 0=top, 1=middle, 2=bottom
-            }
+                "position": position,  # 0=top, 1=middle, 2=bottom
+            },
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would show text box and wait for player input
         return True
 
@@ -206,18 +219,19 @@ class ShowTextCommand(EventCommand):
 class ShowChoicesCommand(EventCommand):
     """Display choice selection to the player"""
 
-    def __init__(self, choices: List[str], cancel_type: int = -1,
-                 default_choice: int = 0):
+    def __init__(
+        self, choices: List[str], cancel_type: int = -1, default_choice: int = 0
+    ):
         super().__init__(
             command_type=CommandType.SHOW_CHOICES,
             parameters={
                 "choices": choices,
                 "cancel_type": cancel_type,  # -1=disallow, 0-N=choice index
-                "default_choice": default_choice
-            }
+                "default_choice": default_choice,
+            },
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would show choice box and store result
         return True
 
@@ -247,13 +261,10 @@ class ConditionalBranchCommand(EventCommand):
         """
         super().__init__(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={
-                "condition_type": condition_type,
-                **kwargs
-            }
+            parameters={"condition_type": condition_type, **kwargs},
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would evaluate condition and set context branch
         return True
 
@@ -273,14 +284,10 @@ class ControlSwitchesCommand(EventCommand):
         """
         super().__init__(
             command_type=CommandType.CONTROL_SWITCHES,
-            parameters={
-                "switch_id": switch_id,
-                "value": value,
-                "end_id": end_id
-            }
+            parameters={"switch_id": switch_id, "value": value, "end_id": end_id},
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would set switches in game state
         return True
 
@@ -289,8 +296,14 @@ class ControlSwitchesCommand(EventCommand):
 class ControlVariablesCommand(EventCommand):
     """Control game variables"""
 
-    def __init__(self, variable_id: int, operation: str, operand_type: str,
-                 operand_value: Any, end_id: Optional[int] = None):
+    def __init__(
+        self,
+        variable_id: int,
+        operation: str,
+        operand_type: str,
+        operand_value: Any,
+        end_id: Optional[int] = None,
+    ):
         """
         Modify game variable(s).
 
@@ -308,11 +321,11 @@ class ControlVariablesCommand(EventCommand):
                 "operation": operation,
                 "operand_type": operand_type,
                 "operand_value": operand_value,
-                "end_id": end_id
-            }
+                "end_id": end_id,
+            },
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would modify variables in game state
         return True
 
@@ -321,8 +334,9 @@ class ControlVariablesCommand(EventCommand):
 class TransferPlayerCommand(EventCommand):
     """Transfer player to different location"""
 
-    def __init__(self, map_id: int, x: int, y: int, direction: int = 0,
-                 fade_type: int = 0):
+    def __init__(
+        self, map_id: int, x: int, y: int, direction: int = 0, fade_type: int = 0
+    ):
         """
         Transfer player to a new location.
 
@@ -340,11 +354,11 @@ class TransferPlayerCommand(EventCommand):
                 "x": x,
                 "y": y,
                 "direction": direction,
-                "fade_type": fade_type
-            }
+                "fade_type": fade_type,
+            },
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would transfer player
         return True
 
@@ -361,11 +375,10 @@ class WaitCommand(EventCommand):
             duration: Wait duration in frames (60 = 1 second at 60fps)
         """
         super().__init__(
-            command_type=CommandType.WAIT,
-            parameters={"duration": duration}
+            command_type=CommandType.WAIT, parameters={"duration": duration}
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would wait for duration
         return True
 
@@ -377,15 +390,10 @@ class PlayBGMCommand(EventCommand):
     def __init__(self, name: str, volume: int = 90, pitch: int = 100, pan: int = 0):
         super().__init__(
             command_type=CommandType.PLAY_BGM,
-            parameters={
-                "name": name,
-                "volume": volume,
-                "pitch": pitch,
-                "pan": pan
-            }
+            parameters={"name": name, "volume": volume, "pitch": pitch, "pan": pan},
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would play BGM
         return True
 
@@ -397,15 +405,10 @@ class PlaySECommand(EventCommand):
     def __init__(self, name: str, volume: int = 90, pitch: int = 100, pan: int = 0):
         super().__init__(
             command_type=CommandType.PLAY_SE,
-            parameters={
-                "name": name,
-                "volume": volume,
-                "pitch": pitch,
-                "pan": pan
-            }
+            parameters={"name": name, "volume": volume, "pitch": pitch, "pan": pan},
         )
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would play SE
         return True
 
@@ -421,12 +424,9 @@ class ScriptCommand(EventCommand):
         Args:
             script: Python code to execute
         """
-        super().__init__(
-            command_type=CommandType.SCRIPT,
-            parameters={"script": script}
-        )
+        super().__init__(command_type=CommandType.SCRIPT, parameters={"script": script})
 
-    def execute(self, context: 'EventContext') -> bool:
+    def execute(self, context: "EventContext") -> bool:
         # Implementation would execute script in safe context
         return True
 
@@ -439,6 +439,7 @@ class EventPage:
     Events can have multiple pages with different conditions.
     The highest priority page whose conditions are met will be active.
     """
+
     # Conditions
     condition_switch1_valid: bool = False
     condition_switch1_id: int = 1
@@ -479,7 +480,7 @@ class EventPage:
     # Commands
     commands: List[EventCommand] = field(default_factory=list)
 
-    def check_conditions(self, game_state: 'GameState') -> bool:
+    def check_conditions(self, game_state: "GameState") -> bool:
         """
         Check if this page's conditions are met.
 
@@ -501,7 +502,10 @@ class EventPage:
 
         # Check variable
         if self.condition_variable_valid:
-            if game_state.get_variable(self.condition_variable_id) < self.condition_variable_value:
+            if (
+                game_state.get_variable(self.condition_variable_id)
+                < self.condition_variable_value
+            ):
                 return False
 
         # Check self switch
@@ -559,11 +563,11 @@ class EventPage:
                 "priority_type": self.priority_type,
             },
             "trigger": self.trigger.name,
-            "commands": [cmd.to_dict() for cmd in self.commands]
+            "commands": [cmd.to_dict() for cmd in self.commands],
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EventPage':
+    def from_dict(cls, data: Dict[str, Any]) -> "EventPage":
         """Deserialize from dictionary"""
         conditions = data.get("conditions", {})
         graphics = data.get("graphics", {})
@@ -620,13 +624,14 @@ class GameEvent:
     Events can have multiple pages, each with different conditions, graphics,
     and command lists. The active page is determined by condition priority.
     """
+
     id: int
     name: str
     x: int  # Map X position
     y: int  # Map Y position
     pages: List[EventPage] = field(default_factory=list)
 
-    def get_active_page(self, game_state: 'GameState') -> Optional[EventPage]:
+    def get_active_page(self, game_state: "GameState") -> Optional[EventPage]:
         """
         Get the currently active page based on conditions.
 
@@ -651,18 +656,13 @@ class GameEvent:
             "name": self.name,
             "x": self.x,
             "y": self.y,
-            "pages": [page.to_dict() for page in self.pages]
+            "pages": [page.to_dict() for page in self.pages],
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'GameEvent':
+    def from_dict(cls, data: Dict[str, Any]) -> "GameEvent":
         """Deserialize from dictionary"""
-        event = cls(
-            id=data["id"],
-            name=data["name"],
-            x=data["x"],
-            y=data["y"]
-        )
+        event = cls(id=data["id"], name=data["name"], x=data["x"], y=data["y"])
 
         for page_data in data.get("pages", []):
             event.pages.append(EventPage.from_dict(page_data))
@@ -674,7 +674,7 @@ class GameEvent:
         return json.dumps(self.to_dict(), indent=2)
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'GameEvent':
+    def from_json(cls, json_str: str) -> "GameEvent":
         """Deserialize from JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -687,6 +687,7 @@ class EventContext:
     Maintains state during event processing including current command index,
     wait timers, and branch results.
     """
+
     event: GameEvent
     page: EventPage
     command_index: int = 0
@@ -719,8 +720,10 @@ class EventContext:
             True if label found, False otherwise
         """
         for i, cmd in enumerate(self.page.commands):
-            if (cmd.command_type == CommandType.LABEL and
-                cmd.parameters.get("name") == label):
+            if (
+                cmd.command_type == CommandType.LABEL
+                and cmd.parameters.get("name") == label
+            ):
                 self.command_index = i
                 return True
         return False
@@ -757,19 +760,14 @@ class GameState:
 
 def create_sample_event() -> GameEvent:
     """Create a sample event for demonstration"""
-    event = GameEvent(
-        id=1,
-        name="Sample NPC",
-        x=5,
-        y=5
-    )
+    event = GameEvent(id=1, name="Sample NPC", x=5, y=5)
 
     # Page 1: Default greeting
     page1 = EventPage(
         trigger=TriggerType.ACTION_BUTTON,
         character_name="Actor1",
         character_index=0,
-        direction=2
+        direction=2,
     )
     page1.commands = [
         ShowTextCommand("Hello, adventurer!"),
@@ -786,16 +784,13 @@ def create_sample_event() -> GameEvent:
         trigger=TriggerType.ACTION_BUTTON,
         character_name="Actor1",
         character_index=0,
-        direction=2
+        direction=2,
     )
     page2.commands = [
         ShowTextCommand("Thank you for your help!"),
         ShowTextCommand("Here's a reward."),
         ControlVariablesCommand(
-            variable_id=1,
-            operation="add",
-            operand_type="constant",
-            operand_value=100
+            variable_id=1, operation="add", operand_type="constant", operand_value=100
         ),
     ]
     event.pages.append(page2)

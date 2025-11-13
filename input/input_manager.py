@@ -4,13 +4,15 @@ Input Manager
 Handles keyboard, mouse, and gamepad input with action mapping and buffering.
 """
 
-from typing import Dict, Set, Tuple, Optional, Callable
 from enum import Enum, auto
+from typing import Callable, Dict, Optional, Set, Tuple
+
 import pygame
 
 
 class InputState(Enum):
     """Input button states"""
+
     RELEASED = auto()  # Button is up
     JUST_PRESSED = auto()  # Button was just pressed this frame
     HELD = auto()  # Button is being held down
@@ -19,6 +21,7 @@ class InputState(Enum):
 
 class MouseButton(Enum):
     """Mouse button enumeration"""
+
     LEFT = 1
     MIDDLE = 2
     RIGHT = 3
@@ -123,7 +126,9 @@ class InputManager:
             self._mouse_buttons_current = set()
             for i, pressed in enumerate(mouse_buttons):
                 if pressed:
-                    self._mouse_buttons_current.add(i + 1)  # Pygame uses 0-indexed, we use 1-indexed
+                    self._mouse_buttons_current.add(
+                        i + 1
+                    )  # Pygame uses 0-indexed, we use 1-indexed
         except pygame.error:
             # Video system not initialized, keep previous state
             pass
@@ -143,7 +148,7 @@ class InputManager:
         """
         if event.type == pygame.KEYDOWN:
             # Add to input buffer
-            self._add_to_buffer('key', event.key, event.scancode)
+            self._add_to_buffer("key", event.key, event.scancode)
 
             # Handle text input
             if self._text_input_enabled:
@@ -155,7 +160,7 @@ class InputManager:
                     self._text_input += event.unicode
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            self._add_to_buffer('mouse', event.button, event.pos)
+            self._add_to_buffer("mouse", event.button, event.pos)
 
             # Handle mouse wheel
             if event.button == 4:  # Wheel up
@@ -168,12 +173,9 @@ class InputManager:
 
     def _add_to_buffer(self, input_type: str, code: int, data: any):
         """Add input to buffer"""
-        self._input_buffer.append({
-            'type': input_type,
-            'code': code,
-            'data': data,
-            'time': 0.0
-        })
+        self._input_buffer.append(
+            {"type": input_type, "code": code, "data": data, "time": 0.0}
+        )
 
         # Limit buffer size
         if len(self._input_buffer) > self._buffer_size:
@@ -233,11 +235,17 @@ class InputManager:
 
     def is_mouse_button_just_pressed(self, button: int) -> bool:
         """Check if a mouse button was just pressed"""
-        return button in self._mouse_buttons_current and button not in self._mouse_buttons_previous
+        return (
+            button in self._mouse_buttons_current
+            and button not in self._mouse_buttons_previous
+        )
 
     def is_mouse_button_just_released(self, button: int) -> bool:
         """Check if a mouse button was just released"""
-        return button not in self._mouse_buttons_current and button in self._mouse_buttons_previous
+        return (
+            button not in self._mouse_buttons_current
+            and button in self._mouse_buttons_previous
+        )
 
     def get_mouse_wheel(self) -> int:
         """Get mouse wheel delta (-1, 0, or 1)"""

@@ -7,28 +7,27 @@ Physics simulation and collision detection.
 from .collision import (
     Collider,
     ColliderType,
-    CollisionInfo,
     CollisionDetector,
+    CollisionInfo,
     CollisionSystem,
-    QuadTreeNode
+    QuadTreeNode,
 )
-
 from .rigidbody import (
-    RigidBody,
-    PhysicsSystem,
+    IntegratedPhysicsSystem,
     PhysicsSettings,
-    IntegratedPhysicsSystem
+    PhysicsSystem,
+    RigidBody,
 )
 
 __all__ = [
-    'Collider',
-    'ColliderType',
-    'CollisionInfo',
-    'CollisionDetector',
-    'CollisionSystem',
-    'QuadTreeNode',
-    'RigidBody',
-    'PhysicsSystem',
-    'PhysicsSettings',
-    'IntegratedPhysicsSystem'
+    "Collider",
+    "ColliderType",
+    "CollisionInfo",
+    "CollisionDetector",
+    "CollisionSystem",
+    "QuadTreeNode",
+    "RigidBody",
+    "PhysicsSystem",
+    "PhysicsSettings",
+    "IntegratedPhysicsSystem",
 ]

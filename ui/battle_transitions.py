@@ -4,15 +4,17 @@ Battle Transition Effects
 Visual effects for transitioning between exploration and battle.
 """
 
-import pygame
 import math
 import random
-from typing import Optional, Callable
 from enum import Enum
+from typing import Callable, Optional
+
+import pygame
 
 
 class TransitionType(Enum):
     """Types of battle transitions"""
+
     FADE = "fade"
     SWIRL = "swirl"
     SHATTER = "shatter"
@@ -120,7 +122,9 @@ class SwirlTransition(BattleTransition):
 
     def __init__(self, screen_width: int, screen_height: int, duration: float = 1.0):
         super().__init__(screen_width, screen_height, duration)
-        self.swirl_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        self.swirl_surface = pygame.Surface(
+            (screen_width, screen_height), pygame.SRCALPHA
+        )
 
     def render(self, screen: pygame.Surface):
         """Render swirl effect"""
@@ -175,13 +179,13 @@ class ShatterTransition(BattleTransition):
         for row in range(rows):
             for col in range(cols):
                 piece = {
-                    'x': col * piece_size,
-                    'y': row * piece_size,
-                    'size': piece_size,
-                    'vx': random.uniform(-200, 200),
-                    'vy': random.uniform(-100, -300),
-                    'rotation': random.uniform(-180, 180),
-                    'rotation_speed': random.uniform(-360, 360),
+                    "x": col * piece_size,
+                    "y": row * piece_size,
+                    "size": piece_size,
+                    "vx": random.uniform(-200, 200),
+                    "vy": random.uniform(-100, -300),
+                    "rotation": random.uniform(-180, 180),
+                    "rotation_speed": random.uniform(-360, 360),
                 }
                 self.pieces.append(piece)
 
@@ -194,10 +198,10 @@ class ShatterTransition(BattleTransition):
 
         # Update piece positions
         for piece in self.pieces:
-            piece['x'] += piece['vx'] * delta_time
-            piece['y'] += piece['vy'] * delta_time
-            piece['vy'] += 500 * delta_time  # Gravity
-            piece['rotation'] += piece['rotation_speed'] * delta_time
+            piece["x"] += piece["vx"] * delta_time
+            piece["y"] += piece["vy"] * delta_time
+            piece["vy"] += 500 * delta_time  # Gravity
+            piece["rotation"] += piece["rotation_speed"] * delta_time
 
     def render(self, screen: pygame.Surface):
         """Render shatter effect"""
@@ -217,10 +221,7 @@ class ShatterTransition(BattleTransition):
         for piece in self.pieces:
             if progress < 0.7:  # Only show pieces early in transition
                 rect = pygame.Rect(
-                    int(piece['x']),
-                    int(piece['y']),
-                    piece['size'],
-                    piece['size']
+                    int(piece["x"]), int(piece["y"]), piece["size"], piece["size"]
                 )
                 # Simple white rectangles for shards
                 pygame.draw.rect(screen, (255, 255, 255), rect, 2)
@@ -231,7 +232,9 @@ class WaveTransition(BattleTransition):
 
     def __init__(self, screen_width: int, screen_height: int, duration: float = 0.6):
         super().__init__(screen_width, screen_height, duration)
-        self.wave_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
+        self.wave_surface = pygame.Surface(
+            (screen_width, screen_height), pygame.SRCALPHA
+        )
 
     def render(self, screen: pygame.Surface):
         """Render wave effect"""
@@ -248,7 +251,9 @@ class WaveTransition(BattleTransition):
 
         points = []
         for y in range(0, self.screen_height, 5):
-            wave_offset = wave_amplitude * math.sin((y / self.screen_height) * wave_frequency * math.pi)
+            wave_offset = wave_amplitude * math.sin(
+                (y / self.screen_height) * wave_frequency * math.pi
+            )
             x = wave_x + wave_offset
             points.append((int(x), y))
 
@@ -288,7 +293,9 @@ class ZoomTransition(BattleTransition):
             # Black overlay
             overlay = pygame.Surface((self.screen_width, self.screen_height))
             overlay.fill((0, 0, 0))
-            pygame.draw.rect(overlay, (255, 255, 255), (zoom_x, zoom_y, zoom_width, zoom_height))
+            pygame.draw.rect(
+                overlay, (255, 255, 255), (zoom_x, zoom_y, zoom_width, zoom_height)
+            )
             overlay.set_colorkey((255, 255, 255))
             screen.blit(overlay, (0, 0))
 
@@ -305,47 +312,43 @@ class BattleTransitionManager:
         self.screen_height = screen_height
         self.current_transition: Optional[BattleTransition] = None
 
-    def start_transition(self, transition_type: TransitionType,
-                        duration: Optional[float] = None,
-                        on_complete: Optional[Callable] = None):
+    def start_transition(
+        self,
+        transition_type: TransitionType,
+        duration: Optional[float] = None,
+        on_complete: Optional[Callable] = None,
+    ):
         """Start a transition effect"""
 
         # Create appropriate transition
         if transition_type == TransitionType.FADE:
             self.current_transition = FadeTransition(
-                self.screen_width, self.screen_height,
-                duration or 0.5
+                self.screen_width, self.screen_height, duration or 0.5
             )
         elif transition_type == TransitionType.FLASH:
             self.current_transition = FlashTransition(
-                self.screen_width, self.screen_height,
-                duration or 0.3
+                self.screen_width, self.screen_height, duration or 0.3
             )
         elif transition_type == TransitionType.SWIRL:
             self.current_transition = SwirlTransition(
-                self.screen_width, self.screen_height,
-                duration or 1.0
+                self.screen_width, self.screen_height, duration or 1.0
             )
         elif transition_type == TransitionType.SHATTER:
             self.current_transition = ShatterTransition(
-                self.screen_width, self.screen_height,
-                duration or 0.8
+                self.screen_width, self.screen_height, duration or 0.8
             )
         elif transition_type == TransitionType.WAVE:
             self.current_transition = WaveTransition(
-                self.screen_width, self.screen_height,
-                duration or 0.6
+                self.screen_width, self.screen_height, duration or 0.6
             )
         elif transition_type == TransitionType.ZOOM:
             self.current_transition = ZoomTransition(
-                self.screen_width, self.screen_height,
-                duration or 0.5
+                self.screen_width, self.screen_height, duration or 0.5
             )
         else:
             # Default to fade
             self.current_transition = FadeTransition(
-                self.screen_width, self.screen_height,
-                duration or 0.5
+                self.screen_width, self.screen_height, duration or 0.5
             )
 
         if self.current_transition:
@@ -368,4 +371,6 @@ class BattleTransitionManager:
 
     def is_complete(self) -> bool:
         """Check if current transition is complete"""
-        return self.current_transition is not None and self.current_transition.is_complete
+        return (
+            self.current_transition is not None and self.current_transition.is_complete
+        )

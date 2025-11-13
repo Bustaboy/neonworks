@@ -2,11 +2,14 @@
 NeonWorks Asset Browser UI - Visual Asset Management
 Provides complete visual interface for browsing and managing game assets.
 """
-from typing import Optional, List, Dict, Tuple
-import pygame
+
 from pathlib import Path
-from ..rendering.ui import UI
+from typing import Dict, List, Optional, Tuple
+
+import pygame
+
 from ..rendering.assets import AssetManager
+from ..rendering.ui import UI
 
 
 class AssetBrowserUI:
@@ -14,7 +17,9 @@ class AssetBrowserUI:
     Visual asset browser for managing sprites, sounds, music, and other assets.
     """
 
-    def __init__(self, screen: pygame.Surface, asset_manager: Optional[AssetManager] = None):
+    def __init__(
+        self, screen: pygame.Surface, asset_manager: Optional[AssetManager] = None
+    ):
         self.screen = screen
         self.ui = UI(screen)
         self.asset_manager = asset_manager
@@ -22,15 +27,17 @@ class AssetBrowserUI:
         self.visible = False
 
         # Asset categories
-        self.current_category = 'sprites'  # 'sprites', 'sounds', 'music', 'fonts', 'data'
+        self.current_category = (
+            "sprites"  # 'sprites', 'sounds', 'music', 'fonts', 'data'
+        )
 
         # Asset data
         self.assets: Dict[str, List[Dict]] = {
-            'sprites': [],
-            'sounds': [],
-            'music': [],
-            'fonts': [],
-            'data': [],
+            "sprites": [],
+            "sounds": [],
+            "music": [],
+            "fonts": [],
+            "data": [],
         }
 
         # UI state
@@ -77,10 +84,18 @@ class AssetBrowserUI:
         self.ui.panel(panel_x, panel_y, panel_width, panel_height, (20, 20, 30))
 
         # Title
-        self.ui.title("Asset Browser", panel_x + panel_width // 2 - 80, panel_y + 10, size=24, color=(100, 200, 255))
+        self.ui.title(
+            "Asset Browser",
+            panel_x + panel_width // 2 - 80,
+            panel_y + 10,
+            size=24,
+            color=(100, 200, 255),
+        )
 
         # Close button
-        if self.ui.button("X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)):
+        if self.ui.button(
+            "X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)
+        ):
             self.toggle()
 
         # Category tabs
@@ -94,14 +109,18 @@ class AssetBrowserUI:
         content_y = panel_y + 160
 
         # Asset browser
-        self._render_asset_browser(panel_x + 10, content_y, browser_width, panel_height - 170)
+        self._render_asset_browser(
+            panel_x + 10, content_y, browser_width, panel_height - 170
+        )
 
         # Asset preview and details
-        self._render_asset_preview(panel_x + browser_width + 20, content_y, 330, panel_height - 170)
+        self._render_asset_preview(
+            panel_x + browser_width + 20, content_y, 330, panel_height - 170
+        )
 
     def _render_category_tabs(self, x: int, y: int, width: int):
         """Render category selection tabs."""
-        categories = ['sprites', 'sounds', 'music', 'fonts', 'data']
+        categories = ["sprites", "sounds", "music", "fonts", "data"]
         tab_width = width // len(categories)
 
         for i, category in enumerate(categories):
@@ -109,7 +128,9 @@ class AssetBrowserUI:
             is_active = category == self.current_category
             tab_color = (50, 100, 200) if is_active else (25, 25, 40)
 
-            if self.ui.button(category.capitalize(), tab_x + 5, y, tab_width - 10, 40, color=tab_color):
+            if self.ui.button(
+                category.capitalize(), tab_x + 5, y, tab_width - 10, 40, color=tab_color
+            ):
                 self.current_category = category
                 self.selected_asset = None
 
@@ -143,19 +164,29 @@ class AssetBrowserUI:
         assets = self.assets.get(self.current_category, [])
 
         if not assets:
-            self.ui.label(f"No {self.current_category} found", x + width // 2 - 80, y + height // 2, size=16, color=(150, 150, 150))
+            self.ui.label(
+                f"No {self.current_category} found",
+                x + width // 2 - 80,
+                y + height // 2,
+                size=16,
+                color=(150, 150, 150),
+            )
             return
 
         # Filter by search
         if self.search_query:
-            assets = [a for a in assets if self.search_query.lower() in a['name'].lower()]
+            assets = [
+                a for a in assets if self.search_query.lower() in a["name"].lower()
+            ]
 
         if self.grid_view:
             self._render_grid_view(assets, x, y, width, height)
         else:
             self._render_list_view(assets, x, y, width, height)
 
-    def _render_grid_view(self, assets: List[Dict], x: int, y: int, width: int, height: int):
+    def _render_grid_view(
+        self, assets: List[Dict], x: int, y: int, width: int, height: int
+    ):
         """Render assets in grid view."""
         item_size = 120
         padding = 10
@@ -176,21 +207,28 @@ class AssetBrowserUI:
             self.ui.panel(current_x, current_y, item_size, item_size, tile_color)
 
             # Asset preview/icon (placeholder)
-            icon_color = asset.get('color', (100, 150, 200))
-            pygame.draw.rect(self.screen, icon_color,
-                           (current_x + 10, current_y + 10, item_size - 20, item_size - 40))
+            icon_color = asset.get("color", (100, 150, 200))
+            pygame.draw.rect(
+                self.screen,
+                icon_color,
+                (current_x + 10, current_y + 10, item_size - 20, item_size - 40),
+            )
 
             # Asset name (truncated)
-            asset_name = asset['name']
+            asset_name = asset["name"]
             if len(asset_name) > 12:
                 asset_name = asset_name[:12] + "..."
 
-            self.ui.label(asset_name, current_x + 10, current_y + item_size - 25, size=12)
+            self.ui.label(
+                asset_name, current_x + 10, current_y + item_size - 25, size=12
+            )
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
-            if (current_x <= mouse_pos[0] <= current_x + item_size and
-                current_y <= mouse_pos[1] <= current_y + item_size):
+            if (
+                current_x <= mouse_pos[0] <= current_x + item_size
+                and current_y <= mouse_pos[1] <= current_y + item_size
+            ):
                 if pygame.mouse.get_pressed()[0]:
                     self.selected_asset = asset
                     self._load_asset_preview(asset)
@@ -203,7 +241,9 @@ class AssetBrowserUI:
             else:
                 current_x += item_size + padding
 
-    def _render_list_view(self, assets: List[Dict], x: int, y: int, width: int, height: int):
+    def _render_list_view(
+        self, assets: List[Dict], x: int, y: int, width: int, height: int
+    ):
         """Render assets in list view."""
         item_height = 50
         current_y = y + 10
@@ -219,22 +259,30 @@ class AssetBrowserUI:
             self.ui.panel(x + 10, current_y, width - 20, item_height, item_color)
 
             # Icon (small)
-            icon_color = asset.get('color', (100, 150, 200))
+            icon_color = asset.get("color", (100, 150, 200))
             pygame.draw.rect(self.screen, icon_color, (x + 15, current_y + 10, 30, 30))
 
             # Asset name
-            self.ui.label(asset['name'], x + 55, current_y + 10, size=16)
+            self.ui.label(asset["name"], x + 55, current_y + 10, size=16)
 
             # Asset info
-            asset_type = asset.get('type', 'unknown')
-            asset_size = asset.get('size', 0)
+            asset_type = asset.get("type", "unknown")
+            asset_size = asset.get("size", 0)
             size_text = self._format_file_size(asset_size)
-            self.ui.label(f"{asset_type} - {size_text}", x + 55, current_y + 28, size=12, color=(180, 180, 180))
+            self.ui.label(
+                f"{asset_type} - {size_text}",
+                x + 55,
+                current_y + 28,
+                size=12,
+                color=(180, 180, 180),
+            )
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
-            if (x + 10 <= mouse_pos[0] <= x + width - 10 and
-                current_y <= mouse_pos[1] <= current_y + item_height):
+            if (
+                x + 10 <= mouse_pos[0] <= x + width - 10
+                and current_y <= mouse_pos[1] <= current_y + item_height
+            ):
                 if pygame.mouse.get_pressed()[0]:
                     self.selected_asset = asset
                     self._load_asset_preview(asset)
@@ -246,13 +294,19 @@ class AssetBrowserUI:
         self.ui.panel(x, y, width, height, (30, 30, 45))
 
         if not self.selected_asset:
-            self.ui.label("No asset selected", x + width // 2 - 70, y + height // 2, size=14, color=(150, 150, 150))
+            self.ui.label(
+                "No asset selected",
+                x + width // 2 - 70,
+                y + height // 2,
+                size=14,
+                color=(150, 150, 150),
+            )
             return
 
         current_y = y + 10
 
         # Asset name
-        asset_name = self.selected_asset['name']
+        asset_name = self.selected_asset["name"]
         self.ui.label(asset_name, x + 10, current_y, size=18, color=(255, 255, 100))
         current_y += 30
 
@@ -268,9 +322,12 @@ class AssetBrowserUI:
             self.screen.blit(self.preview_surface, preview_rect)
         else:
             # Placeholder
-            icon_color = self.selected_asset.get('color', (100, 150, 200))
-            pygame.draw.rect(self.screen, icon_color,
-                           (x + width // 2 - 50, current_y + preview_height // 2 - 50, 100, 100))
+            icon_color = self.selected_asset.get("color", (100, 150, 200))
+            pygame.draw.rect(
+                self.screen,
+                icon_color,
+                (x + width // 2 - 50, current_y + preview_height // 2 - 50, 100, 100),
+            )
 
         current_y += preview_height + 15
 
@@ -279,39 +336,47 @@ class AssetBrowserUI:
         current_y += 25
 
         # Type
-        asset_type = self.selected_asset.get('type', 'unknown')
+        asset_type = self.selected_asset.get("type", "unknown")
         self.ui.label(f"Type: {asset_type}", x + 15, current_y, size=14)
         current_y += 22
 
         # Path
-        asset_path = self.selected_asset.get('path', 'Unknown')
+        asset_path = self.selected_asset.get("path", "Unknown")
         path_display = str(asset_path)
         if len(path_display) > 30:
             path_display = "..." + path_display[-30:]
-        self.ui.label(f"Path: {path_display}", x + 15, current_y, size=12, color=(180, 180, 180))
+        self.ui.label(
+            f"Path: {path_display}", x + 15, current_y, size=12, color=(180, 180, 180)
+        )
         current_y += 22
 
         # Size
-        asset_size = self.selected_asset.get('size', 0)
+        asset_size = self.selected_asset.get("size", 0)
         size_text = self._format_file_size(asset_size)
         self.ui.label(f"Size: {size_text}", x + 15, current_y, size=14)
         current_y += 22
 
         # Dimensions (for images)
-        if self.current_category == 'sprites' and 'dimensions' in self.selected_asset:
-            dims = self.selected_asset['dimensions']
-            self.ui.label(f"Dimensions: {dims[0]}x{dims[1]}", x + 15, current_y, size=14)
+        if self.current_category == "sprites" and "dimensions" in self.selected_asset:
+            dims = self.selected_asset["dimensions"]
+            self.ui.label(
+                f"Dimensions: {dims[0]}x{dims[1]}", x + 15, current_y, size=14
+            )
             current_y += 22
 
         # Actions
         current_y += 20
 
-        if self.ui.button("Use Asset", x + 10, current_y, width - 20, 35, color=(0, 150, 0)):
+        if self.ui.button(
+            "Use Asset", x + 10, current_y, width - 20, 35, color=(0, 150, 0)
+        ):
             self._use_asset(self.selected_asset)
 
         current_y += 45
 
-        if self.ui.button("Delete Asset", x + 10, current_y, width - 20, 35, color=(150, 0, 0)):
+        if self.ui.button(
+            "Delete Asset", x + 10, current_y, width - 20, 35, color=(150, 0, 0)
+        ):
             self._delete_asset(self.selected_asset)
 
     def _scan_assets(self):
@@ -328,81 +393,96 @@ class AssetBrowserUI:
         sprites_dir = self.assets_dir / "sprites"
         if sprites_dir.exists():
             for file_path in sprites_dir.glob("*.png"):
-                self.assets['sprites'].append({
-                    'name': file_path.stem,
-                    'path': str(file_path),
-                    'type': 'PNG Image',
-                    'size': file_path.stat().st_size,
-                    'color': (100, 150, 200),
-                })
+                self.assets["sprites"].append(
+                    {
+                        "name": file_path.stem,
+                        "path": str(file_path),
+                        "type": "PNG Image",
+                        "size": file_path.stat().st_size,
+                        "color": (100, 150, 200),
+                    }
+                )
 
         # Scan sounds
         sounds_dir = self.assets_dir / "sounds"
         if sounds_dir.exists():
             for file_path in sounds_dir.glob("*.wav"):
-                self.assets['sounds'].append({
-                    'name': file_path.stem,
-                    'path': str(file_path),
-                    'type': 'WAV Audio',
-                    'size': file_path.stat().st_size,
-                    'color': (200, 100, 100),
-                })
+                self.assets["sounds"].append(
+                    {
+                        "name": file_path.stem,
+                        "path": str(file_path),
+                        "type": "WAV Audio",
+                        "size": file_path.stat().st_size,
+                        "color": (200, 100, 100),
+                    }
+                )
 
         # Scan music
         music_dir = self.assets_dir / "music"
         if music_dir.exists():
             for file_path in music_dir.glob("*.ogg"):
-                self.assets['music'].append({
-                    'name': file_path.stem,
-                    'path': str(file_path),
-                    'type': 'OGG Music',
-                    'size': file_path.stat().st_size,
-                    'color': (150, 100, 200),
-                })
+                self.assets["music"].append(
+                    {
+                        "name": file_path.stem,
+                        "path": str(file_path),
+                        "type": "OGG Music",
+                        "size": file_path.stat().st_size,
+                        "color": (150, 100, 200),
+                    }
+                )
 
         # Scan fonts
         fonts_dir = self.assets_dir / "fonts"
         if fonts_dir.exists():
             for file_path in fonts_dir.glob("*.ttf"):
-                self.assets['fonts'].append({
-                    'name': file_path.stem,
-                    'path': str(file_path),
-                    'type': 'TrueType Font',
-                    'size': file_path.stat().st_size,
-                    'color': (100, 200, 100),
-                })
+                self.assets["fonts"].append(
+                    {
+                        "name": file_path.stem,
+                        "path": str(file_path),
+                        "type": "TrueType Font",
+                        "size": file_path.stat().st_size,
+                        "color": (100, 200, 100),
+                    }
+                )
 
         # Scan data files
         data_dir = self.assets_dir / "data"
         if data_dir.exists():
             for file_path in data_dir.glob("*.json"):
-                self.assets['data'].append({
-                    'name': file_path.stem,
-                    'path': str(file_path),
-                    'type': 'JSON Data',
-                    'size': file_path.stat().st_size,
-                    'color': (200, 200, 100),
-                })
+                self.assets["data"].append(
+                    {
+                        "name": file_path.stem,
+                        "path": str(file_path),
+                        "type": "JSON Data",
+                        "size": file_path.stat().st_size,
+                        "color": (200, 200, 100),
+                    }
+                )
 
     def _load_asset_preview(self, asset: Dict):
         """Load a preview for the selected asset."""
         self.preview_surface = None
 
-        if self.current_category == 'sprites':
+        if self.current_category == "sprites":
             try:
                 # Load image and scale it down for preview
-                image = pygame.image.load(asset['path'])
+                image = pygame.image.load(asset["path"])
                 # Scale to fit preview area (max 180x180)
                 max_size = 180
                 image_rect = image.get_rect()
 
                 if image_rect.width > max_size or image_rect.height > max_size:
-                    scale_factor = min(max_size / image_rect.width, max_size / image_rect.height)
-                    new_size = (int(image_rect.width * scale_factor), int(image_rect.height * scale_factor))
+                    scale_factor = min(
+                        max_size / image_rect.width, max_size / image_rect.height
+                    )
+                    new_size = (
+                        int(image_rect.width * scale_factor),
+                        int(image_rect.height * scale_factor),
+                    )
                     image = pygame.transform.scale(image, new_size)
 
                 self.preview_surface = image
-                asset['dimensions'] = image.get_rect().size
+                asset["dimensions"] = image.get_rect().size
             except Exception as e:
                 print(f"Failed to load preview: {e}")
 

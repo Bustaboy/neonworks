@@ -4,11 +4,12 @@ Rigid Body Physics System
 Physics simulation with forces, velocity, and collision response.
 """
 
-from typing import Tuple, Optional
-from dataclasses import dataclass, field
-from neonworks.core.ecs import Component, Entity, World, Transform
-from neonworks.physics.collision import Collider, CollisionInfo
 import math
+from dataclasses import dataclass, field
+from typing import Optional, Tuple
+
+from neonworks.core.ecs import Component, Entity, Transform, World
+from neonworks.physics.collision import Collider, CollisionInfo
 
 
 @dataclass
@@ -61,7 +62,7 @@ class RigidBody(Component):
 
     def get_speed(self) -> float:
         """Get current speed (magnitude of velocity)"""
-        return math.sqrt(self.velocity_x ** 2 + self.velocity_y ** 2)
+        return math.sqrt(self.velocity_x**2 + self.velocity_y**2)
 
     def get_kinetic_energy(self) -> float:
         """Get kinetic energy (0.5 * m * v^2)"""
@@ -72,6 +73,7 @@ class RigidBody(Component):
 @dataclass
 class PhysicsSettings:
     """Global physics settings"""
+
     gravity_x: float = 0.0
     gravity_y: float = 9.81  # Pixels per second squared
     max_velocity: float = 1000.0  # Maximum velocity cap
@@ -105,16 +107,18 @@ class PhysicsSystem:
             if rigidbody and transform:
                 self._update_rigidbody(rigidbody, transform, delta_time)
 
-    def _update_rigidbody(self, rigidbody: RigidBody, transform: Transform,
-                          delta_time: float):
+    def _update_rigidbody(
+        self, rigidbody: RigidBody, transform: Transform, delta_time: float
+    ):
         """Update a single rigid body"""
         if rigidbody.is_static:
             return
 
         # Apply gravity
         if not rigidbody.is_kinematic and rigidbody.gravity_scale != 0:
-            rigidbody.acceleration_y += (self.settings.gravity_y *
-                                        rigidbody.gravity_scale)
+            rigidbody.acceleration_y += (
+                self.settings.gravity_y * rigidbody.gravity_scale
+            )
 
         # Apply forces (F = ma, so a = F/m)
         if not rigidbody.is_kinematic and rigidbody.mass > 0:
@@ -156,8 +160,9 @@ class PhysicsSystem:
         rigidbody.acceleration_x = 0
         rigidbody.acceleration_y = 0
 
-    def apply_collision_response(self, entity_a: Entity, entity_b: Entity,
-                                 collision_info: CollisionInfo):
+    def apply_collision_response(
+        self, entity_a: Entity, entity_b: Entity, collision_info: CollisionInfo
+    ):
         """
         Apply physics response to a collision.
 
@@ -177,7 +182,12 @@ class PhysicsSystem:
             return
 
         # If both are triggers, no physical response
-        if collider_a and collider_b and collider_a.is_trigger and collider_b.is_trigger:
+        if (
+            collider_a
+            and collider_b
+            and collider_a.is_trigger
+            and collider_b.is_trigger
+        ):
             return
 
         normal_x, normal_y = collision_info.normal
@@ -237,9 +247,13 @@ class PhysicsSystem:
                 rigidbody_b, -normal_x, -normal_y, rigidbody_b.restitution
             )
 
-    def _resolve_collision_velocity(self, rigidbody_a: RigidBody,
-                                    rigidbody_b: RigidBody,
-                                    normal_x: float, normal_y: float):
+    def _resolve_collision_velocity(
+        self,
+        rigidbody_a: RigidBody,
+        rigidbody_b: RigidBody,
+        normal_x: float,
+        normal_y: float,
+    ):
         """Resolve velocity after collision between two dynamic objects"""
         # Relative velocity
         rel_vel_x = rigidbody_b.velocity_x - rigidbody_a.velocity_x
@@ -259,7 +273,7 @@ class PhysicsSystem:
         impulse_scalar = -(1 + restitution) * vel_along_normal
 
         if rigidbody_a.mass > 0 and rigidbody_b.mass > 0:
-            impulse_scalar /= (1.0 / rigidbody_a.mass + 1.0 / rigidbody_b.mass)
+            impulse_scalar /= 1.0 / rigidbody_a.mass + 1.0 / rigidbody_b.mass
 
         # Apply impulse
         impulse_x = impulse_scalar * normal_x
@@ -273,13 +287,14 @@ class PhysicsSystem:
             rigidbody_b.velocity_x += impulse_x / rigidbody_b.mass
             rigidbody_b.velocity_y += impulse_y / rigidbody_b.mass
 
-    def _resolve_static_collision_velocity(self, rigidbody: RigidBody,
-                                          normal_x: float, normal_y: float,
-                                          restitution: float):
+    def _resolve_static_collision_velocity(
+        self, rigidbody: RigidBody, normal_x: float, normal_y: float, restitution: float
+    ):
         """Resolve velocity after collision with static object"""
         # Velocity along normal (from object towards static)
-        vel_along_normal = (rigidbody.velocity_x * normal_x +
-                          rigidbody.velocity_y * normal_y)
+        vel_along_normal = (
+            rigidbody.velocity_x * normal_x + rigidbody.velocity_y * normal_y
+        )
 
         # Don't resolve if velocity is separating (away from static object)
         # Negative vel_along_normal means moving away from collision
@@ -298,9 +313,12 @@ class IntegratedPhysicsSystem:
     Handles both physics simulation and collision detection/response.
     """
 
-    def __init__(self, world_bounds: Optional[Tuple[float, float, float, float]] = None,
-                 physics_settings: Optional[PhysicsSettings] = None):
-        from engine.physics.collision import CollisionSystem
+    def __init__(
+        self,
+        world_bounds: Optional[Tuple[float, float, float, float]] = None,
+        physics_settings: Optional[PhysicsSettings] = None,
+    ):
+        from neonworks.physics.collision import CollisionSystem
 
         self.physics_system = PhysicsSystem(physics_settings)
         self.collision_system = CollisionSystem(world_bounds)
@@ -324,7 +342,7 @@ class IntegratedPhysicsSystem:
 
     def _detect_and_resolve_collisions(self, world: World):
         """Detect collisions and apply physics responses"""
-        from engine.physics.collision import CollisionDetector, Collider
+        from neonworks.physics.collision import Collider, CollisionDetector
 
         # Get all entities with colliders
         entities_with_colliders = []
@@ -334,7 +352,7 @@ class IntegratedPhysicsSystem:
 
         # Check collisions and apply responses
         for i, entity_a in enumerate(entities_with_colliders):
-            for entity_b in entities_with_colliders[i + 1:]:
+            for entity_b in entities_with_colliders[i + 1 :]:
                 collision_info = CollisionDetector.check_collision(entity_a, entity_b)
 
                 if collision_info:

@@ -4,13 +4,14 @@ State Management
 Game state and scene management system.
 """
 
-from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
 from enum import Enum, auto
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class StateTransition(Enum):
     """State transition types"""
+
     PUSH = auto()  # Push new state onto stack
     POP = auto()  # Pop current state
     REPLACE = auto()  # Replace current state
@@ -22,9 +23,9 @@ class GameState(ABC):
 
     def __init__(self, name: str):
         self.name = name
-        self._state_manager: Optional['StateManager'] = None
+        self._state_manager: Optional["StateManager"] = None
 
-    def set_manager(self, manager: 'StateManager'):
+    def set_manager(self, manager: "StateManager"):
         """Set the state manager"""
         self._state_manager = manager
 
@@ -83,8 +84,8 @@ class GameplayState(GameState):
 
     def enter(self, data: Dict[str, Any] = None):
         print("Entering gameplay state")
-        if data and 'level' in data:
-            self.load_level(data['level'])
+        if data and "level" in data:
+            self.load_level(data["level"])
 
     def exit(self):
         print("Exiting gameplay state")
@@ -146,8 +147,8 @@ class LoadingState(GameState):
 
     def enter(self, data: Dict[str, Any] = None):
         if data:
-            self.target_state = data.get('target_state')
-            self.target_data = data.get('target_data')
+            self.target_state = data.get("target_state")
+            self.target_data = data.get("target_data")
         self.progress = 0.0
 
     def exit(self):
@@ -159,9 +160,7 @@ class LoadingState(GameState):
 
         if self.progress >= 1.0 and self.target_state:
             self._state_manager.change_state(
-                self.target_state,
-                StateTransition.REPLACE,
-                self.target_data
+                self.target_state, StateTransition.REPLACE, self.target_data
             )
 
     def render(self):
@@ -174,17 +173,18 @@ class StateManager:
 
     def __init__(self):
         self._states: Dict[str, GameState] = {}
-        self._state_stack: list[GameState] = []
-        self._pending_transition: Optional[tuple] = None
+        self._state_stack: List[GameState] = []
+        self._pending_transition: Optional[Tuple] = None
 
-    def register_state(self, state: GameState) -> 'StateManager':
+    def register_state(self, state: GameState) -> "StateManager":
         """Register a game state"""
         state.set_manager(self)
         self._states[state.name] = state
         return self
 
-    def change_state(self, state_name: str, transition: StateTransition,
-                     data: Dict[str, Any] = None):
+    def change_state(
+        self, state_name: str, transition: StateTransition, data: Dict[str, Any] = None
+    ):
         """Change to a different state"""
         if state_name not in self._states:
             raise ValueError(f"State '{state_name}' not registered")

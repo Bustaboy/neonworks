@@ -4,9 +4,11 @@ Comprehensive tests for Input Manager
 Tests keyboard, mouse, action mapping, and axis input.
 """
 
-import pytest
-import pygame
 from unittest.mock import Mock, patch
+
+import pygame
+import pytest
+
 from neonworks.input.input_manager import InputManager, InputState, MouseButton
 
 
@@ -24,7 +26,7 @@ class TestKeyboardInput:
     def test_key_pressed_detection(self, input_manager):
         """Test detecting when a key is pressed"""
         # Simulate W key press
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
@@ -37,14 +39,14 @@ class TestKeyboardInput:
     def test_key_just_pressed(self, input_manager):
         """Test detecting when a key was just pressed this frame"""
         # First frame: no keys
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             mock_pressed.return_value = [False] * 512
             input_manager.update(0.016)
 
             assert not input_manager.is_key_just_pressed(pygame.K_w)
 
         # Second frame: W pressed
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
@@ -57,14 +59,14 @@ class TestKeyboardInput:
     def test_key_held(self, input_manager):
         """Test detecting when a key is held down"""
         # Frame 1: Press W
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
             input_manager.update(0.016)
 
         # Frame 2: Still holding W
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
@@ -77,14 +79,14 @@ class TestKeyboardInput:
     def test_key_just_released(self, input_manager):
         """Test detecting when a key was just released"""
         # Frame 1: Press W
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
             input_manager.update(0.016)
 
         # Frame 2: Release W
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             mock_pressed.return_value = [False] * 512
             input_manager.update(0.016)
 
@@ -93,7 +95,7 @@ class TestKeyboardInput:
 
     def test_key_states(self, input_manager):
         """Test all key states"""
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Released state
             mock_pressed.return_value = [False] * 512
             input_manager.update(0.016)
@@ -121,8 +123,8 @@ class TestMouseInput:
 
     def test_mouse_position(self, input_manager):
         """Test mouse position tracking"""
-        with patch('pygame.mouse.get_pos', return_value=(100, 200)):
-            with patch('pygame.mouse.get_pressed', return_value=(False, False, False)):
+        with patch("pygame.mouse.get_pos", return_value=(100, 200)):
+            with patch("pygame.mouse.get_pressed", return_value=(False, False, False)):
                 input_manager.update(0.016)
 
                 assert input_manager.get_mouse_position() == (100, 200)
@@ -131,25 +133,29 @@ class TestMouseInput:
 
     def test_mouse_button_pressed(self, input_manager):
         """Test mouse button press detection"""
-        with patch('pygame.mouse.get_pos', return_value=(0, 0)):
-            with patch('pygame.mouse.get_pressed', return_value=(True, False, False)):
+        with patch("pygame.mouse.get_pos", return_value=(0, 0)):
+            with patch("pygame.mouse.get_pressed", return_value=(True, False, False)):
                 input_manager.update(0.016)
 
                 assert input_manager.is_mouse_button_pressed(MouseButton.LEFT.value)
-                assert not input_manager.is_mouse_button_pressed(MouseButton.RIGHT.value)
+                assert not input_manager.is_mouse_button_pressed(
+                    MouseButton.RIGHT.value
+                )
 
     def test_mouse_button_just_pressed(self, input_manager):
         """Test detecting mouse button just pressed"""
-        with patch('pygame.mouse.get_pos', return_value=(0, 0)):
+        with patch("pygame.mouse.get_pos", return_value=(0, 0)):
             # Frame 1: No buttons
-            with patch('pygame.mouse.get_pressed', return_value=(False, False, False)):
+            with patch("pygame.mouse.get_pressed", return_value=(False, False, False)):
                 input_manager.update(0.016)
 
             # Frame 2: Left button pressed
-            with patch('pygame.mouse.get_pressed', return_value=(True, False, False)):
+            with patch("pygame.mouse.get_pressed", return_value=(True, False, False)):
                 input_manager.update(0.016)
 
-                assert input_manager.is_mouse_button_just_pressed(MouseButton.LEFT.value)
+                assert input_manager.is_mouse_button_just_pressed(
+                    MouseButton.LEFT.value
+                )
 
     def test_mouse_wheel(self, input_manager):
         """Test mouse wheel input"""
@@ -163,8 +169,8 @@ class TestMouseInput:
         assert input_manager.get_mouse_wheel() == 1
 
         # Wheel resets after update
-        with patch('pygame.mouse.get_pos', return_value=(0, 0)):
-            with patch('pygame.mouse.get_pressed', return_value=(False, False, False)):
+        with patch("pygame.mouse.get_pos", return_value=(0, 0)):
+            with patch("pygame.mouse.get_pressed", return_value=(False, False, False)):
                 input_manager.update(0.016)
 
         assert input_manager.get_mouse_wheel() == 0
@@ -177,7 +183,7 @@ class TestActionMapping:
         """Test mapping actions to keys"""
         input_manager.map_action("test_action", [pygame.K_SPACE, pygame.K_RETURN])
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_SPACE] = True
             mock_pressed.return_value = pressed_keys
@@ -192,7 +198,7 @@ class TestActionMapping:
         input_manager.map_action("move_up", [pygame.K_w, pygame.K_i])
 
         # Test with W key
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
@@ -202,7 +208,7 @@ class TestActionMapping:
             assert input_manager.is_action_pressed("move_up")
 
         # Test with I key (alternate binding)
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_i] = True
             mock_pressed.return_value = pressed_keys
@@ -215,7 +221,7 @@ class TestActionMapping:
         """Test action just pressed detection"""
         input_manager.map_action("jump", [pygame.K_SPACE])
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Frame 1: No keys
             mock_pressed.return_value = [False] * 512
             input_manager.update(0.016)
@@ -235,7 +241,7 @@ class TestActionMapping:
         # Add another key (use regular key codes)
         input_manager.add_key_to_action("attack", pygame.K_x)
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_x] = True
             mock_pressed.return_value = pressed_keys
@@ -247,7 +253,7 @@ class TestActionMapping:
         # Remove the key
         input_manager.remove_key_from_action("attack", pygame.K_x)
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_x] = True
             mock_pressed.return_value = pressed_keys
@@ -266,7 +272,7 @@ class TestActionMapping:
         input_manager.map_action("test", [pygame.K_SPACE])
         input_manager.register_action_callback("test", test_callback)
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Frame 1: No keys
             mock_pressed.return_value = [False] * 512
             input_manager.update(0.016)
@@ -288,7 +294,7 @@ class TestAxisInput:
         input_manager.map_action("left", [pygame.K_a])
         input_manager.map_action("right", [pygame.K_d])
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Press right
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_d] = True
@@ -298,7 +304,7 @@ class TestAxisInput:
 
             assert input_manager.get_axis("left", "right") == 1.0
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Press left
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_a] = True
@@ -310,7 +316,7 @@ class TestAxisInput:
 
     def test_movement_vector(self, input_manager):
         """Test getting normalized movement vector"""
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Press W
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
@@ -322,7 +328,7 @@ class TestAxisInput:
             assert horizontal == 0.0
             assert vertical == -1.0
 
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Press W and D (diagonal)
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
@@ -357,11 +363,11 @@ class TestTextInput:
 
         # Simulate typing "hello"
         events = [
-            Mock(type=pygame.KEYDOWN, key=pygame.K_h, scancode=0, unicode='h'),
-            Mock(type=pygame.KEYDOWN, key=pygame.K_e, scancode=0, unicode='e'),
-            Mock(type=pygame.KEYDOWN, key=pygame.K_l, scancode=0, unicode='l'),
-            Mock(type=pygame.KEYDOWN, key=pygame.K_l, scancode=0, unicode='l'),
-            Mock(type=pygame.KEYDOWN, key=pygame.K_o, scancode=0, unicode='o'),
+            Mock(type=pygame.KEYDOWN, key=pygame.K_h, scancode=0, unicode="h"),
+            Mock(type=pygame.KEYDOWN, key=pygame.K_e, scancode=0, unicode="e"),
+            Mock(type=pygame.KEYDOWN, key=pygame.K_l, scancode=0, unicode="l"),
+            Mock(type=pygame.KEYDOWN, key=pygame.K_l, scancode=0, unicode="l"),
+            Mock(type=pygame.KEYDOWN, key=pygame.K_o, scancode=0, unicode="o"),
         ]
 
         for event in events:
@@ -381,7 +387,9 @@ class TestTextInput:
         assert input_manager.get_text_input() == "test"
 
         # Press backspace
-        event = Mock(type=pygame.KEYDOWN, key=pygame.K_BACKSPACE, scancode=0, unicode='')
+        event = Mock(
+            type=pygame.KEYDOWN, key=pygame.K_BACKSPACE, scancode=0, unicode=""
+        )
         input_manager.process_event(event)
 
         assert input_manager.get_text_input() == "tes"
@@ -392,7 +400,7 @@ class TestUtilities:
 
     def test_clear_all(self, input_manager):
         """Test clearing all input state"""
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
@@ -407,7 +415,7 @@ class TestUtilities:
 
     def test_get_any_key_pressed(self, input_manager):
         """Test getting any pressed key"""
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             pressed_keys = [False] * 512
             pressed_keys[pygame.K_w] = True
             mock_pressed.return_value = pressed_keys
@@ -419,7 +427,7 @@ class TestUtilities:
 
     def test_get_any_key_just_pressed(self, input_manager):
         """Test getting any key just pressed"""
-        with patch('pygame.key.get_pressed') as mock_pressed:
+        with patch("pygame.key.get_pressed") as mock_pressed:
             # Frame 1: No keys
             mock_pressed.return_value = [False] * 512
             input_manager.update(0.016)

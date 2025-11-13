@@ -4,14 +4,16 @@ Movement Components for JRPG-style Exploration
 Components for tile-based character movement, collision, and animation.
 """
 
-from typing import Optional, Callable, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Callable, Optional, Tuple
+
 from neonworks.core.ecs import Component
 
 
 class Direction(Enum):
     """Cardinal directions for movement and facing"""
+
     UP = "up"
     DOWN = "down"
     LEFT = "left"
@@ -26,7 +28,7 @@ class Direction(Enum):
             Direction.RIGHT: (1, 0),
         }[self]
 
-    def opposite(self) -> 'Direction':
+    def opposite(self) -> "Direction":
         """Get opposite direction"""
         return {
             Direction.UP: Direction.DOWN,
@@ -43,6 +45,7 @@ class Movement(Component):
 
     Handles smooth movement between tiles and movement state.
     """
+
     # Movement speed (tiles per second)
     speed: float = 4.0
 
@@ -72,6 +75,7 @@ class Collider2D(Component):
 
     Defines which tiles can be walked on and collision layers.
     """
+
     # Collision properties
     is_solid: bool = True  # Can other entities pass through?
     is_trigger: bool = False  # Trigger events but don't block?
@@ -81,8 +85,8 @@ class Collider2D(Component):
     collision_mask: int = 0xFFFFFFFF  # Which layers to collide with
 
     # Callbacks
-    on_trigger_enter: Optional[Callable[['Entity'], None]] = None
-    on_trigger_exit: Optional[Callable[['Entity'], None]] = None
+    on_trigger_enter: Optional[Callable[["Entity"], None]] = None
+    on_trigger_exit: Optional[Callable[["Entity"], None]] = None
 
 
 @dataclass
@@ -92,6 +96,7 @@ class Interactable(Component):
 
     Allows player to interact by pressing action button when adjacent.
     """
+
     # Interaction properties
     can_interact: bool = True
     interaction_distance: int = 1  # Tiles away
@@ -106,7 +111,9 @@ class Interactable(Component):
     item_id: Optional[str] = None
 
     # Callbacks
-    on_interact: Optional[Callable[['Entity'], None]] = None  # Called when interacted with
+    on_interact: Optional[Callable[["Entity"], None]] = (
+        None  # Called when interacted with
+    )
 
     # Visual feedback
     show_prompt: bool = True  # Show interaction prompt UI?
@@ -120,6 +127,7 @@ class ZoneTrigger(Component):
 
     When player enters this tile, trigger a zone transition.
     """
+
     # Target zone
     target_zone: str = ""  # Zone/map name to load
     target_x: int = 0  # Spawn position in target zone
@@ -145,6 +153,7 @@ class NPCBehavior(Component):
 
     Defines movement patterns, dialogue, and AI behavior.
     """
+
     # Behavior type
     behavior_type: str = "static"  # static, wander, patrol, follow, etc.
 
@@ -178,6 +187,7 @@ class AnimationState(Component):
 
     Manages animation states like idle, walk, run for each direction.
     """
+
     # Current state
     current_state: str = "idle"
     current_direction: Direction = Direction.DOWN
@@ -192,16 +202,18 @@ class AnimationState(Component):
     animations: dict = field(default_factory=dict)
 
     # Default frame indices for each state/direction
-    default_frames: dict = field(default_factory=lambda: {
-        "idle_down": [0],
-        "idle_up": [12],
-        "idle_left": [4],
-        "idle_right": [8],
-        "walk_down": [0, 1, 2, 1],
-        "walk_up": [12, 13, 14, 13],
-        "walk_left": [4, 5, 6, 5],
-        "walk_right": [8, 9, 10, 9],
-    })
+    default_frames: dict = field(
+        default_factory=lambda: {
+            "idle_down": [0],
+            "idle_up": [12],
+            "idle_left": [4],
+            "idle_right": [8],
+            "walk_down": [0, 1, 2, 1],
+            "walk_up": [12, 13, 14, 13],
+            "walk_left": [4, 5, 6, 5],
+            "walk_right": [8, 9, 10, 9],
+        }
+    )
 
     def get_animation_key(self) -> str:
         """Get current animation key (state_direction)"""
@@ -224,6 +236,7 @@ class TileCollisionMap(Component):
 
     Stores which tiles are walkable/blocked.
     """
+
     # Collision data (2D array of booleans)
     # True = walkable, False = blocked
     collision_data: list = field(default_factory=list)

@@ -4,19 +4,21 @@ Comprehensive tests for Tilemap System
 Tests tile operations, layers, rendering, and coordinate conversions.
 """
 
-import pytest
-import pygame
 from unittest.mock import Mock, patch
-from neonworks.rendering.tilemap import (
-    Tile,
-    Tileset,
-    TileLayer,
-    Tilemap,
-    TilemapRenderer,
-    TilemapBuilder
-)
+
+import pygame
+import pytest
+
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
+from neonworks.rendering.tilemap import (
+    Tile,
+    TileLayer,
+    Tilemap,
+    TilemapBuilder,
+    TilemapRenderer,
+    Tileset,
+)
 
 
 @pytest.fixture
@@ -80,7 +82,7 @@ class TestTileset:
             tile_width=32,
             tile_height=32,
             columns=8,
-            tile_count=64
+            tile_count=64,
         )
 
         assert tileset.name == "test"
@@ -97,7 +99,7 @@ class TestTileset:
             columns=8,
             tile_count=64,
             spacing=0,
-            margin=0
+            margin=0,
         )
 
         # First tile (0,0)
@@ -122,7 +124,7 @@ class TestTileset:
             columns=8,
             tile_count=64,
             spacing=2,
-            margin=4
+            margin=4,
         )
 
         # First tile with margin
@@ -141,7 +143,7 @@ class TestTileset:
             tile_width=32,
             tile_height=32,
             columns=2,
-            tile_count=4
+            tile_count=4,
         )
 
         tileset.load_tiles(asset_manager)
@@ -215,7 +217,9 @@ class TestTileLayer:
 
     def test_layer_parallax(self):
         """Test layer parallax settings"""
-        layer = TileLayer(name="background", width=10, height=10, parallax_x=0.5, parallax_y=0.5)
+        layer = TileLayer(
+            name="background", width=10, height=10, parallax_x=0.5, parallax_y=0.5
+        )
 
         assert layer.parallax_x == 0.5
         assert layer.parallax_y == 0.5
@@ -282,7 +286,7 @@ class TestTilemap:
             tile_width=32,
             tile_height=32,
             columns=8,
-            tile_count=64
+            tile_count=64,
         )
 
         tilemap.add_tileset(tileset)
@@ -299,7 +303,7 @@ class TestTilemap:
             tile_width=32,
             tile_height=32,
             columns=8,
-            tile_count=64
+            tile_count=64,
         )
         tilemap.add_tileset(tileset)
 
@@ -367,7 +371,7 @@ class TestTilemapRenderer:
             tile_width=32,
             tile_height=32,
             columns=2,
-            tile_count=4
+            tile_count=4,
         )
         tilemap.add_tileset(tileset)
 
@@ -380,7 +384,7 @@ class TestTilemapRenderer:
 
         # Should have rendered at least one tile
         stats = renderer.get_stats()
-        assert stats['tiles_rendered'] >= 0
+        assert stats["tiles_rendered"] >= 0
 
     def test_camera_culling(self, asset_manager):
         """Test camera culling excludes off-screen tiles"""
@@ -399,7 +403,7 @@ class TestTilemapRenderer:
             tile_width=32,
             tile_height=32,
             columns=2,
-            tile_count=4
+            tile_count=4,
         )
         tilemap.add_tileset(tileset)
 
@@ -412,7 +416,7 @@ class TestTilemapRenderer:
         stats = renderer.get_stats()
         # Should render fewer tiles than total (due to culling)
         total_tiles = 100 * 100
-        assert stats['tiles_rendered'] < total_tiles
+        assert stats["tiles_rendered"] < total_tiles
 
     def test_invisible_layer_not_rendered(self, asset_manager, camera):
         """Test invisible layers are not rendered"""
@@ -425,7 +429,7 @@ class TestTilemapRenderer:
             tile_width=32,
             tile_height=32,
             columns=2,
-            tile_count=4
+            tile_count=4,
         )
         tilemap.add_tileset(tileset)
 
@@ -437,7 +441,7 @@ class TestTilemapRenderer:
 
         stats = renderer.get_stats()
         # No tiles should be rendered
-        assert stats['tiles_rendered'] == 0
+        assert stats["tiles_rendered"] == 0
 
 
 class TestTilemapBuilder:
@@ -469,7 +473,7 @@ class TestTilemapBuilder:
             tile_width=32,
             tile_height=32,
             columns=8,
-            rows=8
+            rows=8,
         )
 
         assert tileset.name == "tiles"
@@ -480,10 +484,7 @@ class TestTilemapBuilder:
         """Test filling layer with pattern"""
         layer = TileLayer(name="ground", width=10, height=10)
 
-        pattern = [
-            [1, 2],
-            [3, 4]
-        ]
+        pattern = [[1, 2], [3, 4]]
 
         TilemapBuilder.fill_pattern(layer, pattern)
 

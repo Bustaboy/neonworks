@@ -25,8 +25,12 @@ def get_hardware_id() -> str:
 
     # 1. MAC address (stable across reboots)
     try:
-        mac = ':'.join(['{:02x}'.format((uuid.getnode() >> elements) & 0xff)
-                       for elements in range(0, 2*6, 2)][::-1])
+        mac = ":".join(
+            [
+                "{:02x}".format((uuid.getnode() >> elements) & 0xFF)
+                for elements in range(0, 2 * 6, 2)
+            ][::-1]
+        )
         components.append(mac)
     except:
         pass
@@ -51,10 +55,10 @@ def get_hardware_id() -> str:
     components.append(platform.machine())
 
     # Combine all components
-    combined = '|'.join(components)
+    combined = "|".join(components)
 
     # Hash to create stable ID
-    hw_hash = hashlib.sha256(combined.encode('utf-8')).hexdigest()
+    hw_hash = hashlib.sha256(combined.encode("utf-8")).hexdigest()
 
     return hw_hash[:32]  # Return first 32 characters
 
@@ -67,13 +71,13 @@ def get_machine_info() -> dict:
         Dictionary with machine details
     """
     return {
-        'hardware_id': get_hardware_id(),
-        'platform': platform.system(),
-        'platform_version': platform.version(),
-        'machine': platform.machine(),
-        'processor': platform.processor(),
-        'node': platform.node(),
-        'python_version': platform.python_version()
+        "hardware_id": get_hardware_id(),
+        "platform": platform.system(),
+        "platform_version": platform.version(),
+        "machine": platform.machine(),
+        "processor": platform.processor(),
+        "node": platform.node(),
+        "python_version": platform.python_version(),
     }
 
 

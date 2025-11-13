@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.10', '3.11']
+        python-version: ['3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v3
@@ -20,6 +20,11 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies for pygame
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libfreetype6-dev libportmidi-dev
 
     - name: Cache pip packages
       uses: actions/cache@v3
@@ -66,7 +71,7 @@ jobs:
 
     - name: Archive test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.python-version }}
         path: |
@@ -81,7 +86,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.11'
 
     - name: Install dependencies
       run: |
@@ -94,7 +99,7 @@ jobs:
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only . --skip .git --skip __pycache__ --skip .pytest_cache
+        isort --check-only . --skip .git --skip __pycache__ --skip .pytest_cache --profile black
 
     - name: Lint with pylint
       run: |

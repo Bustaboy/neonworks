@@ -5,17 +5,21 @@ Neon Works License Manager CLI
 Manage engine licenses, activate keys, check status, and generate test licenses.
 """
 
-import sys
 import argparse
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Add engine to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from licensing.license_key import LicenseKeyGenerator, LicenseTier, get_production_generator
-from licensing.license_validator import LicenseValidator, get_global_validator
 from licensing.hardware_id import get_hardware_id, get_machine_info
+from licensing.license_key import (
+    LicenseKeyGenerator,
+    LicenseTier,
+    get_production_generator,
+)
+from licensing.license_validator import LicenseValidator, get_global_validator
 
 
 def cmd_activate(args):
@@ -35,11 +39,11 @@ def cmd_activate(args):
         print(f"  Licensee: {info['licensee']}")
         print(f"  Status: {info['status']}")
 
-        if info['expiry_date'] != 'Perpetual':
+        if info["expiry_date"] != "Perpetual":
             print(f"  Expires: {info['expiry_date']}")
 
         print(f"\nEnabled Features:")
-        for feature, enabled in info['features'].items():
+        for feature, enabled in info["features"].items():
             status = "✓" if enabled else "✗"
             print(f"  {status} {feature.replace('_', ' ').title()}")
 
@@ -64,23 +68,23 @@ def cmd_status(args):
     print(f"Licensee: {info['licensee']}")
     print(f"Status: {info['status']}")
 
-    if 'email' in info:
+    if "email" in info:
         print(f"Email: {info['email']}")
 
-    if 'issue_date' in info:
-        issue = datetime.fromisoformat(info['issue_date'])
+    if "issue_date" in info:
+        issue = datetime.fromisoformat(info["issue_date"])
         print(f"Issued: {issue.strftime('%Y-%m-%d')}")
 
-    if 'expiry_date' in info:
+    if "expiry_date" in info:
         print(f"Expires: {info['expiry_date']}")
 
-    if 'hardware_locked' in info and info['hardware_locked']:
+    if "hardware_locked" in info and info["hardware_locked"]:
         print(f"Hardware Locked: Yes")
 
     print(f"\nEnabled Features:")
-    for feature, enabled in info['features'].items():
+    for feature, enabled in info["features"].items():
         status = "✓" if enabled else "✗"
-        feature_name = feature.replace('_', ' ').title()
+        feature_name = feature.replace("_", " ").title()
         print(f"  {status} {feature_name}")
 
     # Check if can export
@@ -124,7 +128,7 @@ def cmd_hardware_id(args):
         print("\nDetailed Machine Information:")
         info = get_machine_info()
         for key, value in info.items():
-            if key != 'hardware_id':
+            if key != "hardware_id":
                 print(f"  {key}: {value}")
 
     print("=" * 60)
@@ -136,7 +140,9 @@ def cmd_generate(args):
     """Generate a test license key (for development/testing)"""
     if not args.confirm:
         print("WARNING: This generates test licenses with a default secret key.")
-        print("For production use, implement proper license server with secure key storage.")
+        print(
+            "For production use, implement proper license server with secure key storage."
+        )
         print("\nAdd --confirm to generate test license.")
         return 1
 
@@ -144,9 +150,9 @@ def cmd_generate(args):
 
     # Parse tier
     tier_map = {
-        'free': LicenseTier.FREE,
-        'indie': LicenseTier.INDIE,
-        'professional': LicenseTier.PROFESSIONAL
+        "free": LicenseTier.FREE,
+        "indie": LicenseTier.INDIE,
+        "professional": LicenseTier.PROFESSIONAL,
     }
     tier = tier_map.get(args.tier.lower())
 
@@ -170,7 +176,7 @@ def cmd_generate(args):
         licensee_email=args.email,
         duration_days=args.duration if args.duration > 0 else None,
         hardware_id=hardware_id,
-        max_exports=args.max_exports if args.max_exports > 0 else None
+        max_exports=args.max_exports if args.max_exports > 0 else None,
     )
 
     print("\n" + "=" * 60)
@@ -205,7 +211,7 @@ def cmd_generate(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Neon Works License Manager',
+        description="Neon Works License Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -220,39 +226,56 @@ Examples:
 
   # Generate test license (development only)
   python license_cli.py generate --tier indie --name "John Doe" --email john@example.com --confirm
-        """
+        """,
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # Activate command
-    activate_parser = subparsers.add_parser('activate', help='Activate a license key')
-    activate_parser.add_argument('key', help='License key to activate')
+    activate_parser = subparsers.add_parser("activate", help="Activate a license key")
+    activate_parser.add_argument("key", help="License key to activate")
 
     # Status command
-    status_parser = subparsers.add_parser('status', help='Show license status')
+    status_parser = subparsers.add_parser("status", help="Show license status")
 
     # Deactivate command
-    deactivate_parser = subparsers.add_parser('deactivate', help='Deactivate current license')
+    deactivate_parser = subparsers.add_parser(
+        "deactivate", help="Deactivate current license"
+    )
 
     # Hardware ID command
-    hwid_parser = subparsers.add_parser('hardware-id', help='Show hardware ID')
-    hwid_parser.add_argument('-v', '--verbose', action='store_true', help='Show detailed info')
+    hwid_parser = subparsers.add_parser("hardware-id", help="Show hardware ID")
+    hwid_parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Show detailed info"
+    )
 
     # Generate command (for testing)
-    generate_parser = subparsers.add_parser('generate', help='Generate test license (dev only)')
-    generate_parser.add_argument('--tier', required=True, choices=['free', 'indie', 'professional'],
-                                help='License tier')
-    generate_parser.add_argument('--name', required=True, help='Licensee name')
-    generate_parser.add_argument('--email', required=True, help='Licensee email')
-    generate_parser.add_argument('--duration', type=int, default=0,
-                                help='License duration in days (0 = perpetual)')
-    generate_parser.add_argument('--hardware-locked', action='store_true',
-                                help='Lock to current hardware')
-    generate_parser.add_argument('--max-exports', type=int, default=0,
-                                help='Maximum exports (0 = unlimited)')
-    generate_parser.add_argument('--confirm', action='store_true',
-                                help='Confirm test license generation')
+    generate_parser = subparsers.add_parser(
+        "generate", help="Generate test license (dev only)"
+    )
+    generate_parser.add_argument(
+        "--tier",
+        required=True,
+        choices=["free", "indie", "professional"],
+        help="License tier",
+    )
+    generate_parser.add_argument("--name", required=True, help="Licensee name")
+    generate_parser.add_argument("--email", required=True, help="Licensee email")
+    generate_parser.add_argument(
+        "--duration",
+        type=int,
+        default=0,
+        help="License duration in days (0 = perpetual)",
+    )
+    generate_parser.add_argument(
+        "--hardware-locked", action="store_true", help="Lock to current hardware"
+    )
+    generate_parser.add_argument(
+        "--max-exports", type=int, default=0, help="Maximum exports (0 = unlimited)"
+    )
+    generate_parser.add_argument(
+        "--confirm", action="store_true", help="Confirm test license generation"
+    )
 
     args = parser.parse_args()
 
@@ -262,15 +285,15 @@ Examples:
 
     # Execute command
     commands = {
-        'activate': cmd_activate,
-        'status': cmd_status,
-        'deactivate': cmd_deactivate,
-        'hardware-id': cmd_hardware_id,
-        'generate': cmd_generate
+        "activate": cmd_activate,
+        "status": cmd_status,
+        "deactivate": cmd_deactivate,
+        "hardware-id": cmd_hardware_id,
+        "generate": cmd_generate,
     }
 
     return commands[args.command](args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

@@ -290,27 +290,31 @@ This provides:
 ## Python Version Requirements
 
 ### Supported Versions
-- Python 3.8+
-- Python 3.9
-- Python 3.10
-- Python 3.11
+- **Python 3.11+** (Required)
+- Python 3.12 (Fully supported and tested)
 
 ### Recommended Version
-Python 3.10 or 3.11 for best performance and compatibility.
+Python 3.11 or 3.12 for best performance and compatibility.
 
-### Version-Specific Notes
+### Why Python 3.11+?
 
-#### Python 3.8
-- Minimum supported version
-- All features tested and working
+#### Performance Improvements
+- **10-60% faster** than Python 3.8-3.10
+- Optimized function calls and dictionary operations
+- Faster startup time
+- Better memory efficiency
 
-#### Python 3.9+
-- Improved performance for math operations (benefits numpy usage)
-- Better typing support (helpful for development)
+#### Modern Features
+- Built-in generic types (`list[]`, `dict[]` instead of `List[]`, `Dict[]`)
+- Better error messages and stack traces
+- Exception group handling
+- Pattern matching improvements
 
-#### Python 3.11
-- Significant performance improvements (up to 25% faster)
-- Recommended for production games
+#### Support Status
+- Python 3.8, 3.9, 3.10 are no longer supported
+- Python 3.8 reached EOL in October 2024
+- Python 3.11 is stable and production-ready
+- Python 3.12 brings additional optimizations
 
 ---
 

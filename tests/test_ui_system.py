@@ -4,20 +4,22 @@ Comprehensive tests for UI System
 Tests widgets, layouts, event handling, and rendering.
 """
 
-import pytest
+from unittest.mock import MagicMock, Mock
+
 import pygame
-from unittest.mock import Mock, MagicMock
+import pytest
+
 from neonworks.ui.ui_system import (
     Anchor,
-    UIStyle,
-    UILabel,
-    UIButton,
-    UIPanel,
-    UIContainer,
-    UIManager,
+    HorizontalLayout,
     UIBuilder,
+    UIButton,
+    UIContainer,
+    UILabel,
+    UIManager,
+    UIPanel,
+    UIStyle,
     VerticalLayout,
-    HorizontalLayout
 )
 
 
@@ -41,11 +43,7 @@ class TestUIStyle:
 
     def test_style_custom_values(self):
         """Test custom style values"""
-        style = UIStyle(
-            background_color=(255, 0, 0, 255),
-            padding=20,
-            font_size=24
-        )
+        style = UIStyle(background_color=(255, 0, 0, 255), padding=20, font_size=24)
 
         assert style.background_color == (255, 0, 0, 255)
         assert style.padding == 20
@@ -108,8 +106,12 @@ class TestUIButton:
         button.on_click = on_click
 
         # Simulate click
-        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (50, 25)})
-        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (50, 25)})
+        event_down = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (50, 25)}
+        )
+        event_up = pygame.event.Event(
+            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (50, 25)}
+        )
 
         button.handle_event(event_down)
         button.handle_event(event_up)
@@ -121,13 +123,13 @@ class TestUIButton:
         button = UIButton(x=10, y=10, width=100, height=40)
 
         # Mouse enter
-        event = pygame.event.Event(pygame.MOUSEMOTION, {'pos': (50, 25)})
+        event = pygame.event.Event(pygame.MOUSEMOTION, {"pos": (50, 25)})
         button.handle_event(event)
 
         assert button.hovered
 
         # Mouse leave
-        event = pygame.event.Event(pygame.MOUSEMOTION, {'pos': (200, 200)})
+        event = pygame.event.Event(pygame.MOUSEMOTION, {"pos": (200, 200)})
         button.handle_event(event)
 
         assert not button.hovered
@@ -140,8 +142,12 @@ class TestUIButton:
         button.on_click = lambda: clicked.append(True)
         button.enabled = False
 
-        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (50, 25)})
-        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (50, 25)})
+        event_down = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (50, 25)}
+        )
+        event_up = pygame.event.Event(
+            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (50, 25)}
+        )
 
         button.handle_event(event_down)
         button.handle_event(event_up)
@@ -226,8 +232,12 @@ class TestUIContainer:
         container.add_child(button)
 
         # Click on button
-        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (75, 65)})
-        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (75, 65)})
+        event_down = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (75, 65)}
+        )
+        event_up = pygame.event.Event(
+            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (75, 65)}
+        )
 
         container.handle_event(event_down)
         container.handle_event(event_up)
@@ -294,8 +304,12 @@ class TestUIManager:
 
         manager.add_widget(button)
 
-        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'button': 1, 'pos': (75, 65)})
-        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {'button': 1, 'pos': (75, 65)})
+        event_down = pygame.event.Event(
+            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (75, 65)}
+        )
+        event_up = pygame.event.Event(
+            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (75, 65)}
+        )
 
         manager.handle_event(event_down)
         manager.handle_event(event_up)
@@ -350,10 +364,7 @@ class TestUIBuilder:
         """Test creating button with builder"""
         clicked = []
         button = UIBuilder.create_button(
-            text="Test",
-            x=10,
-            y=20,
-            on_click=lambda: clicked.append(True)
+            text="Test", x=10, y=20, on_click=lambda: clicked.append(True)
         )
 
         assert button.text == "Test"

@@ -5,23 +5,25 @@ Intelligent level design assistance with smart placement suggestions,
 balance analysis, and automated layout generation.
 """
 
-from typing import List, Tuple, Set, Dict, Optional
+import random
 from dataclasses import dataclass
 from enum import Enum, auto
-import random
+from typing import Dict, List, Optional, Set, Tuple
 
 
 class PlacementPriority(Enum):
     """Priority levels for placement suggestions"""
+
     CRITICAL = auto()  # Must be placed
-    HIGH = auto()      # Strongly recommended
-    MEDIUM = auto()    # Suggested
-    LOW = auto()       # Optional
+    HIGH = auto()  # Strongly recommended
+    MEDIUM = auto()  # Suggested
+    LOW = auto()  # Optional
 
 
 @dataclass
 class PlacementSuggestion:
     """AI suggestion for placing an object"""
+
     x: int
     y: int
     object_type: str
@@ -66,7 +68,7 @@ class AILevelBuilder:
             # Opposite corners with some offset
             spawn_points = [
                 (self.grid_width // 4, self.grid_height // 4),
-                (3 * self.grid_width // 4, 3 * self.grid_height // 4)
+                (3 * self.grid_width // 4, 3 * self.grid_height // 4),
             ]
         elif num_players == 4:
             # Four corners
@@ -75,7 +77,7 @@ class AILevelBuilder:
                 (offset, offset),
                 (self.grid_width - offset, offset),
                 (offset, self.grid_height - offset),
-                (self.grid_width - offset, self.grid_height - offset)
+                (self.grid_width - offset, self.grid_height - offset),
             ]
         else:
             # Distribute around the map
@@ -91,20 +93,24 @@ class AILevelBuilder:
                 spawn_points.append((x, y))
 
         for i, (x, y) in enumerate(spawn_points):
-            suggestions.append(PlacementSuggestion(
-                x=x,
-                y=y,
-                object_type=f"spawn_point_player_{i+1}",
-                priority=PlacementPriority.CRITICAL,
-                reason=f"Optimal spawn location for player {i+1} - balanced distance from other players",
-                score=0.95
-            ))
+            suggestions.append(
+                PlacementSuggestion(
+                    x=x,
+                    y=y,
+                    object_type=f"spawn_point_player_{i+1}",
+                    priority=PlacementPriority.CRITICAL,
+                    reason=f"Optimal spawn location for player {i+1} - balanced distance from other players",
+                    score=0.95,
+                )
+            )
             self.occupied_cells.add((x, y))
 
         print(f"   ✅ Generated {len(suggestions)} spawn point suggestions")
         return suggestions
 
-    def suggest_resource_nodes(self, num_nodes: int, resource_type: str = "metal") -> List[PlacementSuggestion]:
+    def suggest_resource_nodes(
+        self, num_nodes: int, resource_type: str = "metal"
+    ) -> List[PlacementSuggestion]:
         """
         AI suggests resource node placements.
 
@@ -137,20 +143,24 @@ class AILevelBuilder:
                 # Score based on strategic value
                 score = self._score_resource_position(x, y)
 
-                suggestions.append(PlacementSuggestion(
-                    x=x,
-                    y=y,
-                    object_type=f"resource_node_{resource_type}",
-                    priority=PlacementPriority.HIGH,
-                    reason=f"Strategic {resource_type} location - balanced distribution across map",
-                    score=score
-                ))
+                suggestions.append(
+                    PlacementSuggestion(
+                        x=x,
+                        y=y,
+                        object_type=f"resource_node_{resource_type}",
+                        priority=PlacementPriority.HIGH,
+                        reason=f"Strategic {resource_type} location - balanced distribution across map",
+                        score=score,
+                    )
+                )
                 self.occupied_cells.add((x, y))
 
         print(f"   ✅ Placed {len(suggestions)} resource nodes strategically")
         return suggestions
 
-    def suggest_cover_positions(self, density: float = 0.15) -> List[PlacementSuggestion]:
+    def suggest_cover_positions(
+        self, density: float = 0.15
+    ) -> List[PlacementSuggestion]:
         """
         AI suggests cover object placements.
 
@@ -188,20 +198,24 @@ class AILevelBuilder:
                 score = self._score_cover_position(x, y)
 
                 if score > 0.3:  # Only suggest good positions
-                    suggestions.append(PlacementSuggestion(
-                        x=x,
-                        y=y,
-                        object_type="cover_object",
-                        priority=PlacementPriority.MEDIUM,
-                        reason="Tactical cover position - creates interesting combat scenarios",
-                        score=score
-                    ))
+                    suggestions.append(
+                        PlacementSuggestion(
+                            x=x,
+                            y=y,
+                            object_type="cover_object",
+                            priority=PlacementPriority.MEDIUM,
+                            reason="Tactical cover position - creates interesting combat scenarios",
+                            score=score,
+                        )
+                    )
                     self.occupied_cells.add((x, y))
 
         print(f"   ✅ Created {len(suggestions)} tactical cover positions")
         return suggestions
 
-    def suggest_buildings(self, player_num: int, spawn_x: int, spawn_y: int) -> List[PlacementSuggestion]:
+    def suggest_buildings(
+        self, player_num: int, spawn_x: int, spawn_y: int
+    ) -> List[PlacementSuggestion]:
         """
         AI suggests starting building placements near spawn.
 
@@ -234,20 +248,24 @@ class AILevelBuilder:
             if (x, y) in self.occupied_cells:
                 continue
 
-            suggestions.append(PlacementSuggestion(
-                x=x,
-                y=y,
-                object_type=building_type,
-                priority=priority,
-                reason=f"Optimal starting base layout - {building_type} positioned for efficiency",
-                score=0.9
-            ))
+            suggestions.append(
+                PlacementSuggestion(
+                    x=x,
+                    y=y,
+                    object_type=building_type,
+                    priority=priority,
+                    reason=f"Optimal starting base layout - {building_type} positioned for efficiency",
+                    score=0.9,
+                )
+            )
             self.occupied_cells.add((x, y))
 
         print(f"   ✅ Designed starting base with {len(suggestions)} buildings")
         return suggestions
 
-    def analyze_level_balance(self, suggestions: List[PlacementSuggestion]) -> Dict[str, any]:
+    def analyze_level_balance(
+        self, suggestions: List[PlacementSuggestion]
+    ) -> Dict[str, any]:
         """
         AI analyzes level balance and provides feedback.
 
@@ -262,28 +280,34 @@ class AILevelBuilder:
         # Count objects by type
         object_counts = {}
         for suggestion in suggestions:
-            obj_type = suggestion.object_type.split('_')[0]
+            obj_type = suggestion.object_type.split("_")[0]
             object_counts[obj_type] = object_counts.get(obj_type, 0) + 1
 
         # Calculate coverage
-        occupied_percentage = (len(self.occupied_cells) / (self.grid_width * self.grid_height)) * 100
+        occupied_percentage = (
+            len(self.occupied_cells) / (self.grid_width * self.grid_height)
+        ) * 100
 
         # Analyze spawn point distances
-        spawn_points = [s for s in suggestions if 'spawn_point' in s.object_type]
+        spawn_points = [s for s in suggestions if "spawn_point" in s.object_type]
         if len(spawn_points) >= 2:
-            min_distance = float('inf')
+            min_distance = float("inf")
             for i, sp1 in enumerate(spawn_points):
-                for sp2 in spawn_points[i+1:]:
+                for sp2 in spawn_points[i + 1 :]:
                     dist = abs(sp1.x - sp2.x) + abs(sp1.y - sp2.y)
                     min_distance = min(min_distance, dist)
 
-            balance_score = min(1.0, min_distance / (self.grid_width + self.grid_height) * 2)
+            balance_score = min(
+                1.0, min_distance / (self.grid_width + self.grid_height) * 2
+            )
         else:
             balance_score = 0.5
 
         # Resource fairness (check if resources are equidistant from spawns)
-        resource_nodes = [s for s in suggestions if 'resource' in s.object_type]
-        resource_fairness = self._calculate_resource_fairness(spawn_points, resource_nodes)
+        resource_nodes = [s for s in suggestions if "resource" in s.object_type]
+        resource_fairness = self._calculate_resource_fairness(
+            spawn_points, resource_nodes
+        )
 
         analysis = {
             "total_objects": len(suggestions),
@@ -291,21 +315,33 @@ class AILevelBuilder:
             "occupied_percentage": occupied_percentage,
             "balance_score": balance_score,
             "resource_fairness": resource_fairness,
-            "spawn_point_balance": "Excellent" if balance_score > 0.8 else "Good" if balance_score > 0.6 else "Needs Improvement",
-            "recommendations": []
+            "spawn_point_balance": (
+                "Excellent"
+                if balance_score > 0.8
+                else "Good" if balance_score > 0.6 else "Needs Improvement"
+            ),
+            "recommendations": [],
         }
 
         # Generate recommendations
         if balance_score < 0.6:
-            analysis["recommendations"].append("⚠️ Spawn points are too close - consider spreading them out")
+            analysis["recommendations"].append(
+                "⚠️ Spawn points are too close - consider spreading them out"
+            )
 
         if resource_fairness < 0.6:
-            analysis["recommendations"].append("⚠️ Resources favor one player - rebalance distribution")
+            analysis["recommendations"].append(
+                "⚠️ Resources favor one player - rebalance distribution"
+            )
 
         if occupied_percentage < 10:
-            analysis["recommendations"].append("💡 Map feels empty - consider adding more objects")
+            analysis["recommendations"].append(
+                "💡 Map feels empty - consider adding more objects"
+            )
         elif occupied_percentage > 40:
-            analysis["recommendations"].append("⚠️ Map is very crowded - might hinder movement")
+            analysis["recommendations"].append(
+                "⚠️ Map is very crowded - might hinder movement"
+            )
 
         if object_counts.get("cover", 0) < 10:
             analysis["recommendations"].append("💡 Add more cover for tactical depth")
@@ -328,12 +364,14 @@ class AILevelBuilder:
                 (0, 0, mid_x, mid_y),
                 (mid_x, 0, self.grid_width, mid_y),
                 (0, mid_y, mid_x, self.grid_height),
-                (mid_x, mid_y, self.grid_width, self.grid_height)
+                (mid_x, mid_y, self.grid_width, self.grid_height),
             ]
         else:
             return [(0, 0, self.grid_width, self.grid_height)]
 
-    def _find_placement_in_region(self, region: Tuple[int, int, int, int]) -> Tuple[int, int]:
+    def _find_placement_in_region(
+        self, region: Tuple[int, int, int, int]
+    ) -> Tuple[int, int]:
         """Find a random placement within a region"""
         x1, y1, x2, y2 = region
         x = random.randint(x1, x2 - 1)
@@ -355,8 +393,11 @@ class AILevelBuilder:
     def _score_cover_position(self, x: int, y: int) -> float:
         """Score a cover position for tactical value"""
         # Prefer positions with some neighbors (clustering)
-        neighbor_count = sum(1 for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]
-                           if (x + dx, y + dy) in self.occupied_cells)
+        neighbor_count = sum(
+            1
+            for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]
+            if (x + dx, y + dy) in self.occupied_cells
+        )
 
         cluster_score = min(1.0, neighbor_count / 2.0)
 
@@ -366,7 +407,7 @@ class AILevelBuilder:
         max_distance = self.grid_width + self.grid_height
         center_score = 1.0 - (center_distance / max_distance)
 
-        return (cluster_score * 0.6 + center_score * 0.4)
+        return cluster_score * 0.6 + center_score * 0.4
 
     def _generate_clusters(self, num_clusters: int) -> List[Tuple[int, int]]:
         """Generate cluster center points"""
@@ -380,17 +421,20 @@ class AILevelBuilder:
     def _distance_to_nearest_occupied(self, x: int, y: int) -> float:
         """Calculate distance to nearest occupied cell"""
         if not self.occupied_cells:
-            return float('inf')
+            return float("inf")
 
-        min_dist = float('inf')
+        min_dist = float("inf")
         for ox, oy in self.occupied_cells:
             dist = abs(x - ox) + abs(y - oy)
             min_dist = min(min_dist, dist)
 
         return min_dist
 
-    def _calculate_resource_fairness(self, spawn_points: List[PlacementSuggestion],
-                                    resource_nodes: List[PlacementSuggestion]) -> float:
+    def _calculate_resource_fairness(
+        self,
+        spawn_points: List[PlacementSuggestion],
+        resource_nodes: List[PlacementSuggestion],
+    ) -> float:
         """Calculate how fairly resources are distributed relative to spawns"""
         if not spawn_points or not resource_nodes:
             return 1.0
@@ -409,7 +453,9 @@ class AILevelBuilder:
 
         # Calculate variance
         mean_distance = sum(spawn_distances) / len(spawn_distances)
-        variance = sum((d - mean_distance) ** 2 for d in spawn_distances) / len(spawn_distances)
+        variance = sum((d - mean_distance) ** 2 for d in spawn_distances) / len(
+            spawn_distances
+        )
 
         # Low variance = fair, high variance = unfair
         fairness = 1.0 / (1.0 + variance / 100.0)

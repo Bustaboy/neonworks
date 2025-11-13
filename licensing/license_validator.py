@@ -5,12 +5,17 @@ Validates licenses at export time and enforces tier restrictions.
 """
 
 import os
-from pathlib import Path
-from typing import Optional, Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-from .license_key import LicenseKey, LicenseKeyGenerator, LicenseTier, get_production_generator
 from .hardware_id import get_hardware_id, validate_hardware_id
+from .license_key import (
+    LicenseKey,
+    LicenseKeyGenerator,
+    LicenseTier,
+    get_production_generator,
+)
 
 
 class LicenseValidator:
@@ -36,15 +41,15 @@ class LicenseValidator:
 
     def _get_default_license_path(self) -> Path:
         """Get default license file path"""
-        if os.name == 'nt':  # Windows
-            base = Path(os.environ.get('APPDATA', Path.home()))
+        if os.name == "nt":  # Windows
+            base = Path(os.environ.get("APPDATA", Path.home()))
         else:  # Unix-like
             base = Path.home()
 
-        license_dir = base / '.neonworks'
+        license_dir = base / ".neonworks"
         license_dir.mkdir(parents=True, exist_ok=True)
 
-        return license_dir / 'license.key'
+        return license_dir / "license.key"
 
     def load_license(self) -> Optional[LicenseKey]:
         """
@@ -57,7 +62,7 @@ class LicenseValidator:
             return None
 
         try:
-            with open(self.license_file, 'r') as f:
+            with open(self.license_file, "r") as f:
                 encoded_key = f.read().strip()
 
             license_key = self.generator.validate(encoded_key)
@@ -90,7 +95,7 @@ class LicenseValidator:
 
             # Save to file
             self.license_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(self.license_file, 'w') as f:
+            with open(self.license_file, "w") as f:
                 f.write(encoded_key)
 
             self._cached_license = license_key
@@ -100,6 +105,7 @@ class LicenseValidator:
             # For debugging - print error
             print(f"Error saving license: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -137,7 +143,10 @@ class LicenseValidator:
         # Check if expired
         if license_key.is_expired():
             expiry = datetime.fromisoformat(license_key.expiry_date)
-            return False, f"License expired on {expiry.strftime('%Y-%m-%d')}. Please renew your license."
+            return (
+                False,
+                f"License expired on {expiry.strftime('%Y-%m-%d')}. Please renew your license.",
+            )
 
         # Check hardware lock
         if license_key.is_hardware_locked():
@@ -186,35 +195,35 @@ class LicenseValidator:
 
         if tier == LicenseTier.FREE:
             return {
-                'export_games': True,
-                'remove_watermark': False,
-                'code_obfuscation': False,
-                'cython_compilation': False,
-                'commercial_use': False,
-                'priority_support': False,
-                'white_label': False
+                "export_games": True,
+                "remove_watermark": False,
+                "code_obfuscation": False,
+                "cython_compilation": False,
+                "commercial_use": False,
+                "priority_support": False,
+                "white_label": False,
             }
 
         elif tier == LicenseTier.INDIE:
             return {
-                'export_games': True,
-                'remove_watermark': True,
-                'code_obfuscation': True,
-                'cython_compilation': False,
-                'commercial_use': True,
-                'priority_support': False,
-                'white_label': False
+                "export_games": True,
+                "remove_watermark": True,
+                "code_obfuscation": True,
+                "cython_compilation": False,
+                "commercial_use": True,
+                "priority_support": False,
+                "white_label": False,
             }
 
         elif tier == LicenseTier.PROFESSIONAL:
             return {
-                'export_games': True,
-                'remove_watermark': True,
-                'code_obfuscation': True,
-                'cython_compilation': True,
-                'commercial_use': True,
-                'priority_support': True,
-                'white_label': True
+                "export_games": True,
+                "remove_watermark": True,
+                "code_obfuscation": True,
+                "cython_compilation": True,
+                "commercial_use": True,
+                "priority_support": True,
+                "white_label": True,
             }
 
         return {}
@@ -230,25 +239,25 @@ class LicenseValidator:
 
         if license_key is None:
             return {
-                'tier': 'Free (Open Source)',
-                'licensee': 'Unlicensed',
-                'status': 'No license',
-                'features': self.get_features()
+                "tier": "Free (Open Source)",
+                "licensee": "Unlicensed",
+                "status": "No license",
+                "features": self.get_features(),
             }
 
-        status = 'Active'
+        status = "Active"
         if license_key.is_expired():
-            status = 'Expired'
+            status = "Expired"
 
         info = {
-            'tier': license_key.get_tier_name(),
-            'licensee': license_key.licensee_name,
-            'email': license_key.licensee_email,
-            'status': status,
-            'issue_date': license_key.issue_date,
-            'expiry_date': license_key.expiry_date or 'Perpetual',
-            'hardware_locked': license_key.is_hardware_locked(),
-            'features': self.get_features()
+            "tier": license_key.get_tier_name(),
+            "licensee": license_key.licensee_name,
+            "email": license_key.licensee_email,
+            "status": status,
+            "issue_date": license_key.issue_date,
+            "expiry_date": license_key.expiry_date or "Perpetual",
+            "hardware_locked": license_key.is_hardware_locked(),
+            "features": self.get_features(),
         }
 
         return info

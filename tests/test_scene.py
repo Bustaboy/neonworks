@@ -4,15 +4,17 @@ Comprehensive tests for Scene Management System
 Tests scenes, transitions, scene stack, and lifecycle.
 """
 
-import pytest
+from unittest.mock import MagicMock, Mock, patch
+
 import pygame
-from unittest.mock import Mock, MagicMock, patch
+import pytest
+
 from neonworks.core.scene import (
     Scene,
     SceneManager,
-    SceneTransition,
     SceneState,
-    TransitionType
+    SceneTransition,
+    TransitionType,
 )
 
 

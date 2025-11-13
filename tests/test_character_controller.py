@@ -4,19 +4,21 @@ Comprehensive tests for Character Controller
 Tests player movement, AI behaviors, and animation integration.
 """
 
-import pytest
 from unittest.mock import Mock, patch
-from neonworks.core.ecs import World, Transform, RigidBody, Collider
+
+import pygame
+import pytest
+
+from neonworks.core.ecs import Collider, RigidBody, Transform, World
 from neonworks.gameplay.character_controller import (
-    CharacterController,
-    CharacterControllerSystem,
     AIController,
     AIControllerSystem,
-    MovementState
+    CharacterController,
+    CharacterControllerSystem,
+    MovementState,
 )
 from neonworks.input.input_manager import InputManager
-from neonworks.rendering.animation import AnimationComponent, Animation, AnimationFrame
-import pygame
+from neonworks.rendering.animation import Animation, AnimationComponent, AnimationFrame
 
 
 @pytest.fixture
@@ -52,11 +54,7 @@ class TestCharacterControllerComponent:
 
     def test_controller_with_custom_parameters(self):
         """Test creating controller with custom parameters"""
-        controller = CharacterController(
-            move_speed=300.0,
-            can_jump=True,
-            can_dash=True
-        )
+        controller = CharacterController(move_speed=300.0, can_jump=True, can_dash=True)
 
         assert controller.move_speed == 300.0
         assert controller.can_jump
@@ -85,9 +83,11 @@ class TestPlayerMovement:
         entity.add_component(CharacterController())
 
         # Simulate right input
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+
             def action_pressed(action):
                 return action == "move_right"
+
             mock_pressed.side_effect = action_pressed
 
             controller_system.update(world, 0.016)
@@ -104,16 +104,18 @@ class TestPlayerMovement:
         entity.add_component(CharacterController(move_speed=100.0))
 
         # Simulate diagonal input (right + down)
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+
             def action_pressed(action):
                 return action in ["move_right", "move_down"]
+
             mock_pressed.side_effect = action_pressed
 
             controller_system.update(world, 1.0)  # 1 second
 
         transform = entity.get_component(Transform)
         # Diagonal movement should be normalized, so total distance ~= speed
-        distance = (transform.x ** 2 + transform.y ** 2) ** 0.5
+        distance = (transform.x**2 + transform.y**2) ** 0.5
         assert abs(distance - 100.0) < 1.0  # Should be close to speed
 
 
@@ -130,9 +132,11 @@ class TestPhysicsMovement:
         rigidbody = entity.get_component(RigidBody)
 
         # Simulate right input
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+
             def action_pressed(action):
                 return action == "move_right"
+
             mock_pressed.side_effect = action_pressed
 
             # First frame - should start accelerating
@@ -155,7 +159,7 @@ class TestPhysicsMovement:
         entity.add_component(rigidbody)
 
         # No input - friction should slow down
-        with patch.object(input_manager, 'is_action_pressed', return_value=False):
+        with patch.object(input_manager, "is_action_pressed", return_value=False):
             controller_system.update(world, 0.016)
 
         # Velocity should have decreased
@@ -172,7 +176,7 @@ class TestMovementStates:
         controller = CharacterController()
         entity.add_component(controller)
 
-        with patch.object(input_manager, 'is_action_pressed', return_value=False):
+        with patch.object(input_manager, "is_action_pressed", return_value=False):
             controller_system.update(world, 0.016)
 
         assert controller.movement_state == MovementState.IDLE
@@ -184,9 +188,11 @@ class TestMovementStates:
         controller = CharacterController()
         entity.add_component(controller)
 
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+
             def action_pressed(action):
                 return action == "move_right"
+
             mock_pressed.side_effect = action_pressed
 
             controller_system.update(world, 0.016)
@@ -200,9 +206,11 @@ class TestMovementStates:
         controller = CharacterController()
         entity.add_component(controller)
 
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+
             def action_pressed(action):
                 return action in ["move_right", "run"]
+
             mock_pressed.side_effect = action_pressed
 
             controller_system.update(world, 0.016)
@@ -216,10 +224,14 @@ class TestMovementStates:
         controller = CharacterController(can_dash=True)
         entity.add_component(controller)
 
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
-            with patch.object(input_manager, 'is_action_just_pressed', return_value=True) as mock_just:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+            with patch.object(
+                input_manager, "is_action_just_pressed", return_value=True
+            ) as mock_just:
+
                 def action_pressed(action):
                     return action == "move_right"
+
                 mock_pressed.side_effect = action_pressed
 
                 controller_system.update(world, 0.016)
@@ -243,7 +255,7 @@ class TestDashMechanics:
         controller.dash_timer = 0.2
 
         # Update past dash duration
-        with patch.object(input_manager, 'is_action_pressed', return_value=False):
+        with patch.object(input_manager, "is_action_pressed", return_value=False):
             controller_system.update(world, 0.3)
 
         assert not controller.is_dashing
@@ -259,8 +271,10 @@ class TestDashMechanics:
         controller.dash_cooldown_timer = 0.5
 
         # Try to dash (should fail due to cooldown)
-        with patch.object(input_manager, 'is_action_pressed', return_value=True):
-            with patch.object(input_manager, 'is_action_just_pressed', return_value=True):
+        with patch.object(input_manager, "is_action_pressed", return_value=True):
+            with patch.object(
+                input_manager, "is_action_just_pressed", return_value=True
+            ):
                 controller_system.update(world, 0.016)
 
         assert not controller.is_dashing
@@ -276,7 +290,7 @@ class TestFrozenController:
         controller = CharacterController(is_frozen=True)
         entity.add_component(controller)
 
-        with patch.object(input_manager, 'is_action_pressed', return_value=True):
+        with patch.object(input_manager, "is_action_pressed", return_value=True):
             controller_system.update(world, 0.016)
 
         transform = entity.get_component(Transform)
@@ -332,8 +346,7 @@ class TestAIController:
         controller = CharacterController()
         entity.add_component(controller)
         ai = AIController(
-            behavior="patrol",
-            patrol_points=[(100, 0), (100, 100), (0, 100)]
+            behavior="patrol", patrol_points=[(100, 0), (100, 100), (0, 100)]
         )
         entity.add_component(ai)
 
@@ -392,7 +405,9 @@ class TestAIController:
 class TestAnimationIntegration:
     """Test animation integration with controller"""
 
-    def test_animation_updates_with_state(self, world, controller_system, input_manager):
+    def test_animation_updates_with_state(
+        self, world, controller_system, input_manager
+    ):
         """Test animation changes with movement state"""
         entity = world.create_entity()
         entity.add_component(Transform(x=0, y=0))
@@ -415,9 +430,11 @@ class TestAnimationIntegration:
         anim_component.current_animation = "idle"
 
         # Move character
-        with patch.object(input_manager, 'is_action_pressed') as mock_pressed:
+        with patch.object(input_manager, "is_action_pressed") as mock_pressed:
+
             def action_pressed(action):
                 return action == "move_right"
+
             mock_pressed.side_effect = action_pressed
 
             controller_system.update(world, 0.016)

@@ -5,13 +5,15 @@ Main game engine with fixed timestep update and variable rendering.
 """
 
 import time
-import pygame
 from typing import Optional
+
+import pygame
+
+from neonworks.audio.audio_manager import AudioManager
 from neonworks.core.ecs import World
 from neonworks.core.events import EventManager, get_event_manager
 from neonworks.core.state import StateManager
 from neonworks.input.input_manager import InputManager
-from neonworks.audio.audio_manager import AudioManager
 
 
 class GameEngine:
@@ -50,12 +52,12 @@ class GameEngine:
 
         # Performance stats
         self.stats = {
-            'fps': 0,
-            'frame_time': 0.0,
-            'update_time': 0.0,
-            'render_time': 0.0,
-            'entity_count': 0,
-            'audio_playing': 0,
+            "fps": 0,
+            "frame_time": 0.0,
+            "update_time": 0.0,
+            "render_time": 0.0,
+            "entity_count": 0,
+            "audio_playing": 0,
         }
 
     def start(self):
@@ -89,20 +91,22 @@ class GameEngine:
                 self._accumulator -= self.fixed_timestep
                 updates += 1
 
-            self.stats['update_time'] = time.time() - update_start
+            self.stats["update_time"] = time.time() - update_start
 
             # Variable timestep rendering
             render_start = time.time()
             self._render()
-            self.stats['render_time'] = time.time() - render_start
+            self.stats["render_time"] = time.time() - render_start
 
             # Update FPS counter
             self._update_fps(frame_time)
 
             # Update stats
-            self.stats['frame_time'] = time.time() - frame_start
-            self.stats['entity_count'] = len(self.world.get_entities())
-            self.stats['audio_playing'] = self.audio_manager.get_cache_info()['playing_sounds']
+            self.stats["frame_time"] = time.time() - frame_start
+            self.stats["entity_count"] = len(self.world.get_entities())
+            self.stats["audio_playing"] = self.audio_manager.get_cache_info()[
+                "playing_sounds"
+            ]
 
             # Frame limiting
             frame_duration = time.time() - frame_start
@@ -147,7 +151,7 @@ class GameEngine:
 
         if self._fps_timer >= 1.0:
             self._current_fps = self._frame_count
-            self.stats['fps'] = self._current_fps
+            self.stats["fps"] = self._current_fps
             self._frame_count = 0
             self._fps_timer = 0.0
 
@@ -196,27 +200,27 @@ class EngineConfig:
     def to_dict(self) -> dict:
         """Convert to dictionary"""
         return {
-            'window_width': self.window_width,
-            'window_height': self.window_height,
-            'fullscreen': self.fullscreen,
-            'vsync': self.vsync,
-            'target_fps': self.target_fps,
-            'fixed_timestep': self.fixed_timestep,
-            'tile_size': self.tile_size,
-            'grid_width': self.grid_width,
-            'grid_height': self.grid_height,
-            'enable_particles': self.enable_particles,
-            'enable_shadows': self.enable_shadows,
-            'render_navmesh': self.render_navmesh,
-            'editor_grid_visible': self.editor_grid_visible,
-            'editor_snap_to_grid': self.editor_snap_to_grid,
-            'show_fps': self.show_fps,
-            'show_debug_info': self.show_debug_info,
-            'show_collision_boxes': self.show_collision_boxes,
+            "window_width": self.window_width,
+            "window_height": self.window_height,
+            "fullscreen": self.fullscreen,
+            "vsync": self.vsync,
+            "target_fps": self.target_fps,
+            "fixed_timestep": self.fixed_timestep,
+            "tile_size": self.tile_size,
+            "grid_width": self.grid_width,
+            "grid_height": self.grid_height,
+            "enable_particles": self.enable_particles,
+            "enable_shadows": self.enable_shadows,
+            "render_navmesh": self.render_navmesh,
+            "editor_grid_visible": self.editor_grid_visible,
+            "editor_snap_to_grid": self.editor_snap_to_grid,
+            "show_fps": self.show_fps,
+            "show_debug_info": self.show_debug_info,
+            "show_collision_boxes": self.show_collision_boxes,
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'EngineConfig':
+    def from_dict(cls, data: dict) -> "EngineConfig":
         """Create from dictionary"""
         config = cls()
         for key, value in data.items():

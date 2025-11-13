@@ -6,20 +6,21 @@ Coordinates package building, executable bundling, and installer creation.
 Includes license validation and tier-based feature enforcement.
 """
 
-import sys
 import shutil
-from pathlib import Path
-from typing import Optional, Dict, Any
+import sys
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-from .package_builder import PackageBuilder, PackageConfig
-from .executable_bundler import ExecutableBundler, BundleConfig, create_launcher_script
+from .executable_bundler import BundleConfig, ExecutableBundler, create_launcher_script
 from .installer_builder import InstallerBuilder, InstallerConfig
+from .package_builder import PackageBuilder, PackageConfig
 
 # Import licensing system
 try:
-    from engine.licensing.license_validator import get_global_validator
-    from engine.licensing.license_key import LicenseTier
+    from neonworks.licensing.license_key import LicenseTier
+    from neonworks.licensing.license_validator import get_global_validator
+
     LICENSING_AVAILABLE = True
 except ImportError:
     LICENSING_AVAILABLE = False
@@ -29,6 +30,7 @@ except ImportError:
 @dataclass
 class ExportConfig:
     """Complete export configuration"""
+
     # Project info
     project_path: Path
     output_dir: Path
@@ -67,12 +69,12 @@ class ExportConfig:
     @staticmethod
     def _detect_platform() -> str:
         """Detect current platform"""
-        if sys.platform == 'win32':
-            return 'windows'
-        elif sys.platform == 'darwin':
-            return 'mac'
+        if sys.platform == "win32":
+            return "windows"
+        elif sys.platform == "darwin":
+            return "mac"
         else:
-            return 'linux'
+            return "linux"
 
 
 class ProjectExporter:
@@ -82,9 +84,12 @@ class ProjectExporter:
         self.config = config
         self.results: Dict[str, Any] = {}
 
-    def export(self) -> Dict[str, Any]:
+    def export(self, skip_confirmation: bool = False) -> Dict[str, Any]:
         """
         Run the complete export pipeline
+
+        Args:
+            skip_confirmation: Skip user confirmation prompts (for automated/testing use)
 
         Returns:
             Dictionary with export results and paths
@@ -112,10 +117,14 @@ class ProjectExporter:
                     print("⚠ Exported games will include attribution watermark")
                     print("⚠ Commercial use requires a paid license\n")
 
-                    response = input("Continue with free tier export? (y/N): ")
-                    if response.lower() != 'y':
-                        print("\nExport cancelled.")
-                        return {'error': 'Export cancelled by user'}
+                    if not skip_confirmation:
+                        response = input("Continue with free tier export? (y/N): ")
+                        if response.lower() != "y":
+                            print("\nExport cancelled.")
+                            return {"error": "Export cancelled by user"}
+                    else:
+                        print("(Skipping confirmation - automated mode)")
+
                 else:
                     raise RuntimeError("License validation failed")
 
@@ -126,12 +135,12 @@ class ProjectExporter:
 
             # Get available features
             features = validator.get_features()
-            self.results['license_tier'] = validator.get_tier().value
-            self.results['license_features'] = features
+            self.results["license_tier"] = validator.get_tier().value
+            self.results["license_features"] = features
         else:
             print("\n⚠ Licensing system not available - proceeding without validation")
-            self.results['license_tier'] = 'unknown'
-            self.results['license_features'] = {}
+            self.results["license_tier"] = "unknown"
+            self.results["license_features"] = {}
 
         # Create output directory
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
@@ -139,7 +148,7 @@ class ProjectExporter:
         # Step 1: Build package
         print("\n[1/3] Building package...")
         package_result = self._build_package()
-        self.results['package'] = package_result
+        self.results["package"] = package_result
         print(f"  ✓ Package created: {package_result['path']}")
         print(f"  ✓ Files: {package_result['file_count']}")
         print(f"  ✓ Size: {package_result['package_size'] / 1024 / 1024:.2f} MB")
@@ -149,39 +158,43 @@ class ProjectExporter:
         if self.config.create_executable:
             print("\n[2/3] Building executable...")
             try:
-                exe_result = self._build_executable(package_result['path'])
-                self.results['executable'] = exe_result
+                exe_result = self._build_executable(package_result["path"])
+                self.results["executable"] = exe_result
                 print(f"  ✓ Executable created: {exe_result['executable_path']}")
                 print(f"  ✓ Size: {exe_result['executable_size'] / 1024 / 1024:.2f} MB")
             except Exception as e:
                 print(f"  ✗ Executable build failed: {e}")
-                self.results['executable'] = {'error': str(e)}
+                self.results["executable"] = {"error": str(e)}
                 return self.results
         else:
             print("\n[2/3] Skipping executable build")
-            self.results['executable'] = None
+            self.results["executable"] = None
 
         # Step 3: Build installer (if requested)
-        if self.config.create_installer and self.results['executable']:
+        if self.config.create_installer and self.results["executable"]:
             print("\n[3/3] Building installer...")
             try:
                 installer_result = self._build_installer(
-                    self.results['executable']['executable_path']
+                    self.results["executable"]["executable_path"]
                 )
-                self.results['installer'] = installer_result
-                if 'installer_path' in installer_result:
-                    print(f"  ✓ Installer created: {installer_result['installer_path']}")
-                elif 'script_path' in installer_result:
-                    print(f"  ✓ Installer script created: {installer_result['script_path']}")
+                self.results["installer"] = installer_result
+                if "installer_path" in installer_result:
+                    print(
+                        f"  ✓ Installer created: {installer_result['installer_path']}"
+                    )
+                elif "script_path" in installer_result:
+                    print(
+                        f"  ✓ Installer script created: {installer_result['script_path']}"
+                    )
                     print(f"  ℹ {installer_result.get('note', '')}")
-                elif 'instructions' in installer_result:
+                elif "instructions" in installer_result:
                     print(f"  ℹ Manual steps required for this platform")
             except Exception as e:
                 print(f"  ✗ Installer build failed: {e}")
-                self.results['installer'] = {'error': str(e)}
+                self.results["installer"] = {"error": str(e)}
         else:
             print("\n[3/3] Skipping installer build")
-            self.results['installer'] = None
+            self.results["installer"] = None
 
         print("\n" + "=" * 60)
         print("Export complete!")
@@ -195,7 +208,7 @@ class ProjectExporter:
         package_config = PackageConfig(
             compress=self.config.compress,
             encrypt=self.config.encrypt,
-            password=self.config.password
+            password=self.config.password,
         )
 
         builder = PackageBuilder(package_config)
@@ -209,23 +222,17 @@ class ProjectExporter:
 
         stats = builder.build(package_path)
 
-        return {
-            'path': package_path,
-            'filename': package_filename,
-            **stats
-        }
+        return {"path": package_path, "filename": package_filename, **stats}
 
     def _build_executable(self, package_path: Path) -> Dict[str, Any]:
         """Build standalone executable"""
         # Create launcher script
         launcher_content = create_launcher_script(
-            self.config.app_name,
-            package_path.name,
-            self.config.password
+            self.config.app_name, package_path.name, self.config.password
         )
 
-        launcher_path = self.config.output_dir / 'launcher.py'
-        with open(launcher_path, 'w') as f:
+        launcher_path = self.config.output_dir / "launcher.py"
+        with open(launcher_path, "w") as f:
             f.write(launcher_content)
 
         # Configure bundler
@@ -235,22 +242,20 @@ class ProjectExporter:
             console=self.config.console,
             onefile=self.config.onefile,
             hidden_imports=[
-                'engine.export.package_loader',
-                'engine.data.config_loader',
-                'pygame',
-                'yaml',
-                'numpy',
-                'PIL',
-            ]
+                "engine.export.package_loader",
+                "engine.data.config_loader",
+                "pygame",
+                "yaml",
+                "numpy",
+                "PIL",
+            ],
         )
 
         bundler = ExecutableBundler(bundle_config)
 
         # Build executable
         result = bundler.bundle(
-            launcher_path,
-            package_path,
-            self.config.output_dir / 'bundle'
+            launcher_path, package_path, self.config.output_dir / "bundle"
         )
 
         return result
@@ -266,7 +271,7 @@ class ProjectExporter:
             license_file=self.config.license_file,
             readme_file=self.config.readme_file,
             create_desktop_shortcut=self.config.create_desktop_shortcut,
-            create_start_menu_shortcut=self.config.create_start_menu_shortcut
+            create_start_menu_shortcut=self.config.create_start_menu_shortcut,
         )
 
         installer_builder = InstallerBuilder(installer_config)
@@ -274,7 +279,7 @@ class ProjectExporter:
         result = installer_builder.build_for_platform(
             self.config.target_platform,
             executable_path,
-            self.config.output_dir / 'installer'
+            self.config.output_dir / "installer",
         )
 
         return result
@@ -284,7 +289,7 @@ class ProjectExporter:
         print(f"Building package for: {self.config.app_name}")
         package_result = self._build_package()
         print(f"Package created: {package_result['path']}")
-        return {'package': package_result}
+        return {"package": package_result}
 
 
 def quick_export(
@@ -293,7 +298,7 @@ def quick_export(
     app_name: str,
     version: str = "1.0.0",
     encrypt: bool = False,
-    password: Optional[str] = None
+    password: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Quick export with sensible defaults
@@ -315,7 +320,7 @@ def quick_export(
         app_name=app_name,
         version=version,
         encrypt=encrypt,
-        password=password
+        password=password,
     )
 
     exporter = ProjectExporter(config)

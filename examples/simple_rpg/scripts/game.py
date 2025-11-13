@@ -8,22 +8,36 @@ This file demonstrates how to set up a complete game with:
 - UI rendering
 """
 
-import pygame
 import json
 import os
-from neonworks.core.ecs import World, Transform, Health, Sprite
+
+import pygame
+
+from neonworks.core.ecs import Health, Sprite, Transform, World
+
 from .components import (
-    Velocity, PlayerController, CombatStats, AIController, AIState,
-    UIHealthBar, GameStats, GameScreen, ScreenState
+    AIController,
+    AIState,
+    CombatStats,
+    GameScreen,
+    GameStats,
+    PlayerController,
+    ScreenState,
+    UIHealthBar,
+    Velocity,
 )
 from .systems import (
-    PlayerInputSystem, MovementSystem, AISystem, CleanupSystem, GameStatsSystem
+    AISystem,
+    CleanupSystem,
+    GameStatsSystem,
+    MovementSystem,
+    PlayerInputSystem,
 )
-
 
 # ============================================================================
 # Entity Factory Functions
 # ============================================================================
+
 
 def create_player(world: World, x: float, y: float, config: dict) -> str:
     """
@@ -44,19 +58,18 @@ def create_player(world: World, x: float, y: float, config: dict) -> str:
 
     # Movement
     player.add_component(Velocity())
-    player.add_component(PlayerController(
-        speed=config.get("movement_speed", 200.0)
-    ))
+    player.add_component(PlayerController(speed=config.get("movement_speed", 200.0)))
 
     # Combat
-    player.add_component(Health(
-        current=config.get("starting_health", 100.0),
-        maximum=config.get("starting_health", 100.0)
-    ))
-    player.add_component(CombatStats(
-        attack_damage=config.get("attack_damage", 15),
-        attack_range=50.0
-    ))
+    player.add_component(
+        Health(
+            current=config.get("starting_health", 100.0),
+            maximum=config.get("starting_health", 100.0),
+        )
+    )
+    player.add_component(
+        CombatStats(attack_damage=config.get("attack_damage", 15), attack_range=50.0)
+    )
 
     # UI
     player.add_component(UIHealthBar())
@@ -91,20 +104,23 @@ def create_enemy(world: World, x: float, y: float, config: dict) -> str:
     enemy.add_component(Velocity())
 
     # AI
-    enemy.add_component(AIController(
-        detection_range=config.get("detection_range", 200.0),
-        movement_speed=config.get("movement_speed", 100.0)
-    ))
+    enemy.add_component(
+        AIController(
+            detection_range=config.get("detection_range", 200.0),
+            movement_speed=config.get("movement_speed", 100.0),
+        )
+    )
 
     # Combat
-    enemy.add_component(Health(
-        current=config.get("health", 50.0),
-        maximum=config.get("health", 50.0)
-    ))
-    enemy.add_component(CombatStats(
-        attack_damage=config.get("attack_damage", 10),
-        attack_range=config.get("attack_range", 40.0)
-    ))
+    enemy.add_component(
+        Health(current=config.get("health", 50.0), maximum=config.get("health", 50.0))
+    )
+    enemy.add_component(
+        CombatStats(
+            attack_damage=config.get("attack_damage", 10),
+            attack_range=config.get("attack_range", 40.0),
+        )
+    )
 
     # UI
     enemy.add_component(UIHealthBar())
@@ -129,6 +145,7 @@ def create_screen_manager(world: World) -> str:
 # ============================================================================
 # Game Setup
 # ============================================================================
+
 
 def setup_game(world: World, screen_width: int, screen_height: int, config: dict):
     """
@@ -206,6 +223,7 @@ def _clear_gameplay_entities(world: World):
 # ============================================================================
 # Rendering
 # ============================================================================
+
 
 def render_game(screen: pygame.Surface, world: World, screen_state: ScreenState):
     """
@@ -304,17 +322,20 @@ def _draw_health_bar(screen: pygame.Surface, entity, transform: Transform):
     bar_y = int(transform.y + ui_bar.offset_y)
 
     # Background (red)
-    pygame.draw.rect(screen, (100, 0, 0),
-                     (bar_x, bar_y, ui_bar.width, ui_bar.height))
+    pygame.draw.rect(screen, (100, 0, 0), (bar_x, bar_y, ui_bar.width, ui_bar.height))
 
     # Foreground (green, scaled by health)
     if health_percent > 0:
-        pygame.draw.rect(screen, (0, 200, 0),
-                         (bar_x, bar_y, int(ui_bar.width * health_percent), ui_bar.height))
+        pygame.draw.rect(
+            screen,
+            (0, 200, 0),
+            (bar_x, bar_y, int(ui_bar.width * health_percent), ui_bar.height),
+        )
 
     # Border
-    pygame.draw.rect(screen, (255, 255, 255),
-                     (bar_x, bar_y, ui_bar.width, ui_bar.height), 1)
+    pygame.draw.rect(
+        screen, (255, 255, 255), (bar_x, bar_y, ui_bar.width, ui_bar.height), 1
+    )
 
 
 def _draw_hud(screen: pygame.Surface, world: World):
@@ -335,11 +356,15 @@ def _draw_hud(screen: pygame.Surface, world: World):
     font = pygame.font.Font(None, 24)
 
     # Player HP
-    hp_text = font.render(f"HP: {int(health.current)}/{int(health.maximum)}", True, (255, 255, 255))
+    hp_text = font.render(
+        f"HP: {int(health.current)}/{int(health.maximum)}", True, (255, 255, 255)
+    )
     screen.blit(hp_text, (10, 10))
 
     # Enemies defeated
-    enemies_text = font.render(f"Enemies: {stats.enemies_defeated}/5", True, (255, 255, 255))
+    enemies_text = font.render(
+        f"Enemies: {stats.enemies_defeated}/5", True, (255, 255, 255)
+    )
     screen.blit(enemies_text, (10, 35))
 
     # Score
@@ -376,7 +401,7 @@ def render_game_over(screen: pygame.Surface, world: World):
             f"Time Survived: {int(stats.game_time)}s",
             "",
             "Press SPACE to Try Again",
-            "Press ESC to Quit"
+            "Press ESC to Quit",
         ]
 
         y_offset = 250
@@ -413,7 +438,7 @@ def render_victory(screen: pygame.Surface, world: World):
             f"Time: {int(stats.game_time)}s",
             "",
             "Press SPACE to Play Again",
-            "Press ESC to Quit"
+            "Press ESC to Quit",
         ]
 
         y_offset = 250

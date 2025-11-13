@@ -4,13 +4,14 @@ Event System
 Decoupled communication system for game events.
 """
 
-from typing import Callable, Dict, List, Any
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Any, Callable, Dict, List
 
 
 class EventType(Enum):
     """Common event types"""
+
     # Turn-based events
     TURN_START = auto()
     TURN_END = auto()
@@ -59,6 +60,7 @@ class EventType(Enum):
 @dataclass
 class Event:
     """Base event class"""
+
     event_type: EventType
     data: Dict[str, Any] = None
 
@@ -79,14 +81,16 @@ class EventManager:
         self._event_queue: List[Event] = []
         self._immediate_mode = False
 
-    def subscribe(self, event_type: EventType, handler: EventHandler) -> 'EventManager':
+    def subscribe(self, event_type: EventType, handler: EventHandler) -> "EventManager":
         """Subscribe to an event type"""
         if event_type not in self._handlers:
             self._handlers[event_type] = []
         self._handlers[event_type].append(handler)
         return self
 
-    def unsubscribe(self, event_type: EventType, handler: EventHandler) -> 'EventManager':
+    def unsubscribe(
+        self, event_type: EventType, handler: EventHandler
+    ) -> "EventManager":
         """Unsubscribe from an event type"""
         if event_type in self._handlers:
             try:

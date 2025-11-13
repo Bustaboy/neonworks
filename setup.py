@@ -1,10 +1,14 @@
 """Setup script for Neon Works Game Engine."""
-from setuptools import setup, find_packages
+
 from pathlib import Path
+
+from setuptools import find_packages, setup
 
 # Read the README file
 readme_file = Path(__file__).parent / "README.md"
-long_description = readme_file.read_text(encoding="utf-8") if readme_file.exists() else ""
+long_description = (
+    readme_file.read_text(encoding="utf-8") if readme_file.exists() else ""
+)
 
 # Read requirements
 requirements_file = Path(__file__).parent / "requirements.txt"
@@ -23,7 +27,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Neon Works Team",
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=requirements,
     entry_points={
@@ -49,10 +53,8 @@ setup(
         "Topic :: Games/Entertainment",
         "Topic :: Software Development :: Libraries :: pygame",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     keywords="game-engine pygame 2d turn-based strategy",
     project_urls={

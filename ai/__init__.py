@@ -5,17 +5,11 @@ Navigation, pathfinding, and AI behaviors.
 """
 
 from .pathfinding import (
+    Heuristic,
     NavigationGrid,
     Pathfinder,
     PathfindingSystem,
-    Heuristic,
-    PathNode
+    PathNode,
 )
 
-__all__ = [
-    'NavigationGrid',
-    'Pathfinder',
-    'PathfindingSystem',
-    'Heuristic',
-    'PathNode'
-]
+__all__ = ["NavigationGrid", "Pathfinder", "PathfindingSystem", "Heuristic", "PathNode"]

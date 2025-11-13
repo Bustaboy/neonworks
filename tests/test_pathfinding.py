@@ -4,14 +4,16 @@ Comprehensive tests for Navigation and Pathfinding System
 Tests A* pathfinding, grid navigation, and path smoothing.
 """
 
-import pytest
 import math
+
+import pytest
+
 from neonworks.ai.pathfinding import (
+    Heuristic,
     NavigationGrid,
     Pathfinder,
     PathfindingSystem,
-    Heuristic,
-    PathNode
+    PathNode,
 )
 
 
@@ -169,25 +171,19 @@ class TestHeuristics:
 
     def test_manhattan_heuristic(self):
         """Test Manhattan distance heuristic"""
-        distance = Pathfinder.calculate_heuristic(
-            (0, 0), (3, 4), Heuristic.MANHATTAN
-        )
+        distance = Pathfinder.calculate_heuristic((0, 0), (3, 4), Heuristic.MANHATTAN)
 
         assert distance == 7.0  # 3 + 4
 
     def test_euclidean_heuristic(self):
         """Test Euclidean distance heuristic"""
-        distance = Pathfinder.calculate_heuristic(
-            (0, 0), (3, 4), Heuristic.EUCLIDEAN
-        )
+        distance = Pathfinder.calculate_heuristic((0, 0), (3, 4), Heuristic.EUCLIDEAN)
 
         assert abs(distance - 5.0) < 0.001  # sqrt(9 + 16) = 5
 
     def test_diagonal_heuristic(self):
         """Test diagonal distance heuristic"""
-        distance = Pathfinder.calculate_heuristic(
-            (0, 0), (3, 3), Heuristic.DIAGONAL
-        )
+        distance = Pathfinder.calculate_heuristic((0, 0), (3, 3), Heuristic.DIAGONAL)
 
         # Diagonal distance for (3,3) should be close to 3 * sqrt(2)
         expected = 3 * math.sqrt(2)
@@ -195,9 +191,7 @@ class TestHeuristics:
 
     def test_chebyshev_heuristic(self):
         """Test Chebyshev distance heuristic"""
-        distance = Pathfinder.calculate_heuristic(
-            (0, 0), (3, 4), Heuristic.CHEBYSHEV
-        )
+        distance = Pathfinder.calculate_heuristic((0, 0), (3, 4), Heuristic.CHEBYSHEV)
 
         assert distance == 4.0  # max(3, 4)
 

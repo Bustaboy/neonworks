@@ -7,15 +7,15 @@ Command-line tool for exporting game projects.
 
 import argparse
 import sys
-from pathlib import Path
 from getpass import getpass
+from pathlib import Path
 
-from export.exporter import ProjectExporter, ExportConfig
+from export.exporter import ExportConfig, ProjectExporter
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Export Neon Works game projects',
+        description="Export Neon Works game projects",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -39,118 +39,90 @@ Examples:
     --encrypt \\
     --icon assets/icon.ico \\
     --output exports/v1.0
-        """
+        """,
     )
 
     parser.add_argument(
-        'project',
-        help='Path to project directory (e.g., projects/my_game)'
+        "project", help="Path to project directory (e.g., projects/my_game)"
     )
 
     parser.add_argument(
-        '--version', '-v',
-        default='1.0.0',
-        help='Game version (default: 1.0.0)'
+        "--version", "-v", default="1.0.0", help="Game version (default: 1.0.0)"
     )
 
     parser.add_argument(
-        '--output', '-o',
-        help='Output directory (default: exports/<project_name>)'
+        "--output", "-o", help="Output directory (default: exports/<project_name>)"
     )
 
     parser.add_argument(
-        '--publisher', '-p',
-        default='Independent Developer',
-        help='Publisher name for installer'
+        "--publisher",
+        "-p",
+        default="Independent Developer",
+        help="Publisher name for installer",
     )
 
-    parser.add_argument(
-        '--description', '-d',
-        default='',
-        help='Game description'
-    )
+    parser.add_argument("--description", "-d", default="", help="Game description")
 
     # Package options
-    package_group = parser.add_argument_group('Package Options')
+    package_group = parser.add_argument_group("Package Options")
     package_group.add_argument(
-        '--no-compress',
-        action='store_true',
-        help='Disable compression'
+        "--no-compress", action="store_true", help="Disable compression"
     )
 
     package_group.add_argument(
-        '--encrypt',
-        action='store_true',
-        help='Encrypt package for IP protection'
+        "--encrypt", action="store_true", help="Encrypt package for IP protection"
     )
 
     package_group.add_argument(
-        '--password',
-        help='Encryption password (will prompt if not provided)'
+        "--password", help="Encryption password (will prompt if not provided)"
     )
 
     # Executable options
-    exe_group = parser.add_argument_group('Executable Options')
+    exe_group = parser.add_argument_group("Executable Options")
     exe_group.add_argument(
-        '--no-executable',
-        action='store_true',
-        help='Skip executable creation'
+        "--no-executable", action="store_true", help="Skip executable creation"
     )
 
     exe_group.add_argument(
-        '--package-only',
-        action='store_true',
-        help='Only create .nwdata package (no exe or installer)'
+        "--package-only",
+        action="store_true",
+        help="Only create .nwdata package (no exe or installer)",
     )
 
     exe_group.add_argument(
-        '--console',
-        action='store_true',
-        help='Show console window (useful for debugging)'
+        "--console",
+        action="store_true",
+        help="Show console window (useful for debugging)",
     )
 
     exe_group.add_argument(
-        '--onedir',
-        action='store_true',
-        help='Create directory bundle instead of single file'
+        "--onedir",
+        action="store_true",
+        help="Create directory bundle instead of single file",
     )
 
     exe_group.add_argument(
-        '--icon',
-        type=Path,
-        help='Path to icon file (.ico for Windows, .icns for Mac)'
+        "--icon", type=Path, help="Path to icon file (.ico for Windows, .icns for Mac)"
     )
 
     # Installer options
-    installer_group = parser.add_argument_group('Installer Options')
+    installer_group = parser.add_argument_group("Installer Options")
     installer_group.add_argument(
-        '--no-installer',
-        action='store_true',
-        help='Skip installer creation'
+        "--no-installer", action="store_true", help="Skip installer creation"
+    )
+
+    installer_group.add_argument("--license", type=Path, help="Path to license file")
+
+    installer_group.add_argument("--readme", type=Path, help="Path to readme file")
+
+    installer_group.add_argument(
+        "--no-desktop-shortcut",
+        action="store_true",
+        help="Don't create desktop shortcut",
     )
 
     installer_group.add_argument(
-        '--license',
-        type=Path,
-        help='Path to license file'
-    )
-
-    installer_group.add_argument(
-        '--readme',
-        type=Path,
-        help='Path to readme file'
-    )
-
-    installer_group.add_argument(
-        '--no-desktop-shortcut',
-        action='store_true',
-        help='Don\'t create desktop shortcut'
-    )
-
-    installer_group.add_argument(
-        '--no-start-menu',
-        action='store_true',
-        help='Don\'t create start menu shortcut'
+        "--no-start-menu", action="store_true", help="Don't create start menu shortcut"
     )
 
     args = parser.parse_args()
@@ -162,22 +134,23 @@ Examples:
         return 1
 
     # Load project config to get app name
-    project_config_file = project_path / 'project.json'
+    project_config_file = project_path / "project.json"
     if not project_config_file.exists():
         print(f"Error: Not a valid project (missing project.json): {project_path}")
         return 1
 
     import json
+
     with open(project_config_file) as f:
         project_config = json.load(f)
 
-    app_name = project_config.get('metadata', {}).get('name', project_path.name)
+    app_name = project_config.get("metadata", {}).get("name", project_path.name)
 
     # Resolve output path
     if args.output:
         output_dir = Path(args.output)
     else:
-        output_dir = Path('exports') / project_path.name
+        output_dir = Path("exports") / project_path.name
 
     # Handle encryption password
     password = None
@@ -185,8 +158,8 @@ Examples:
         if args.password:
             password = args.password
         else:
-            password = getpass('Enter encryption password: ')
-            password_confirm = getpass('Confirm password: ')
+            password = getpass("Enter encryption password: ")
+            password_confirm = getpass("Confirm password: ")
             if password != password_confirm:
                 print("Error: Passwords don't match")
                 return 1
@@ -210,7 +183,7 @@ Examples:
         license_file=args.license,
         readme_file=args.readme,
         create_desktop_shortcut=not args.no_desktop_shortcut,
-        create_start_menu_shortcut=not args.no_start_menu
+        create_start_menu_shortcut=not args.no_start_menu,
     )
 
     # Run export
@@ -227,9 +200,10 @@ Examples:
     except Exception as e:
         print(f"\nError during export: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

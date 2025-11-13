@@ -4,27 +4,30 @@ Comprehensive tests for Serialization System
 Tests component, entity, and world serialization.
 """
 
-import pytest
 import json
 import tempfile
-from pathlib import Path
 from dataclasses import dataclass
-from neonworks.core.ecs import Component, World, Transform, GridPosition
+from pathlib import Path
+
+import pytest
+
+from neonworks.core.ecs import Component, GridPosition, Transform, World
 from neonworks.core.serialization import (
     ComponentSerializer,
     EntitySerializer,
-    WorldSerializer,
     GameSerializer,
-    SerializationMetadata,
-    SerializationFormat,
     SerializationError,
-    get_game_serializer
+    SerializationFormat,
+    SerializationMetadata,
+    WorldSerializer,
+    get_game_serializer,
 )
 
 
 @dataclass
 class TestComponent(Component):
     """Test component for serialization"""
+
     value: int = 0
     name: str = "test"
 
@@ -32,6 +35,7 @@ class TestComponent(Component):
 @dataclass
 class ComplexComponent(Component):
     """Complex component with nested data"""
+
     values: list = None
     settings: dict = None
 
@@ -75,10 +79,7 @@ class TestComponentSerializer:
         serializer = ComponentSerializer()
         serializer.register_component_type(TestComponent)
 
-        data = {
-            "_type": "TestComponent",
-            "_data": {"value": 99, "name": "world"}
-        }
+        data = {"_type": "TestComponent", "_data": {"value": 99, "name": "world"}}
 
         component = serializer.deserialize_component(data)
 
@@ -92,8 +93,7 @@ class TestComponentSerializer:
         serializer.register_component_type(ComplexComponent)
 
         component = ComplexComponent(
-            values=[1, 2, 3],
-            settings={"key": "value", "count": 10}
+            values=[1, 2, 3], settings={"key": "value", "count": 10}
         )
         data = serializer.serialize_component(component)
 
@@ -107,10 +107,7 @@ class TestComponentSerializer:
 
         data = {
             "_type": "ComplexComponent",
-            "_data": {
-                "values": [4, 5, 6],
-                "settings": {"mode": "test", "level": 5}
-            }
+            "_data": {"values": [4, 5, 6], "settings": {"mode": "test", "level": 5}},
         }
 
         component = serializer.deserialize_component(data)
@@ -140,10 +137,7 @@ class TestComponentSerializer:
         """Test deserializing unknown component type"""
         serializer = ComponentSerializer()
 
-        data = {
-            "_type": "UnknownComponent",
-            "_data": {}
-        }
+        data = {"_type": "UnknownComponent", "_data": {}}
 
         with pytest.raises(SerializationError, match="Unknown component type"):
             serializer.deserialize_component(data)
@@ -161,9 +155,7 @@ class TestComponentSerializer:
             value, name = data["custom"].split(":")
             return TestComponent(value=int(value), name=name)
 
-        serializer.register_custom_serializer(
-            TestComponent, custom_ser, custom_deser
-        )
+        serializer.register_custom_serializer(TestComponent, custom_ser, custom_deser)
 
         component = TestComponent(value=123, name="custom")
         data = serializer.serialize_component(component)
@@ -205,11 +197,10 @@ class TestEntitySerializer:
         data = {
             "id": 1,
             "active": True,
-            "components": [{
-                "_type": "TestComponent",
-                "_data": {"value": 99, "name": "test"}
-            }],
-            "tags": ["player", "active"]
+            "components": [
+                {"_type": "TestComponent", "_data": {"value": 99, "name": "test"}}
+            ],
+            "tags": ["player", "active"],
         }
 
         entity = entity_serializer.deserialize_entity(data, world)
@@ -270,23 +261,27 @@ class TestWorldSerializer:
                 {
                     "id": 1,
                     "active": True,
-                    "components": [{
-                        "_type": "TestComponent",
-                        "_data": {"value": 100, "name": "entity1"}
-                    }],
-                    "tags": []
+                    "components": [
+                        {
+                            "_type": "TestComponent",
+                            "_data": {"value": 100, "name": "entity1"},
+                        }
+                    ],
+                    "tags": [],
                 },
                 {
                     "id": 2,
                     "active": True,
-                    "components": [{
-                        "_type": "TestComponent",
-                        "_data": {"value": 200, "name": "entity2"}
-                    }],
-                    "tags": ["tagged"]
-                }
+                    "components": [
+                        {
+                            "_type": "TestComponent",
+                            "_data": {"value": 200, "name": "entity2"},
+                        }
+                    ],
+                    "tags": ["tagged"],
+                },
             ],
-            "next_entity_id": 3
+            "next_entity_id": 3,
         }
 
         world = world_serializer.deserialize_world(data)
@@ -311,7 +306,7 @@ class TestWorldSerializer:
             version="1.0",
             timestamp="2024-01-01",
             game_version="0.1.0",
-            custom_data={"level": "test_level"}
+            custom_data={"level": "test_level"},
         )
 
         component_serializer = ComponentSerializer()
@@ -359,7 +354,7 @@ class TestGameSerializer:
         entity = world.create_entity()
         entity.add_component(TestComponent(value=777))
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             temp_path = Path(f.name)
 
         try:
@@ -383,7 +378,7 @@ class TestGameSerializer:
         entity = world.create_entity()
         entity.add_component(TestComponent(value=888))
 
-        with tempfile.NamedTemporaryFile(mode='wb', suffix='.dat', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".dat", delete=False) as f:
             temp_path = Path(f.name)
 
         try:
@@ -423,12 +418,10 @@ class TestGameSerializer:
 
         world = World()
         metadata = SerializationMetadata(
-            version="2.0",
-            game_version="0.2.0",
-            custom_data={"save_name": "Test Save"}
+            version="2.0", game_version="0.2.0", custom_data={"save_name": "Test Save"}
         )
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             temp_path = Path(f.name)
 
         try:
@@ -455,7 +448,7 @@ class TestGlobalSerializer:
 
     def test_set_global_serializer(self):
         """Test setting global serializer"""
-        from engine.core.serialization import set_game_serializer
+        from neonworks.core.serialization import set_game_serializer
 
         custom_serializer = GameSerializer()
         set_game_serializer(custom_serializer)
@@ -486,13 +479,12 @@ class TestSerializationIntegration:
         enemy.add_component(TestComponent(value=30, name="enemy"))
 
         # Save game
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             temp_path = Path(f.name)
 
         try:
             metadata = SerializationMetadata(
-                game_version="1.0.0",
-                custom_data={"level": "test_level", "score": 1000}
+                game_version="1.0.0", custom_data={"level": "test_level", "score": 1000}
             )
             serializer.save_game(world, temp_path, metadata=metadata)
 

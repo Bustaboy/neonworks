@@ -5,17 +5,21 @@ Handles random battles triggered during exploration.
 """
 
 import random
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
-from neonworks.core.ecs import System, World, Entity
+from typing import Dict, List, Optional, Tuple
+
+from neonworks.core.ecs import Entity, System, World
 from neonworks.core.events import Event, EventManager, EventType
 
 
 @dataclass
 class EncounterGroup:
     """Definition of an encounter group"""
+
     group_id: str
-    enemies: List[Dict[str, any]] = field(default_factory=list)  # enemy_id, level, position
+    enemies: List[Dict[str, any]] = field(
+        default_factory=list
+    )  # enemy_id, level, position
     weight: int = 10  # Spawn weight
     min_steps: int = 0  # Minimum steps before can appear
     max_steps: int = 9999  # Maximum steps before stops appearing
@@ -28,6 +32,7 @@ class EncounterGroup:
 @dataclass
 class EncounterTable:
     """Table of encounters for a specific zone"""
+
     zone_id: str
     encounter_rate: float = 30.0  # Base encounter rate (encounters per 256 steps)
     step_interval: int = 8  # Check for encounter every N steps
@@ -49,8 +54,7 @@ class EncounterTable:
             return None
 
         # Filter groups by step range
-        valid_groups = [g for g in self.groups
-                       if g.min_steps <= steps <= g.max_steps]
+        valid_groups = [g for g in self.groups if g.min_steps <= steps <= g.max_steps]
 
         if not valid_groups:
             return None
@@ -169,16 +173,18 @@ class RandomEncounterSystem(System):
         self.steps_since_last_encounter = 0
 
         # Emit encounter event
-        self.event_manager.emit(Event(
-            EventType.CUSTOM,
-            {
-                "type": "random_encounter",
-                "zone_id": self.current_zone,
-                "group_id": group.group_id,
-                "enemies": group.enemies,
-                "step_count": self.step_count,
-            }
-        ))
+        self.event_manager.emit(
+            Event(
+                EventType.CUSTOM,
+                {
+                    "type": "random_encounter",
+                    "zone_id": self.current_zone,
+                    "group_id": group.group_id,
+                    "enemies": group.enemies,
+                    "step_count": self.step_count,
+                },
+            )
+        )
 
         return True
 
@@ -187,23 +193,22 @@ class RandomEncounterSystem(System):
         self.repel_active = True
         self.repel_duration = duration
 
-        self.event_manager.emit(Event(
-            EventType.CUSTOM,
-            {
-                "type": "repel_activated",
-                "duration": duration,
-            }
-        ))
+        self.event_manager.emit(
+            Event(
+                EventType.CUSTOM,
+                {
+                    "type": "repel_activated",
+                    "duration": duration,
+                },
+            )
+        )
 
     def deactivate_repel(self):
         """Deactivate repel effect"""
         self.repel_active = False
         self.repel_duration = 0
 
-        self.event_manager.emit(Event(
-            EventType.CUSTOM,
-            {"type": "repel_deactivated"}
-        ))
+        self.event_manager.emit(Event(EventType.CUSTOM, {"type": "repel_deactivated"}))
 
     def force_encounter(self, group_id: str) -> bool:
         """Force a specific encounter (for scripted battles)"""
@@ -222,16 +227,18 @@ class RandomEncounterSystem(System):
             return False
 
         # Trigger encounter
-        self.event_manager.emit(Event(
-            EventType.CUSTOM,
-            {
-                "type": "random_encounter",
-                "zone_id": self.current_zone,
-                "group_id": group.group_id,
-                "enemies": group.enemies,
-                "forced": True,
-            }
-        ))
+        self.event_manager.emit(
+            Event(
+                EventType.CUSTOM,
+                {
+                    "type": "random_encounter",
+                    "zone_id": self.current_zone,
+                    "group_id": group.group_id,
+                    "enemies": group.enemies,
+                    "forced": True,
+                },
+            )
+        )
 
         return True
 
@@ -272,40 +279,48 @@ class RandomEncounterSystem(System):
         )
 
         # Easy encounters (1-2 slimes)
-        grassland_table.add_group(EncounterGroup(
-            group_id="slime_single",
-            enemies=[{"enemy_id": "slime", "level": 1, "position": 0}],
-            weight=40,
-            max_steps=50,
-        ))
+        grassland_table.add_group(
+            EncounterGroup(
+                group_id="slime_single",
+                enemies=[{"enemy_id": "slime", "level": 1, "position": 0}],
+                weight=40,
+                max_steps=50,
+            )
+        )
 
-        grassland_table.add_group(EncounterGroup(
-            group_id="slime_pair",
-            enemies=[
-                {"enemy_id": "slime", "level": 1, "position": 0},
-                {"enemy_id": "slime", "level": 1, "position": 1},
-            ],
-            weight=30,
-        ))
+        grassland_table.add_group(
+            EncounterGroup(
+                group_id="slime_pair",
+                enemies=[
+                    {"enemy_id": "slime", "level": 1, "position": 0},
+                    {"enemy_id": "slime", "level": 1, "position": 1},
+                ],
+                weight=30,
+            )
+        )
 
         # Medium encounters (goblins)
-        grassland_table.add_group(EncounterGroup(
-            group_id="goblin_single",
-            enemies=[{"enemy_id": "goblin", "level": 2, "position": 0}],
-            weight=20,
-            min_steps=20,
-        ))
+        grassland_table.add_group(
+            EncounterGroup(
+                group_id="goblin_single",
+                enemies=[{"enemy_id": "goblin", "level": 2, "position": 0}],
+                weight=20,
+                min_steps=20,
+            )
+        )
 
-        grassland_table.add_group(EncounterGroup(
-            group_id="goblin_group",
-            enemies=[
-                {"enemy_id": "goblin", "level": 2, "position": 0},
-                {"enemy_id": "goblin", "level": 2, "position": 1},
-                {"enemy_id": "slime", "level": 1, "position": 2},
-            ],
-            weight=10,
-            min_steps=30,
-        ))
+        grassland_table.add_group(
+            EncounterGroup(
+                group_id="goblin_group",
+                enemies=[
+                    {"enemy_id": "goblin", "level": 2, "position": 0},
+                    {"enemy_id": "goblin", "level": 2, "position": 1},
+                    {"enemy_id": "slime", "level": 1, "position": 2},
+                ],
+                weight=10,
+                min_steps=30,
+            )
+        )
 
         self.register_encounter_table(grassland_table)
 
@@ -316,30 +331,36 @@ class RandomEncounterSystem(System):
             step_interval=7,
         )
 
-        forest_table.add_group(EncounterGroup(
-            group_id="wolf_single",
-            enemies=[{"enemy_id": "wolf", "level": 3, "position": 0}],
-            weight=30,
-        ))
+        forest_table.add_group(
+            EncounterGroup(
+                group_id="wolf_single",
+                enemies=[{"enemy_id": "wolf", "level": 3, "position": 0}],
+                weight=30,
+            )
+        )
 
-        forest_table.add_group(EncounterGroup(
-            group_id="wolf_pack",
-            enemies=[
-                {"enemy_id": "wolf", "level": 3, "position": 0},
-                {"enemy_id": "wolf", "level": 3, "position": 1},
-            ],
-            weight=25,
-        ))
+        forest_table.add_group(
+            EncounterGroup(
+                group_id="wolf_pack",
+                enemies=[
+                    {"enemy_id": "wolf", "level": 3, "position": 0},
+                    {"enemy_id": "wolf", "level": 3, "position": 1},
+                ],
+                weight=25,
+            )
+        )
 
-        forest_table.add_group(EncounterGroup(
-            group_id="spider_group",
-            enemies=[
-                {"enemy_id": "spider", "level": 4, "position": 0},
-                {"enemy_id": "spider", "level": 3, "position": 1},
-                {"enemy_id": "spider", "level": 3, "position": 2},
-            ],
-            weight=15,
-        ))
+        forest_table.add_group(
+            EncounterGroup(
+                group_id="spider_group",
+                enemies=[
+                    {"enemy_id": "spider", "level": 4, "position": 0},
+                    {"enemy_id": "spider", "level": 3, "position": 1},
+                    {"enemy_id": "spider", "level": 3, "position": 2},
+                ],
+                weight=15,
+            )
+        )
 
         self.register_encounter_table(forest_table)
 
@@ -350,35 +371,41 @@ class RandomEncounterSystem(System):
             step_interval=6,
         )
 
-        dungeon_table.add_group(EncounterGroup(
-            group_id="skeleton_group",
-            enemies=[
-                {"enemy_id": "skeleton", "level": 5, "position": 0},
-                {"enemy_id": "skeleton", "level": 5, "position": 1},
-            ],
-            weight=35,
-        ))
+        dungeon_table.add_group(
+            EncounterGroup(
+                group_id="skeleton_group",
+                enemies=[
+                    {"enemy_id": "skeleton", "level": 5, "position": 0},
+                    {"enemy_id": "skeleton", "level": 5, "position": 1},
+                ],
+                weight=35,
+            )
+        )
 
-        dungeon_table.add_group(EncounterGroup(
-            group_id="zombie_horde",
-            enemies=[
-                {"enemy_id": "zombie", "level": 6, "position": 0},
-                {"enemy_id": "zombie", "level": 5, "position": 1},
-                {"enemy_id": "zombie", "level": 5, "position": 2},
-            ],
-            weight=25,
-        ))
+        dungeon_table.add_group(
+            EncounterGroup(
+                group_id="zombie_horde",
+                enemies=[
+                    {"enemy_id": "zombie", "level": 6, "position": 0},
+                    {"enemy_id": "zombie", "level": 5, "position": 1},
+                    {"enemy_id": "zombie", "level": 5, "position": 2},
+                ],
+                weight=25,
+            )
+        )
 
-        dungeon_table.add_group(EncounterGroup(
-            group_id="boss_chamber",
-            enemies=[
-                {"enemy_id": "dark_knight", "level": 8, "position": 1},
-                {"enemy_id": "skeleton", "level": 5, "position": 0},
-                {"enemy_id": "skeleton", "level": 5, "position": 2},
-            ],
-            weight=10,
-            min_steps=100,
-        ))
+        dungeon_table.add_group(
+            EncounterGroup(
+                group_id="boss_chamber",
+                enemies=[
+                    {"enemy_id": "dark_knight", "level": 8, "position": 1},
+                    {"enemy_id": "skeleton", "level": 5, "position": 0},
+                    {"enemy_id": "skeleton", "level": 5, "position": 2},
+                ],
+                weight=10,
+                min_steps=100,
+            )
+        )
 
         self.register_encounter_table(dungeon_table)
 

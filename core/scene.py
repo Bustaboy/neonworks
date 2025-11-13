@@ -4,14 +4,16 @@ Scene Management System
 Manages game scenes/states with transitions and effects.
 """
 
-from typing import Optional, List, Callable, Dict, Any
-from enum import Enum
 from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
 import pygame
 
 
 class SceneState(Enum):
     """Scene lifecycle states"""
+
     LOADING = "loading"
     ACTIVE = "active"
     PAUSED = "paused"
@@ -22,6 +24,7 @@ class SceneState(Enum):
 
 class TransitionType(Enum):
     """Types of scene transitions"""
+
     NONE = "none"
     FADE = "fade"
     SLIDE_LEFT = "slide_left"
@@ -39,7 +42,7 @@ class Scene(ABC):
     def __init__(self, name: str):
         self.name = name
         self.state = SceneState.INACTIVE
-        self.manager: Optional['SceneManager'] = None
+        self.manager: Optional["SceneManager"] = None
         self.transition_progress = 0.0
         self.data: Dict[str, Any] = {}
 
@@ -80,19 +83,31 @@ class Scene(ABC):
         """
         return False
 
-    def change_scene(self, scene_name: str, transition: TransitionType = TransitionType.FADE,
-                     duration: float = 0.5, data: Optional[Dict[str, Any]] = None):
+    def change_scene(
+        self,
+        scene_name: str,
+        transition: TransitionType = TransitionType.FADE,
+        duration: float = 0.5,
+        data: Optional[Dict[str, Any]] = None,
+    ):
         """Request scene change through manager"""
         if self.manager:
             self.manager.change_scene(scene_name, transition, duration, data)
 
-    def push_scene(self, scene_name: str, transition: TransitionType = TransitionType.FADE,
-                   duration: float = 0.5, data: Optional[Dict[str, Any]] = None):
+    def push_scene(
+        self,
+        scene_name: str,
+        transition: TransitionType = TransitionType.FADE,
+        duration: float = 0.5,
+        data: Optional[Dict[str, Any]] = None,
+    ):
         """Push new scene on stack"""
         if self.manager:
             self.manager.push_scene(scene_name, transition, duration, data)
 
-    def pop_scene(self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5):
+    def pop_scene(
+        self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5
+    ):
         """Pop current scene from stack"""
         if self.manager:
             self.manager.pop_scene(transition, duration)
@@ -101,15 +116,20 @@ class Scene(ABC):
 class SceneTransition:
     """Manages transition effects between scenes"""
 
-    def __init__(self, transition_type: TransitionType, duration: float,
-                 screen_width: int, screen_height: int):
+    def __init__(
+        self,
+        transition_type: TransitionType,
+        duration: float,
+        screen_width: int,
+        screen_height: int,
+    ):
         self.type = transition_type
         self.duration = duration
         self.elapsed = 0.0
         self.screen_width = screen_width
         self.screen_height = screen_height
         # Mark complete immediately if zero duration
-        self.is_complete = (duration <= 0)
+        self.is_complete = duration <= 0
 
     @property
     def progress(self) -> float:
@@ -124,8 +144,12 @@ class SceneTransition:
         if self.elapsed >= self.duration:
             self.is_complete = True
 
-    def apply(self, screen: pygame.Surface, old_surface: Optional[pygame.Surface],
-              new_surface: pygame.Surface):
+    def apply(
+        self,
+        screen: pygame.Surface,
+        old_surface: Optional[pygame.Surface],
+        new_surface: pygame.Surface,
+    ):
         """
         Apply transition effect.
 
@@ -161,8 +185,12 @@ class SceneTransition:
         elif self.type == TransitionType.ZOOM_OUT:
             self._apply_zoom(screen, new_surface, zoom_in=False)
 
-    def _apply_fade(self, screen: pygame.Surface, old_surface: Optional[pygame.Surface],
-                    new_surface: pygame.Surface):
+    def _apply_fade(
+        self,
+        screen: pygame.Surface,
+        old_surface: Optional[pygame.Surface],
+        new_surface: pygame.Surface,
+    ):
         """Apply fade transition"""
         if old_surface:
             screen.blit(old_surface, (0, 0))
@@ -173,8 +201,14 @@ class SceneTransition:
         temp.set_alpha(alpha)
         screen.blit(temp, (0, 0))
 
-    def _apply_slide(self, screen: pygame.Surface, old_surface: Optional[pygame.Surface],
-                     new_surface: pygame.Surface, dx: int, dy: int):
+    def _apply_slide(
+        self,
+        screen: pygame.Surface,
+        old_surface: Optional[pygame.Surface],
+        new_surface: pygame.Surface,
+        dx: int,
+        dy: int,
+    ):
         """Apply slide transition"""
         offset_x = int(dx * self.screen_width * (1.0 - self.progress))
         offset_y = int(dy * self.screen_height * (1.0 - self.progress))
@@ -188,8 +222,12 @@ class SceneTransition:
         # Draw new surface sliding in
         screen.blit(new_surface, (offset_x, offset_y))
 
-    def _apply_dissolve(self, screen: pygame.Surface, old_surface: Optional[pygame.Surface],
-                        new_surface: pygame.Surface):
+    def _apply_dissolve(
+        self,
+        screen: pygame.Surface,
+        old_surface: Optional[pygame.Surface],
+        new_surface: pygame.Surface,
+    ):
         """Apply dissolve transition (similar to fade but with checkerboard pattern)"""
         if old_surface:
             screen.blit(old_surface, (0, 0))
@@ -200,7 +238,9 @@ class SceneTransition:
         temp.set_alpha(alpha)
         screen.blit(temp, (0, 0))
 
-    def _apply_zoom(self, screen: pygame.Surface, new_surface: pygame.Surface, zoom_in: bool):
+    def _apply_zoom(
+        self, screen: pygame.Surface, new_surface: pygame.Surface, zoom_in: bool
+    ):
         """Apply zoom transition"""
         if zoom_in:
             scale = self.progress
@@ -268,8 +308,13 @@ class SceneManager:
         """Get registered scene by name"""
         return self.scenes.get(scene_name)
 
-    def change_scene(self, scene_name: str, transition: TransitionType = TransitionType.FADE,
-                     duration: float = 0.5, data: Optional[Dict[str, Any]] = None):
+    def change_scene(
+        self,
+        scene_name: str,
+        transition: TransitionType = TransitionType.FADE,
+        duration: float = 0.5,
+        data: Optional[Dict[str, Any]] = None,
+    ):
         """
         Change to a different scene.
 
@@ -287,12 +332,15 @@ class SceneManager:
 
         # Start transition
         if duration > 0 and transition != TransitionType.NONE:
-            self.transition = SceneTransition(transition, duration,
-                                            self.screen_width, self.screen_height)
+            self.transition = SceneTransition(
+                transition, duration, self.screen_width, self.screen_height
+            )
 
             # Cache old scene render
             if self.current_scene and self.render_cache_enabled:
-                self.old_surface = pygame.Surface((self.screen_width, self.screen_height))
+                self.old_surface = pygame.Surface(
+                    (self.screen_width, self.screen_height)
+                )
                 self.current_scene.render(self.old_surface)
 
             if self.current_scene:
@@ -301,8 +349,13 @@ class SceneManager:
             # Instant change
             self._complete_scene_change()
 
-    def push_scene(self, scene_name: str, transition: TransitionType = TransitionType.FADE,
-                   duration: float = 0.5, data: Optional[Dict[str, Any]] = None):
+    def push_scene(
+        self,
+        scene_name: str,
+        transition: TransitionType = TransitionType.FADE,
+        duration: float = 0.5,
+        data: Optional[Dict[str, Any]] = None,
+    ):
         """
         Push new scene onto stack (pauses current scene).
 
@@ -323,7 +376,9 @@ class SceneManager:
         # Change to new scene
         self.change_scene(scene_name, transition, duration, data)
 
-    def pop_scene(self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5):
+    def pop_scene(
+        self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5
+    ):
         """
         Pop current scene and return to previous scene.
 
@@ -343,12 +398,15 @@ class SceneManager:
 
         # Start transition
         if duration > 0 and transition != TransitionType.NONE:
-            self.transition = SceneTransition(transition, duration,
-                                            self.screen_width, self.screen_height)
+            self.transition = SceneTransition(
+                transition, duration, self.screen_width, self.screen_height
+            )
 
             # Cache old scene render
             if self.current_scene and self.render_cache_enabled:
-                self.old_surface = pygame.Surface((self.screen_width, self.screen_height))
+                self.old_surface = pygame.Surface(
+                    (self.screen_width, self.screen_height)
+                )
                 self.current_scene.render(self.old_surface)
 
             if self.current_scene:
@@ -412,10 +470,14 @@ class SceneManager:
         if self.transition:
             # Render new scene to buffer
             if self.next_scene:
-                self.new_surface = pygame.Surface((self.screen_width, self.screen_height))
+                self.new_surface = pygame.Surface(
+                    (self.screen_width, self.screen_height)
+                )
                 self.next_scene.render(self.new_surface)
             else:
-                self.new_surface = pygame.Surface((self.screen_width, self.screen_height))
+                self.new_surface = pygame.Surface(
+                    (self.screen_width, self.screen_height)
+                )
                 self.new_surface.fill((0, 0, 0))
 
             # Apply transition

@@ -4,18 +4,20 @@ Comprehensive tests for Audio Manager
 Tests sound effects, music, volume control, and spatial audio.
 """
 
-import pytest
-import pygame
-from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
-from neonworks.audio.audio_manager import AudioManager, AudioCategory
+from unittest.mock import MagicMock, Mock, patch
+
+import pygame
+import pytest
+
+from neonworks.audio.audio_manager import AudioCategory, AudioManager
 
 
 @pytest.fixture
 def audio_manager():
     """Create a fresh audio manager for each test"""
-    with patch('pygame.mixer.init'):
-        with patch('pygame.mixer.set_num_channels'):
+    with patch("pygame.mixer.init"):
+        with patch("pygame.mixer.set_num_channels"):
             manager = AudioManager()
             manager._initialized = True  # Force initialization for testing
             return manager
@@ -26,8 +28,8 @@ class TestAudioManagerInit:
 
     def test_audio_manager_creation(self):
         """Test creating an audio manager"""
-        with patch('pygame.mixer.init'):
-            with patch('pygame.mixer.set_num_channels'):
+        with patch("pygame.mixer.init"):
+            with patch("pygame.mixer.set_num_channels"):
                 manager = AudioManager()
                 manager._initialized = True
 
@@ -36,8 +38,8 @@ class TestAudioManagerInit:
 
     def test_audio_manager_custom_path(self):
         """Test audio manager with custom base path"""
-        with patch('pygame.mixer.init'):
-            with patch('pygame.mixer.set_num_channels'):
+        with patch("pygame.mixer.init"):
+            with patch("pygame.mixer.set_num_channels"):
                 custom_path = Path("custom/audio")
                 manager = AudioManager(base_path=custom_path)
                 manager._initialized = True
@@ -46,7 +48,7 @@ class TestAudioManagerInit:
 
     def test_audio_manager_init_failure(self):
         """Test audio manager handles initialization failure gracefully"""
-        with patch('pygame.mixer.init', side_effect=pygame.error("No audio device")):
+        with patch("pygame.mixer.init", side_effect=pygame.error("No audio device")):
             manager = AudioManager()
 
             assert not manager._initialized
@@ -59,8 +61,8 @@ class TestSoundLoading:
         """Test loading a sound file"""
         mock_sound = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch.object(Path, "exists", return_value=True):
                 sound = audio_manager.load_sound("test.wav")
 
                 assert sound == mock_sound
@@ -70,8 +72,8 @@ class TestSoundLoading:
         """Test sound caching works"""
         mock_sound = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound) as mock_load:
-            with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound) as mock_load:
+            with patch.object(Path, "exists", return_value=True):
                 # Load sound twice
                 sound1 = audio_manager.load_sound("test.wav")
                 sound2 = audio_manager.load_sound("test.wav")
@@ -85,8 +87,8 @@ class TestSoundLoading:
         """Test loading sound without caching"""
         mock_sound = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound) as mock_load:
-            with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound) as mock_load:
+            with patch.object(Path, "exists", return_value=True):
                 # Load sound twice without caching
                 sound1 = audio_manager.load_sound("test.wav", cache=False)
                 sound2 = audio_manager.load_sound("test.wav", cache=False)
@@ -96,7 +98,7 @@ class TestSoundLoading:
 
     def test_load_sound_failure(self, audio_manager):
         """Test loading non-existent sound"""
-        with patch('pygame.mixer.Sound', side_effect=FileNotFoundError):
+        with patch("pygame.mixer.Sound", side_effect=FileNotFoundError):
             sound = audio_manager.load_sound("nonexistent.wav")
 
             assert sound is None
@@ -105,8 +107,8 @@ class TestSoundLoading:
         """Test preloading multiple sounds"""
         mock_sound = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch.object(Path, "exists", return_value=True):
                 paths = ["sound1.wav", "sound2.wav", "sound3.wav"]
                 audio_manager.preload_sounds(paths)
 
@@ -123,10 +125,10 @@ class TestSoundPlayback:
         mock_channel = Mock()
         mock_channel.play = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch('pygame.mixer.find_channel', return_value=mock_channel):
-                with patch.object(audio_manager, '_get_channel_id', return_value=0):
-                    with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch("pygame.mixer.find_channel", return_value=mock_channel):
+                with patch.object(audio_manager, "_get_channel_id", return_value=0):
+                    with patch.object(Path, "exists", return_value=True):
                         channel_id = audio_manager.play_sound("test.wav")
 
                         assert channel_id is not None
@@ -136,9 +138,9 @@ class TestSoundPlayback:
         """Test playing sound when no channel available"""
         mock_sound = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch('pygame.mixer.find_channel', return_value=None):
-                with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch("pygame.mixer.find_channel", return_value=None):
+                with patch.object(Path, "exists", return_value=True):
                     channel_id = audio_manager.play_sound("test.wav")
 
                     assert channel_id is None
@@ -149,10 +151,10 @@ class TestSoundPlayback:
         mock_sound.set_volume = Mock()
         mock_channel = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch('pygame.mixer.find_channel', return_value=mock_channel):
-                with patch.object(audio_manager, '_get_channel_id', return_value=0):
-                    with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch("pygame.mixer.find_channel", return_value=mock_channel):
+                with patch.object(audio_manager, "_get_channel_id", return_value=0):
+                    with patch.object(Path, "exists", return_value=True):
                         audio_manager.play_sound("test.wav", volume=0.5)
 
                         # Should set volume
@@ -165,10 +167,10 @@ class TestSoundPlayback:
         mock_channel = Mock()
         mock_channel.play = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch('pygame.mixer.find_channel', return_value=mock_channel):
-                with patch.object(audio_manager, '_get_channel_id', return_value=0):
-                    with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch("pygame.mixer.find_channel", return_value=mock_channel):
+                with patch.object(audio_manager, "_get_channel_id", return_value=0):
+                    with patch.object(Path, "exists", return_value=True):
                         audio_manager.play_sound("test.wav", loop=True)
 
                         # Should play with loops=-1
@@ -180,11 +182,10 @@ class TestSoundPlayback:
         mock_channel.stop = Mock()
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
+
         audio_manager._playing_sounds[0] = SoundInstance(
-            channel=mock_channel,
-            sound=mock_sound,
-            category=AudioCategory.SFX
+            channel=mock_channel, sound=mock_sound, category=AudioCategory.SFX
         )
 
         audio_manager.stop_sound(0)
@@ -198,16 +199,13 @@ class TestSoundPlayback:
         mock_channel2 = Mock()
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
+
         audio_manager._playing_sounds[0] = SoundInstance(
-            channel=mock_channel1,
-            sound=mock_sound,
-            category=AudioCategory.SFX
+            channel=mock_channel1, sound=mock_sound, category=AudioCategory.SFX
         )
         audio_manager._playing_sounds[1] = SoundInstance(
-            channel=mock_channel2,
-            sound=mock_sound,
-            category=AudioCategory.SFX
+            channel=mock_channel2, sound=mock_sound, category=AudioCategory.SFX
         )
 
         audio_manager.stop_all_sounds()
@@ -234,12 +232,14 @@ class TestSpatialAudio:
 
         audio_manager.set_listener_position(0, 0)
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch('pygame.mixer.find_channel', return_value=mock_channel):
-                with patch.object(audio_manager, '_get_channel_id', return_value=0):
-                    with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch("pygame.mixer.find_channel", return_value=mock_channel):
+                with patch.object(audio_manager, "_get_channel_id", return_value=0):
+                    with patch.object(Path, "exists", return_value=True):
                         # Play sound close to listener
-                        channel_id = audio_manager.play_sound_at("test.wav", 10, 10, max_distance=500)
+                        channel_id = audio_manager.play_sound_at(
+                            "test.wav", 10, 10, max_distance=500
+                        )
 
                         assert channel_id is not None
 
@@ -248,7 +248,9 @@ class TestSpatialAudio:
         audio_manager.set_listener_position(0, 0)
 
         # Sound at 1000, 1000 with max_distance 500 should not play
-        channel_id = audio_manager.play_sound_at("test.wav", 1000, 1000, max_distance=500)
+        channel_id = audio_manager.play_sound_at(
+            "test.wav", 1000, 1000, max_distance=500
+        )
 
         assert channel_id is None
 
@@ -258,10 +260,10 @@ class TestMusicPlayback:
 
     def test_play_music(self, audio_manager):
         """Test playing background music"""
-        with patch('pygame.mixer.music.load') as mock_load:
-            with patch('pygame.mixer.music.play') as mock_play:
-                with patch('pygame.mixer.music.set_volume'):
-                    with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.music.load") as mock_load:
+            with patch("pygame.mixer.music.play") as mock_play:
+                with patch("pygame.mixer.music.set_volume"):
+                    with patch.object(Path, "exists", return_value=True):
                         audio_manager.play_music("music.mp3")
 
                         mock_load.assert_called_once()
@@ -270,10 +272,10 @@ class TestMusicPlayback:
 
     def test_play_music_with_fade_in(self, audio_manager):
         """Test playing music with fade in"""
-        with patch('pygame.mixer.music.load'):
-            with patch('pygame.mixer.music.play') as mock_play:
-                with patch('pygame.mixer.music.set_volume'):
-                    with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.music.load"):
+            with patch("pygame.mixer.music.play") as mock_play:
+                with patch("pygame.mixer.music.set_volume"):
+                    with patch.object(Path, "exists", return_value=True):
                         audio_manager.play_music("music.mp3", fade_in_ms=1000)
 
                         # Should call play with fade_ms parameter
@@ -281,7 +283,7 @@ class TestMusicPlayback:
 
     def test_stop_music(self, audio_manager):
         """Test stopping music"""
-        with patch('pygame.mixer.music.stop') as mock_stop:
+        with patch("pygame.mixer.music.stop") as mock_stop:
             audio_manager._current_music = "music.mp3"
             audio_manager.stop_music()
 
@@ -290,15 +292,15 @@ class TestMusicPlayback:
 
     def test_stop_music_with_fade_out(self, audio_manager):
         """Test stopping music with fade out"""
-        with patch('pygame.mixer.music.fadeout') as mock_fadeout:
+        with patch("pygame.mixer.music.fadeout") as mock_fadeout:
             audio_manager.stop_music(fade_out_ms=1000)
 
             mock_fadeout.assert_called_with(1000)
 
     def test_pause_unpause_music(self, audio_manager):
         """Test pausing and unpausing music"""
-        with patch('pygame.mixer.music.pause') as mock_pause:
-            with patch('pygame.mixer.music.unpause') as mock_unpause:
+        with patch("pygame.mixer.music.pause") as mock_pause:
+            with patch("pygame.mixer.music.unpause") as mock_unpause:
                 audio_manager.pause_music()
                 mock_pause.assert_called_once()
 
@@ -307,10 +309,10 @@ class TestMusicPlayback:
 
     def test_is_music_playing(self, audio_manager):
         """Test checking if music is playing"""
-        with patch('pygame.mixer.music.get_busy', return_value=True):
+        with patch("pygame.mixer.music.get_busy", return_value=True):
             assert audio_manager.is_music_playing()
 
-        with patch('pygame.mixer.music.get_busy', return_value=False):
+        with patch("pygame.mixer.music.get_busy", return_value=False):
             assert not audio_manager.is_music_playing()
 
 
@@ -333,7 +335,7 @@ class TestVolumeControl:
 
     def test_set_master_volume_updates_music(self, audio_manager):
         """Test setting master volume updates music"""
-        with patch('pygame.mixer.music.set_volume') as mock_set_volume:
+        with patch("pygame.mixer.music.set_volume") as mock_set_volume:
             audio_manager.set_volume(AudioCategory.MASTER, 0.5)
 
             # Should update music volume
@@ -355,11 +357,10 @@ class TestAudioUpdate:
         mock_channel.get_busy = Mock(return_value=False)  # Sound finished
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
+
         audio_manager._playing_sounds[0] = SoundInstance(
-            channel=mock_channel,
-            sound=mock_sound,
-            category=AudioCategory.SFX
+            channel=mock_channel, sound=mock_sound, category=AudioCategory.SFX
         )
 
         audio_manager.update()
@@ -373,11 +374,10 @@ class TestAudioUpdate:
         mock_channel.get_busy = Mock(return_value=True)  # Still playing
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
+
         audio_manager._playing_sounds[0] = SoundInstance(
-            channel=mock_channel,
-            sound=mock_sound,
-            category=AudioCategory.SFX
+            channel=mock_channel, sound=mock_sound, category=AudioCategory.SFX
         )
 
         audio_manager.update()
@@ -416,9 +416,11 @@ class TestSoundPools:
         """Test creating a sound pool"""
         mock_sound = Mock()
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch.object(Path, 'exists', return_value=True):
-                audio_manager.create_sound_pool("gunshot", "gunshot.wav", max_instances=3)
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch.object(Path, "exists", return_value=True):
+                audio_manager.create_sound_pool(
+                    "gunshot", "gunshot.wav", max_instances=3
+                )
 
                 assert "gunshot" in audio_manager._sound_pools
                 assert len(audio_manager._sound_pools["gunshot"].sounds) == 3
@@ -429,13 +431,15 @@ class TestSoundPools:
         mock_channel = Mock()
         mock_channel.get_busy.return_value = True
 
-        with patch('pygame.mixer.Sound', return_value=mock_sound):
-            with patch('pygame.mixer.find_channel', return_value=mock_channel):
-                with patch('pygame.mixer.get_num_channels', return_value=8):
-                    with patch('pygame.mixer.Channel', return_value=mock_channel):
-                        with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", return_value=mock_sound):
+            with patch("pygame.mixer.find_channel", return_value=mock_channel):
+                with patch("pygame.mixer.get_num_channels", return_value=8):
+                    with patch("pygame.mixer.Channel", return_value=mock_channel):
+                        with patch.object(Path, "exists", return_value=True):
                             # Create pool
-                            audio_manager.create_sound_pool("test", "test.wav", max_instances=2)
+                            audio_manager.create_sound_pool(
+                                "test", "test.wav", max_instances=2
+                            )
 
                             # Play from pool
                             channel_id = audio_manager.play_pooled_sound("test")
@@ -453,8 +457,8 @@ class TestSoundPools:
         """Test sound pool uses round-robin selection"""
         mock_sounds = [Mock(), Mock(), Mock()]
 
-        with patch('pygame.mixer.Sound', side_effect=mock_sounds):
-            with patch.object(Path, 'exists', return_value=True):
+        with patch("pygame.mixer.Sound", side_effect=mock_sounds):
+            with patch.object(Path, "exists", return_value=True):
                 audio_manager.create_sound_pool("test", "test.wav", max_instances=3)
 
                 pool = audio_manager._sound_pools["test"]
@@ -476,7 +480,7 @@ class TestMusicCrossfade:
 
     def test_crossfade_to_music_no_current(self, audio_manager):
         """Test crossfade when no music is playing"""
-        with patch.object(audio_manager, 'play_music') as mock_play:
+        with patch.object(audio_manager, "play_music") as mock_play:
             audio_manager.crossfade_to_music("new_music.mp3", duration=1.0)
 
             # Should just play normally
@@ -499,8 +503,8 @@ class TestMusicCrossfade:
         audio_manager.crossfade_to_music("new_music.mp3", duration=2.0)
 
         # Update halfway through
-        with patch.object(audio_manager, 'play_music'):
-            with patch('pygame.mixer.music.set_volume'):
+        with patch.object(audio_manager, "play_music"):
+            with patch("pygame.mixer.music.set_volume"):
                 audio_manager.update(1.0)
 
                 assert audio_manager._music_crossfade.progress == 0.5
@@ -514,10 +518,12 @@ class TestMusicCrossfade:
         def on_complete():
             callback_called.append(True)
 
-        audio_manager.crossfade_to_music("new_music.mp3", duration=1.0, on_complete=on_complete)
+        audio_manager.crossfade_to_music(
+            "new_music.mp3", duration=1.0, on_complete=on_complete
+        )
 
-        with patch.object(audio_manager, 'play_music'):
-            with patch('pygame.mixer.music.set_volume'):
+        with patch.object(audio_manager, "play_music"):
+            with patch("pygame.mixer.music.set_volume"):
                 # Complete crossfade
                 audio_manager.update(2.0)
 
@@ -547,7 +553,7 @@ class TestAudioDucking:
         audio_manager.enable_ducking(AudioCategory.SFX)
         audio_manager._ducking_active = True
 
-        with patch('pygame.mixer.music.set_volume'):
+        with patch("pygame.mixer.music.set_volume"):
             audio_manager.disable_ducking()
 
             assert not audio_manager._ducking_enabled
@@ -562,7 +568,7 @@ class TestAudioDucking:
         mock_instance.category = AudioCategory.SFX
         audio_manager._playing_sounds[0] = mock_instance
 
-        with patch('pygame.mixer.music.set_volume'):
+        with patch("pygame.mixer.music.set_volume"):
             audio_manager.update(0.016)
 
             assert audio_manager._ducking_active
@@ -575,7 +581,7 @@ class TestAudioDucking:
         # No playing sounds
         audio_manager._playing_sounds.clear()
 
-        with patch('pygame.mixer.music.set_volume'):
+        with patch("pygame.mixer.music.set_volume"):
             audio_manager.update(0.016)
 
             assert not audio_manager._ducking_active
@@ -589,7 +595,7 @@ class TestAudioDucking:
         mock_instance.category = AudioCategory.UI
         audio_manager._playing_sounds[0] = mock_instance
 
-        with patch('pygame.mixer.music.set_volume'):
+        with patch("pygame.mixer.music.set_volume"):
             audio_manager.update(0.016)
 
             assert not audio_manager._ducking_active
@@ -600,7 +606,7 @@ class TestEnhancedUtilities:
 
     def test_cache_info_includes_pools(self, audio_manager):
         """Test cache info includes sound pools"""
-        from engine.audio.audio_manager import SoundPool
+        from neonworks.audio.audio_manager import SoundPool
 
         audio_manager._sound_pools["test1"] = SoundPool()
         audio_manager._sound_pools["test2"] = SoundPool()
@@ -612,7 +618,7 @@ class TestEnhancedUtilities:
 
     def test_clear_cache_clears_pools(self, audio_manager):
         """Test clear cache also clears sound pools"""
-        from engine.audio.audio_manager import SoundPool
+        from neonworks.audio.audio_manager import SoundPool
 
         audio_manager._sound_pools["test"] = SoundPool()
 

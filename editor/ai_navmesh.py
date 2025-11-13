@@ -5,14 +5,16 @@ Intelligent navmesh generation with automatic obstacle detection,
 terrain analysis, and smart walkability determination.
 """
 
-from typing import Set, Tuple, List, Dict, Optional
 from dataclasses import dataclass
-from neonworks.core.ecs import World, Entity, GridPosition, Building, Navmesh
+from typing import Dict, List, Optional, Set, Tuple
+
+from neonworks.core.ecs import Building, Entity, GridPosition, Navmesh, World
 
 
 @dataclass
 class NavmeshConfig:
     """Configuration for navmesh generation"""
+
     # Obstacle detection
     detect_buildings: bool = True
     detect_terrain: bool = True
@@ -38,8 +40,8 @@ class NavmeshConfig:
                 "grass": 1.0,
                 "road": 0.8,  # Faster movement
                 "rough": 1.5,  # Slower movement
-                "mud": 2.0,    # Much slower
-                "water": 999.0  # Effectively impassable
+                "mud": 2.0,  # Much slower
+                "water": 999.0,  # Effectively impassable
             }
 
 
@@ -104,7 +106,9 @@ class AINavmeshGenerator:
         total_cells = grid_width * grid_height
         walkable_percent = (walkable_count / total_cells) * 100
 
-        print(f"✅ Navmesh generated: {walkable_count}/{total_cells} cells walkable ({walkable_percent:.1f}%)")
+        print(
+            f"✅ Navmesh generated: {walkable_count}/{total_cells} cells walkable ({walkable_percent:.1f}%)"
+        )
 
         return navmesh
 
@@ -123,8 +127,9 @@ class AINavmeshGenerator:
 
                     # TODO: Handle multi-tile buildings based on building size
 
-    def _analyze_terrain(self, world: World, navmesh: Navmesh,
-                        grid_width: int, grid_height: int):
+    def _analyze_terrain(
+        self, world: World, navmesh: Navmesh, grid_width: int, grid_height: int
+    ):
         """AI-assisted terrain analysis for movement costs"""
         # In a real implementation, this would analyze tile types
         # For now, we'll use a simple pattern-based approach
@@ -174,8 +179,9 @@ class AINavmeshGenerator:
                 navmesh.walkable_cells.add(pos)
                 navmesh.cost_multipliers[pos] = 1.0
 
-    def _detect_chokepoints(self, navmesh: Navmesh,
-                           grid_width: int, grid_height: int) -> Set[Tuple[int, int]]:
+    def _detect_chokepoints(
+        self, navmesh: Navmesh, grid_width: int, grid_height: int
+    ) -> Set[Tuple[int, int]]:
         """
         AI detection of chokepoints (narrow passages).
 
@@ -225,8 +231,16 @@ class AINavmeshGenerator:
             bx, by = grid_pos.grid_x, grid_pos.grid_y
 
             # Check adjacent cells
-            for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0),
-                          (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            for dx, dy in [
+                (0, 1),
+                (1, 0),
+                (0, -1),
+                (-1, 0),
+                (1, 1),
+                (1, -1),
+                (-1, 1),
+                (-1, -1),
+            ]:
                 cover_pos = (bx + dx, by + dy)
 
                 if cover_pos in navmesh.walkable_cells:
@@ -270,7 +284,9 @@ class AINavmeshGenerator:
                 if h_corridor or v_corridor:
                     navmesh.cost_multipliers[pos] *= 0.85
 
-    def visualize_navmesh(self, navmesh: Navmesh, grid_width: int, grid_height: int) -> str:
+    def visualize_navmesh(
+        self, navmesh: Navmesh, grid_width: int, grid_height: int
+    ) -> str:
         """
         Generate ASCII visualization of navmesh for debugging.
         """
@@ -300,7 +316,9 @@ class AINavmeshGenerator:
 
         return "\n".join(lines)
 
-    def export_stats(self, navmesh: Navmesh, grid_width: int, grid_height: int) -> Dict[str, any]:
+    def export_stats(
+        self, navmesh: Navmesh, grid_width: int, grid_height: int
+    ) -> Dict[str, any]:
         """Export navmesh statistics"""
         total_cells = grid_width * grid_height
         walkable_cells = len(navmesh.walkable_cells)
@@ -308,7 +326,9 @@ class AINavmeshGenerator:
 
         # Analyze cost distribution
         low_cost = sum(1 for cost in navmesh.cost_multipliers.values() if cost < 0.9)
-        normal_cost = sum(1 for cost in navmesh.cost_multipliers.values() if 0.9 <= cost <= 1.1)
+        normal_cost = sum(
+            1 for cost in navmesh.cost_multipliers.values() if 0.9 <= cost <= 1.1
+        )
         high_cost = sum(1 for cost in navmesh.cost_multipliers.values() if cost > 1.1)
 
         return {
@@ -319,6 +339,6 @@ class AINavmeshGenerator:
             "cost_distribution": {
                 "low_cost": low_cost,
                 "normal_cost": normal_cost,
-                "high_cost": high_cost
-            }
+                "high_cost": high_cost,
+            },
         }

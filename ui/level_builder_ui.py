@@ -2,10 +2,13 @@
 NeonWorks Level Builder UI - Visual Level Editing
 Provides complete visual interface for creating and editing game levels.
 """
-from typing import Optional, Dict, List, Tuple
+
+from typing import Dict, List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Transform, GridPosition, Sprite
-from ..rendering.tilemap import Tilemap, Tile
+
+from ..core.ecs import GridPosition, Sprite, Transform, World
+from ..rendering.tilemap import Tile, Tilemap
 from ..rendering.ui import UI
 
 
@@ -22,7 +25,7 @@ class LevelBuilderUI:
         self.visible = False
 
         # Editor state
-        self.current_tool = 'tile'  # 'tile', 'entity', 'erase', 'select'
+        self.current_tool = "tile"  # 'tile', 'entity', 'erase', 'select'
         self.current_layer = 0
         self.selected_tile = None
         self.selected_entity_type = None
@@ -30,48 +33,54 @@ class LevelBuilderUI:
 
         # Tile palette
         self.tile_palette = {
-            'grass': {'color': (100, 200, 50), 'walkable': True, 'name': 'Grass'},
-            'dirt': {'color': (139, 90, 43), 'walkable': True, 'name': 'Dirt'},
-            'stone': {'color': (128, 128, 128), 'walkable': True, 'name': 'Stone'},
-            'water': {'color': (100, 150, 255), 'walkable': False, 'name': 'Water'},
-            'sand': {'color': (255, 220, 150), 'walkable': True, 'name': 'Sand'},
-            'lava': {'color': (255, 100, 0), 'walkable': False, 'name': 'Lava'},
-            'wall': {'color': (80, 80, 80), 'walkable': False, 'name': 'Wall'},
-            'floor': {'color': (200, 200, 200), 'walkable': True, 'name': 'Floor'},
-            'void': {'color': (20, 20, 30), 'walkable': False, 'name': 'Void'},
+            "grass": {"color": (100, 200, 50), "walkable": True, "name": "Grass"},
+            "dirt": {"color": (139, 90, 43), "walkable": True, "name": "Dirt"},
+            "stone": {"color": (128, 128, 128), "walkable": True, "name": "Stone"},
+            "water": {"color": (100, 150, 255), "walkable": False, "name": "Water"},
+            "sand": {"color": (255, 220, 150), "walkable": True, "name": "Sand"},
+            "lava": {"color": (255, 100, 0), "walkable": False, "name": "Lava"},
+            "wall": {"color": (80, 80, 80), "walkable": False, "name": "Wall"},
+            "floor": {"color": (200, 200, 200), "walkable": True, "name": "Floor"},
+            "void": {"color": (20, 20, 30), "walkable": False, "name": "Void"},
         }
 
         # Entity templates
         self.entity_templates = {
-            'player': {
-                'name': 'Player',
-                'color': (0, 150, 255),
-                'components': ['Transform', 'Sprite', 'Health', 'Survival', 'TurnActor'],
-                'tags': ['player'],
+            "player": {
+                "name": "Player",
+                "color": (0, 150, 255),
+                "components": [
+                    "Transform",
+                    "Sprite",
+                    "Health",
+                    "Survival",
+                    "TurnActor",
+                ],
+                "tags": ["player"],
             },
-            'enemy': {
-                'name': 'Enemy',
-                'color': (255, 0, 0),
-                'components': ['Transform', 'Sprite', 'Health', 'TurnActor'],
-                'tags': ['enemy'],
+            "enemy": {
+                "name": "Enemy",
+                "color": (255, 0, 0),
+                "components": ["Transform", "Sprite", "Health", "TurnActor"],
+                "tags": ["enemy"],
             },
-            'chest': {
-                'name': 'Chest',
-                'color': (255, 200, 0),
-                'components': ['Transform', 'Sprite', 'ResourceStorage'],
-                'tags': ['interactable'],
+            "chest": {
+                "name": "Chest",
+                "color": (255, 200, 0),
+                "components": ["Transform", "Sprite", "ResourceStorage"],
+                "tags": ["interactable"],
             },
-            'tree': {
-                'name': 'Tree',
-                'color': (0, 150, 0),
-                'components': ['Transform', 'Sprite', 'GridPosition'],
-                'tags': ['obstacle'],
+            "tree": {
+                "name": "Tree",
+                "color": (0, 150, 0),
+                "components": ["Transform", "Sprite", "GridPosition"],
+                "tags": ["obstacle"],
             },
-            'rock': {
-                'name': 'Rock',
-                'color': (128, 128, 128),
-                'components': ['Transform', 'Sprite', 'GridPosition'],
-                'tags': ['obstacle'],
+            "rock": {
+                "name": "Rock",
+                "color": (128, 128, 128),
+                "components": ["Transform", "Sprite", "GridPosition"],
+                "tags": ["obstacle"],
             },
         }
 
@@ -93,7 +102,7 @@ class LevelBuilderUI:
                 width=self.grid_width,
                 height=self.grid_height,
                 tile_size=self.tile_size,
-                layers=3
+                layers=3,
             )
 
     def toggle(self):
@@ -139,8 +148,10 @@ class LevelBuilderUI:
                         screen_y = y * self.tile_size + camera_offset[1]
 
                         # Draw tile
-                        tile_surface = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
-                        color = (*tile_data['color'], alpha)
+                        tile_surface = pygame.Surface(
+                            (self.tile_size, self.tile_size), pygame.SRCALPHA
+                        )
+                        color = (*tile_data["color"], alpha)
                         tile_surface.fill(color)
                         self.screen.blit(tile_surface, (screen_x, screen_y))
 
@@ -151,16 +162,22 @@ class LevelBuilderUI:
         # Vertical lines
         for x in range(0, self.grid_width + 1):
             screen_x = x * self.tile_size + camera_offset[0]
-            pygame.draw.line(self.screen, grid_color,
-                           (screen_x, camera_offset[1]),
-                           (screen_x, self.grid_height * self.tile_size + camera_offset[1]))
+            pygame.draw.line(
+                self.screen,
+                grid_color,
+                (screen_x, camera_offset[1]),
+                (screen_x, self.grid_height * self.tile_size + camera_offset[1]),
+            )
 
         # Horizontal lines
         for y in range(0, self.grid_height + 1):
             screen_y = y * self.tile_size + camera_offset[1]
-            pygame.draw.line(self.screen, grid_color,
-                           (camera_offset[0], screen_y),
-                           (self.grid_width * self.tile_size + camera_offset[0], screen_y))
+            pygame.draw.line(
+                self.screen,
+                grid_color,
+                (camera_offset[0], screen_y),
+                (self.grid_width * self.tile_size + camera_offset[0], screen_y),
+            )
 
     def _render_tool_panel(self):
         """Render the tool selection panel."""
@@ -178,27 +195,45 @@ class LevelBuilderUI:
         current_y = panel_y + 35
 
         # Tile tool
-        tile_color = (0, 150, 0) if self.current_tool == 'tile' else (0, 80, 0)
-        if self.ui.button("Tile", button_x, current_y, button_width, button_height, color=tile_color):
-            self.current_tool = 'tile'
+        tile_color = (0, 150, 0) if self.current_tool == "tile" else (0, 80, 0)
+        if self.ui.button(
+            "Tile", button_x, current_y, button_width, button_height, color=tile_color
+        ):
+            self.current_tool = "tile"
         current_y += button_height + 5
 
         # Entity tool
-        entity_color = (150, 0, 150) if self.current_tool == 'entity' else (80, 0, 80)
-        if self.ui.button("Entity", button_x, current_y, button_width, button_height, color=entity_color):
-            self.current_tool = 'entity'
+        entity_color = (150, 0, 150) if self.current_tool == "entity" else (80, 0, 80)
+        if self.ui.button(
+            "Entity",
+            button_x,
+            current_y,
+            button_width,
+            button_height,
+            color=entity_color,
+        ):
+            self.current_tool = "entity"
         current_y += button_height + 5
 
         # Erase tool
-        erase_color = (150, 0, 0) if self.current_tool == 'erase' else (80, 0, 0)
-        if self.ui.button("Erase", button_x, current_y, button_width, button_height, color=erase_color):
-            self.current_tool = 'erase'
+        erase_color = (150, 0, 0) if self.current_tool == "erase" else (80, 0, 0)
+        if self.ui.button(
+            "Erase", button_x, current_y, button_width, button_height, color=erase_color
+        ):
+            self.current_tool = "erase"
         current_y += button_height + 5
 
         # Select tool
-        select_color = (150, 150, 0) if self.current_tool == 'select' else (80, 80, 0)
-        if self.ui.button("Select", button_x, current_y, button_width, button_height, color=select_color):
-            self.current_tool = 'select'
+        select_color = (150, 150, 0) if self.current_tool == "select" else (80, 80, 0)
+        if self.ui.button(
+            "Select",
+            button_x,
+            current_y,
+            button_width,
+            button_height,
+            color=select_color,
+        ):
+            self.current_tool = "select"
 
     def _render_palette_panel(self):
         """Render the tile/entity palette panel."""
@@ -214,9 +249,9 @@ class LevelBuilderUI:
         if self.ui.button("X", panel_x + panel_width - 35, panel_y + 5, 25, 25):
             self.toggle()
 
-        if self.current_tool == 'tile':
+        if self.current_tool == "tile":
             self._render_tile_palette(panel_x, panel_y, panel_width, panel_height)
-        elif self.current_tool == 'entity':
+        elif self.current_tool == "entity":
             self._render_entity_palette(panel_x, panel_y, panel_width, panel_height)
         else:
             self.ui.title("No Palette", panel_x + 60, panel_y + 40, size=18)
@@ -236,21 +271,26 @@ class LevelBuilderUI:
             self.ui.panel(x + 10, item_y, item_width, item_height, bg_color)
 
             # Color swatch
-            pygame.draw.rect(self.screen, tile_data['color'],
-                           (x + 15, item_y + 5, 30, 30))
+            pygame.draw.rect(
+                self.screen, tile_data["color"], (x + 15, item_y + 5, 30, 30)
+            )
 
             # Name
-            self.ui.label(tile_data['name'], x + 50, item_y + 10, size=16)
+            self.ui.label(tile_data["name"], x + 50, item_y + 10, size=16)
 
             # Walkable indicator
-            walkable_text = "Walkable" if tile_data['walkable'] else "Blocked"
-            walkable_color = (0, 255, 0) if tile_data['walkable'] else (255, 100, 100)
-            self.ui.label(walkable_text, x + 50, item_y + 28, size=12, color=walkable_color)
+            walkable_text = "Walkable" if tile_data["walkable"] else "Blocked"
+            walkable_color = (0, 255, 0) if tile_data["walkable"] else (255, 100, 100)
+            self.ui.label(
+                walkable_text, x + 50, item_y + 28, size=12, color=walkable_color
+            )
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
-            if (x + 10 <= mouse_pos[0] <= x + 10 + item_width and
-                item_y <= mouse_pos[1] <= item_y + item_height):
+            if (
+                x + 10 <= mouse_pos[0] <= x + 10 + item_width
+                and item_y <= mouse_pos[1] <= item_y + item_height
+            ):
                 if pygame.mouse.get_pressed()[0]:
                     self.selected_tile = tile_id
 
@@ -266,22 +306,29 @@ class LevelBuilderUI:
 
         for entity_id, entity_data in self.entity_templates.items():
             # Highlight selected entity
-            bg_color = (120, 80, 120) if entity_id == self.selected_entity_type else (60, 40, 60)
+            bg_color = (
+                (120, 80, 120)
+                if entity_id == self.selected_entity_type
+                else (60, 40, 60)
+            )
 
             self.ui.panel(x + 10, item_y, item_width, item_height, bg_color)
 
             # Color swatch
-            pygame.draw.rect(self.screen, entity_data['color'],
-                           (x + 15, item_y + 5, 30, 30))
+            pygame.draw.rect(
+                self.screen, entity_data["color"], (x + 15, item_y + 5, 30, 30)
+            )
 
             # Name
-            self.ui.label(entity_data['name'], x + 50, item_y + 5, size=16)
+            self.ui.label(entity_data["name"], x + 50, item_y + 5, size=16)
 
             # Components
-            comp_text = ', '.join(entity_data['components'][:2])
-            if len(entity_data['components']) > 2:
-                comp_text += '...'
-            self.ui.label(comp_text, x + 50, item_y + 25, size=10, color=(200, 200, 200))
+            comp_text = ", ".join(entity_data["components"][:2])
+            if len(entity_data["components"]) > 2:
+                comp_text += "..."
+            self.ui.label(
+                comp_text, x + 50, item_y + 25, size=10, color=(200, 200, 200)
+            )
 
             # Tags
             tag_text = f"Tags: {', '.join(entity_data['tags'])}"
@@ -289,8 +336,10 @@ class LevelBuilderUI:
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
-            if (x + 10 <= mouse_pos[0] <= x + 10 + item_width and
-                item_y <= mouse_pos[1] <= item_y + item_height):
+            if (
+                x + 10 <= mouse_pos[0] <= x + 10 + item_width
+                and item_y <= mouse_pos[1] <= item_y + item_height
+            ):
                 if pygame.mouse.get_pressed()[0]:
                     self.selected_entity_type = entity_id
 
@@ -313,8 +362,14 @@ class LevelBuilderUI:
             layer_color = (0, 100, 200) if layer == self.current_layer else (0, 50, 100)
             layer_name = ["Ground", "Objects", "Overlay"][layer]
 
-            if self.ui.button(f"Layer {layer}: {layer_name}", panel_x + 10, current_y,
-                            panel_width - 20, 35, color=layer_color):
+            if self.ui.button(
+                f"Layer {layer}: {layer_name}",
+                panel_x + 10,
+                current_y,
+                panel_width - 20,
+                35,
+                color=layer_color,
+            ):
                 self.current_layer = layer
 
             current_y += 40
@@ -328,7 +383,7 @@ class LevelBuilderUI:
 
     def paint_tile(self, grid_x: int, grid_y: int):
         """Paint a tile at the given grid position."""
-        if not self.tilemap or self.current_tool != 'tile' or not self.selected_tile:
+        if not self.tilemap or self.current_tool != "tile" or not self.selected_tile:
             return
 
         # Check bounds
@@ -337,16 +392,13 @@ class LevelBuilderUI:
 
         # Create tile
         tile_data = self.tile_palette[self.selected_tile]
-        tile = Tile(
-            tile_type=self.selected_tile,
-            walkable=tile_data['walkable']
-        )
+        tile = Tile(tile_type=self.selected_tile, walkable=tile_data["walkable"])
 
         self.tilemap.set_tile(grid_x, grid_y, self.current_layer, tile)
 
     def place_entity(self, grid_x: int, grid_y: int):
         """Place an entity at the given grid position."""
-        if self.current_tool != 'entity' or not self.selected_entity_type:
+        if self.current_tool != "entity" or not self.selected_entity_type:
             return
 
         # Check bounds
@@ -359,44 +411,45 @@ class LevelBuilderUI:
         entity_id = self.world.create_entity()
 
         # Add transform
-        self.world.add_component(entity_id, Transform(
-            x=grid_x * self.tile_size,
-            y=grid_y * self.tile_size
-        ))
+        self.world.add_component(
+            entity_id, Transform(x=grid_x * self.tile_size, y=grid_y * self.tile_size)
+        )
 
         # Add grid position
         self.world.add_component(entity_id, GridPosition(grid_x, grid_y))
 
         # Add sprite
-        self.world.add_component(entity_id, Sprite(
-            asset_id=f"entity_{self.selected_entity_type}",
-            color=template['color']
-        ))
+        self.world.add_component(
+            entity_id,
+            Sprite(
+                asset_id=f"entity_{self.selected_entity_type}", color=template["color"]
+            ),
+        )
 
         # Add other components based on template
-        from ..core.ecs import Health, Survival, TurnActor, ResourceStorage
+        from ..core.ecs import Health, ResourceStorage, Survival, TurnActor
 
-        if 'Health' in template['components']:
+        if "Health" in template["components"]:
             self.world.add_component(entity_id, Health(current=100, maximum=100))
 
-        if 'Survival' in template['components']:
+        if "Survival" in template["components"]:
             self.world.add_component(entity_id, Survival())
 
-        if 'TurnActor' in template['components']:
+        if "TurnActor" in template["components"]:
             self.world.add_component(entity_id, TurnActor(initiative=10))
 
-        if 'ResourceStorage' in template['components']:
+        if "ResourceStorage" in template["components"]:
             self.world.add_component(entity_id, ResourceStorage(capacity=50))
 
         # Add tags
-        for tag in template['tags']:
+        for tag in template["tags"]:
             self.world.tag_entity(entity_id, tag)
 
         print(f"Placed {template['name']} at ({grid_x}, {grid_y})")
 
     def erase_tile(self, grid_x: int, grid_y: int):
         """Erase a tile or entity at the given position."""
-        if self.current_tool != 'erase':
+        if self.current_tool != "erase":
             return
 
         # Erase tile from tilemap
@@ -418,13 +471,13 @@ class LevelBuilderUI:
         if not self.visible:
             return False
 
-        if self.current_tool == 'tile':
+        if self.current_tool == "tile":
             self.paint_tile(grid_x, grid_y)
             return True
-        elif self.current_tool == 'entity':
+        elif self.current_tool == "entity":
             self.place_entity(grid_x, grid_y)
             return True
-        elif self.current_tool == 'erase':
+        elif self.current_tool == "erase":
             self.erase_tile(grid_x, grid_y)
             return True
 

@@ -5,16 +5,18 @@ A* pathfinding algorithm with grid-based navigation.
 Optimized with NumPy for improved performance.
 """
 
-from typing import List, Tuple, Optional, Set, Callable
-from dataclasses import dataclass, field
-from enum import Enum
 import heapq
 import math
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Callable, List, Optional, Set, Tuple
+
 import numpy as np
 
 
 class Heuristic(Enum):
     """Heuristic functions for A* pathfinding"""
+
     MANHATTAN = "manhattan"
     EUCLIDEAN = "euclidean"
     DIAGONAL = "diagonal"
@@ -24,11 +26,12 @@ class Heuristic(Enum):
 @dataclass(order=True)
 class PathNode:
     """Node for A* pathfinding"""
+
     priority: float
     position: Tuple[int, int] = field(compare=False)
     g_cost: float = field(default=0.0, compare=False)
     h_cost: float = field(default=0.0, compare=False)
-    parent: Optional['PathNode'] = field(default=None, compare=False)
+    parent: Optional["PathNode"] = field(default=None, compare=False)
 
     @property
     def f_cost(self) -> float:
@@ -90,7 +93,7 @@ class NavigationGrid:
     def get_cost(self, x: int, y: int) -> float:
         """Get movement cost for cell"""
         if not self.in_bounds(x, y):
-            return float('inf')
+            return float("inf")
         return self._costs[y][x]
 
     def set_cost(self, x: int, y: int, cost: float):
@@ -102,7 +105,9 @@ class NavigationGrid:
         """Check if coordinates are within grid bounds"""
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def get_neighbors(self, x: int, y: int, diagonal: bool = True) -> List[Tuple[int, int]]:
+    def get_neighbors(
+        self, x: int, y: int, diagonal: bool = True
+    ) -> List[Tuple[int, int]]:
         """
         Get walkable neighbors of a cell.
 
@@ -119,26 +124,30 @@ class NavigationGrid:
         # Cardinal directions
         directions = [
             (0, -1),  # North
-            (1, 0),   # East
-            (0, 1),   # South
+            (1, 0),  # East
+            (0, 1),  # South
             (-1, 0),  # West
         ]
 
         # Diagonal directions
         if diagonal:
-            directions.extend([
-                (1, -1),  # NE
-                (1, 1),   # SE
-                (-1, 1),  # SW
-                (-1, -1), # NW
-            ])
+            directions.extend(
+                [
+                    (1, -1),  # NE
+                    (1, 1),  # SE
+                    (-1, 1),  # SW
+                    (-1, -1),  # NW
+                ]
+            )
 
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
             if self.is_walkable(nx, ny):
                 # For diagonals, check if both adjacent cells are walkable
                 if diagonal and abs(dx) == 1 and abs(dy) == 1:
-                    if not (self.is_walkable(x + dx, y) and self.is_walkable(x, y + dy)):
+                    if not (
+                        self.is_walkable(x + dx, y) and self.is_walkable(x, y + dy)
+                    ):
                         continue  # Skip diagonal if adjacent cells blocked
                 neighbors.append((nx, ny))
 
@@ -153,7 +162,7 @@ class NavigationGrid:
         """Set walkability for rectangular area - vectorized with NumPy"""
         min_x, max_x = max(0, min(x1, x2)), min(self.width - 1, max(x1, x2))
         min_y, max_y = max(0, min(y1, y2)), min(self.height - 1, max(y1, y2))
-        self._grid[min_y:max_y+1, min_x:max_x+1] = walkable
+        self._grid[min_y : max_y + 1, min_x : max_x + 1] = walkable
 
 
 class Pathfinder:
@@ -175,8 +184,9 @@ class Pathfinder:
         self.allow_diagonal = True
 
     @staticmethod
-    def calculate_heuristic(start: Tuple[int, int], goal: Tuple[int, int],
-                           heuristic: Heuristic) -> float:
+    def calculate_heuristic(
+        start: Tuple[int, int], goal: Tuple[int, int], heuristic: Heuristic
+    ) -> float:
         """
         Calculate heuristic distance between two points.
         Optimized with NumPy for better performance.
@@ -205,7 +215,9 @@ class Pathfinder:
 
         return 0.0
 
-    def find_path(self, start: Tuple[int, int], goal: Tuple[int, int]) -> Optional[List[Tuple[int, int]]]:
+    def find_path(
+        self, start: Tuple[int, int], goal: Tuple[int, int]
+    ) -> Optional[List[Tuple[int, int]]]:
         """
         Find path from start to goal using A* algorithm.
 
@@ -231,7 +243,7 @@ class Pathfinder:
             priority=0.0,
             position=start,
             g_cost=0.0,
-            h_cost=self.calculate_heuristic(start, goal, self.heuristic)
+            h_cost=self.calculate_heuristic(start, goal, self.heuristic),
         )
 
         heapq.heappush(open_set, start_node)
@@ -252,9 +264,7 @@ class Pathfinder:
 
             # Check neighbors
             neighbors = self.grid.get_neighbors(
-                current.position[0],
-                current.position[1],
-                self.allow_diagonal
+                current.position[0], current.position[1], self.allow_diagonal
             )
 
             for neighbor_pos in neighbors:
@@ -290,7 +300,7 @@ class Pathfinder:
                     position=neighbor_pos,
                     g_cost=tentative_g,
                     h_cost=h_cost,
-                    parent=current
+                    parent=current,
                 )
 
                 heapq.heappush(open_set, neighbor_node)
@@ -406,8 +416,9 @@ class PathfindingSystem:
         self._path_cache: dict = {}
         self._cache_size = 100
 
-    def find_path(self, start: Tuple[int, int], goal: Tuple[int, int],
-                  smooth: bool = True) -> Optional[List[Tuple[int, int]]]:
+    def find_path(
+        self, start: Tuple[int, int], goal: Tuple[int, int], smooth: bool = True
+    ) -> Optional[List[Tuple[int, int]]]:
         """
         Find path with optional caching.
 

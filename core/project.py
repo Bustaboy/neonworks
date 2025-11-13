@@ -7,14 +7,15 @@ This allows the engine to be completely reusable for different games.
 
 import json
 import os
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
 class ProjectMetadata:
     """Project metadata"""
+
     name: str
     version: str
     description: str
@@ -27,6 +28,7 @@ class ProjectMetadata:
 @dataclass
 class ProjectPaths:
     """Project directory paths"""
+
     assets: str = "assets"
     levels: str = "levels"
     scripts: str = "scripts"
@@ -37,6 +39,7 @@ class ProjectPaths:
 @dataclass
 class ProjectSettings:
     """Project-specific settings"""
+
     # Display
     window_title: str = "Game"
     window_width: int = 1280
@@ -79,6 +82,7 @@ class ProjectSettings:
 @dataclass
 class ProjectConfig:
     """Complete project configuration"""
+
     metadata: ProjectMetadata
     paths: ProjectPaths = field(default_factory=ProjectPaths)
     settings: ProjectSettings = field(default_factory=ProjectSettings)
@@ -90,17 +94,17 @@ class ProjectConfig:
             "metadata": asdict(self.metadata),
             "paths": asdict(self.paths),
             "settings": asdict(self.settings),
-            "custom_data": self.custom_data
+            "custom_data": self.custom_data,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectConfig':
+    def from_dict(cls, data: Dict[str, Any]) -> "ProjectConfig":
         """Create from dictionary"""
         return cls(
             metadata=ProjectMetadata(**data.get("metadata", {})),
             paths=ProjectPaths(**data.get("paths", {})),
             settings=ProjectSettings(**data.get("settings", {})),
-            custom_data=data.get("custom_data", {})
+            custom_data=data.get("custom_data", {}),
         )
 
 
@@ -134,7 +138,7 @@ class Project:
             return False
 
         try:
-            with open(config_file, 'r') as f:
+            with open(config_file, "r") as f:
                 data = json.load(f)
 
         except json.JSONDecodeError as e:
@@ -155,7 +159,7 @@ class Project:
 
         # Validate configuration
         try:
-            from engine.core.validation import validate_project_config
+            from neonworks.core.validation import validate_project_config
 
             errors = validate_project_config(data)
             if errors:
@@ -186,7 +190,9 @@ class Project:
             self._ensure_directories()
 
             self._loaded = True
-            print(f"✅ Loaded project: {self.config.metadata.name} v{self.config.metadata.version}")
+            print(
+                f"✅ Loaded project: {self.config.metadata.name} v{self.config.metadata.version}"
+            )
             return True
 
         except KeyError as e:
@@ -210,6 +216,7 @@ class Project:
             print(f"❌ Error loading project configuration!")
             print(f"   {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -221,7 +228,7 @@ class Project:
         config_file = self.project_path / "project.json"
 
         try:
-            with open(config_file, 'w') as f:
+            with open(config_file, "w") as f:
                 json.dump(self.config.to_dict(), f, indent=2)
             return True
         except Exception as e:
@@ -285,8 +292,12 @@ class ProjectManager:
         self.projects_root = Path(projects_root)
         self.current_project: Optional[Project] = None
 
-    def create_project(self, project_name: str, metadata: ProjectMetadata,
-                      settings: Optional[ProjectSettings] = None) -> Optional[Project]:
+    def create_project(
+        self,
+        project_name: str,
+        metadata: ProjectMetadata,
+        settings: Optional[ProjectSettings] = None,
+    ) -> Optional[Project]:
         """Create a new project"""
         # Validate project name
         if not project_name:
@@ -319,8 +330,7 @@ class ProjectManager:
 
             # Create config
             config = ProjectConfig(
-                metadata=metadata,
-                settings=settings or ProjectSettings()
+                metadata=metadata, settings=settings or ProjectSettings()
             )
 
             # Create project
@@ -357,6 +367,7 @@ class ProjectManager:
             print(f"❌ Error creating project!")
             print(f"   {e}")
             import traceback
+
             traceback.print_exc()
             return None
 

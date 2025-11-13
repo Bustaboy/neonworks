@@ -4,21 +4,23 @@ Comprehensive tests for Combat System
 Tests health, damage, combat stats, weapons, action points, and combat calculations.
 """
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
+
+from neonworks.core.ecs import Entity, GridPosition, Transform, World
 from neonworks.gameplay.combat import (
-    Health,
-    CombatStats,
-    Weapon,
     ActionPoints,
-    TeamComponent,
-    Team,
-    DamageType,
+    CombatStats,
+    CombatSystem,
     DamageInstance,
+    DamageType,
+    Health,
     HealthSystem,
-    CombatSystem
+    Team,
+    TeamComponent,
+    Weapon,
 )
-from neonworks.core.ecs import World, Entity, Transform, GridPosition
 
 
 @pytest.fixture
@@ -151,12 +153,7 @@ class TestWeapon:
 
     def test_weapon_creation(self):
         """Test creating weapon"""
-        weapon = Weapon(
-            name="Pistol",
-            damage=25,
-            range=5,
-            accuracy=80
-        )
+        weapon = Weapon(name="Pistol", damage=25, range=5, accuracy=80)
         assert weapon.name == "Pistol"
         assert weapon.damage == 25
         assert weapon.range == 5
@@ -329,7 +326,9 @@ class TestHealthSystem:
         entity.add_component(health)
 
         # 50% armor pen
-        damage = DamageInstance(amount=40, damage_type=DamageType.PHYSICAL, armor_penetration=0.5)
+        damage = DamageInstance(
+            amount=40, damage_type=DamageType.PHYSICAL, armor_penetration=0.5
+        )
         dealt = health_system.apply_damage(entity, damage)
 
         # Effective armor = 50 * (1 - 0.5) = 25%
@@ -563,8 +562,8 @@ class TestCombatSystem:
         stats = CombatStats(reflexes=5, morale=50)  # No bonus
         attacker.add_component(stats)
 
-        with patch('random.uniform', return_value=1.0):
-            with patch('random.randint', return_value=100):  # No crit
+        with patch("random.uniform", return_value=1.0):
+            with patch("random.randint", return_value=100):  # No crit
                 damage, is_crit = combat_system.calculate_damage(attacker, target)
 
         # 50 base + 10 reflex bonus = 60
@@ -576,15 +575,20 @@ class TestCombatSystem:
         attacker = world.create_entity()
         target = world.create_entity()
 
-        weapon = Weapon(damage=20, is_melee=True, is_ranged=False,
-                       damage_variance_min=1.0, damage_variance_max=1.0)
+        weapon = Weapon(
+            damage=20,
+            is_melee=True,
+            is_ranged=False,
+            damage_variance_min=1.0,
+            damage_variance_max=1.0,
+        )
         attacker.add_component(weapon)
 
         stats = CombatStats(body=8, morale=50)
         attacker.add_component(stats)
 
-        with patch('random.uniform', return_value=1.0):
-            with patch('random.randint', return_value=100):  # No crit
+        with patch("random.uniform", return_value=1.0):
+            with patch("random.randint", return_value=100):  # No crit
                 damage, _ = combat_system.calculate_damage(attacker, target)
 
         # 20 base + 24 body bonus = 44
@@ -595,16 +599,22 @@ class TestCombatSystem:
         attacker = world.create_entity()
         target = world.create_entity()
 
-        weapon = Weapon(damage=50, crit_multiplier=2.0,
-                       damage_variance_min=1.0, damage_variance_max=1.0)
+        weapon = Weapon(
+            damage=50,
+            crit_multiplier=2.0,
+            damage_variance_min=1.0,
+            damage_variance_max=1.0,
+        )
         attacker.add_component(weapon)
 
         stats = CombatStats(reflexes=5, cool=10, morale=50)
         attacker.add_component(stats)
 
         # Force critical hit
-        with patch('random.uniform', return_value=1.0):  # variance
-            with patch('random.randint', return_value=1):  # Guarantee crit (roll 1, crit chance 20%)
+        with patch("random.uniform", return_value=1.0):  # variance
+            with patch(
+                "random.randint", return_value=1
+            ):  # Guarantee crit (roll 1, crit chance 20%)
                 damage, is_crit = combat_system.calculate_damage(attacker, target)
 
         # (50 + 10) * 2.0 = 120
@@ -616,7 +626,9 @@ class TestCombatSystem:
         attacker = world.create_entity()
         target = world.create_entity()
 
-        weapon = Weapon(damage=30, accuracy=100, damage_variance_min=1.0, damage_variance_max=1.0)
+        weapon = Weapon(
+            damage=30, accuracy=100, damage_variance_min=1.0, damage_variance_max=1.0
+        )
         attacker.add_component(weapon)
 
         stats = CombatStats(reflexes=0, morale=50)
@@ -626,12 +638,12 @@ class TestCombatSystem:
         target.add_component(health)
 
         # Force hit, no crit
-        with patch('random.uniform', return_value=1.0):  # Hit roll
-            with patch('random.randint', return_value=100):  # No crit
+        with patch("random.uniform", return_value=1.0):  # Hit roll
+            with patch("random.randint", return_value=100):  # No crit
                 result = combat_system.perform_attack(attacker, target)
 
-        assert result['hit']
-        assert result['damage'] == 30
+        assert result["hit"]
+        assert result["damage"] == 30
         assert health.hp == 70
 
     def test_perform_attack_miss(self, world, combat_system):
@@ -646,11 +658,11 @@ class TestCombatSystem:
         target.add_component(health)
 
         # Force miss
-        with patch('random.uniform', return_value=99.0):
+        with patch("random.uniform", return_value=99.0):
             result = combat_system.perform_attack(attacker, target)
 
-        assert not result['hit']
-        assert result['damage'] == 0
+        assert not result["hit"]
+        assert result["damage"] == 0
         assert health.hp == 100
 
     def test_perform_attack_no_ammo(self, world, combat_system):
@@ -666,8 +678,8 @@ class TestCombatSystem:
 
         result = combat_system.perform_attack(attacker, target)
 
-        assert not result['hit']
-        assert 'ammo' in result['message'].lower()
+        assert not result["hit"]
+        assert "ammo" in result["message"].lower()
 
     def test_perform_attack_consumes_ammo(self, world, combat_system):
         """Test attack consumes ammo"""
@@ -680,7 +692,7 @@ class TestCombatSystem:
         health = Health(max_hp=100, hp=100)
         target.add_component(health)
 
-        with patch('random.uniform', return_value=1.0):
+        with patch("random.uniform", return_value=1.0):
             combat_system.perform_attack(attacker, target)
 
         assert weapon.ammo == 9
@@ -698,8 +710,8 @@ class TestCombatSystem:
 
         result = combat_system.perform_attack(attacker, target)
 
-        assert not result['hit']
-        assert 'dead' in result['message'].lower()
+        assert not result["hit"]
+        assert "dead" in result["message"].lower()
 
     def test_check_range_grid(self, world, combat_system):
         """Test range check with grid positions"""
