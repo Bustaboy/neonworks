@@ -10,7 +10,7 @@ import secrets
 import zlib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 try:
     from cryptography.hazmat.primitives import hashes
@@ -73,7 +73,7 @@ class PackageBuilder:
 
     def __init__(self, config: PackageConfig):
         self.config = config
-        self.files: List[tuple[str, Path]] = []
+        self.files: List[Tuple[str, Path]] = []
         self._salt: Optional[bytes] = None
         self._key: Optional[bytes] = None
 

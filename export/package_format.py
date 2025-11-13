@@ -56,7 +56,7 @@ When compressed (Flag bit 1 = 1):
 import hashlib
 import struct
 from pathlib import Path
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Tuple
 
 # Constants
 MAGIC_NUMBER = b"NWPK"
@@ -163,7 +163,7 @@ class FileEntry(NamedTuple):
         )
 
     @classmethod
-    def unpack(cls, data: bytes, offset: int = 0) -> tuple["FileEntry", int]:
+    def unpack(cls, data: bytes, offset: int = 0) -> Tuple["FileEntry", int]:
         """
         Unpack file entry from bytes
 

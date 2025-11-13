@@ -11,7 +11,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -23,7 +23,7 @@ class BundleConfig:
     console: bool = False  # Show console window
     onefile: bool = True  # Create single executable file
     include_packages: List[str] = None
-    include_files: List[tuple[str, str]] = None
+    include_files: List[Tuple[str, str]] = None
     hidden_imports: List[str] = None
     upx: bool = True  # Use UPX compression
     strip: bool = True  # Strip debug symbols
