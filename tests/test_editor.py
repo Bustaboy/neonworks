@@ -5,24 +5,24 @@ Tests AI-assisted level building, navmesh generation, and writing tools.
 """
 
 from unittest.mock import Mock, patch
+
 import pytest
 
-from neonworks.core.ecs import World, Entity, GridPosition, Building, Navmesh
+from neonworks.core.ecs import Building, Entity, GridPosition, Navmesh, World
 from neonworks.editor.ai_level_builder import (
     AILevelBuilder,
-    PlacementSuggestion,
     PlacementPriority,
+    PlacementSuggestion,
 )
 from neonworks.editor.ai_navmesh import AINavmeshGenerator, NavmeshConfig
 from neonworks.editor.ai_writer import (
     AIWritingAssistant,
-    DialogLine,
     DialogChoice,
+    DialogLine,
     DialogTone,
-    QuestType,
     QuestTemplate,
+    QuestType,
 )
-
 
 # ===========================
 # AILevelBuilder Tests

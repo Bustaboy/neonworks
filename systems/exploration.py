@@ -8,7 +8,7 @@ from typing import List, Optional, Set, Tuple
 
 import pygame
 
-from gameplay.movement import (
+from neonworks.gameplay.movement import (
     AnimationState,
     Collider2D,
     Direction,

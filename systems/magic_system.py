@@ -6,8 +6,8 @@ Handles spell casting, MP management, and magical effects.
 
 from typing import Dict, List, Optional
 
-from gameplay.combat import Health
-from gameplay.jrpg_combat import (
+from neonworks.gameplay.combat import Health
+from neonworks.gameplay.jrpg_combat import (
     ElementalResistances,
     ElementType,
     JRPGStats,

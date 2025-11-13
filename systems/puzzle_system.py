@@ -6,8 +6,8 @@ Handles switches, pressure plates, pushable blocks, and puzzle logic.
 
 from typing import List, Optional
 
-from gameplay.movement import Collider2D, Direction, Movement
-from gameplay.puzzle_objects import (
+from neonworks.gameplay.movement import Collider2D, Direction, Movement
+from neonworks.gameplay.puzzle_objects import (
     Chest,
     CrackableWall,
     Door,

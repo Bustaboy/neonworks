@@ -4,37 +4,37 @@ Comprehensive tests for Systems module
 Tests TurnSystem, JRPGBattleSystem, PuzzleSystem, and related game mechanics.
 """
 
-from unittest.mock import Mock, MagicMock, patch
 import random
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from neonworks.core.ecs import Entity, World, TurnActor, GridPosition, Transform
-from neonworks.core.events import EventManager, Event, EventType
+from neonworks.core.ecs import Entity, GridPosition, Transform, TurnActor, World
+from neonworks.core.events import Event, EventManager, EventType
 from neonworks.gameplay.combat import Health, Team, TeamComponent
 from neonworks.gameplay.jrpg_combat import (
+    BattleAI,
+    BattleCommand,
+    BattleRewards,
     BattleState,
     JRPGStats,
     MagicPoints,
     PartyMember,
-    BattleAI,
-    BattleRewards,
-    BattleCommand,
     SpellList,
 )
-from neonworks.gameplay.movement import Movement, Direction, Collider2D
+from neonworks.gameplay.movement import Collider2D, Direction, Movement
 from neonworks.gameplay.puzzle_objects import (
-    Switch,
+    Chest,
     Door,
     PressurePlate,
     PushableBlock,
-    TeleportPad,
-    Chest,
     PuzzleController,
+    Switch,
+    TeleportPad,
 )
-from neonworks.systems.turn_system import TurnSystem
-from neonworks.systems.jrpg_battle_system import JRPGBattleSystem, BattlePhase
+from neonworks.systems.jrpg_battle_system import BattlePhase, JRPGBattleSystem
 from neonworks.systems.puzzle_system import PuzzleSystem
+from neonworks.systems.turn_system import TurnSystem
 
 
 @pytest.fixture

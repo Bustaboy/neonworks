@@ -10,8 +10,8 @@ from typing import Dict, List, Optional, Tuple
 
 import pygame
 
-from gameplay.combat import Health, Team
-from gameplay.jrpg_combat import (
+from neonworks.gameplay.combat import Health, Team
+from neonworks.gameplay.jrpg_combat import (
     BattleAI,
     BattleCommand,
     BattleFormation,

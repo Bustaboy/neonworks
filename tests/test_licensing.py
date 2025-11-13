@@ -25,7 +25,6 @@ from neonworks.licensing.license_key import (
 )
 from neonworks.licensing.license_validator import LicenseValidator, get_global_validator
 
-
 # ===========================
 # LicenseKey Tests
 # ===========================
