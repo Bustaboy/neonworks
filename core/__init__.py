@@ -1,6 +1,6 @@
 """Core engine systems"""
 
-from engine.core.scene import (
+from neonworks.core.scene import (
     Scene,
     SceneManager,
     SceneTransition,

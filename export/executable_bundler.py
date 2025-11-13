@@ -347,7 +347,7 @@ def main():
 
     # Load package
     try:
-        from engine.export.package_loader import PackageLoader, set_global_loader
+        from neonworks.export.package_loader import PackageLoader, set_global_loader
 
 {password_line}
 
@@ -369,7 +369,7 @@ def main():
     try:
         # Import and run the game
         # Adjust this import based on your engine structure
-        from engine.main import main as game_main
+        from neonworks.main import main as game_main
         game_main()
 
     except Exception as e:

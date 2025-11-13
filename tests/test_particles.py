@@ -7,7 +7,7 @@ Tests particles, emitters, rendering, and presets.
 import pytest
 import pygame
 from unittest.mock import Mock, MagicMock
-from engine.rendering.particles import (
+from neonworks.rendering.particles import (
     Particle,
     ParticleEmitter,
     ParticleSystem,
@@ -16,7 +16,7 @@ from engine.rendering.particles import (
     EmitterShape,
     ParticleBlendMode,
 )
-from engine.rendering.camera import Camera
+from neonworks.rendering.camera import Camera
 
 
 @pytest.fixture

@@ -1,8 +1,8 @@
 """Rendering systems"""
 
-from engine.rendering.renderer import Renderer
-from engine.rendering.camera import Camera
-from engine.rendering.particles import (
+from neonworks.rendering.renderer import Renderer
+from neonworks.rendering.camera import Camera
+from neonworks.rendering.particles import (
     Particle,
     ParticleEmitter,
     ParticleSystem,
@@ -11,14 +11,14 @@ from engine.rendering.particles import (
     EmitterShape,
     ParticleBlendMode,
 )
-from engine.rendering.animation import AnimationStateMachine, Animation
-from engine.rendering.tilemap import Tilemap, TileLayer, Tileset, Tile
-from engine.rendering.ui import UI, UIState, UIStyle, HUD
-from engine.rendering.assets import AssetManager
+from neonworks.rendering.animation import AnimationStateMachine, Animation
+from neonworks.rendering.tilemap import Tilemap, TileLayer, Tileset, Tile
+from neonworks.rendering.ui import UI, UIState, UIStyle, HUD
+from neonworks.rendering.assets import AssetManager
 
 # Asset pipeline utilities (requires Pillow)
 try:
-    from engine.rendering.asset_pipeline import (
+    from neonworks.rendering.asset_pipeline import (
         TextureAtlasBuilder,
         ImageOptimizer,
         ImageEffects,

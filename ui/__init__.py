@@ -1,6 +1,6 @@
 """UI system"""
 
-from engine.ui.ui_system import (
+from neonworks.ui.ui_system import (
     Anchor,
     UIStyle,
     UIWidget,

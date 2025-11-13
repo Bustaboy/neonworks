@@ -6,7 +6,7 @@ A* pathfinding with navmesh support and intelligent path planning.
 
 from typing import List, Tuple, Optional, Set
 import heapq
-from engine.core.ecs import System, World, Entity, GridPosition, Navmesh
+from neonworks.core.ecs import System, World, Entity, GridPosition, Navmesh
 
 
 class PathNode:

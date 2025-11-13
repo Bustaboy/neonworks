@@ -7,7 +7,7 @@ Components for tile-based character movement, collision, and animation.
 from typing import Optional, Callable, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 
 class Direction(Enum):
@@ -282,4 +282,4 @@ class TileCollisionMap(Component):
 
 
 # Entity reference import (circular dependency workaround)
-from engine.core.ecs import Entity
+from neonworks.core.ecs import Entity

@@ -7,7 +7,7 @@ Tests widgets, layouts, event handling, and rendering.
 import pytest
 import pygame
 from unittest.mock import Mock, MagicMock
-from engine.ui.ui_system import (
+from neonworks.ui.ui_system import (
     Anchor,
     UIStyle,
     UILabel,

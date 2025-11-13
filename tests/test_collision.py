@@ -6,8 +6,8 @@ Tests collision detection, spatial partitioning, and callbacks.
 
 import pytest
 import math
-from engine.core.ecs import World, Transform
-from engine.physics.collision import (
+from neonworks.core.ecs import World, Transform
+from neonworks.physics.collision import (
     Collider,
     ColliderType,
     CollisionDetector,

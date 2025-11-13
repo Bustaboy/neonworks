@@ -24,14 +24,14 @@ from pathlib import Path
 # Add engine to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from engine.core.ecs import World, Transform, Sprite, Health, Survival, GridPosition
-from engine.core.game_loop import GameLoop
-from engine.systems.turn_system import TurnSystem, TurnActor
-from engine.systems.survival_system import SurvivalSystem
-from engine.systems.base_building import BuildingSystem, Building, ResourceStorage
-from engine.audio.audio_manager import AudioManager
-from engine.input.input_manager import InputManager
-from engine.ui.master_ui_manager import MasterUIManager
+from neonworks.core.ecs import World, Transform, Sprite, Health, Survival, GridPosition
+from neonworks.core.game_loop import GameLoop
+from neonworks.systems.turn_system import TurnSystem, TurnActor
+from neonworks.systems.survival_system import SurvivalSystem
+from neonworks.systems.base_building import BuildingSystem, Building, ResourceStorage
+from neonworks.audio.audio_manager import AudioManager
+from neonworks.input.input_manager import InputManager
+from neonworks.ui.master_ui_manager import MasterUIManager
 
 
 class VisualUIDemo:

@@ -8,7 +8,7 @@ from typing import Tuple, Optional, List
 from enum import Enum
 import random
 import math
-from engine.core.ecs import Entity, Transform, GridPosition
+from neonworks.core.ecs import Entity, Transform, GridPosition
 
 
 class EaseType(Enum):

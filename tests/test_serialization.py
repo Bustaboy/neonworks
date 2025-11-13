@@ -9,8 +9,8 @@ import json
 import tempfile
 from pathlib import Path
 from dataclasses import dataclass
-from engine.core.ecs import Component, World, Transform, GridPosition
-from engine.core.serialization import (
+from neonworks.core.ecs import Component, World, Transform, GridPosition
+from neonworks.core.serialization import (
     ComponentSerializer,
     EntitySerializer,
     WorldSerializer,
@@ -446,7 +446,7 @@ class TestGlobalSerializer:
 
     def test_set_global_serializer(self):
         """Test setting global serializer"""
-        from engine.core.serialization import set_game_serializer
+        from neonworks.core.serialization import set_game_serializer
 
         custom_serializer = GameSerializer()
         set_game_serializer(custom_serializer)

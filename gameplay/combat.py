@@ -8,7 +8,7 @@ Provides health, damage, stats, weapons, and action points.
 from typing import Optional, Tuple, Callable, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component, System, World, Entity
+from neonworks.core.ecs import Component, System, World, Entity
 
 
 class DamageType(Enum):
@@ -551,7 +551,7 @@ class CombatSystem(System):
         Returns:
             (in_range, distance)
         """
-        from engine.core.ecs import Transform, GridPosition
+        from neonworks.core.ecs import Transform, GridPosition
 
         weapon = attacker.get_component(Weapon)
         if not weapon:

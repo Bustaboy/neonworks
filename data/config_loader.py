@@ -42,7 +42,7 @@ class ConfigLoader:
         """
         # Check if running from package
         try:
-            from engine.export.package_loader import get_global_loader
+            from neonworks.export.package_loader import get_global_loader
 
             loader = get_global_loader()
             if loader is not None:

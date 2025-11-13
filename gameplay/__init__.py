@@ -1,6 +1,6 @@
 """Gameplay systems"""
 
-from engine.gameplay.character_controller import (
+from neonworks.gameplay.character_controller import (
     CharacterController,
     CharacterControllerSystem,
     AIController,
@@ -8,7 +8,7 @@ from engine.gameplay.character_controller import (
     MovementState,
 )
 
-from engine.gameplay.combat import (
+from neonworks.gameplay.combat import (
     Health,
     CombatStats,
     Weapon,

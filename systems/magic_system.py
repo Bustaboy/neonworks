@@ -5,8 +5,8 @@ Handles spell casting, MP management, and magical effects.
 """
 
 from typing import Optional, List, Dict
-from engine.core.ecs import System, World, Entity
-from engine.core.events import Event, EventManager, EventType
+from neonworks.core.ecs import System, World, Entity
+from neonworks.core.events import Event, EventManager, EventType
 from gameplay.combat import Health
 from gameplay.jrpg_combat import (
     MagicPoints,

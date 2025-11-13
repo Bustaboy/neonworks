@@ -6,16 +6,16 @@ Tests player movement, AI behaviors, and animation integration.
 
 import pytest
 from unittest.mock import Mock, patch
-from engine.core.ecs import World, Transform, RigidBody, Collider
-from engine.gameplay.character_controller import (
+from neonworks.core.ecs import World, Transform, RigidBody, Collider
+from neonworks.gameplay.character_controller import (
     CharacterController,
     CharacterControllerSystem,
     AIController,
     AIControllerSystem,
     MovementState,
 )
-from engine.input.input_manager import InputManager
-from engine.rendering.animation import AnimationComponent, Animation, AnimationFrame
+from neonworks.input.input_manager import InputManager
+from neonworks.rendering.animation import AnimationComponent, Animation, AnimationFrame
 import pygame
 
 

@@ -7,7 +7,7 @@ Tests tile operations, layers, rendering, and coordinate conversions.
 import pytest
 import pygame
 from unittest.mock import Mock, patch
-from engine.rendering.tilemap import (
+from neonworks.rendering.tilemap import (
     Tile,
     Tileset,
     TileLayer,
@@ -15,8 +15,8 @@ from engine.rendering.tilemap import (
     TilemapRenderer,
     TilemapBuilder,
 )
-from engine.rendering.assets import AssetManager
-from engine.rendering.camera import Camera
+from neonworks.rendering.assets import AssetManager
+from neonworks.rendering.camera import Camera
 
 
 @pytest.fixture

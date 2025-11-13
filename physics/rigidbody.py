@@ -6,8 +6,8 @@ Physics simulation with forces, velocity, and collision response.
 
 from typing import Tuple, Optional
 from dataclasses import dataclass, field
-from engine.core.ecs import Component, Entity, World, Transform
-from engine.physics.collision import Collider, CollisionInfo
+from neonworks.core.ecs import Component, Entity, World, Transform
+from neonworks.physics.collision import Collider, CollisionInfo
 import math
 
 
@@ -317,7 +317,7 @@ class IntegratedPhysicsSystem:
         world_bounds: Optional[Tuple[float, float, float, float]] = None,
         physics_settings: Optional[PhysicsSettings] = None,
     ):
-        from engine.physics.collision import CollisionSystem
+        from neonworks.physics.collision import CollisionSystem
 
         self.physics_system = PhysicsSystem(physics_settings)
         self.collision_system = CollisionSystem(world_bounds)
@@ -341,7 +341,7 @@ class IntegratedPhysicsSystem:
 
     def _detect_and_resolve_collisions(self, world: World):
         """Detect collisions and apply physics responses"""
-        from engine.physics.collision import CollisionDetector, Collider
+        from neonworks.physics.collision import CollisionDetector, Collider
 
         # Get all entities with colliders
         entities_with_colliders = []

@@ -6,7 +6,7 @@ Manage construction, upgrades, and building functionality.
 
 from typing import Dict, Optional
 from dataclasses import dataclass
-from engine.core.ecs import (
+from neonworks.core.ecs import (
     System,
     World,
     Entity,
@@ -14,7 +14,7 @@ from engine.core.ecs import (
     ResourceStorage,
     GridPosition,
 )
-from engine.core.events import EventManager, Event, EventType, get_event_manager
+from neonworks.core.events import EventManager, Event, EventType, get_event_manager
 
 
 @dataclass

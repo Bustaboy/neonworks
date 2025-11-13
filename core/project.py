@@ -159,7 +159,7 @@ class Project:
 
         # Validate configuration
         try:
-            from engine.core.validation import validate_project_config
+            from neonworks.core.validation import validate_project_config
 
             errors = validate_project_config(data)
             if errors:

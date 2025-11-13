@@ -28,7 +28,7 @@ sys.path.insert(0, engine_path)
 scripts_path = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.insert(0, scripts_path)
 
-from engine.core.ecs import World
+from neonworks.core.ecs import World
 from scripts.game import setup_game, start_gameplay, render_game
 from scripts.components import GameScreen, ScreenState
 

@@ -1,10 +1,10 @@
 """Data management systems"""
 
-from engine.data.serialization import GameSerializer, SaveGameManager, AutoSaveManager
+from neonworks.data.serialization import GameSerializer, SaveGameManager, AutoSaveManager
 
 # Config loader (requires PyYAML for YAML support)
 try:
-    from engine.data.config_loader import ConfigLoader, GameDataLoader
+    from neonworks.data.config_loader import ConfigLoader, GameDataLoader
 
     CONFIG_LOADER_AVAILABLE = True
 except ImportError:

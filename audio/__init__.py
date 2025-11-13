@@ -1,6 +1,6 @@
 """Audio systems"""
 
-from engine.audio.audio_manager import (
+from neonworks.audio.audio_manager import (
     AudioManager,
     AudioCategory,
     SoundInstance,

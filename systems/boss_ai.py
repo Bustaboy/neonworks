@@ -5,8 +5,8 @@ Advanced AI system for boss battles with multi-phase mechanics and patterns.
 """
 
 from typing import Dict, List, Optional, Any
-from engine.core.ecs import System, World, Entity
-from engine.core.events import Event, EventManager, EventType
+from neonworks.core.ecs import System, World, Entity
+from neonworks.core.events import Event, EventManager, EventType
 from gameplay.combat import Health
 from gameplay.jrpg_combat import BossPhase, BattleAI, JRPGStats
 
@@ -300,7 +300,7 @@ def create_boss_entity(
     Returns:
         Created boss entity
     """
-    from engine.core.ecs import Transform, GridPosition, Sprite
+    from neonworks.core.ecs import Transform, GridPosition, Sprite
     from gameplay.jrpg_combat import EnemyData, MagicPoints, SpellList
 
     boss = world.create_entity()

@@ -31,7 +31,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "neonworks=engine.cli:main",
+            "neonworks=neonworks.cli:main",
         ],
     },
     extras_require={

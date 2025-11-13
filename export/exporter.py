@@ -18,8 +18,8 @@ from .installer_builder import InstallerBuilder, InstallerConfig
 
 # Import licensing system
 try:
-    from engine.licensing.license_validator import get_global_validator
-    from engine.licensing.license_key import LicenseTier
+    from neonworks.licensing.license_validator import get_global_validator
+    from neonworks.licensing.license_key import LicenseTier
 
     LICENSING_AVAILABLE = True
 except ImportError:

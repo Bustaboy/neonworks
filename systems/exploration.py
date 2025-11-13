@@ -6,10 +6,10 @@ Handles player movement, NPC interactions, and zone exploration.
 
 import pygame
 from typing import Optional, Tuple, List, Set
-from engine.core.ecs import System, World, Entity
-from engine.core.ecs import Transform, GridPosition
-from engine.core.events import Event, EventManager, EventType
-from engine.input.input_manager import InputManager
+from neonworks.core.ecs import System, World, Entity
+from neonworks.core.ecs import Transform, GridPosition
+from neonworks.core.events import Event, EventManager, EventType
+from neonworks.input.input_manager import InputManager
 from gameplay.movement import (
     Movement,
     Direction,

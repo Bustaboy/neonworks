@@ -5,8 +5,8 @@ Handles switches, pressure plates, pushable blocks, and puzzle logic.
 """
 
 from typing import Optional, List
-from engine.core.ecs import System, World, Entity, GridPosition
-from engine.core.events import Event, EventManager, EventType
+from neonworks.core.ecs import System, World, Entity, GridPosition
+from neonworks.core.events import Event, EventManager, EventType
 from gameplay.puzzle_objects import (
     Switch,
     PressurePlate,
@@ -228,7 +228,7 @@ class PuzzleSystem(System):
         grid_pos.grid_y = teleport.target_y
 
         # Update transform if exists
-        from engine.core.ecs import Transform
+        from neonworks.core.ecs import Transform
 
         transform = entity.get_component(Transform)
         if transform:

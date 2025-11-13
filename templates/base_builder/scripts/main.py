@@ -25,8 +25,8 @@ from enum import Enum
 engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
-from engine.core.ecs import World, Entity, Component, System
-from engine.systems.base_building import BuildingComponent, BuildingLibrary, Building
+from neonworks.core.ecs import World, Entity, Component, System
+from neonworks.systems.base_building import BuildingComponent, BuildingLibrary, Building
 
 
 # Components

@@ -7,7 +7,7 @@ Tests scenes, transitions, scene stack, and lifecycle.
 import pytest
 import pygame
 from unittest.mock import Mock, MagicMock, patch
-from engine.core.scene import (
+from neonworks.core.scene import (
     Scene,
     SceneManager,
     SceneTransition,

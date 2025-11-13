@@ -7,7 +7,7 @@ Components for dungeon puzzle mechanics like switches, plates, doors, etc.
 from typing import Optional, List, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 
 class PuzzleState(Enum):
