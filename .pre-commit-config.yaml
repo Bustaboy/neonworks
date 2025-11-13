@@ -9,7 +9,7 @@ repos:
     hooks:
       - id: black
         language_version: python3.11
-        files: ^(neonworks|core|gameplay|rendering|systems|export|data|ui|tests)/.*\.py$
+        files: ^(neonworks|core|gameplay|rendering|systems|export|data|ui|tests|engine|examples)/.*\.py$
 
   # Import sorting
   - repo: https://github.com/pycqa/isort
@@ -17,7 +17,7 @@ repos:
     hooks:
       - id: isort
         args: ['--profile', 'black']
-        files: ^(neonworks|core|gameplay|rendering|systems|export|data|ui|tests)/.*\.py$
+        files: ^(neonworks|core|gameplay|rendering|systems|export|data|ui|tests|engine|examples)/.*\.py$
 
   # Linting
   - repo: https://github.com/pycqa/flake8
@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: flake8
         args: ['--max-line-length=127', '--ignore=E203,W503']
-        files: ^(neonworks|core|gameplay|rendering|systems|export|data|ui|tests)/.*\.py$
+        files: ^(neonworks|core|gameplay|rendering|systems|export|data|ui|tests|engine|examples)/.*\.py$
 
   # Basic file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks

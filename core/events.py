@@ -43,6 +43,15 @@ class EventType(Enum):
     UI_BUTTON_CLICKED = auto()
     UI_TILE_SELECTED = auto()
     UI_ENTITY_SELECTED = auto()
+    UI_TEXT_DISPLAYED = auto()
+
+    # Audio events
+    AUDIO_BGM_PLAY = auto()
+    AUDIO_BGM_FADEOUT = auto()
+    AUDIO_SE_PLAY = auto()
+
+    # Player events
+    PLAYER_TRANSFER = auto()
 
     # Editor events
     EDITOR_MODE_CHANGED = auto()
