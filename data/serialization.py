@@ -8,8 +8,8 @@ import json
 from typing import Dict, Any, Optional
 from pathlib import Path
 from datetime import datetime
-from engine.core.ecs import World, Entity, Component, GridPosition, Transform, Sprite, Health, Survival, Building, ResourceStorage, TurnActor, Navmesh, Collider, RigidBody
-from engine.core.project import Project
+from neonworks.core.ecs import World, Entity, Component, GridPosition, Transform, Sprite, Health, Survival, Building, ResourceStorage, TurnActor, Navmesh, Collider, RigidBody
+from neonworks.core.project import Project
 
 
 class GameSerializer:

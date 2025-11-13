@@ -12,7 +12,7 @@ import numpy as np
 from typing import Tuple, Optional, Callable, List
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 
 class EmitterShape(Enum):

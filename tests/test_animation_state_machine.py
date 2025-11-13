@@ -7,7 +7,7 @@ Tests animation states, transitions, conditions, and blending.
 import pytest
 import pygame
 from unittest.mock import Mock, MagicMock
-from engine.rendering.animation import (
+from neonworks.rendering.animation import (
     Animation,
     AnimationFrame,
     AnimationComponent,

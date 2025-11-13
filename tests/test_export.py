@@ -7,10 +7,10 @@ import tempfile
 import shutil
 from pathlib import Path
 
-from engine.export.package_format import PackageHeader, FileEntry, MAGIC_NUMBER, FORMAT_VERSION
-from engine.export.package_builder import PackageBuilder, PackageConfig
-from engine.export.package_loader import PackageLoader
-from engine.export.exporter import ExportConfig, ProjectExporter
+from neonworks.export.package_format import PackageHeader, FileEntry, MAGIC_NUMBER, FORMAT_VERSION
+from neonworks.export.package_builder import PackageBuilder, PackageConfig
+from neonworks.export.package_loader import PackageLoader
+from neonworks.export.exporter import ExportConfig, ProjectExporter
 
 
 @pytest.fixture

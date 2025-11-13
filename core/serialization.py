@@ -10,7 +10,7 @@ from enum import Enum
 import json
 import pickle
 from pathlib import Path
-from engine.core.ecs import Component, Entity, World
+from neonworks.core.ecs import Component, Entity, World
 
 
 class SerializationFormat(Enum):

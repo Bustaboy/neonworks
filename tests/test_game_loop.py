@@ -8,7 +8,7 @@ import pytest
 import time
 from unittest.mock import Mock, patch, MagicMock
 import pygame
-from engine.core.game_loop import GameEngine, EngineConfig
+from neonworks.core.game_loop import GameEngine, EngineConfig
 
 
 class TestEngineConfig:

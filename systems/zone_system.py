@@ -7,10 +7,10 @@ Handles loading and transitioning between different maps/zones.
 import json
 from typing import Optional, Dict, Any, Callable
 from pathlib import Path
-from engine.core.ecs import System, World, Entity
-from engine.core.ecs import Transform, GridPosition, Sprite
-from engine.core.events import Event, EventManager, EventType
-from engine.rendering.tilemap import Tilemap, TileLayer, Tileset, Tile
+from neonworks.core.ecs import System, World, Entity
+from neonworks.core.ecs import Transform, GridPosition, Sprite
+from neonworks.core.events import Event, EventManager, EventType
+from neonworks.rendering.tilemap import Tilemap, TileLayer, Tileset, Tile
 from gameplay.movement import ZoneTrigger, TileCollisionMap, Direction
 
 

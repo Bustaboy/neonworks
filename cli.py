@@ -268,8 +268,8 @@ This is the entry point for your game logic.
 """
 
 import pygame
-from engine.core.ecs import World
-from engine.core.game_loop import GameEngine
+from neonworks.core.ecs import World
+from neonworks.core.game_loop import GameEngine
 
 
 def main():

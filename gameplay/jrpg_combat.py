@@ -7,7 +7,7 @@ Components for traditional JRPG-style combat with MP, magic, formations, etc.
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 
 class ElementType(Enum):

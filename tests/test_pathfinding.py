@@ -6,7 +6,7 @@ Tests A* pathfinding, grid navigation, and path smoothing.
 
 import pytest
 import math
-from engine.ai.pathfinding import (
+from neonworks.ai.pathfinding import (
     NavigationGrid,
     Pathfinder,
     PathfindingSystem,

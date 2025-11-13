@@ -8,8 +8,8 @@ import pytest
 import pygame
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
-from engine.rendering.assets import AssetManager, SpriteSheet
-from engine.rendering.animation import Animation, AnimationFrame, AnimationComponent, AnimationSystem, AnimationBuilder
+from neonworks.rendering.assets import AssetManager, SpriteSheet
+from neonworks.rendering.animation import Animation, AnimationFrame, AnimationComponent, AnimationSystem, AnimationBuilder
 
 
 @pytest.fixture

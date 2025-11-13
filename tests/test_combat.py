@@ -6,7 +6,7 @@ Tests health, damage, combat stats, weapons, action points, and combat calculati
 
 import pytest
 from unittest.mock import Mock, patch
-from engine.gameplay.combat import (
+from neonworks.gameplay.combat import (
     Health,
     CombatStats,
     Weapon,
@@ -18,7 +18,7 @@ from engine.gameplay.combat import (
     HealthSystem,
     CombatSystem
 )
-from engine.core.ecs import World, Entity, Transform, GridPosition
+from neonworks.core.ecs import World, Entity, Transform, GridPosition
 
 
 @pytest.fixture

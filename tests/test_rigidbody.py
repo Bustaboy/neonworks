@@ -6,14 +6,14 @@ Tests physics simulation, forces, and collision response.
 
 import pytest
 import math
-from engine.core.ecs import World, Transform
-from engine.physics.rigidbody import (
+from neonworks.core.ecs import World, Transform
+from neonworks.physics.rigidbody import (
     RigidBody,
     PhysicsSystem,
     PhysicsSettings,
     IntegratedPhysicsSystem
 )
-from engine.physics.collision import Collider, ColliderType, CollisionInfo
+from neonworks.physics.collision import Collider, ColliderType, CollisionInfo
 
 
 class TestRigidBody:

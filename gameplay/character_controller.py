@@ -7,9 +7,9 @@ Player and NPC movement control with physics and animation integration.
 from typing import Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component, System, World, Entity, Transform, RigidBody, Collider
-from engine.input.input_manager import InputManager
-from engine.rendering.animation import AnimationComponent
+from neonworks.core.ecs import Component, System, World, Entity, Transform, RigidBody, Collider
+from neonworks.input.input_manager import InputManager
+from neonworks.rendering.animation import AnimationComponent
 
 
 class MovementState(Enum):

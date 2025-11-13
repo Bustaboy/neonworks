@@ -7,7 +7,7 @@ terrain analysis, and smart walkability determination.
 
 from typing import Set, Tuple, List, Dict, Optional
 from dataclasses import dataclass
-from engine.core.ecs import World, Entity, GridPosition, Building, Navmesh
+from neonworks.core.ecs import World, Entity, GridPosition, Building, Navmesh
 
 
 @dataclass

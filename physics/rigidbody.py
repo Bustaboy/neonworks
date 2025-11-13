@@ -6,8 +6,8 @@ Physics simulation with forces, velocity, and collision response.
 
 from typing import Tuple, Optional
 from dataclasses import dataclass, field
-from engine.core.ecs import Component, Entity, World, Transform
-from engine.physics.collision import Collider, CollisionInfo
+from neonworks.core.ecs import Component, Entity, World, Transform
+from neonworks.physics.collision import Collider, CollisionInfo
 import math
 
 

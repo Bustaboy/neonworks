@@ -7,7 +7,7 @@ Tests keyboard, mouse, action mapping, and axis input.
 import pytest
 import pygame
 from unittest.mock import Mock, patch
-from engine.input.input_manager import InputManager, InputState, MouseButton
+from neonworks.input.input_manager import InputManager, InputState, MouseButton
 
 
 @pytest.fixture

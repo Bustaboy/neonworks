@@ -8,7 +8,7 @@ import pytest
 import pygame
 from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
-from engine.audio.audio_manager import AudioManager, AudioCategory
+from neonworks.audio.audio_manager import AudioManager, AudioCategory
 
 
 @pytest.fixture

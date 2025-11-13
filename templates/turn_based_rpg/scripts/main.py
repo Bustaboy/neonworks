@@ -25,10 +25,10 @@ from enum import Enum
 engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
-from engine.core.ecs import World, Entity, Component, System
-from engine.core.game_loop import GameEngine
-from engine.systems.turn_system import TurnSystem, TurnComponent
-from engine.gameplay.combat import CombatComponent, DamageCalculator
+from neonworks.core.ecs import World, Entity, Component, System
+from neonworks.core.game_loop import GameEngine
+from neonworks.systems.turn_system import TurnSystem, TurnComponent
+from neonworks.gameplay.combat import CombatComponent, DamageCalculator
 
 
 # Game States
