@@ -8,7 +8,7 @@ conditional branching, loops, and parallel execution support.
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional
 
 from neonworks.core.event_commands import (
     CommandType,
