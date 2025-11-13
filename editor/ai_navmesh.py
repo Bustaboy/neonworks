@@ -75,7 +75,7 @@ class AINavmeshGenerator:
 
         # Step 2: AI-assisted obstacle detection
         print("🤖 AI: Detecting obstacles intelligently...")
-        self._detect_obstacles(world, navmesh)
+        blocked_cells = self._detect_obstacles(world, navmesh)
 
         # Step 3: AI-assisted terrain analysis
         print("🤖 AI: Analyzing terrain for movement costs...")
@@ -84,7 +84,7 @@ class AINavmeshGenerator:
         # Step 4: Smart expansion of walkable areas
         if self.config.expand_walkable_areas:
             print("🤖 AI: Intelligently expanding walkable areas...")
-            self._smart_expansion(navmesh, grid_width, grid_height)
+            self._smart_expansion(navmesh, grid_width, grid_height, blocked_cells)
 
         # Step 5: Detect tactical positions
         if self.config.auto_detect_chokepoints:
@@ -112,8 +112,14 @@ class AINavmeshGenerator:
 
         return navmesh
 
-    def _detect_obstacles(self, world: World, navmesh: Navmesh):
-        """AI-assisted obstacle detection"""
+    def _detect_obstacles(self, world: World, navmesh: Navmesh) -> Set[Tuple[int, int]]:
+        """AI-assisted obstacle detection
+
+        Returns:
+            Set of blocked cell positions (obstacles)
+        """
+        blocked_cells = set()
+
         if self.config.detect_buildings:
             buildings = world.get_entities_with_component(Building)
 
@@ -124,8 +130,11 @@ class AINavmeshGenerator:
                     pos = (grid_pos.grid_x, grid_pos.grid_y)
                     if pos in navmesh.walkable_cells:
                         navmesh.walkable_cells.remove(pos)
+                    blocked_cells.add(pos)
 
                     # TODO: Handle multi-tile buildings based on building size
+
+        return blocked_cells
 
     def _analyze_terrain(
         self, world: World, navmesh: Navmesh, grid_width: int, grid_height: int
@@ -147,11 +156,24 @@ class AINavmeshGenerator:
                         edge_penalty = 1.0 + (3 - edge_distance) * 0.2
                         navmesh.cost_multipliers[pos] *= edge_penalty
 
-    def _smart_expansion(self, navmesh: Navmesh, grid_width: int, grid_height: int):
+    def _smart_expansion(
+        self,
+        navmesh: Navmesh,
+        grid_width: int,
+        grid_height: int,
+        blocked_cells: Set[Tuple[int, int]],
+    ):
         """
         Smart expansion of walkable areas using AI.
 
-        This fills in small gaps and smooths out irregular boundaries.
+        This fills in small gaps and smooths out irregular boundaries,
+        while respecting explicitly blocked cells (obstacles).
+
+        Args:
+            navmesh: The navmesh to expand
+            grid_width: Width of the grid
+            grid_height: Height of the grid
+            blocked_cells: Set of cells that are explicitly blocked (obstacles)
         """
         for _ in range(self.config.expansion_passes):
             to_add = set()
@@ -161,6 +183,10 @@ class AINavmeshGenerator:
                     pos = (x, y)
 
                     if pos in navmesh.walkable_cells:
+                        continue
+
+                    # Don't expand into explicitly blocked cells (obstacles)
+                    if pos in blocked_cells:
                         continue
 
                     # Count walkable neighbors
