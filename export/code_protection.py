@@ -26,9 +26,7 @@ class PyArmorObfuscator:
         """Check if PyArmor is available"""
         try:
             result = subprocess.run(
-                ['pyarmor', '--version'],
-                capture_output=True,
-                text=True
+                ["pyarmor", "--version"], capture_output=True, text=True
             )
             return result.returncode == 0
         except FileNotFoundError:
@@ -38,7 +36,7 @@ class PyArmorObfuscator:
         self,
         source_dir: Path,
         output_dir: Path,
-        exclude_patterns: Optional[List[str]] = None
+        exclude_patterns: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Obfuscate all Python files in a directory.
@@ -58,22 +56,23 @@ class PyArmorObfuscator:
             )
 
         if exclude_patterns is None:
-            exclude_patterns = ['__pycache__', '*.pyc', 'test_*.py', '*_test.py']
+            exclude_patterns = ["__pycache__", "*.pyc", "test_*.py", "*_test.py"]
 
         # Create output directory
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Build PyArmor command
         cmd = [
-            'pyarmor',
-            'gen',
-            '--output', str(output_dir),
-            '--recursive',
+            "pyarmor",
+            "gen",
+            "--output",
+            str(output_dir),
+            "--recursive",
         ]
 
         # Add exclusions
         for pattern in exclude_patterns:
-            cmd.extend(['--exclude', pattern])
+            cmd.extend(["--exclude", pattern])
 
         # Add source directory
         cmd.append(str(source_dir))
@@ -86,19 +85,15 @@ class PyArmorObfuscator:
             raise RuntimeError(f"PyArmor obfuscation failed:\n{result.stderr}")
 
         # Count obfuscated files
-        obfuscated_files = list(output_dir.rglob('*.py'))
+        obfuscated_files = list(output_dir.rglob("*.py"))
 
         return {
-            'obfuscated_files': len(obfuscated_files),
-            'output_dir': output_dir,
-            'method': 'pyarmor'
+            "obfuscated_files": len(obfuscated_files),
+            "output_dir": output_dir,
+            "method": "pyarmor",
         }
 
-    def obfuscate_files(
-        self,
-        files: List[Path],
-        output_dir: Path
-    ) -> Dict[str, Any]:
+    def obfuscate_files(self, files: List[Path], output_dir: Path) -> Dict[str, Any]:
         """
         Obfuscate specific Python files.
 
@@ -116,12 +111,7 @@ class PyArmorObfuscator:
 
         # Obfuscate each file
         for file_path in files:
-            cmd = [
-                'pyarmor',
-                'gen',
-                '--output', str(output_dir),
-                str(file_path)
-            ]
+            cmd = ["pyarmor", "gen", "--output", str(output_dir), str(file_path)]
 
             result = subprocess.run(cmd, capture_output=True, text=True)
 
@@ -129,9 +119,9 @@ class PyArmorObfuscator:
                 raise RuntimeError(f"Failed to obfuscate {file_path}:\n{result.stderr}")
 
         return {
-            'obfuscated_files': len(files),
-            'output_dir': output_dir,
-            'method': 'pyarmor'
+            "obfuscated_files": len(files),
+            "output_dir": output_dir,
+            "method": "pyarmor",
         }
 
 
@@ -150,15 +140,13 @@ class CythonCompiler:
         """Check if Cython is available"""
         try:
             import Cython
+
             return True
         except ImportError:
             return False
 
     def compile_module(
-        self,
-        source_file: Path,
-        output_dir: Path,
-        optimize: bool = True
+        self, source_file: Path, output_dir: Path, optimize: bool = True
     ) -> Dict[str, Any]:
         """
         Compile a Python module to C extension.
@@ -172,17 +160,15 @@ class CythonCompiler:
             Dictionary with compilation results
         """
         if not self.cython_available:
-            raise RuntimeError(
-                "Cython not available. Install with: pip install cython"
-            )
+            raise RuntimeError("Cython not available. Install with: pip install cython")
 
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Create setup.py for this module
         setup_content = self._generate_setup_py(source_file, optimize)
-        setup_file = output_dir / 'setup.py'
+        setup_file = output_dir / "setup.py"
 
-        with open(setup_file, 'w') as f:
+        with open(setup_file, "w") as f:
             f.write(setup_content)
 
         # Copy source file to output directory
@@ -190,29 +176,21 @@ class CythonCompiler:
         shutil.copy(source_file, target_file)
 
         # Run Cython compilation
-        cmd = [
-            'python', str(setup_file),
-            'build_ext', '--inplace'
-        ]
+        cmd = ["python", str(setup_file), "build_ext", "--inplace"]
 
-        result = subprocess.run(
-            cmd,
-            cwd=output_dir,
-            capture_output=True,
-            text=True
-        )
+        result = subprocess.run(cmd, cwd=output_dir, capture_output=True, text=True)
 
         if result.returncode != 0:
             raise RuntimeError(f"Cython compilation failed:\n{result.stderr}")
 
         # Find compiled extension
-        extensions = list(output_dir.glob('*.pyd')) + list(output_dir.glob('*.so'))
+        extensions = list(output_dir.glob("*.pyd")) + list(output_dir.glob("*.so"))
 
         return {
-            'compiled_files': len(extensions),
-            'output_dir': output_dir,
-            'method': 'cython',
-            'extensions': [str(e) for e in extensions]
+            "compiled_files": len(extensions),
+            "output_dir": output_dir,
+            "method": "cython",
+            "extensions": [str(e) for e in extensions],
         }
 
     def _generate_setup_py(self, source_file: Path, optimize: bool) -> str:
@@ -222,12 +200,12 @@ class CythonCompiler:
         compiler_directives = {}
         if optimize:
             compiler_directives = {
-                'language_level': '3',
-                'boundscheck': False,
-                'wraparound': False,
-                'initializedcheck': False,
-                'nonecheck': False,
-                'embedsignature': True
+                "language_level": "3",
+                "boundscheck": False,
+                "wraparound": False,
+                "initializedcheck": False,
+                "nonecheck": False,
+                "embedsignature": True,
             }
 
         return f"""
@@ -256,10 +234,7 @@ class CodeProtector:
         self.cython = CythonCompiler()
 
     def protect_engine(
-        self,
-        engine_dir: Path,
-        output_dir: Path,
-        protection_level: str = 'obfuscate'
+        self, engine_dir: Path, output_dir: Path, protection_level: str = "obfuscate"
     ) -> Dict[str, Any]:
         """
         Protect engine code based on protection level.
@@ -272,42 +247,42 @@ class CodeProtector:
         Returns:
             Dictionary with protection results
         """
-        if protection_level == 'none':
+        if protection_level == "none":
             # Just copy files
             shutil.copytree(engine_dir, output_dir, dirs_exist_ok=True)
             return {
-                'protection_level': 'none',
-                'method': 'copy',
-                'output_dir': output_dir
+                "protection_level": "none",
+                "method": "copy",
+                "output_dir": output_dir,
             }
 
-        elif protection_level == 'obfuscate':
+        elif protection_level == "obfuscate":
             # Use PyArmor
             if not self.pyarmor.pyarmor_available:
                 print("⚠ PyArmor not available, copying source without obfuscation")
                 shutil.copytree(engine_dir, output_dir, dirs_exist_ok=True)
                 return {
-                    'protection_level': 'none',
-                    'method': 'copy (pyarmor unavailable)',
-                    'output_dir': output_dir
+                    "protection_level": "none",
+                    "method": "copy (pyarmor unavailable)",
+                    "output_dir": output_dir,
                 }
 
             result = self.pyarmor.obfuscate_directory(engine_dir, output_dir)
-            result['protection_level'] = 'obfuscate'
+            result["protection_level"] = "obfuscate"
             return result
 
-        elif protection_level == 'compile':
+        elif protection_level == "compile":
             # Use Cython for critical modules
             if not self.cython.cython_available:
                 print("⚠ Cython not available, falling back to obfuscation")
-                return self.protect_engine(engine_dir, output_dir, 'obfuscate')
+                return self.protect_engine(engine_dir, output_dir, "obfuscate")
 
             # Identify critical modules to compile
             critical_modules = [
-                'core/ecs.py',
-                'core/project.py',
-                'data/serialization.py',
-                'licensing/license_validator.py'
+                "core/ecs.py",
+                "core/project.py",
+                "data/serialization.py",
+                "licensing/license_validator.py",
             ]
 
             compiled_count = 0
@@ -316,8 +291,7 @@ class CodeProtector:
                 if module_path.exists():
                     try:
                         self.cython.compile_module(
-                            module_path,
-                            output_dir / module_path.parent
+                            module_path, output_dir / module_path.parent
                         )
                         compiled_count += 1
                     except Exception as e:
@@ -327,10 +301,10 @@ class CodeProtector:
             self.pyarmor.obfuscate_directory(engine_dir, output_dir)
 
             return {
-                'protection_level': 'compile',
-                'method': 'cython + pyarmor',
-                'compiled_modules': compiled_count,
-                'output_dir': output_dir
+                "protection_level": "compile",
+                "method": "cython + pyarmor",
+                "compiled_modules": compiled_count,
+                "output_dir": output_dir,
             }
 
         else:
@@ -347,10 +321,6 @@ def get_protection_level_for_tier(tier: str) -> str:
     Returns:
         Protection level ('none', 'obfuscate', 'compile')
     """
-    tier_protection = {
-        'free': 'none',
-        'indie': 'obfuscate',
-        'professional': 'compile'
-    }
+    tier_protection = {"free": "none", "indie": "obfuscate", "professional": "compile"}
 
-    return tier_protection.get(tier.lower(), 'none')
+    return tier_protection.get(tier.lower(), "none")

@@ -32,6 +32,7 @@ from engine.systems.base_building import BuildingComponent, BuildingLibrary, Bui
 # Components
 class Position(Component):
     """Grid position component"""
+
     def __init__(self, x: int = 0, y: int = 0):
         self.x = x
         self.y = y
@@ -39,6 +40,7 @@ class Position(Component):
 
 class Resources(Component):
     """Resource storage component"""
+
     def __init__(self):
         self.wood = 100
         self.stone = 50
@@ -49,6 +51,7 @@ class Resources(Component):
 
 class Producer(Component):
     """Resource producer component"""
+
     def __init__(self, resource_type: str, production_rate: float):
         self.resource_type = resource_type
         self.production_rate = production_rate
@@ -57,6 +60,7 @@ class Producer(Component):
 
 class Consumer(Component):
     """Resource consumer component"""
+
     def __init__(self, resource_type: str, consumption_rate: float):
         self.resource_type = resource_type
         self.consumption_rate = consumption_rate
@@ -65,6 +69,7 @@ class Consumer(Component):
 
 class Renderable(Component):
     """Rendering information"""
+
     def __init__(self, color: tuple, size: int = 32):
         self.color = color
         self.size = size
@@ -72,6 +77,7 @@ class Renderable(Component):
 
 class BuildingInfo(Component):
     """Building metadata"""
+
     def __init__(self, building_type: str, name: str):
         self.building_type = building_type
         self.name = name
@@ -128,7 +134,13 @@ class ProductionSystem(System):
 class RenderSystem(System):
     """Render buildings and UI"""
 
-    def __init__(self, screen: pygame.Surface, camera_x: int = 0, camera_y: int = 0, tile_size: int = 32):
+    def __init__(
+        self,
+        screen: pygame.Surface,
+        camera_x: int = 0,
+        camera_y: int = 0,
+        tile_size: int = 32,
+    ):
         super().__init__()
         self.screen = screen
         self.camera_x = camera_x
@@ -157,12 +169,14 @@ class RenderSystem(System):
                 pygame.draw.rect(
                     self.screen,
                     renderable.color,
-                    (screen_x, screen_y, renderable.size, renderable.size)
+                    (screen_x, screen_y, renderable.size, renderable.size),
                 )
 
                 # Draw building name
                 if building_info:
-                    text = self.font.render(building_info.name[:8], True, (255, 255, 255))
+                    text = self.font.render(
+                        building_info.name[:8], True, (255, 255, 255)
+                    )
                     self.screen.blit(text, (screen_x + 2, screen_y + 2))
 
     def _draw_grid(self):
@@ -186,8 +200,7 @@ class RenderSystem(System):
         # Resource display
         ui_y = 10
         self.screen.blit(
-            self.large_font.render("Resources", True, (255, 255, 255)),
-            (10, ui_y)
+            self.large_font.render("Resources", True, (255, 255, 255)), (10, ui_y)
         )
 
         ui_y += 40
@@ -207,7 +220,7 @@ class RenderSystem(System):
         ui_y += 20
         self.screen.blit(
             self.large_font.render("Buildings (Press Number)", True, (255, 255, 255)),
-            (10, ui_y)
+            (10, ui_y),
         )
 
         ui_y += 40
@@ -218,7 +231,9 @@ class RenderSystem(System):
         ]
 
         for i, building in enumerate(building_list):
-            color = (100, 255, 100) if selected_building == str(i + 1) else (200, 200, 200)
+            color = (
+                (100, 255, 100) if selected_building == str(i + 1) else (200, 200, 200)
+            )
             text = self.font.render(building, True, color)
             self.screen.blit(text, (10, ui_y))
             ui_y += 30
@@ -229,7 +244,7 @@ class RenderSystem(System):
             "Arrow Keys: Move camera",
             "Number Keys: Select building",
             "Mouse Click: Place building",
-            "ESC: Quit"
+            "ESC: Quit",
         ]
 
         for instruction in instructions:
@@ -268,10 +283,7 @@ class BaseBuilderGame:
         # Systems
         self.production_system = ProductionSystem(self.resource_entity)
         self.render_system = RenderSystem(
-            self.screen,
-            self.camera_x,
-            self.camera_y,
-            self.TILE_SIZE
+            self.screen, self.camera_x, self.camera_y, self.TILE_SIZE
         )
 
         self.world.add_system(self.production_system)
@@ -298,8 +310,9 @@ class BaseBuilderGame:
         # Start with a basic house
         self.create_building("house", 5, 5, "House", (150, 100, 50))
 
-    def create_building(self, building_type: str, grid_x: int, grid_y: int,
-                       name: str, color: tuple) -> Entity:
+    def create_building(
+        self, building_type: str, grid_x: int, grid_y: int, name: str, color: tuple
+    ) -> Entity:
         """Create a building entity"""
         building = self.world.create_entity()
         building.add_component(Position(grid_x, grid_y))
@@ -361,8 +374,13 @@ class BaseBuilderGame:
         building_def = buildings[building_type]
 
         # Check resources
-        if resources.wood < building_def["wood"] or resources.stone < building_def["stone"]:
-            print(f"Not enough resources! Need {building_def['wood']} wood and {building_def['stone']} stone")
+        if (
+            resources.wood < building_def["wood"]
+            or resources.stone < building_def["stone"]
+        ):
+            print(
+                f"Not enough resources! Need {building_def['wood']} wood and {building_def['stone']} stone"
+            )
             return False
 
         # Deduct resources
@@ -375,7 +393,7 @@ class BaseBuilderGame:
             grid_x,
             grid_y,
             building_def["name"],
-            building_def["color"]
+            building_def["color"],
         )
 
         print(f"Built {building_def['name']} at ({grid_x}, {grid_y})")

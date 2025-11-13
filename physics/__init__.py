@@ -10,25 +10,25 @@ from .collision import (
     CollisionInfo,
     CollisionDetector,
     CollisionSystem,
-    QuadTreeNode
+    QuadTreeNode,
 )
 
 from .rigidbody import (
     RigidBody,
     PhysicsSystem,
     PhysicsSettings,
-    IntegratedPhysicsSystem
+    IntegratedPhysicsSystem,
 )
 
 __all__ = [
-    'Collider',
-    'ColliderType',
-    'CollisionInfo',
-    'CollisionDetector',
-    'CollisionSystem',
-    'QuadTreeNode',
-    'RigidBody',
-    'PhysicsSystem',
-    'PhysicsSettings',
-    'IntegratedPhysicsSystem'
+    "Collider",
+    "ColliderType",
+    "CollisionInfo",
+    "CollisionDetector",
+    "CollisionSystem",
+    "QuadTreeNode",
+    "RigidBody",
+    "PhysicsSystem",
+    "PhysicsSettings",
+    "IntegratedPhysicsSystem",
 ]

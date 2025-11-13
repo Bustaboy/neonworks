@@ -17,6 +17,7 @@ from dataclasses import dataclass
 @dataclass
 class BundleConfig:
     """Configuration for executable bundling"""
+
     app_name: str
     icon_path: Optional[Path] = None
     console: bool = False  # Show console window
@@ -47,7 +48,7 @@ class ExecutableBundler:
         launcher_script: Path,
         package_file: Path,
         output_dir: Path,
-        spec_file: Optional[Path] = None
+        spec_file: Optional[Path] = None,
     ) -> Dict[str, Any]:
         """
         Bundle the game as a standalone executable
@@ -90,9 +91,9 @@ class ExecutableBundler:
         # Find the generated executable
         if self.config.onefile:
             exe_name = self._get_exe_name()
-            exe_path = output_dir / 'dist' / exe_name
+            exe_path = output_dir / "dist" / exe_name
         else:
-            exe_path = output_dir / 'dist' / self.config.app_name
+            exe_path = output_dir / "dist" / self.config.app_name
 
         if not exe_path.exists():
             raise RuntimeError(f"Executable not found at expected path: {exe_path}")
@@ -102,95 +103,99 @@ class ExecutableBundler:
             exe_size = exe_path.stat().st_size
         else:
             # Directory bundle
-            exe_size = sum(f.stat().st_size for f in exe_path.rglob('*') if f.is_file())
+            exe_size = sum(f.stat().st_size for f in exe_path.rglob("*") if f.is_file())
 
         return {
-            'executable_path': exe_path,
-            'executable_size': exe_size,
-            'onefile': self.config.onefile,
-            'platform': sys.platform
+            "executable_path": exe_path,
+            "executable_size": exe_size,
+            "onefile": self.config.onefile,
+            "platform": sys.platform,
         }
 
     def _build_command(
-        self,
-        launcher_script: Path,
-        package_file: Path,
-        output_dir: Path
+        self, launcher_script: Path, package_file: Path, output_dir: Path
     ) -> List[str]:
         """Build PyInstaller command"""
         cmd = [
-            sys.executable, '-m', 'PyInstaller',
+            sys.executable,
+            "-m",
+            "PyInstaller",
             str(launcher_script),
-            '--name', self.config.app_name,
-            '--workpath', str(output_dir / 'build'),
-            '--distpath', str(output_dir / 'dist'),
-            '--specpath', str(output_dir),
+            "--name",
+            self.config.app_name,
+            "--workpath",
+            str(output_dir / "build"),
+            "--distpath",
+            str(output_dir / "dist"),
+            "--specpath",
+            str(output_dir),
         ]
 
         # One file or directory bundle
         if self.config.onefile:
-            cmd.append('--onefile')
+            cmd.append("--onefile")
         else:
-            cmd.append('--onedir')
+            cmd.append("--onedir")
 
         # Console window
         if not self.config.console:
-            cmd.append('--windowed')
+            cmd.append("--windowed")
         else:
-            cmd.append('--console')
+            cmd.append("--console")
 
         # Icon
         if self.config.icon_path and self.config.icon_path.exists():
-            cmd.extend(['--icon', str(self.config.icon_path)])
+            cmd.extend(["--icon", str(self.config.icon_path)])
 
         # Include package file
-        cmd.extend(['--add-data', f'{package_file}{os.pathsep}.'])
+        cmd.extend(["--add-data", f"{package_file}{os.pathsep}."])
 
         # Include additional files
         for src, dst in self.config.include_files:
-            cmd.extend(['--add-data', f'{src}{os.pathsep}{dst}'])
+            cmd.extend(["--add-data", f"{src}{os.pathsep}{dst}"])
 
         # Hidden imports
         for imp in self.config.hidden_imports:
-            cmd.extend(['--hidden-import', imp])
+            cmd.extend(["--hidden-import", imp])
 
         # UPX compression
         if self.config.upx:
-            cmd.append('--upx-dir=upx')
+            cmd.append("--upx-dir=upx")
         else:
-            cmd.append('--noupx')
+            cmd.append("--noupx")
 
         # Strip symbols
         if self.config.strip:
-            cmd.append('--strip')
+            cmd.append("--strip")
 
         # Clean build
-        cmd.append('--clean')
+        cmd.append("--clean")
 
         return cmd
 
     def _build_spec_command(self, spec_file: Path, output_dir: Path) -> List[str]:
         """Build PyInstaller command from spec file"""
         return [
-            sys.executable, '-m', 'PyInstaller',
+            sys.executable,
+            "-m",
+            "PyInstaller",
             str(spec_file),
-            '--distpath', str(output_dir / 'dist'),
-            '--workpath', str(output_dir / 'build'),
-            '--clean'
+            "--distpath",
+            str(output_dir / "dist"),
+            "--workpath",
+            str(output_dir / "build"),
+            "--clean",
         ]
 
     def _get_exe_name(self) -> str:
         """Get executable name for current platform"""
-        if sys.platform == 'win32':
-            return f'{self.config.app_name}.exe'
+        if sys.platform == "win32":
+            return f"{self.config.app_name}.exe"
         else:
             return self.config.app_name
 
     def generate_spec_file(
-        self,
-        launcher_script: Path,
-        package_file: Path,
-        output_path: Path
+        self, launcher_script: Path, package_file: Path, output_path: Path
     ) -> Path:
         """
         Generate a PyInstaller spec file
@@ -207,7 +212,7 @@ class ExecutableBundler:
         """
         spec_content = self._generate_spec_content(launcher_script, package_file)
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             f.write(spec_content)
 
         return output_path
@@ -219,13 +224,17 @@ class ExecutableBundler:
         for src, dst in self.config.include_files:
             datas.append(f"('{src}', '{dst}')")
 
-        datas_str = ',\n                 '.join(datas)
+        datas_str = ",\n                 ".join(datas)
 
         # Build hidden imports
-        hiddenimports_str = ', '.join(f"'{imp}'" for imp in self.config.hidden_imports)
+        hiddenimports_str = ", ".join(f"'{imp}'" for imp in self.config.hidden_imports)
 
         # Icon line
-        icon_line = f"icon='{self.config.icon_path}'," if self.config.icon_path else "icon=None,"
+        icon_line = (
+            f"icon='{self.config.icon_path}',"
+            if self.config.icon_path
+            else "icon=None,"
+        )
 
         spec_template = f"""# -*- mode: python ; coding: utf-8 -*-
 
@@ -289,9 +298,7 @@ coll = COLLECT(
 
 
 def create_launcher_script(
-    project_name: str,
-    package_filename: str,
-    password: Optional[str] = None
+    project_name: str, package_filename: str, password: Optional[str] = None
 ) -> str:
     """
     Generate launcher script content
@@ -306,7 +313,9 @@ def create_launcher_script(
     Returns:
         Launcher script content as string
     """
-    password_line = f"    password = '{password}'" if password else "    password = None"
+    password_line = (
+        f"    password = '{password}'" if password else "    password = None"
+    )
 
     launcher = f"""#!/usr/bin/env python3
 \"\"\"

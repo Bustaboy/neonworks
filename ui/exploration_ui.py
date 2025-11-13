@@ -13,6 +13,7 @@ from ui.ui_system import UIWidget
 @dataclass
 class DialogueLine:
     """A single line of dialogue"""
+
     speaker: str
     text: str
     portrait: Optional[str] = None  # Portrait image path
@@ -141,7 +142,9 @@ class DialogueBox(UIWidget):
         # Draw portrait (if available)
         portrait_x = self.x + 10
         if self.portrait_surface:
-            portrait_rect = self.portrait_surface.get_rect(topleft=(portrait_x, self.y + 10))
+            portrait_rect = self.portrait_surface.get_rect(
+                topleft=(portrait_x, self.y + 10)
+            )
             screen.blit(self.portrait_surface, portrait_rect)
             text_x = portrait_x + self.portrait_size + 20
         else:
@@ -166,24 +169,33 @@ class DialogueBox(UIWidget):
                 self.text_color,
                 text_x,
                 text_y,
-                text_width
+                text_width,
             )
 
         # Draw continue indicator
         if self.is_text_complete:
             indicator_text = "▼"
             indicator_font = pygame.font.Font(None, 28)
-            indicator_surface = indicator_font.render(indicator_text, True, self.text_color)
+            indicator_surface = indicator_font.render(
+                indicator_text, True, self.text_color
+            )
             indicator_rect = indicator_surface.get_rect(
                 bottomright=(self.x + self.width - 20, self.y + self.height - 10)
             )
             screen.blit(indicator_surface, indicator_rect)
 
-    def _render_wrapped_text(self, screen: pygame.Surface, text: str,
-                            font: pygame.font.Font, color: tuple,
-                            x: int, y: int, max_width: int):
+    def _render_wrapped_text(
+        self,
+        screen: pygame.Surface,
+        text: str,
+        font: pygame.font.Font,
+        color: tuple,
+        x: int,
+        y: int,
+        max_width: int,
+    ):
         """Render text with word wrapping"""
-        words = text.split(' ')
+        words = text.split(" ")
         lines = []
         current_line = ""
 
@@ -249,7 +261,9 @@ class InteractionPrompt(UIWidget):
             return
 
         # Create pulsing effect
-        pulse_alpha = int(180 + 75 * abs(pygame.math.Vector2(1, 0).rotate(self.pulse_timer * 180).x))
+        pulse_alpha = int(
+            180 + 75 * abs(pygame.math.Vector2(1, 0).rotate(self.pulse_timer * 180).x)
+        )
 
         # Draw background
         bg_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
@@ -264,7 +278,9 @@ class InteractionPrompt(UIWidget):
         # Draw text
         font = pygame.font.Font(None, 20)
         text_surface = font.render(self.prompt_text, True, self.text_color)
-        text_rect = text_surface.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))
+        text_rect = text_surface.get_rect(
+            center=(self.x + self.width // 2, self.y + self.height // 2)
+        )
         screen.blit(text_surface, text_rect)
 
 
@@ -278,15 +294,11 @@ class ExplorationHUD(UIWidget):
 
         # Components
         self.dialogue_box = DialogueBox(
-            50,
-            screen_height - 180,
-            screen_width - 100,
-            150
+            50, screen_height - 180, screen_width - 100, 150
         )
 
         self.interaction_prompt = InteractionPrompt(
-            screen_width // 2 - 100,
-            screen_height // 2 + 50
+            screen_width // 2 - 100, screen_height // 2 + 50
         )
 
         # Location name display
@@ -343,9 +355,7 @@ class ExplorationHUD(UIWidget):
             alpha = int(255 * min(self.location_timer / self.location_duration, 1.0))
             location_surface.set_alpha(alpha)
 
-            location_rect = location_surface.get_rect(
-                center=(self.width // 2, 100)
-            )
+            location_rect = location_surface.get_rect(center=(self.width // 2, 100))
             screen.blit(location_surface, location_rect)
 
         # Render interaction prompt

@@ -18,7 +18,7 @@ from engine.rendering.animation import (
     AnimationStateMachineBuilder,
     TransitionCondition,
     TransitionConditionType,
-    StateTransition
+    StateTransition,
 )
 
 
@@ -38,29 +38,32 @@ def animation_component():
     sprite3 = pygame.Surface((32, 32))
 
     # Create animations
-    idle_anim = Animation("idle", [
-        AnimationFrame(sprite1, 0.1),
-        AnimationFrame(sprite2, 0.1)
-    ], loop=True)
+    idle_anim = Animation(
+        "idle", [AnimationFrame(sprite1, 0.1), AnimationFrame(sprite2, 0.1)], loop=True
+    )
 
-    walk_anim = Animation("walk", [
-        AnimationFrame(sprite1, 0.08),
-        AnimationFrame(sprite2, 0.08),
-        AnimationFrame(sprite3, 0.08)
-    ], loop=True)
+    walk_anim = Animation(
+        "walk",
+        [
+            AnimationFrame(sprite1, 0.08),
+            AnimationFrame(sprite2, 0.08),
+            AnimationFrame(sprite3, 0.08),
+        ],
+        loop=True,
+    )
 
-    jump_anim = Animation("jump", [
-        AnimationFrame(sprite1, 0.15),
-        AnimationFrame(sprite2, 0.15),
-        AnimationFrame(sprite3, 0.15)
-    ], loop=False)
+    jump_anim = Animation(
+        "jump",
+        [
+            AnimationFrame(sprite1, 0.15),
+            AnimationFrame(sprite2, 0.15),
+            AnimationFrame(sprite3, 0.15),
+        ],
+        loop=False,
+    )
 
     component = AnimationComponent()
-    component.animations = {
-        "idle": idle_anim,
-        "walk": walk_anim,
-        "jump": jump_anim
-    }
+    component.animations = {"idle": idle_anim, "walk": walk_anim, "jump": jump_anim}
 
     return component
 
@@ -206,14 +209,16 @@ class TestAnimationStateMachine:
         exit_called = []
 
         state1 = AnimationState(
-            "idle", "idle",
+            "idle",
+            "idle",
             on_enter=lambda: enter_called.append("idle"),
-            on_exit=lambda: exit_called.append("idle")
+            on_exit=lambda: exit_called.append("idle"),
         )
         state2 = AnimationState(
-            "walk", "walk",
+            "walk",
+            "walk",
             on_enter=lambda: enter_called.append("walk"),
-            on_exit=lambda: exit_called.append("walk")
+            on_exit=lambda: exit_called.append("walk"),
         )
 
         state_machine.add_state(state1)
@@ -273,9 +278,7 @@ class TestTransitions:
     def test_transition_with_conditions(self):
         """Test transition with conditions"""
         condition = TransitionCondition(
-            TransitionConditionType.GREATER_THAN,
-            "speed",
-            0.5
+            TransitionConditionType.GREATER_THAN, "speed", 0.5
         )
         transition = StateTransition("idle", "walk", [condition])
 
@@ -300,10 +303,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("idle", "idle"))
         state_machine.add_state(AnimationState("jump", "jump"))
 
-        condition = TransitionCondition(
-            TransitionConditionType.TRIGGER,
-            "jump_trigger"
-        )
+        condition = TransitionCondition(TransitionConditionType.TRIGGER, "jump_trigger")
         transition = StateTransition("idle", "jump", [condition])
         state_machine.add_transition(transition)
 
@@ -324,9 +324,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("walk", "walk"))
 
         condition = TransitionCondition(
-            TransitionConditionType.EQUALS,
-            "state",
-            "walking"
+            TransitionConditionType.EQUALS, "state", "walking"
         )
         transition = StateTransition("idle", "walk", [condition])
         state_machine.add_transition(transition)
@@ -348,9 +346,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("run", "walk"))
 
         condition = TransitionCondition(
-            TransitionConditionType.GREATER_THAN,
-            "speed",
-            5.0
+            TransitionConditionType.GREATER_THAN, "speed", 5.0
         )
         transition = StateTransition("idle", "run", [condition])
         state_machine.add_transition(transition)
@@ -371,11 +367,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("run", "walk"))
         state_machine.add_state(AnimationState("idle", "idle"))
 
-        condition = TransitionCondition(
-            TransitionConditionType.LESS_THAN,
-            "speed",
-            1.0
-        )
+        condition = TransitionCondition(TransitionConditionType.LESS_THAN, "speed", 1.0)
         transition = StateTransition("run", "idle", [condition])
         state_machine.add_transition(transition)
 
@@ -397,7 +389,7 @@ class TestTransitions:
 
         conditions = [
             TransitionCondition(TransitionConditionType.TRIGGER, "attack_trigger"),
-            TransitionCondition(TransitionConditionType.EQUALS, "can_attack", True)
+            TransitionCondition(TransitionConditionType.EQUALS, "can_attack", True),
         ]
         transition = StateTransition("idle", "attack", conditions)
         state_machine.add_transition(transition)
@@ -425,9 +417,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("jump", "jump", loop=False))
         state_machine.add_state(AnimationState("idle", "idle"))
 
-        condition = TransitionCondition(
-            TransitionConditionType.ANIMATION_FINISHED
-        )
+        condition = TransitionCondition(TransitionConditionType.ANIMATION_FINISHED)
         transition = StateTransition("jump", "idle", [condition])
         state_machine.add_transition(transition)
 
@@ -526,11 +516,13 @@ class TestStateMachineBuilder:
 
     def test_builder_fluent_interface(self):
         """Test builder fluent interface"""
-        builder = (AnimationStateMachineBuilder()
-                  .add_state("idle", "idle_anim")
-                  .add_state("walk", "walk_anim")
-                  .add_transition("idle", "walk")
-                  .add_parameter("speed", 0.0))
+        builder = (
+            AnimationStateMachineBuilder()
+            .add_state("idle", "idle_anim")
+            .add_state("walk", "walk_anim")
+            .add_transition("idle", "walk")
+            .add_parameter("speed", 0.0)
+        )
 
         state_machine = builder.build()
 
@@ -543,26 +535,46 @@ class TestStateMachineIntegration:
 
     def test_full_character_state_machine(self, animation_component):
         """Test complete character state machine"""
-        state_machine = (AnimationStateMachineBuilder()
+        state_machine = (
+            AnimationStateMachineBuilder()
             .add_state("idle", "idle", loop=True)
             .add_state("walk", "walk", loop=True)
             .add_state("jump", "jump", loop=False)
             .add_parameter("speed", 0.0)
             .add_parameter("grounded", True)
-            .add_transition("idle", "walk", [
-                TransitionCondition(TransitionConditionType.GREATER_THAN, "speed", 0.1)
-            ])
-            .add_transition("walk", "idle", [
-                TransitionCondition(TransitionConditionType.LESS_THAN, "speed", 0.1)
-            ])
-            .add_transition("idle", "jump", [
-                TransitionCondition(TransitionConditionType.TRIGGER, "jump_trigger"),
-                TransitionCondition(TransitionConditionType.EQUALS, "grounded", True)
-            ])
-            .add_transition("jump", "idle", [
-                TransitionCondition(TransitionConditionType.ANIMATION_FINISHED)
-            ])
-            .build())
+            .add_transition(
+                "idle",
+                "walk",
+                [
+                    TransitionCondition(
+                        TransitionConditionType.GREATER_THAN, "speed", 0.1
+                    )
+                ],
+            )
+            .add_transition(
+                "walk",
+                "idle",
+                [TransitionCondition(TransitionConditionType.LESS_THAN, "speed", 0.1)],
+            )
+            .add_transition(
+                "idle",
+                "jump",
+                [
+                    TransitionCondition(
+                        TransitionConditionType.TRIGGER, "jump_trigger"
+                    ),
+                    TransitionCondition(
+                        TransitionConditionType.EQUALS, "grounded", True
+                    ),
+                ],
+            )
+            .add_transition(
+                "jump",
+                "idle",
+                [TransitionCondition(TransitionConditionType.ANIMATION_FINISHED)],
+            )
+            .build()
+        )
 
         state_machine.animation_component = animation_component
 
@@ -597,16 +609,22 @@ class TestStateMachineIntegration:
         state_machine = AnimationStateMachine()
         state_machine.animation_component = animation_component
 
-        state_machine.add_state(AnimationState(
-            "idle", "idle",
-            on_enter=lambda: events.append("enter_idle"),
-            on_exit=lambda: events.append("exit_idle")
-        ))
-        state_machine.add_state(AnimationState(
-            "walk", "walk",
-            on_enter=lambda: events.append("enter_walk"),
-            on_exit=lambda: events.append("exit_walk")
-        ))
+        state_machine.add_state(
+            AnimationState(
+                "idle",
+                "idle",
+                on_enter=lambda: events.append("enter_idle"),
+                on_exit=lambda: events.append("exit_idle"),
+            )
+        )
+        state_machine.add_state(
+            AnimationState(
+                "walk",
+                "walk",
+                on_enter=lambda: events.append("enter_walk"),
+                on_exit=lambda: events.append("exit_walk"),
+            )
+        )
 
         state_machine.change_state("walk")
 

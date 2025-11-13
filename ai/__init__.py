@@ -9,13 +9,7 @@ from .pathfinding import (
     Pathfinder,
     PathfindingSystem,
     Heuristic,
-    PathNode
+    PathNode,
 )
 
-__all__ = [
-    'NavigationGrid',
-    'Pathfinder',
-    'PathfindingSystem',
-    'Heuristic',
-    'PathNode'
-]
+__all__ = ["NavigationGrid", "Pathfinder", "PathfindingSystem", "Heuristic", "PathNode"]

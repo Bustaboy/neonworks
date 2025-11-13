@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 
 class Anchor(Enum):
     """UI anchor positions"""
+
     TOP_LEFT = "top_left"
     TOP_CENTER = "top_center"
     TOP_RIGHT = "top_right"
@@ -27,6 +28,7 @@ class Anchor(Enum):
 @dataclass
 class UIStyle:
     """Style properties for UI elements"""
+
     # Colors
     background_color: Tuple[int, int, int, int] = (50, 50, 50, 200)
     border_color: Tuple[int, int, int, int] = (150, 150, 150, 255)
@@ -62,7 +64,7 @@ class UIWidget(ABC):
 
         # Layout
         self.anchor = Anchor.TOP_LEFT
-        self.parent: Optional['UIContainer'] = None
+        self.parent: Optional["UIContainer"] = None
 
         # Style
         self.style = UIStyle()
@@ -153,7 +155,9 @@ class UILabel(UIWidget):
 
         # Render text (with caching)
         if self._cached_surface is None or self._cached_text != self.text:
-            self._cached_surface = self.font.render(self.text, True, self.style.text_color[:3])
+            self._cached_surface = self.font.render(
+                self.text, True, self.style.text_color[:3]
+            )
             self._cached_text = self.text
 
         # Center text in widget
@@ -355,8 +359,14 @@ class UIBuilder:
     """Helper for building UI layouts"""
 
     @staticmethod
-    def create_button(text: str, x: int, y: int, width: int = 120, height: int = 40,
-                     on_click: Optional[Callable[[], None]] = None) -> UIButton:
+    def create_button(
+        text: str,
+        x: int,
+        y: int,
+        width: int = 120,
+        height: int = 40,
+        on_click: Optional[Callable[[], None]] = None,
+    ) -> UIButton:
         """Create a button with standard style"""
         button = UIButton(text=text, x=x, y=y, width=width, height=height)
         if on_click:
@@ -364,7 +374,9 @@ class UIBuilder:
         return button
 
     @staticmethod
-    def create_label(text: str, x: int, y: int, width: int = 200, height: int = 30) -> UILabel:
+    def create_label(
+        text: str, x: int, y: int, width: int = 200, height: int = 30
+    ) -> UILabel:
         """Create a label"""
         return UILabel(text=text, x=x, y=y, width=width, height=height)
 
@@ -374,12 +386,14 @@ class UIBuilder:
         return UIPanel(x=x, y=y, width=width, height=height)
 
     @staticmethod
-    def create_vertical_layout(x: int, y: int, spacing: int = 10) -> 'VerticalLayout':
+    def create_vertical_layout(x: int, y: int, spacing: int = 10) -> "VerticalLayout":
         """Create a vertical layout container"""
         return VerticalLayout(x=x, y=y, spacing=spacing)
 
     @staticmethod
-    def create_horizontal_layout(x: int, y: int, spacing: int = 10) -> 'HorizontalLayout':
+    def create_horizontal_layout(
+        x: int, y: int, spacing: int = 10
+    ) -> "HorizontalLayout":
         """Create a horizontal layout container"""
         return HorizontalLayout(x=x, y=y, spacing=spacing)
 

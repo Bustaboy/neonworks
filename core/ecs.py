@@ -12,12 +12,14 @@ import uuid
 
 class Component:
     """Base class for all components"""
+
     pass
 
 
 @dataclass
 class Transform(Component):
     """Position, rotation, and scale"""
+
     x: float = 0.0
     y: float = 0.0
     rotation: float = 0.0
@@ -28,6 +30,7 @@ class Transform(Component):
 @dataclass
 class GridPosition(Component):
     """Grid-based position for tile-based games"""
+
     grid_x: int = 0
     grid_y: int = 0
     layer: int = 0  # For multi-layer maps
@@ -36,6 +39,7 @@ class GridPosition(Component):
 @dataclass
 class Sprite(Component):
     """Visual representation"""
+
     texture: str = ""
     width: int = 32
     height: int = 32
@@ -46,6 +50,7 @@ class Sprite(Component):
 @dataclass
 class Health(Component):
     """Health component for survival and combat"""
+
     current: float = 100.0
     maximum: float = 100.0
     regeneration: float = 0.0
@@ -54,6 +59,7 @@ class Health(Component):
 @dataclass
 class Survival(Component):
     """Survival needs"""
+
     hunger: float = 100.0  # 0 = starving, 100 = full
     thirst: float = 100.0  # 0 = dehydrated, 100 = hydrated
     energy: float = 100.0  # 0 = exhausted, 100 = well-rested
@@ -66,6 +72,7 @@ class Survival(Component):
 @dataclass
 class Building(Component):
     """Base building component"""
+
     building_type: str = ""
     construction_progress: float = 0.0  # 0.0 to 1.0
     is_constructed: bool = False
@@ -76,13 +83,14 @@ class Building(Component):
 @dataclass
 class ResourceStorage(Component):
     """Resource storage for buildings and characters"""
+
     resources: Dict[str, float] = field(default_factory=dict)
     capacity: Dict[str, float] = field(default_factory=dict)
 
     def add_resource(self, resource_type: str, amount: float) -> float:
         """Add resource, return amount that didn't fit"""
         current = self.resources.get(resource_type, 0.0)
-        capacity = self.capacity.get(resource_type, float('inf'))
+        capacity = self.capacity.get(resource_type, float("inf"))
 
         new_amount = min(current + amount, capacity)
         self.resources[resource_type] = new_amount
@@ -100,6 +108,7 @@ class ResourceStorage(Component):
 @dataclass
 class Navmesh(Component):
     """Navmesh data for pathfinding"""
+
     walkable_cells: Set[tuple] = field(default_factory=set)  # Set of (x, y) tuples
     cost_multipliers: Dict[tuple, float] = field(default_factory=dict)  # Movement costs
 
@@ -113,6 +122,7 @@ class Navmesh(Component):
 @dataclass
 class TurnActor(Component):
     """Entity that can act in turn-based system"""
+
     action_points: int = 2
     max_action_points: int = 2
     initiative: int = 10
@@ -122,6 +132,7 @@ class TurnActor(Component):
 @dataclass
 class Collider(Component):
     """Collision box for physics and collision detection"""
+
     width: float = 32.0
     height: float = 32.0
     offset_x: float = 0.0  # Offset from transform position
@@ -134,6 +145,7 @@ class Collider(Component):
 @dataclass
 class RigidBody(Component):
     """Physics body for movement and collision response"""
+
     velocity_x: float = 0.0
     velocity_y: float = 0.0
     mass: float = 1.0
@@ -150,9 +162,11 @@ class Entity:
         self._components: Dict[Type[Component], Component] = {}
         self.tags: Set[str] = set()
         self.active: bool = True
-        self._world: Optional['World'] = None  # Reference to the world this entity belongs to
+        self._world: Optional["World"] = (
+            None  # Reference to the world this entity belongs to
+        )
 
-    def add_component(self, component: Component) -> 'Entity':
+    def add_component(self, component: Component) -> "Entity":
         """Add a component to this entity"""
         component_type = type(component)
         self._components[component_type] = component
@@ -165,13 +179,16 @@ class Entity:
 
         return self
 
-    def remove_component(self, component_type: Type[Component]) -> 'Entity':
+    def remove_component(self, component_type: Type[Component]) -> "Entity":
         """Remove a component from this entity"""
         if component_type in self._components:
             del self._components[component_type]
 
             # Update world's component index if entity is in a world
-            if self._world is not None and component_type in self._world._component_to_entities:
+            if (
+                self._world is not None
+                and component_type in self._world._component_to_entities
+            ):
                 self._world._component_to_entities[component_type].discard(self.id)
 
         return self
@@ -188,12 +205,12 @@ class Entity:
         """Check if entity has all specified components"""
         return all(ct in self._components for ct in component_types)
 
-    def add_tag(self, tag: str) -> 'Entity':
+    def add_tag(self, tag: str) -> "Entity":
         """Add a tag to this entity"""
         self.tags.add(tag)
         return self
 
-    def remove_tag(self, tag: str) -> 'Entity':
+    def remove_tag(self, tag: str) -> "Entity":
         """Remove a tag from this entity"""
         self.tags.discard(tag)
         return self
@@ -211,7 +228,7 @@ class System(ABC):
         self.priority = 0  # Lower numbers run first
 
     @abstractmethod
-    def update(self, world: 'World', delta_time: float):
+    def update(self, world: "World", delta_time: float):
         """Update this system"""
         pass
 
@@ -241,7 +258,7 @@ class World:
         self.add_entity(entity)
         return entity
 
-    def add_entity(self, entity: Entity) -> 'World':
+    def add_entity(self, entity: Entity) -> "World":
         """Add an existing entity to the world"""
         self._entities[entity.id] = entity
 
@@ -266,7 +283,7 @@ class World:
 
         return self
 
-    def remove_entity(self, entity_id: str) -> 'World':
+    def remove_entity(self, entity_id: str) -> "World":
         """Remove an entity from the world"""
         if entity_id not in self._entities:
             return self
@@ -301,12 +318,16 @@ class World:
         """Get all entities"""
         return list(self._entities.values())
 
-    def get_entities_with_component(self, component_type: Type[Component]) -> List[Entity]:
+    def get_entities_with_component(
+        self, component_type: Type[Component]
+    ) -> List[Entity]:
         """Get all entities that have a specific component"""
         entity_ids = self._component_to_entities.get(component_type, set())
         return [self._entities[eid] for eid in entity_ids if eid in self._entities]
 
-    def get_entities_with_components(self, *component_types: Type[Component]) -> List[Entity]:
+    def get_entities_with_components(
+        self, *component_types: Type[Component]
+    ) -> List[Entity]:
         """Get all entities that have all specified components"""
         if not component_types:
             return []
@@ -325,13 +346,13 @@ class World:
         entity_ids = self._tags_to_entities.get(tag, set())
         return [self._entities[eid] for eid in entity_ids if eid in self._entities]
 
-    def add_system(self, system: System) -> 'World':
+    def add_system(self, system: System) -> "World":
         """Add a system to the world"""
         self._systems.append(system)
         self._systems.sort(key=lambda s: s.priority)
         return self
 
-    def remove_system(self, system: System) -> 'World':
+    def remove_system(self, system: System) -> "World":
         """Remove a system from the world"""
         if system in self._systems:
             self._systems.remove(system)

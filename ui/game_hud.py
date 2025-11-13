@@ -2,6 +2,7 @@
 NeonWorks Game HUD - Comprehensive Visual Interface
 Provides all necessary visual feedback for gameplay systems.
 """
+
 from typing import Optional, Dict, List, Tuple
 import pygame
 from ..core.ecs import World, Component
@@ -93,22 +94,35 @@ class GameHUD:
 
         # Current turn info
         current_y = y + 40
-        self.ui.label(f"Round: {turn_system.current_round}", panel_x + 10, current_y, size=16)
+        self.ui.label(
+            f"Round: {turn_system.current_round}", panel_x + 10, current_y, size=16
+        )
 
         # Current actor
         if turn_system.current_turn_index < len(turn_system.turn_order):
             current_actor_id = turn_system.turn_order[turn_system.current_turn_index]
             actor = world.get_component(current_actor_id, TurnActor)
             if actor:
-                self.ui.label(f"Current Turn: Entity {current_actor_id}",
-                            panel_x + 10, current_y + 25, size=16, color=(255, 255, 0))
+                self.ui.label(
+                    f"Current Turn: Entity {current_actor_id}",
+                    panel_x + 10,
+                    current_y + 25,
+                    size=16,
+                    color=(255, 255, 0),
+                )
 
                 # Action points bar
                 ap_ratio = actor.action_points / actor.max_action_points
                 bar_width = width - 20
-                self.ui.progress_bar(panel_x + 10, current_y + 50, bar_width, 20,
-                                    ap_ratio, f"AP: {actor.action_points}/{actor.max_action_points}",
-                                    bar_color=(0, 200, 255))
+                self.ui.progress_bar(
+                    panel_x + 10,
+                    current_y + 50,
+                    bar_width,
+                    20,
+                    ap_ratio,
+                    f"AP: {actor.action_points}/{actor.max_action_points}",
+                    bar_color=(0, 200, 255),
+                )
 
     def _render_resources(self, world: World, x: int, y: int):
         """Render resource counters."""
@@ -120,7 +134,9 @@ class GameHUD:
             storage = world.get_component(entity_id, ResourceStorage)
             if storage:
                 for resource, amount in storage.resources.items():
-                    total_resources[resource] = total_resources.get(resource, 0) + amount
+                    total_resources[resource] = (
+                        total_resources.get(resource, 0) + amount
+                    )
 
         if not total_resources:
             return
@@ -131,18 +147,23 @@ class GameHUD:
 
         resource_y = y + 30
         resource_colors = {
-            'metal': (192, 192, 192),
-            'food': (255, 200, 100),
-            'water': (100, 150, 255),
-            'energy': (255, 255, 0),
-            'wood': (139, 90, 43),
-            'stone': (128, 128, 128),
+            "metal": (192, 192, 192),
+            "food": (255, 200, 100),
+            "water": (100, 150, 255),
+            "energy": (255, 255, 0),
+            "wood": (139, 90, 43),
+            "stone": (128, 128, 128),
         }
 
         for resource, amount in sorted(total_resources.items()):
             color = resource_colors.get(resource, (255, 255, 255))
-            self.ui.label(f"{resource.capitalize()}: {amount:.0f}",
-                         x + 10, resource_y, size=16, color=color)
+            self.ui.label(
+                f"{resource.capitalize()}: {amount:.0f}",
+                x + 10,
+                resource_y,
+                size=16,
+                color=color,
+            )
             resource_y += 25
 
     def _render_survival_stats(self, world: World, x: int, y: int):
@@ -151,7 +172,7 @@ class GameHUD:
 
         # Find player entity (assumes tag 'player')
         player_id = None
-        for entity_id in world.get_entities_with_tag('player'):
+        for entity_id in world.get_entities_with_tag("player"):
             player_id = entity_id
             break
 
@@ -174,9 +195,15 @@ class GameHUD:
         if health:
             health_ratio = health.current / health.maximum
             bar_color = (255, 0, 0) if health_ratio < 0.3 else (0, 255, 0)
-            self.ui.progress_bar(x + 10, bar_y, bar_width, 20, health_ratio,
-                                f"Health: {health.current:.0f}/{health.maximum:.0f}",
-                                bar_color=bar_color)
+            self.ui.progress_bar(
+                x + 10,
+                bar_y,
+                bar_width,
+                20,
+                health_ratio,
+                f"Health: {health.current:.0f}/{health.maximum:.0f}",
+                bar_color=bar_color,
+            )
             bar_y += 30
 
         # Survival bars
@@ -184,25 +211,43 @@ class GameHUD:
             # Hunger
             hunger_ratio = survival.hunger / survival.max_hunger
             hunger_color = (255, 165, 0) if hunger_ratio < 0.3 else (255, 200, 100)
-            self.ui.progress_bar(x + 10, bar_y, bar_width, 20, hunger_ratio,
-                                f"Hunger: {survival.hunger:.0f}/{survival.max_hunger:.0f}",
-                                bar_color=hunger_color)
+            self.ui.progress_bar(
+                x + 10,
+                bar_y,
+                bar_width,
+                20,
+                hunger_ratio,
+                f"Hunger: {survival.hunger:.0f}/{survival.max_hunger:.0f}",
+                bar_color=hunger_color,
+            )
             bar_y += 25
 
             # Thirst
             thirst_ratio = survival.thirst / survival.max_thirst
             thirst_color = (100, 150, 255) if thirst_ratio > 0.3 else (255, 0, 0)
-            self.ui.progress_bar(x + 10, bar_y, bar_width, 20, thirst_ratio,
-                                f"Thirst: {survival.thirst:.0f}/{survival.max_thirst:.0f}",
-                                bar_color=thirst_color)
+            self.ui.progress_bar(
+                x + 10,
+                bar_y,
+                bar_width,
+                20,
+                thirst_ratio,
+                f"Thirst: {survival.thirst:.0f}/{survival.max_thirst:.0f}",
+                bar_color=thirst_color,
+            )
             bar_y += 25
 
             # Energy
             energy_ratio = survival.energy / survival.max_energy
             energy_color = (255, 255, 0) if energy_ratio > 0.3 else (255, 100, 0)
-            self.ui.progress_bar(x + 10, bar_y, bar_width, 20, energy_ratio,
-                                f"Energy: {survival.energy:.0f}/{survival.max_energy:.0f}",
-                                bar_color=energy_color)
+            self.ui.progress_bar(
+                x + 10,
+                bar_y,
+                bar_width,
+                20,
+                energy_ratio,
+                f"Energy: {survival.energy:.0f}/{survival.max_energy:.0f}",
+                bar_color=energy_color,
+            )
 
     def _render_building_info(self, world: World, x: int, y: int):
         """Render information about buildings."""
@@ -226,13 +271,23 @@ class GameHUD:
             status = "Building..." if building.under_construction else "Active"
             color = (255, 200, 0) if building.under_construction else (0, 255, 0)
 
-            self.ui.label(f"{building.building_type}: {status}",
-                         x + 10, building_y, size=14, color=color)
+            self.ui.label(
+                f"{building.building_type}: {status}",
+                x + 10,
+                building_y,
+                size=14,
+                color=color,
+            )
             building_y += 25
 
         if len(buildings) > 5:
-            self.ui.label(f"... and {len(buildings) - 5} more",
-                         x + 10, building_y, size=12, color=(150, 150, 150))
+            self.ui.label(
+                f"... and {len(buildings) - 5} more",
+                x + 10,
+                building_y,
+                size=12,
+                color=(150, 150, 150),
+            )
 
     def _render_selected_entity(self, world: World, x: int, y: int):
         """Render detailed info about selected entity."""
@@ -250,13 +305,25 @@ class GameHUD:
         self.ui.label("Components:", x + 10, info_y, size=16, color=(200, 200, 255))
         info_y += line_height + 5
 
-        from ..core.ecs import Transform, Sprite, Health, Survival, Building, TurnActor, ResourceStorage
+        from ..core.ecs import (
+            Transform,
+            Sprite,
+            Health,
+            Survival,
+            Building,
+            TurnActor,
+            ResourceStorage,
+        )
 
         # Transform
         transform = world.get_component(self.selected_entity, Transform)
         if transform:
-            self.ui.label(f"Position: ({transform.x:.0f}, {transform.y:.0f})",
-                         x + 15, info_y, size=14)
+            self.ui.label(
+                f"Position: ({transform.x:.0f}, {transform.y:.0f})",
+                x + 15,
+                info_y,
+                size=14,
+            )
             info_y += line_height
 
         # Sprite
@@ -269,39 +336,65 @@ class GameHUD:
         health = world.get_component(self.selected_entity, Health)
         if health:
             health_pct = (health.current / health.maximum) * 100
-            self.ui.label(f"Health: {health.current:.0f}/{health.maximum:.0f} ({health_pct:.0f}%)",
-                         x + 15, info_y, size=14)
+            self.ui.label(
+                f"Health: {health.current:.0f}/{health.maximum:.0f} ({health_pct:.0f}%)",
+                x + 15,
+                info_y,
+                size=14,
+            )
             info_y += line_height
 
         # Survival
         survival = world.get_component(self.selected_entity, Survival)
         if survival:
-            self.ui.label(f"Hunger: {survival.hunger:.0f}/{survival.max_hunger:.0f}",
-                         x + 15, info_y, size=14)
+            self.ui.label(
+                f"Hunger: {survival.hunger:.0f}/{survival.max_hunger:.0f}",
+                x + 15,
+                info_y,
+                size=14,
+            )
             info_y += line_height
-            self.ui.label(f"Thirst: {survival.thirst:.0f}/{survival.max_thirst:.0f}",
-                         x + 15, info_y, size=14)
+            self.ui.label(
+                f"Thirst: {survival.thirst:.0f}/{survival.max_thirst:.0f}",
+                x + 15,
+                info_y,
+                size=14,
+            )
             info_y += line_height
-            self.ui.label(f"Energy: {survival.energy:.0f}/{survival.max_energy:.0f}",
-                         x + 15, info_y, size=14)
+            self.ui.label(
+                f"Energy: {survival.energy:.0f}/{survival.max_energy:.0f}",
+                x + 15,
+                info_y,
+                size=14,
+            )
             info_y += line_height
 
         # Turn Actor
         turn_actor = world.get_component(self.selected_entity, TurnActor)
         if turn_actor:
-            self.ui.label(f"Initiative: {turn_actor.initiative}", x + 15, info_y, size=14)
+            self.ui.label(
+                f"Initiative: {turn_actor.initiative}", x + 15, info_y, size=14
+            )
             info_y += line_height
-            self.ui.label(f"AP: {turn_actor.action_points}/{turn_actor.max_action_points}",
-                         x + 15, info_y, size=14)
+            self.ui.label(
+                f"AP: {turn_actor.action_points}/{turn_actor.max_action_points}",
+                x + 15,
+                info_y,
+                size=14,
+            )
             info_y += line_height
 
         # Building
         building = world.get_component(self.selected_entity, Building)
         if building:
-            self.ui.label(f"Building: {building.building_type}", x + 15, info_y, size=14)
+            self.ui.label(
+                f"Building: {building.building_type}", x + 15, info_y, size=14
+            )
             info_y += line_height
             if building.under_construction:
-                progress = (building.construction_progress / building.construction_time) * 100
+                progress = (
+                    building.construction_progress / building.construction_time
+                ) * 100
                 self.ui.label(f"Construction: {progress:.0f}%", x + 15, info_y, size=14)
                 info_y += line_height
 
@@ -317,8 +410,13 @@ class GameHUD:
         # Tags
         tags = world.get_entity_tags(self.selected_entity)
         if tags:
-            self.ui.label(f"Tags: {', '.join(tags)}", x + 15, info_y, size=12,
-                         color=(150, 150, 150))
+            self.ui.label(
+                f"Tags: {', '.join(tags)}",
+                x + 15,
+                info_y,
+                size=12,
+                color=(150, 150, 150),
+            )
 
     def toggle_visibility(self):
         """Toggle HUD visibility."""
@@ -326,13 +424,13 @@ class GameHUD:
 
     def toggle_section(self, section: str):
         """Toggle specific HUD section visibility."""
-        if section == 'fps':
+        if section == "fps":
             self.show_fps = not self.show_fps
-        elif section == 'survival':
+        elif section == "survival":
             self.show_survival = not self.show_survival
-        elif section == 'resources':
+        elif section == "resources":
             self.show_resources = not self.show_resources
-        elif section == 'turn':
+        elif section == "turn":
             self.show_turn_info = not self.show_turn_info
-        elif section == 'building':
+        elif section == "building":
             self.show_building_info = not self.show_building_info

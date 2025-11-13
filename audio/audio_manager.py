@@ -14,6 +14,7 @@ import time
 
 class AudioCategory(Enum):
     """Audio categories for volume control"""
+
     MASTER = "master"
     MUSIC = "music"
     SFX = "sfx"
@@ -24,6 +25,7 @@ class AudioCategory(Enum):
 @dataclass
 class SoundInstance:
     """Represents a playing sound instance"""
+
     channel: pygame.mixer.Channel
     sound: pygame.mixer.Sound
     category: AudioCategory
@@ -33,6 +35,7 @@ class SoundInstance:
 @dataclass
 class SoundPool:
     """Pool of pre-loaded sounds for efficient repeated playback"""
+
     sounds: List[pygame.mixer.Sound] = field(default_factory=list)
     current_index: int = 0
     max_instances: int = 4
@@ -55,6 +58,7 @@ class SoundPool:
 @dataclass
 class MusicCrossfade:
     """Manages music crossfade transition"""
+
     from_track: Optional[str]
     to_track: str
     duration: float
@@ -107,7 +111,9 @@ class AudioManager:
         self._sound_pools: Dict[str, SoundPool] = {}
 
         # Playing sounds tracking
-        self._playing_sounds: Dict[int, SoundInstance] = {}  # channel_id -> SoundInstance
+        self._playing_sounds: Dict[int, SoundInstance] = (
+            {}
+        )  # channel_id -> SoundInstance
 
         # Volume settings (0.0 to 1.0)
         self._volumes: Dict[AudioCategory, float] = {
@@ -115,7 +121,7 @@ class AudioManager:
             AudioCategory.MUSIC: 0.7,
             AudioCategory.SFX: 0.8,
             AudioCategory.AMBIENT: 0.5,
-            AudioCategory.UI: 0.9
+            AudioCategory.UI: 0.9,
         }
 
         # Music state
@@ -210,8 +216,12 @@ class AudioManager:
         self._sound_pools[pool_name] = pool
         print(f"✓ Created sound pool '{pool_name}' with {len(pool.sounds)} instances")
 
-    def play_pooled_sound(self, pool_name: str, category: AudioCategory = AudioCategory.SFX,
-                         volume: float = 1.0) -> Optional[int]:
+    def play_pooled_sound(
+        self,
+        pool_name: str,
+        category: AudioCategory = AudioCategory.SFX,
+        volume: float = 1.0,
+    ) -> Optional[int]:
         """
         Play a sound from a pool.
 
@@ -239,7 +249,9 @@ class AudioManager:
             return None
 
         # Calculate final volume
-        final_volume = volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
+        final_volume = (
+            volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
+        )
         sound.set_volume(final_volume)
 
         # Play sound
@@ -248,18 +260,20 @@ class AudioManager:
         # Track playing sound
         channel_id = self._get_channel_id(channel)
         self._playing_sounds[channel_id] = SoundInstance(
-            channel=channel,
-            sound=sound,
-            category=category,
-            loop=False
+            channel=channel, sound=sound, category=category, loop=False
         )
 
         return channel_id
 
     # ========== Sound Playback ==========
 
-    def play_sound(self, path: str, category: AudioCategory = AudioCategory.SFX,
-                   volume: float = 1.0, loop: bool = False) -> Optional[int]:
+    def play_sound(
+        self,
+        path: str,
+        category: AudioCategory = AudioCategory.SFX,
+        volume: float = 1.0,
+        loop: bool = False,
+    ) -> Optional[int]:
         """
         Play a sound effect.
 
@@ -286,7 +300,9 @@ class AudioManager:
             return None
 
         # Calculate final volume
-        final_volume = volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
+        final_volume = (
+            volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
+        )
         sound.set_volume(final_volume)
 
         # Play sound
@@ -296,17 +312,19 @@ class AudioManager:
         # Track playing sound
         channel_id = self._get_channel_id(channel)
         self._playing_sounds[channel_id] = SoundInstance(
-            channel=channel,
-            sound=sound,
-            category=category,
-            loop=loop
+            channel=channel, sound=sound, category=category, loop=loop
         )
 
         return channel_id
 
-    def play_sound_at(self, path: str, x: float, y: float,
-                     category: AudioCategory = AudioCategory.SFX,
-                     max_distance: float = 500.0) -> Optional[int]:
+    def play_sound_at(
+        self,
+        path: str,
+        x: float,
+        y: float,
+        category: AudioCategory = AudioCategory.SFX,
+        max_distance: float = 500.0,
+    ) -> Optional[int]:
         """
         Play a sound at a specific position with spatial audio.
 
@@ -363,7 +381,9 @@ class AudioManager:
 
     # ========== Music Playback ==========
 
-    def play_music(self, path: str, volume: float = 1.0, loop: bool = True, fade_in_ms: int = 0):
+    def play_music(
+        self, path: str, volume: float = 1.0, loop: bool = True, fade_in_ms: int = 0
+    ):
         """
         Play background music.
 
@@ -388,7 +408,11 @@ class AudioManager:
 
             # Set volume
             self._music_volume = volume
-            final_volume = volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
+            final_volume = (
+                volume
+                * self._volumes[AudioCategory.MUSIC]
+                * self._volumes[AudioCategory.MASTER]
+            )
             pygame.mixer.music.set_volume(final_volume)
 
             # Play
@@ -437,8 +461,14 @@ class AudioManager:
             return False
         return pygame.mixer.music.get_busy()
 
-    def crossfade_to_music(self, path: str, duration: float = 2.0, volume: float = 1.0,
-                          loop: bool = True, on_complete: Optional[Callable[[], None]] = None):
+    def crossfade_to_music(
+        self,
+        path: str,
+        duration: float = 2.0,
+        volume: float = 1.0,
+        loop: bool = True,
+        on_complete: Optional[Callable[[], None]] = None,
+    ):
         """
         Crossfade from current music to new music.
 
@@ -466,7 +496,7 @@ class AudioManager:
             duration=duration,
             from_volume=self._music_volume,
             to_volume=volume,
-            on_complete=on_complete
+            on_complete=on_complete,
         )
 
         # Store loop setting for when crossfade completes
@@ -492,7 +522,11 @@ class AudioManager:
         # Update music volume if category is master or music
         if category in [AudioCategory.MASTER, AudioCategory.MUSIC]:
             if self._initialized:
-                final_volume = self._music_volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
+                final_volume = (
+                    self._music_volume
+                    * self._volumes[AudioCategory.MUSIC]
+                    * self._volumes[AudioCategory.MASTER]
+                )
                 pygame.mixer.music.set_volume(final_volume)
 
         # Update playing sound volumes if category is master or matches their category
@@ -510,7 +544,9 @@ class AudioManager:
 
     def _update_sound_volume(self, instance: SoundInstance):
         """Update volume for a playing sound instance"""
-        final_volume = self._volumes[instance.category] * self._volumes[AudioCategory.MASTER]
+        final_volume = (
+            self._volumes[instance.category] * self._volumes[AudioCategory.MASTER]
+        )
         instance.sound.set_volume(final_volume)
 
     # ========== Audio Ducking ==========
@@ -534,7 +570,11 @@ class AudioManager:
 
         # Restore music volume if it was ducked
         if self._initialized:
-            final_volume = self._music_volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
+            final_volume = (
+                self._music_volume
+                * self._volumes[AudioCategory.MUSIC]
+                * self._volumes[AudioCategory.MASTER]
+            )
             pygame.mixer.music.set_volume(final_volume)
 
     # ========== Spatial Audio ==========
@@ -572,11 +612,11 @@ class AudioManager:
 
             if self._music_crossfade.is_complete:
                 # Crossfade complete - switch to new music
-                loop = getattr(self._music_crossfade, 'loop', True)
+                loop = getattr(self._music_crossfade, "loop", True)
                 self.play_music(
                     self._music_crossfade.to_track,
                     self._music_crossfade.to_volume,
-                    loop
+                    loop,
                 )
 
                 # Call completion callback
@@ -589,7 +629,11 @@ class AudioManager:
                 progress = self._music_crossfade.progress
                 current_volume = self._music_crossfade.from_volume * (1.0 - progress)
 
-                final_volume = current_volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
+                final_volume = (
+                    current_volume
+                    * self._volumes[AudioCategory.MUSIC]
+                    * self._volumes[AudioCategory.MASTER]
+                )
                 pygame.mixer.music.set_volume(final_volume)
 
         # Update audio ducking
@@ -604,13 +648,21 @@ class AudioManager:
                 # Start ducking
                 self._ducking_active = True
                 reduced_volume = self._music_volume * self._ducking_reduction
-                final_volume = reduced_volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
+                final_volume = (
+                    reduced_volume
+                    * self._volumes[AudioCategory.MUSIC]
+                    * self._volumes[AudioCategory.MASTER]
+                )
                 pygame.mixer.music.set_volume(final_volume)
 
             elif not has_target_sounds and self._ducking_active:
                 # Stop ducking
                 self._ducking_active = False
-                final_volume = self._music_volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
+                final_volume = (
+                    self._music_volume
+                    * self._volumes[AudioCategory.MUSIC]
+                    * self._volumes[AudioCategory.MASTER]
+                )
                 pygame.mixer.music.set_volume(final_volume)
 
         # Clean up finished sounds
@@ -634,7 +686,7 @@ class AudioManager:
         return {
             "sounds": len(self._sounds),
             "playing_sounds": len(self._playing_sounds),
-            "sound_pools": len(self._sound_pools)
+            "sound_pools": len(self._sound_pools),
         }
 
     def _get_channel_id(self, channel: pygame.mixer.Channel) -> int:
@@ -680,7 +732,9 @@ class AudioManager:
 _global_audio_manager: Optional[AudioManager] = None
 
 
-def get_audio_manager(base_path: Optional[Path] = None, channels: int = 8) -> AudioManager:
+def get_audio_manager(
+    base_path: Optional[Path] = None, channels: int = 8
+) -> AudioManager:
     """Get or create the global audio manager"""
     global _global_audio_manager
     if _global_audio_manager is None:

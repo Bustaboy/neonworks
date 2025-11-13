@@ -43,6 +43,7 @@ class ConfigLoader:
         # Check if running from package
         try:
             from engine.export.package_loader import get_global_loader
+
             loader = get_global_loader()
             if loader is not None:
                 return ConfigLoader._load_from_package(loader, file_path)
@@ -57,9 +58,9 @@ class ConfigLoader:
         # Detect format by extension
         extension = file_path.suffix.lower()
 
-        if extension in ['.yaml', '.yml']:
+        if extension in [".yaml", ".yml"]:
             return ConfigLoader.load_yaml(file_path)
-        elif extension == '.json':
+        elif extension == ".json":
             return ConfigLoader.load_json(file_path)
         else:
             # Try to parse as both formats
@@ -82,7 +83,7 @@ class ConfigLoader:
         Returns:
             Dictionary containing configuration data
         """
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
     @staticmethod
@@ -96,11 +97,13 @@ class ConfigLoader:
         Returns:
             Dictionary containing configuration data
         """
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return yaml.safe_load(f)
 
     @staticmethod
-    def save(data: Dict[str, Any], file_path: Union[str, Path], format: Optional[str] = None):
+    def save(
+        data: Dict[str, Any], file_path: Union[str, Path], format: Optional[str] = None
+    ):
         """
         Save configuration data to file.
 
@@ -114,14 +117,14 @@ class ConfigLoader:
         # Detect format
         if format is None:
             extension = file_path.suffix.lower()
-            if extension in ['.yaml', '.yml']:
-                format = 'yaml'
-            elif extension == '.json':
-                format = 'json'
+            if extension in [".yaml", ".yml"]:
+                format = "yaml"
+            elif extension == ".json":
+                format = "json"
             else:
-                format = 'yaml'  # Default to YAML
+                format = "yaml"  # Default to YAML
 
-        if format == 'yaml':
+        if format == "yaml":
             ConfigLoader.save_yaml(data, file_path)
         else:
             ConfigLoader.save_json(data, file_path)
@@ -129,14 +132,16 @@ class ConfigLoader:
     @staticmethod
     def save_json(data: Dict[str, Any], file_path: Union[str, Path]):
         """Save data as JSON"""
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
     @staticmethod
     def save_yaml(data: Dict[str, Any], file_path: Union[str, Path]):
         """Save data as YAML"""
-        with open(file_path, 'w', encoding='utf-8') as f:
-            yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(
+                data, f, default_flow_style=False, allow_unicode=True, sort_keys=False
+            )
 
     @staticmethod
     def _load_from_package(loader, file_path: Union[str, Path]) -> Dict[str, Any]:
@@ -151,7 +156,7 @@ class ConfigLoader:
             relative_path = file_path.name
 
         # Normalize path separators
-        relative_path = relative_path.replace('\\', '/')
+        relative_path = relative_path.replace("\\", "/")
 
         # Load file data from package
         data = loader.load_file(relative_path)
@@ -159,14 +164,14 @@ class ConfigLoader:
         # Detect format and parse
         extension = file_path.suffix.lower()
 
-        if extension in ['.yaml', '.yml']:
+        if extension in [".yaml", ".yml"]:
             return yaml.safe_load(io.BytesIO(data))
-        elif extension == '.json':
-            return json.loads(data.decode('utf-8'))
+        elif extension == ".json":
+            return json.loads(data.decode("utf-8"))
         else:
             # Try JSON first, then YAML
             try:
-                return json.loads(data.decode('utf-8'))
+                return json.loads(data.decode("utf-8"))
             except:
                 return yaml.safe_load(io.BytesIO(data))
 
@@ -204,7 +209,7 @@ class GameDataLoader:
 
         # Find file (try multiple extensions)
         file_path = None
-        for ext in ['.yaml', '.yml', '.json']:
+        for ext in [".yaml", ".yml", ".json"]:
             candidate = self.data_dir / f"{filename}{ext}"
             if candidate.exists():
                 file_path = candidate

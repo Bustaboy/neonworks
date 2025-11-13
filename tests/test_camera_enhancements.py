@@ -430,7 +430,6 @@ class TestCameraIntegration:
         # Note: Deadzone currently only applies to single entity tracking
         # This test documents current behavior
 
-
     def test_zoom_with_bounds(self, camera):
         """Test zoom level affects bounds calculation"""
         camera.set_bounds(0, 0, 1600, 1200)

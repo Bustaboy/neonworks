@@ -13,6 +13,7 @@ from engine.core.ecs import Entity, Transform, GridPosition
 
 class EaseType(Enum):
     """Easing functions for smooth camera movement"""
+
     LINEAR = "linear"
     EASE_IN = "ease_in"
     EASE_OUT = "ease_out"
@@ -169,10 +170,14 @@ class Camera:
             half_view_height = (self.screen_height / 2) / self.zoom
 
             # Clamp target position
-            self.target_x = max(self.bounds_min_x + half_view_width,
-                               min(self.bounds_max_x - half_view_width, self.target_x))
-            self.target_y = max(self.bounds_min_y + half_view_height,
-                               min(self.bounds_max_y - half_view_height, self.target_y))
+            self.target_x = max(
+                self.bounds_min_x + half_view_width,
+                min(self.bounds_max_x - half_view_width, self.target_x),
+            )
+            self.target_y = max(
+                self.bounds_min_y + half_view_height,
+                min(self.bounds_max_y - half_view_height, self.target_y),
+            )
 
         # Apply smoothing
         if self.smoothing > 0:
@@ -187,8 +192,12 @@ class Camera:
 
     def world_to_screen(self, world_x: float, world_y: float) -> Tuple[int, int]:
         """Convert world coordinates to screen coordinates (with shake)"""
-        screen_x = (world_x - self.x - self.shake_offset_x) * self.zoom + self.screen_width / 2
-        screen_y = (world_y - self.y - self.shake_offset_y) * self.zoom + self.screen_height / 2
+        screen_x = (
+            world_x - self.x - self.shake_offset_x
+        ) * self.zoom + self.screen_width / 2
+        screen_y = (
+            world_y - self.y - self.shake_offset_y
+        ) * self.zoom + self.screen_height / 2
         return int(screen_x), int(screen_y)
 
     def screen_to_world(self, screen_x: int, screen_y: int) -> Tuple[float, float]:
@@ -232,7 +241,9 @@ class Camera:
         """Zoom out"""
         self.set_zoom(self.target_zoom - amount)
 
-    def track_entity(self, entity: Entity, offset_x: float = 0.0, offset_y: float = 0.0):
+    def track_entity(
+        self, entity: Entity, offset_x: float = 0.0, offset_y: float = 0.0
+    ):
         """Start tracking an entity"""
         self.tracking_entity = entity
         self.tracking_offset_x = offset_x
@@ -290,18 +301,16 @@ class Camera:
 
     def set_bounds_from_grid(self, grid_width: int, grid_height: int):
         """Set camera bounds from grid size"""
-        self.set_bounds(
-            0, 0,
-            grid_width * self.tile_size,
-            grid_height * self.tile_size
-        )
+        self.set_bounds(0, 0, grid_width * self.tile_size, grid_height * self.tile_size)
 
     def disable_bounds(self):
         """Disable camera bounds"""
         self.bounds_enabled = False
 
     # Multi-target tracking
-    def track_entities(self, entities: List[Entity], offset_x: float = 0.0, offset_y: float = 0.0):
+    def track_entities(
+        self, entities: List[Entity], offset_x: float = 0.0, offset_y: float = 0.0
+    ):
         """
         Track multiple entities (camera centers on average position).
 
@@ -413,17 +422,20 @@ class Camera:
     def is_point_visible(self, world_x: float, world_y: float) -> bool:
         """Check if a world point is visible in the camera"""
         screen_x, screen_y = self.world_to_screen(world_x, world_y)
-        return (0 <= screen_x <= self.screen_width and
-                0 <= screen_y <= self.screen_height)
+        return (
+            0 <= screen_x <= self.screen_width and 0 <= screen_y <= self.screen_height
+        )
 
-    def is_rect_visible(self, world_x: float, world_y: float, width: float, height: float) -> bool:
+    def is_rect_visible(
+        self, world_x: float, world_y: float, width: float, height: float
+    ) -> bool:
         """Check if a world rectangle is visible (at least partially)"""
         # Check if any corner is visible
         corners = [
             (world_x, world_y),
             (world_x + width, world_y),
             (world_x, world_y + height),
-            (world_x + width, world_y + height)
+            (world_x + width, world_y + height),
         ]
 
         for cx, cy in corners:

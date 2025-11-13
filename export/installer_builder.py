@@ -17,6 +17,7 @@ import uuid
 @dataclass
 class InstallerConfig:
     """Configuration for installer generation"""
+
     app_name: str
     version: str
     publisher: str
@@ -31,7 +32,7 @@ class InstallerConfig:
     def __post_init__(self):
         if self.app_id is None:
             # Generate a deterministic GUID from app name
-            namespace = uuid.UUID('6ba7b810-9dad-11d1-80b4-00c04fd430c8')
+            namespace = uuid.UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
             self.app_id = str(uuid.uuid5(namespace, self.app_name))
 
 
@@ -45,7 +46,7 @@ class WindowsInstallerBuilder:
         self,
         executable_path: Path,
         output_dir: Path,
-        additional_files: list[tuple[Path, str]] = None
+        additional_files: list[tuple[Path, str]] = None,
     ) -> Path:
         """
         Generate Inno Setup script
@@ -62,22 +63,17 @@ class WindowsInstallerBuilder:
             additional_files = []
 
         script_content = self._generate_iss_content(
-            executable_path,
-            output_dir,
-            additional_files
+            executable_path, output_dir, additional_files
         )
 
-        script_path = output_dir / f'{self.config.app_name}_setup.iss'
-        with open(script_path, 'w', encoding='utf-8') as f:
+        script_path = output_dir / f"{self.config.app_name}_setup.iss"
+        with open(script_path, "w", encoding="utf-8") as f:
             f.write(script_content)
 
         return script_path
 
     def build_installer(
-        self,
-        script_path: Path,
-        output_dir: Path,
-        iscc_path: Optional[Path] = None
+        self, script_path: Path, output_dir: Path, iscc_path: Optional[Path] = None
     ) -> Dict[str, Any]:
         """
         Build installer from Inno Setup script
@@ -109,16 +105,16 @@ class WindowsInstallerBuilder:
             raise RuntimeError(f"Inno Setup compilation failed:\n{result.stderr}")
 
         # Find generated installer
-        installer_name = f'{self.config.app_name}_{self.config.version}_setup.exe'
+        installer_name = f"{self.config.app_name}_{self.config.version}_setup.exe"
         installer_path = output_dir / installer_name
 
         if not installer_path.exists():
             raise RuntimeError(f"Installer not found at: {installer_path}")
 
         return {
-            'installer_path': installer_path,
-            'installer_size': installer_path.stat().st_size,
-            'platform': 'windows'
+            "installer_path": installer_path,
+            "installer_size": installer_path.stat().st_size,
+            "platform": "windows",
         }
 
     def _find_iscc(self) -> Optional[Path]:
@@ -141,7 +137,7 @@ class WindowsInstallerBuilder:
         self,
         executable_path: Path,
         output_dir: Path,
-        additional_files: list[tuple[Path, str]]
+        additional_files: list[tuple[Path, str]],
     ) -> str:
         """Generate Inno Setup script content"""
         # Determine if we're bundling a single file or directory
@@ -166,7 +162,9 @@ UninstallDisplayIcon={{app}}\\{executable_path.name}"""
         # Files section
         files_section = ""
         if is_onefile:
-            files_section = f'Source: "{executable_path}"; DestDir: "{{app}}"; Flags: ignoreversion'
+            files_section = (
+                f'Source: "{executable_path}"; DestDir: "{{app}}"; Flags: ignoreversion'
+            )
         else:
             files_section = f'Source: "{executable_path}\\*"; DestDir: "{{app}}"; Flags: ignoreversion recursesubdirs createallsubdirs'
 
@@ -174,7 +172,9 @@ UninstallDisplayIcon={{app}}\\{executable_path.name}"""
         additional_files_section = ""
         for src_path, dest_subdir in additional_files:
             dest = "{app}" if not dest_subdir else f"{{app}}\\{dest_subdir}"
-            additional_files_section += f'\nSource: "{src_path}"; DestDir: "{dest}"; Flags: ignoreversion'
+            additional_files_section += (
+                f'\nSource: "{src_path}"; DestDir: "{dest}"; Flags: ignoreversion'
+            )
 
         # Icons section
         icons_section = ""
@@ -229,11 +229,7 @@ class MacInstallerBuilder:
     def __init__(self, config: InstallerConfig):
         self.config = config
 
-    def create_dmg(
-        self,
-        app_bundle: Path,
-        output_path: Path
-    ) -> Dict[str, Any]:
+    def create_dmg(self, app_bundle: Path, output_path: Path) -> Dict[str, Any]:
         """
         Create .dmg from .app bundle
 
@@ -265,10 +261,7 @@ To create a .dmg for Mac, use the create-dmg tool:
 Alternatively, use hdiutil (built into macOS):
    hdiutil create -volname "{self.config.app_name}" -srcfolder "{app_bundle}" -ov -format UDZO "{output_path}"
 """
-        return {
-            'instructions': instructions,
-            'platform': 'mac'
-        }
+        return {"instructions": instructions, "platform": "mac"}
 
 
 class LinuxInstallerBuilder:
@@ -278,9 +271,7 @@ class LinuxInstallerBuilder:
         self.config = config
 
     def create_appimage(
-        self,
-        executable_path: Path,
-        output_path: Path
+        self, executable_path: Path, output_path: Path
     ) -> Dict[str, Any]:
         """
         Create AppImage from executable
@@ -311,10 +302,7 @@ To create an AppImage for Linux, use appimagetool:
 
 For more information: https://docs.appimage.org/
 """
-        return {
-            'instructions': instructions,
-            'platform': 'linux'
-        }
+        return {"instructions": instructions, "platform": "linux"}
 
 
 class InstallerBuilder:
@@ -327,11 +315,7 @@ class InstallerBuilder:
         self.linux_builder = LinuxInstallerBuilder(config)
 
     def build_for_platform(
-        self,
-        platform: str,
-        executable_path: Path,
-        output_dir: Path,
-        **kwargs
+        self, platform: str, executable_path: Path, output_dir: Path, **kwargs
     ) -> Dict[str, Any]:
         """
         Build installer for specified platform
@@ -347,22 +331,20 @@ class InstallerBuilder:
         """
         platform = platform.lower()
 
-        if platform == 'windows':
+        if platform == "windows":
             script_path = self.windows_builder.generate_script(
-                executable_path,
-                output_dir,
-                kwargs.get('additional_files', [])
+                executable_path, output_dir, kwargs.get("additional_files", [])
             )
             return {
-                'script_path': script_path,
-                'platform': 'windows',
-                'note': 'Run this script with Inno Setup Compiler to create installer'
+                "script_path": script_path,
+                "platform": "windows",
+                "note": "Run this script with Inno Setup Compiler to create installer",
             }
 
-        elif platform == 'mac':
+        elif platform == "mac":
             return self.mac_builder.create_dmg(executable_path, output_dir)
 
-        elif platform == 'linux':
+        elif platform == "linux":
             return self.linux_builder.create_appimage(executable_path, output_dir)
 
         else:

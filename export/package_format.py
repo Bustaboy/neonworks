@@ -60,7 +60,7 @@ from pathlib import Path
 
 
 # Constants
-MAGIC_NUMBER = b'NWPK'
+MAGIC_NUMBER = b"NWPK"
 FORMAT_VERSION = 1
 HEADER_SIZE = 64
 
@@ -77,6 +77,7 @@ COMP_ZLIB = 1
 
 class PackageHeader(NamedTuple):
     """Package file header"""
+
     magic: bytes
     version: int
     flags: int
@@ -97,7 +98,7 @@ class PackageHeader(NamedTuple):
     def pack(self) -> bytes:
         """Pack header to bytes"""
         data = struct.pack(
-            '<4sHHIQQBB34x',
+            "<4sHHIQQBB34x",
             self.magic,
             self.version,
             self.flags,
@@ -105,18 +106,20 @@ class PackageHeader(NamedTuple):
             self.index_offset,
             self.data_offset,
             self.encryption_method,
-            self.compression_method
+            self.compression_method,
         )
         assert len(data) == HEADER_SIZE
         return data
 
     @classmethod
-    def unpack(cls, data: bytes) -> 'PackageHeader':
+    def unpack(cls, data: bytes) -> "PackageHeader":
         """Unpack header from bytes"""
         if len(data) < HEADER_SIZE:
-            raise ValueError(f"Invalid header size: {len(data)} (expected {HEADER_SIZE})")
+            raise ValueError(
+                f"Invalid header size: {len(data)} (expected {HEADER_SIZE})"
+            )
 
-        values = struct.unpack('<4sHHIQQBB34x', data[:HEADER_SIZE])
+        values = struct.unpack("<4sHHIQQBB34x", data[:HEADER_SIZE])
 
         magic = values[0]
         if magic != MAGIC_NUMBER:
@@ -130,12 +133,13 @@ class PackageHeader(NamedTuple):
             index_offset=values[4],
             data_offset=values[5],
             encryption_method=values[6],
-            compression_method=values[7]
+            compression_method=values[7],
         )
 
 
 class FileEntry(NamedTuple):
     """File entry in package index"""
+
     filename: str
     offset: int
     size: int
@@ -145,22 +149,22 @@ class FileEntry(NamedTuple):
 
     def pack(self) -> bytes:
         """Pack file entry to bytes"""
-        filename_bytes = self.filename.encode('utf-8')
+        filename_bytes = self.filename.encode("utf-8")
         filename_len = len(filename_bytes)
 
         return struct.pack(
-            f'<H{filename_len}sQQQ32sH',
+            f"<H{filename_len}sQQQ32sH",
             filename_len,
             filename_bytes,
             self.offset,
             self.size,
             self.original_size,
             self.file_hash,
-            self.flags
+            self.flags,
         )
 
     @classmethod
-    def unpack(cls, data: bytes, offset: int = 0) -> tuple['FileEntry', int]:
+    def unpack(cls, data: bytes, offset: int = 0) -> tuple["FileEntry", int]:
         """
         Unpack file entry from bytes
 
@@ -168,31 +172,34 @@ class FileEntry(NamedTuple):
             Tuple of (FileEntry, bytes_consumed)
         """
         # Read filename length
-        filename_len = struct.unpack('<H', data[offset:offset+2])[0]
+        filename_len = struct.unpack("<H", data[offset : offset + 2])[0]
         offset += 2
 
         # Read filename
-        filename = data[offset:offset+filename_len].decode('utf-8')
+        filename = data[offset : offset + filename_len].decode("utf-8")
         offset += filename_len
 
         # Read rest of entry
-        values = struct.unpack('<QQQ32sH', data[offset:offset+58])
+        values = struct.unpack("<QQQ32sH", data[offset : offset + 58])
         offset += 58
 
-        return cls(
-            filename=filename,
-            offset=values[0],
-            size=values[1],
-            original_size=values[2],
-            file_hash=values[3],
-            flags=values[4]
-        ), offset
+        return (
+            cls(
+                filename=filename,
+                offset=values[0],
+                size=values[1],
+                original_size=values[2],
+                file_hash=values[3],
+                flags=values[4],
+            ),
+            offset,
+        )
 
 
 def compute_file_hash(file_path: Path) -> bytes:
     """Compute SHA-256 hash of file"""
     sha256 = hashlib.sha256()
-    with open(file_path, 'rb') as f:
+    with open(file_path, "rb") as f:
         while chunk := f.read(8192):
             sha256.update(chunk)
     return sha256.digest()

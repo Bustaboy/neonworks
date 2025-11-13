@@ -13,6 +13,7 @@ import random
 
 class DialogTone(Enum):
     """Dialog tone options"""
+
     FRIENDLY = auto()
     HOSTILE = auto()
     NEUTRAL = auto()
@@ -25,6 +26,7 @@ class DialogTone(Enum):
 
 class QuestType(Enum):
     """Quest type categories"""
+
     MAIN_STORY = auto()
     SIDE_QUEST = auto()
     FETCH_QUEST = auto()
@@ -38,10 +40,11 @@ class QuestType(Enum):
 @dataclass
 class DialogLine:
     """A single line of dialog"""
+
     speaker: str
     text: str
     tone: DialogTone
-    choices: List['DialogChoice'] = None
+    choices: List["DialogChoice"] = None
 
     def __post_init__(self):
         if self.choices is None:
@@ -51,6 +54,7 @@ class DialogLine:
 @dataclass
 class DialogChoice:
     """A player choice in dialog"""
+
     text: str
     leads_to: str  # ID of next dialog node
     requirements: Dict[str, any] = None  # Skill checks, items needed, etc.
@@ -63,6 +67,7 @@ class DialogChoice:
 @dataclass
 class QuestTemplate:
     """Generated quest template"""
+
     title: str
     description: str
     quest_type: QuestType
@@ -93,29 +98,97 @@ class AIWritingAssistant:
         # Thematic word banks for different game themes
         self.theme_vocabulary = {
             "cyberpunk": {
-                "adjectives": ["neon", "cyber", "digital", "corporate", "augmented", "neural", "chrome", "encrypted"],
-                "nouns": ["netrunner", "hacker", "corp", "data", "implant", "grid", "matrix", "sector"],
-                "verbs": ["hack", "jack in", "upload", "decrypt", "augment", "interface"],
-                "locations": ["downtown sector", "corporate district", "undercity", "data haven", "net cafe"]
+                "adjectives": [
+                    "neon",
+                    "cyber",
+                    "digital",
+                    "corporate",
+                    "augmented",
+                    "neural",
+                    "chrome",
+                    "encrypted",
+                ],
+                "nouns": [
+                    "netrunner",
+                    "hacker",
+                    "corp",
+                    "data",
+                    "implant",
+                    "grid",
+                    "matrix",
+                    "sector",
+                ],
+                "verbs": [
+                    "hack",
+                    "jack in",
+                    "upload",
+                    "decrypt",
+                    "augment",
+                    "interface",
+                ],
+                "locations": [
+                    "downtown sector",
+                    "corporate district",
+                    "undercity",
+                    "data haven",
+                    "net cafe",
+                ],
             },
             "fantasy": {
-                "adjectives": ["ancient", "mystical", "enchanted", "cursed", "legendary", "sacred"],
-                "nouns": ["wizard", "warrior", "artifact", "spell", "dungeon", "kingdom"],
+                "adjectives": [
+                    "ancient",
+                    "mystical",
+                    "enchanted",
+                    "cursed",
+                    "legendary",
+                    "sacred",
+                ],
+                "nouns": [
+                    "wizard",
+                    "warrior",
+                    "artifact",
+                    "spell",
+                    "dungeon",
+                    "kingdom",
+                ],
                 "verbs": ["cast", "enchant", "quest", "battle", "explore"],
-                "locations": ["castle", "forest", "cave", "village", "temple"]
+                "locations": ["castle", "forest", "cave", "village", "temple"],
             },
             "scifi": {
-                "adjectives": ["advanced", "alien", "quantum", "stellar", "interstellar", "plasma"],
-                "nouns": ["station", "colony", "alien", "ship", "technology", "star system"],
+                "adjectives": [
+                    "advanced",
+                    "alien",
+                    "quantum",
+                    "stellar",
+                    "interstellar",
+                    "plasma",
+                ],
+                "nouns": [
+                    "station",
+                    "colony",
+                    "alien",
+                    "ship",
+                    "technology",
+                    "star system",
+                ],
                 "verbs": ["scan", "transmit", "terraform", "explore", "research"],
-                "locations": ["space station", "colony", "planet", "asteroid field", "research facility"]
-            }
+                "locations": [
+                    "space station",
+                    "colony",
+                    "planet",
+                    "asteroid field",
+                    "research facility",
+                ],
+            },
         }
 
-        self.vocab = self.theme_vocabulary.get(game_theme, self.theme_vocabulary["cyberpunk"])
+        self.vocab = self.theme_vocabulary.get(
+            game_theme, self.theme_vocabulary["cyberpunk"]
+        )
 
-    def generate_quest(self, quest_type: QuestType, difficulty: str = "Medium",
-                      player_level: int = 1) -> QuestTemplate:
+    def generate_quest(
+        self, quest_type: QuestType, difficulty: str = "Medium", player_level: int = 1
+    ) -> QuestTemplate:
         """
         Generate a complete quest template with AI assistance.
 
@@ -138,9 +211,17 @@ class AIWritingAssistant:
         else:
             return self._generate_generic_quest(quest_type, difficulty, player_level)
 
-    def _generate_fetch_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
+    def _generate_fetch_quest(
+        self, difficulty: str, player_level: int
+    ) -> QuestTemplate:
         """Generate a fetch quest"""
-        items = ["data chip", "medical supplies", "encrypted files", "rare component", "prototype device"]
+        items = [
+            "data chip",
+            "medical supplies",
+            "encrypted files",
+            "rare component",
+            "prototype device",
+        ]
         item = random.choice(items)
 
         adjective = random.choice(self.vocab["adjectives"])
@@ -153,7 +234,9 @@ class AIWritingAssistant:
             f"The area is dangerous, but the pay is good. Exercise caution."
         )
 
-        num_objectives = 2 if difficulty == "Easy" else 3 if difficulty == "Medium" else 4
+        num_objectives = (
+            2 if difficulty == "Easy" else 3 if difficulty == "Medium" else 4
+        )
 
         objectives = [
             f"Travel to the {location}",
@@ -187,12 +270,20 @@ class AIWritingAssistant:
             dialog_intro=dialog_intro,
             dialog_completion=dialog_completion,
             suggested_location=location,
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
-    def _generate_combat_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
+    def _generate_combat_quest(
+        self, difficulty: str, player_level: int
+    ) -> QuestTemplate:
         """Generate a combat quest"""
-        enemies = ["raiders", "corporate mercenaries", "rogue AI units", "gang members", "corrupted drones"]
+        enemies = [
+            "raiders",
+            "corporate mercenaries",
+            "rogue AI units",
+            "gang members",
+            "corrupted drones",
+        ]
         enemy = random.choice(enemies)
 
         location = random.choice(self.vocab["locations"])
@@ -206,12 +297,14 @@ class AIWritingAssistant:
             f"Eliminate the threat and restore order."
         )
 
-        num_enemies = 5 if difficulty == "Easy" else 10 if difficulty == "Medium" else 15
+        num_enemies = (
+            5 if difficulty == "Easy" else 10 if difficulty == "Medium" else 15
+        )
 
         objectives = [
             f"Locate the {enemy} at the {location}",
             f"Eliminate {num_enemies} {enemy}",
-            f"Clear the area of all hostiles"
+            f"Clear the area of all hostiles",
         ]
 
         if difficulty == "Hard":
@@ -238,12 +331,20 @@ class AIWritingAssistant:
             dialog_intro=dialog_intro,
             dialog_completion=dialog_completion,
             suggested_location=location,
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
-    def _generate_exploration_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
+    def _generate_exploration_quest(
+        self, difficulty: str, player_level: int
+    ) -> QuestTemplate:
         """Generate an exploration quest"""
-        discoveries = ["ancient facility", "hidden cache", "abandoned outpost", "secret lab", "lost colony"]
+        discoveries = [
+            "ancient facility",
+            "hidden cache",
+            "abandoned outpost",
+            "secret lab",
+            "lost colony",
+        ]
         discovery = random.choice(discoveries)
 
         adjective = random.choice(self.vocab["adjectives"])
@@ -289,10 +390,12 @@ class AIWritingAssistant:
             dialog_intro=dialog_intro,
             dialog_completion=dialog_completion,
             suggested_location=location,
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
-    def _generate_story_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
+    def _generate_story_quest(
+        self, difficulty: str, player_level: int
+    ) -> QuestTemplate:
         """Generate a main story quest"""
         events = ["conspiracy", "power play", "invasion", "revolution", "awakening"]
         event = random.choice(events)
@@ -313,7 +416,7 @@ class AIWritingAssistant:
             f"Gather intelligence on the {adjective} threat",
             f"Confront those responsible",
             "Make a critical decision",
-            "Deal with the consequences"
+            "Deal with the consequences",
         ]
 
         rewards = self._calculate_rewards(difficulty, player_level, story_bonus=True)
@@ -341,11 +444,12 @@ class AIWritingAssistant:
             dialog_intro=dialog_intro,
             dialog_completion=dialog_completion,
             suggested_location="multiple",
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
-    def _generate_generic_quest(self, quest_type: QuestType, difficulty: str,
-                               player_level: int) -> QuestTemplate:
+    def _generate_generic_quest(
+        self, quest_type: QuestType, difficulty: str, player_level: int
+    ) -> QuestTemplate:
         """Generate a generic quest"""
         adjective = random.choice(self.vocab["adjectives"])
         noun = random.choice(self.vocab["nouns"])
@@ -360,11 +464,12 @@ class AIWritingAssistant:
             dialog_intro=f"I have a job for you involving {adjective} {noun}. Interested?",
             dialog_completion="Good work. Here's your payment.",
             suggested_location=location,
-            difficulty=difficulty
+            difficulty=difficulty,
         )
 
-    def generate_dialog_tree(self, npc_name: str, situation: str,
-                            tone: DialogTone) -> List[DialogLine]:
+    def generate_dialog_tree(
+        self, npc_name: str, situation: str, tone: DialogTone
+    ) -> List[DialogLine]:
         """
         Generate a branching dialog tree for an NPC.
 
@@ -377,48 +482,56 @@ class AIWritingAssistant:
             DialogTone.FRIENDLY: [
                 f"Hey there! Good to see a friendly face in this {self.vocab['adjectives'][0]} place.",
                 "Welcome! What brings you around these parts?",
-                "Always happy to help out. What do you need?"
+                "Always happy to help out. What do you need?",
             ],
             DialogTone.HOSTILE: [
                 "What do you want? Make it quick.",
                 "You've got nerve coming here. State your business.",
-                "I don't have time for this. Speak or leave."
+                "I don't have time for this. Speak or leave.",
             ],
             DialogTone.NEUTRAL: [
                 f"You need something? I deal in {self.vocab['nouns'][0]}s if you're buying.",
                 "What can I do for you?",
-                "Talk. I'm listening."
+                "Talk. I'm listening.",
             ],
             DialogTone.MYSTERIOUS: [
                 "Interesting... I've been expecting someone like you.",
                 "Fate has a curious way of bringing people together, doesn't it?",
-                "You seek answers. Perhaps I have some... for a price."
-            ]
+                "You seek answers. Perhaps I have some... for a price.",
+            ],
         }
 
-        opening = random.choice(opening_lines.get(tone, opening_lines[DialogTone.NEUTRAL]))
+        opening = random.choice(
+            opening_lines.get(tone, opening_lines[DialogTone.NEUTRAL])
+        )
 
         # Generate player choices
         choices = [
             DialogChoice("Tell me about this situation.", "info_node"),
             DialogChoice("What can you offer me?", "trade_node"),
-            DialogChoice("I'll be going now.", "end_node")
+            DialogChoice("I'll be going now.", "end_node"),
         ]
 
         if tone == DialogTone.HOSTILE:
-            choices.insert(1, DialogChoice("[Intimidate] You'll cooperate or else.", "intimidate_node",
-                                          {"skill": "intimidation", "level": 3}))
+            choices.insert(
+                1,
+                DialogChoice(
+                    "[Intimidate] You'll cooperate or else.",
+                    "intimidate_node",
+                    {"skill": "intimidation", "level": 3},
+                ),
+            )
         elif tone == DialogTone.MYSTERIOUS:
-            choices.append(DialogChoice("[Investigate] Something doesn't add up here.", "investigate_node",
-                                      {"skill": "perception", "level": 2}))
+            choices.append(
+                DialogChoice(
+                    "[Investigate] Something doesn't add up here.",
+                    "investigate_node",
+                    {"skill": "perception", "level": 2},
+                )
+            )
 
         dialog_tree = [
-            DialogLine(
-                speaker=npc_name,
-                text=opening,
-                tone=tone,
-                choices=choices
-            )
+            DialogLine(speaker=npc_name, text=opening, tone=tone, choices=choices)
         ]
 
         return dialog_tree
@@ -437,40 +550,62 @@ class AIWritingAssistant:
 
         # Check length
         if len(dialog_text) > 300:
-            suggestions.append("💡 Dialog is lengthy. Consider breaking into multiple nodes for better pacing.")
+            suggestions.append(
+                "💡 Dialog is lengthy. Consider breaking into multiple nodes for better pacing."
+            )
 
         # Check for questions (player agency)
-        if '?' not in dialog_text:
-            suggestions.append("💡 Add a question or choice to increase player engagement.")
+        if "?" not in dialog_text:
+            suggestions.append(
+                "💡 Add a question or choice to increase player engagement."
+            )
 
         # Check for theme words
-        theme_words_found = sum(1 for word in self.vocab["adjectives"] + self.vocab["nouns"]
-                               if word in dialog_text.lower())
+        theme_words_found = sum(
+            1
+            for word in self.vocab["adjectives"] + self.vocab["nouns"]
+            if word in dialog_text.lower()
+        )
 
         if theme_words_found == 0:
-            suggestions.append(f"💡 Consider adding {self.game_theme} thematic vocabulary for immersion.")
+            suggestions.append(
+                f"💡 Consider adding {self.game_theme} thematic vocabulary for immersion."
+            )
 
         # Check for emotional words
-        emotional_words = ["angry", "happy", "sad", "excited", "worried", "calm", "terrified"]
+        emotional_words = [
+            "angry",
+            "happy",
+            "sad",
+            "excited",
+            "worried",
+            "calm",
+            "terrified",
+        ]
         if not any(word in dialog_text.lower() for word in emotional_words):
-            suggestions.append("💡 Add emotional depth to make the character more relatable.")
+            suggestions.append(
+                "💡 Add emotional depth to make the character more relatable."
+            )
 
         if not suggestions:
-            suggestions.append("✅ Dialog looks great! Good pacing and character voice.")
+            suggestions.append(
+                "✅ Dialog looks great! Good pacing and character voice."
+            )
 
         return suggestions
 
-    def _calculate_rewards(self, difficulty: str, player_level: int,
-                          combat_bonus: bool = False, story_bonus: bool = False) -> Dict[str, any]:
+    def _calculate_rewards(
+        self,
+        difficulty: str,
+        player_level: int,
+        combat_bonus: bool = False,
+        story_bonus: bool = False,
+    ) -> Dict[str, any]:
         """Calculate appropriate quest rewards"""
         base_xp = 100 * player_level
         base_credits = 50 * player_level
 
-        multipliers = {
-            "Easy": 0.8,
-            "Medium": 1.0,
-            "Hard": 1.5
-        }
+        multipliers = {"Easy": 0.8, "Medium": 1.0, "Hard": 1.5}
 
         multiplier = multipliers.get(difficulty, 1.0)
 
@@ -482,7 +617,7 @@ class AIWritingAssistant:
         rewards = {
             "xp": int(base_xp * multiplier),
             "credits": int(base_credits * multiplier),
-            "reputation": 10 * multipliers.get(difficulty, 1.0)
+            "reputation": 10 * multipliers.get(difficulty, 1.0),
         }
 
         # Add items for harder quests
@@ -493,15 +628,16 @@ class AIWritingAssistant:
 
         return rewards
 
-    def create_character_profile(self, name: str, role: str,
-                                 personality_traits: List[str]) -> Dict[str, any]:
+    def create_character_profile(
+        self, name: str, role: str, personality_traits: List[str]
+    ) -> Dict[str, any]:
         """
         Create a character profile to maintain consistent dialog voice.
         """
         self.character_voices[name] = {
             "role": role,
             "personality": personality_traits,
-            "speech_patterns": self._generate_speech_patterns(personality_traits)
+            "speech_patterns": self._generate_speech_patterns(personality_traits),
         }
 
         print(f"✅ Created character profile for {name} ({role})")
@@ -564,9 +700,7 @@ def demo_ai_writer():
     print("\n👤 CHARACTER PROFILE:\n")
 
     profile = writer.create_character_profile(
-        "Raven",
-        "Information Broker",
-        ["mysterious", "intelligent", "cautious"]
+        "Raven", "Information Broker", ["mysterious", "intelligent", "cautious"]
     )
 
     print("\n" + "=" * 60)

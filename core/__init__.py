@@ -5,5 +5,5 @@ from engine.core.scene import (
     SceneManager,
     SceneTransition,
     SceneState,
-    TransitionType
+    TransitionType,
 )

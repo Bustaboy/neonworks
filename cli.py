@@ -33,27 +33,28 @@ if __name__ == "__main__":
 # These imports are safe because they don't depend on pygame
 import importlib.util
 
+
 def lazy_import_project_module():
     """Lazily import project module to avoid pygame dependency"""
     spec = importlib.util.spec_from_file_location(
-        "engine.core.project",
-        Path(__file__).parent / "core" / "project.py"
+        "engine.core.project", Path(__file__).parent / "core" / "project.py"
     )
     module = importlib.util.module_from_spec(spec)
     sys.modules["engine.core.project"] = module
     spec.loader.exec_module(module)
     return module
 
+
 def lazy_import_validation_module():
     """Lazily import validation module"""
     spec = importlib.util.spec_from_file_location(
-        "engine.core.validation",
-        Path(__file__).parent / "core" / "validation.py"
+        "engine.core.validation", Path(__file__).parent / "core" / "validation.py"
     )
     module = importlib.util.module_from_spec(spec)
     sys.modules["engine.core.validation"] = module
     spec.loader.exec_module(module)
     return module
+
 
 # Delay imports until needed
 ProjectManager = None
@@ -81,7 +82,7 @@ TEMPLATES = {
             "enable_survival": False,
             "enable_turn_based": False,
             "enable_combat": False,
-        }
+        },
     },
     "turn_based_rpg": {
         "name": "Turn-Based RPG",
@@ -98,7 +99,7 @@ TEMPLATES = {
             "enable_survival": False,
             "enable_turn_based": True,
             "enable_combat": True,
-        }
+        },
     },
     "base_builder": {
         "name": "Base Builder",
@@ -117,8 +118,8 @@ TEMPLATES = {
             "enable_combat": False,
             "building_definitions": "config/buildings.json",
             "item_definitions": "config/items.json",
-        }
-    }
+        },
+    },
 }
 
 
@@ -161,14 +162,24 @@ class NeonWorksCLI:
             self.validate_project_config = validate_project_config
             self.ValidationError = ValidationError
 
-    def create_project(self, project_name: str, template: str = "basic_game",
-                      author: str = "Developer", description: str = "") -> bool:
+    def create_project(
+        self,
+        project_name: str,
+        template: str = "basic_game",
+        author: str = "Developer",
+        description: str = "",
+    ) -> bool:
         """Create a new project from a template"""
 
         # Validate project name
-        if not project_name or not project_name.replace("_", "").replace("-", "").isalnum():
+        if (
+            not project_name
+            or not project_name.replace("_", "").replace("-", "").isalnum()
+        ):
             print("❌ Error: Invalid project name!")
-            print("   Project names should contain only letters, numbers, hyphens, and underscores.")
+            print(
+                "   Project names should contain only letters, numbers, hyphens, and underscores."
+            )
             return False
 
         # Check if project already exists
@@ -201,18 +212,16 @@ class NeonWorksCLI:
                 author=author,
                 engine_version="0.1.0",
                 created_date=datetime.now().isoformat(),
-                modified_date=datetime.now().isoformat()
+                modified_date=datetime.now().isoformat(),
             )
 
             # Create settings from template
-            settings = self.ProjectSettings(**template_info['settings'])
+            settings = self.ProjectSettings(**template_info["settings"])
             settings.window_title = project_name.replace("_", " ").title()
 
             # Create project
             project = self.project_manager.create_project(
-                project_name,
-                metadata,
-                settings
+                project_name, metadata, settings
             )
 
             if not project:
@@ -225,7 +234,9 @@ class NeonWorksCLI:
                 print(f"   📋 Copying template files...")
                 self._copy_template_files(template_dir, project_dir)
             else:
-                print(f"   ⚠️  Warning: Template directory not found, creating minimal structure")
+                print(
+                    f"   ⚠️  Warning: Template directory not found, creating minimal structure"
+                )
                 self._create_minimal_structure(project, template)
 
             print(f"\n✅ Project created successfully!")
@@ -241,6 +252,7 @@ class NeonWorksCLI:
         except Exception as e:
             print(f"❌ Error creating project: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -307,7 +319,7 @@ if __name__ == "__main__":
 
         # Create README
         readme = project.root_dir / "README.md"
-        readme_content = f'''# {project.config.metadata.name}
+        readme_content = f"""# {project.config.metadata.name}
 
 {project.config.metadata.description}
 
@@ -342,7 +354,7 @@ See the NeonWorks documentation for more information:
 
 ## Features Enabled
 
-'''
+"""
 
         # List enabled features
         settings = project.config.settings
@@ -380,7 +392,7 @@ See the NeonWorks documentation for more information:
             result = subprocess.run(
                 [sys.executable, "-m", "engine.main", project_name],
                 cwd=self.engine_root.parent,
-                check=False
+                check=False,
             )
 
             return result.returncode == 0
@@ -391,6 +403,7 @@ See the NeonWorks documentation for more information:
         except Exception as e:
             print(f"❌ Error running project: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -408,7 +421,7 @@ See the NeonWorks documentation for more information:
 
         try:
             # Load and parse JSON
-            with open(config_file, 'r') as f:
+            with open(config_file, "r") as f:
                 config_data = json.load(f)
 
             print("   ✓ Valid JSON format")
@@ -445,8 +458,13 @@ See the NeonWorks documentation for more information:
 
             # Check for missing initial scene script
             if project.config.settings.initial_scene:
-                scene_script = project.scripts_dir / f"{project.config.settings.initial_scene}.py"
-                if not scene_script.exists() and not (project.scripts_dir / "main.py").exists():
+                scene_script = (
+                    project.scripts_dir / f"{project.config.settings.initial_scene}.py"
+                )
+                if (
+                    not scene_script.exists()
+                    and not (project.scripts_dir / "main.py").exists()
+                ):
                     warnings.append(f"Initial scene script not found: {scene_script}")
 
             if warnings:
@@ -467,6 +485,7 @@ See the NeonWorks documentation for more information:
         except Exception as e:
             print(f"❌ Error validating project: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
@@ -506,14 +525,14 @@ See the NeonWorks documentation for more information:
 
             # Show key features
             features = []
-            settings = template_info['settings']
-            if settings.get('enable_turn_based'):
+            settings = template_info["settings"]
+            if settings.get("enable_turn_based"):
                 features.append("turn-based")
-            if settings.get('enable_combat'):
+            if settings.get("enable_combat"):
                 features.append("combat")
-            if settings.get('enable_base_building'):
+            if settings.get("enable_base_building"):
                 features.append("base building")
-            if settings.get('enable_survival'):
+            if settings.get("enable_survival"):
                 features.append("survival")
 
             if features:
@@ -540,63 +559,56 @@ Examples:
   neonworks templates                             # List templates
 
 For more information, see the documentation at docs/cli_tools.md
-        """
+        """,
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Command to execute')
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
     # Create command
     create_parser = subparsers.add_parser(
-        'create',
-        help='Create a new project',
-        description='Create a new game project from a template'
+        "create",
+        help="Create a new project",
+        description="Create a new game project from a template",
     )
-    create_parser.add_argument('project_name', help='Name of the project to create')
+    create_parser.add_argument("project_name", help="Name of the project to create")
     create_parser.add_argument(
-        '--template', '-t',
-        default='basic_game',
+        "--template",
+        "-t",
+        default="basic_game",
         choices=list(TEMPLATES.keys()),
-        help='Template to use (default: basic_game)'
+        help="Template to use (default: basic_game)",
     )
     create_parser.add_argument(
-        '--author', '-a',
-        default='Developer',
-        help='Author name (default: Developer)'
+        "--author", "-a", default="Developer", help="Author name (default: Developer)"
     )
     create_parser.add_argument(
-        '--description', '-d',
-        default='',
-        help='Project description'
+        "--description", "-d", default="", help="Project description"
     )
 
     # Run command
     run_parser = subparsers.add_parser(
-        'run',
-        help='Run a project',
-        description='Run a game project'
+        "run", help="Run a project", description="Run a game project"
     )
-    run_parser.add_argument('project_name', help='Name of the project to run')
+    run_parser.add_argument("project_name", help="Name of the project to run")
 
     # Validate command
     validate_parser = subparsers.add_parser(
-        'validate',
-        help='Validate project configuration',
-        description='Validate a project\'s configuration file'
+        "validate",
+        help="Validate project configuration",
+        description="Validate a project's configuration file",
     )
-    validate_parser.add_argument('project_name', help='Name of the project to validate')
+    validate_parser.add_argument("project_name", help="Name of the project to validate")
 
     # List command
     list_parser = subparsers.add_parser(
-        'list',
-        help='List all projects',
-        description='List all available game projects'
+        "list", help="List all projects", description="List all available game projects"
     )
 
     # Templates command
     templates_parser = subparsers.add_parser(
-        'templates',
-        help='List available templates',
-        description='List all available project templates'
+        "templates",
+        help="List available templates",
+        description="List all available project templates",
     )
 
     # Parse arguments
@@ -611,20 +623,17 @@ For more information, see the documentation at docs/cli_tools.md
 
     # Execute command
     try:
-        if args.command == 'create':
+        if args.command == "create":
             success = cli.create_project(
-                args.project_name,
-                args.template,
-                args.author,
-                args.description
+                args.project_name, args.template, args.author, args.description
             )
-        elif args.command == 'run':
+        elif args.command == "run":
             success = cli.run_project(args.project_name)
-        elif args.command == 'validate':
+        elif args.command == "validate":
             success = cli.validate_project(args.project_name)
-        elif args.command == 'list':
+        elif args.command == "list":
             success = cli.list_projects()
-        elif args.command == 'templates':
+        elif args.command == "templates":
             success = cli.list_templates()
         else:
             parser.print_help()
@@ -638,6 +647,7 @@ For more information, see the documentation at docs/cli_tools.md
     except Exception as e:
         print(f"\n❌ Unexpected error: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

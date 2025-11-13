@@ -13,6 +13,7 @@ from dataclasses import dataclass
 @dataclass
 class SpriteSheet:
     """Sprite sheet data"""
+
     surface: pygame.Surface
     tile_width: int
     tile_height: int
@@ -20,10 +21,7 @@ class SpriteSheet:
     def get_sprite(self, x: int, y: int) -> pygame.Surface:
         """Get a sprite from the sheet at grid position (x, y)"""
         rect = pygame.Rect(
-            x * self.tile_width,
-            y * self.tile_height,
-            self.tile_width,
-            self.tile_height
+            x * self.tile_width, y * self.tile_height, self.tile_width, self.tile_height
         )
         sprite = pygame.Surface((self.tile_width, self.tile_height), pygame.SRCALPHA)
         sprite.blit(self.surface, (0, 0), rect)
@@ -79,8 +77,12 @@ class AssetManager:
 
     # ========== Sprite Loading ==========
 
-    def load_sprite(self, path: str, color_key: Optional[Tuple[int, int, int]] = None,
-                   alpha: bool = True) -> pygame.Surface:
+    def load_sprite(
+        self,
+        path: str,
+        color_key: Optional[Tuple[int, int, int]] = None,
+        alpha: bool = True,
+    ) -> pygame.Surface:
         """
         Load a sprite from file.
 
@@ -112,7 +114,9 @@ class AssetManager:
 
             # Cache the sprite
             self._sprites[cache_key] = sprite
-            self._asset_sizes[cache_key] = sprite.get_width() * sprite.get_height() * 4  # Rough size estimate
+            self._asset_sizes[cache_key] = (
+                sprite.get_width() * sprite.get_height() * 4
+            )  # Rough size estimate
 
             print(f"✓ Loaded sprite: {path}")
             return sprite
@@ -126,8 +130,13 @@ class AssetManager:
             self._asset_sizes[cache_key] = 32 * 32 * 4
             return placeholder
 
-    def load_sprite_sheet(self, path: str, tile_width: int, tile_height: int,
-                         color_key: Optional[Tuple[int, int, int]] = None) -> SpriteSheet:
+    def load_sprite_sheet(
+        self,
+        path: str,
+        tile_width: int,
+        tile_height: int,
+        color_key: Optional[Tuple[int, int, int]] = None,
+    ) -> SpriteSheet:
         """
         Load a sprite sheet.
 
@@ -160,7 +169,9 @@ class AssetManager:
 
             # Cache it
             self._sprite_sheets[cache_key] = sheet
-            self._asset_sizes[cache_key] = surface.get_width() * surface.get_height() * 4
+            self._asset_sizes[cache_key] = (
+                surface.get_width() * surface.get_height() * 4
+            )
 
             print(f"✓ Loaded sprite sheet: {path} ({tile_width}x{tile_height})")
             return sheet
@@ -200,8 +211,9 @@ class AssetManager:
         """
         return pygame.transform.rotate(sprite, angle)
 
-    def flip_sprite(self, sprite: pygame.Surface, flip_x: bool = False,
-                   flip_y: bool = False) -> pygame.Surface:
+    def flip_sprite(
+        self, sprite: pygame.Surface, flip_x: bool = False, flip_y: bool = False
+    ) -> pygame.Surface:
         """
         Flip a sprite horizontally and/or vertically.
 
@@ -250,7 +262,7 @@ class AssetManager:
             "sprite_sheets": len(self._sprite_sheets),
             "sounds": len(self._sounds),
             "memory_bytes": self.get_memory_usage(),
-            "memory_mb": self.get_memory_usage() / (1024 * 1024)
+            "memory_mb": self.get_memory_usage() / (1024 * 1024),
         }
 
     # ========== Utility ==========

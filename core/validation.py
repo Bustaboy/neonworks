@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Optional
 
 class ValidationError(Exception):
     """Custom exception for validation errors"""
+
     pass
 
 
@@ -25,7 +26,7 @@ def validate_project_config(config: Dict[str, Any]) -> List[str]:
     errors = []
 
     # Validate top-level structure
-    required_sections = ['metadata', 'paths', 'settings']
+    required_sections = ["metadata", "paths", "settings"]
     for section in required_sections:
         if section not in config:
             errors.append(f"Missing required section: '{section}'")
@@ -35,15 +36,15 @@ def validate_project_config(config: Dict[str, Any]) -> List[str]:
         return errors
 
     # Validate metadata
-    metadata_errors = _validate_metadata(config.get('metadata', {}))
+    metadata_errors = _validate_metadata(config.get("metadata", {}))
     errors.extend(metadata_errors)
 
     # Validate paths
-    paths_errors = _validate_paths(config.get('paths', {}))
+    paths_errors = _validate_paths(config.get("paths", {}))
     errors.extend(paths_errors)
 
     # Validate settings
-    settings_errors = _validate_settings(config.get('settings', {}))
+    settings_errors = _validate_settings(config.get("settings", {}))
     errors.extend(settings_errors)
 
     return errors
@@ -54,10 +55,10 @@ def _validate_metadata(metadata: Dict[str, Any]) -> List[str]:
     errors = []
 
     required_fields = {
-        'name': str,
-        'version': str,
-        'description': str,
-        'author': str,
+        "name": str,
+        "version": str,
+        "description": str,
+        "author": str,
     }
 
     for field, expected_type in required_fields.items():
@@ -72,16 +73,16 @@ def _validate_metadata(metadata: Dict[str, Any]) -> List[str]:
             errors.append(f"metadata.{field}: Cannot be empty")
 
     # Validate version format
-    if 'version' in metadata and isinstance(metadata['version'], str):
-        if not _is_valid_version(metadata['version']):
+    if "version" in metadata and isinstance(metadata["version"], str):
+        if not _is_valid_version(metadata["version"]):
             errors.append(
                 f"metadata.version: Invalid version format '{metadata['version']}'. "
                 f"Expected format: X.Y.Z (e.g., '1.0.0')"
             )
 
     # Validate optional fields
-    if 'engine_version' in metadata:
-        if not isinstance(metadata['engine_version'], str):
+    if "engine_version" in metadata:
+        if not isinstance(metadata["engine_version"], str):
             errors.append("metadata.engine_version: Must be a string")
 
     return errors
@@ -91,7 +92,7 @@ def _validate_paths(paths: Dict[str, Any]) -> List[str]:
     """Validate paths section"""
     errors = []
 
-    expected_paths = ['assets', 'levels', 'scripts', 'saves', 'config']
+    expected_paths = ["assets", "levels", "scripts", "saves", "config"]
 
     for path_name in expected_paths:
         if path_name in paths:
@@ -102,10 +103,8 @@ def _validate_paths(paths: Dict[str, Any]) -> List[str]:
                 )
             elif not paths[path_name].strip():
                 errors.append(f"paths.{path_name}: Cannot be empty")
-            elif paths[path_name].startswith('/') or paths[path_name].startswith('\\'):
-                errors.append(
-                    f"paths.{path_name}: Must be relative path, not absolute"
-                )
+            elif paths[path_name].startswith("/") or paths[path_name].startswith("\\"):
+                errors.append(f"paths.{path_name}: Must be relative path, not absolute")
 
     return errors
 
@@ -116,10 +115,10 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
 
     # Display settings
     display_settings = {
-        'window_width': (int, 320, 7680),  # Min 320, Max 8K
-        'window_height': (int, 240, 4320),  # Min 240, Max 8K
-        'window_title': (str, None, None),
-        'fullscreen': (bool, None, None),
+        "window_width": (int, 320, 7680),  # Min 320, Max 8K
+        "window_height": (int, 240, 4320),  # Min 240, Max 8K
+        "window_title": (str, None, None),
+        "fullscreen": (bool, None, None),
     }
 
     for setting, (expected_type, min_val, max_val) in display_settings.items():
@@ -150,9 +149,9 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
 
     # Gameplay settings
     gameplay_settings = {
-        'tile_size': (int, 8, 256),
-        'grid_width': (int, 1, 1000),
-        'grid_height': (int, 1, 1000),
+        "tile_size": (int, 8, 256),
+        "grid_width": (int, 1, 1000),
+        "grid_height": (int, 1, 1000),
     }
 
     for setting, (expected_type, min_val, max_val) in gameplay_settings.items():
@@ -174,10 +173,10 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
 
     # Feature flags
     feature_flags = [
-        'enable_base_building',
-        'enable_survival',
-        'enable_turn_based',
-        'enable_combat',
+        "enable_base_building",
+        "enable_survival",
+        "enable_turn_based",
+        "enable_combat",
     ]
 
     for flag in feature_flags:
@@ -189,16 +188,16 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
                 )
 
     # Scene settings
-    if 'initial_scene' in settings:
-        if not isinstance(settings['initial_scene'], str):
+    if "initial_scene" in settings:
+        if not isinstance(settings["initial_scene"], str):
             errors.append("settings.initial_scene: Must be a string")
 
     # Data file paths
     data_files = [
-        'building_definitions',
-        'item_definitions',
-        'character_definitions',
-        'quest_definitions',
+        "building_definitions",
+        "item_definitions",
+        "character_definitions",
+        "quest_definitions",
     ]
 
     for file_setting in data_files:
@@ -212,12 +211,12 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
 
     # Export settings
     export_settings = {
-        'export_version': str,
-        'export_publisher': str,
-        'export_description': str,
-        'export_encrypt': bool,
-        'export_compress': bool,
-        'export_console': bool,
+        "export_version": str,
+        "export_publisher": str,
+        "export_description": str,
+        "export_encrypt": bool,
+        "export_compress": bool,
+        "export_console": bool,
     }
 
     for setting, expected_type in export_settings.items():
@@ -233,7 +232,7 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
 
 def _is_valid_version(version: str) -> bool:
     """Check if version string is valid (X.Y.Z format)"""
-    parts = version.split('.')
+    parts = version.split(".")
 
     if len(parts) < 2 or len(parts) > 3:
         return False
@@ -266,14 +265,16 @@ def validate_building_definitions(buildings: Dict[str, Any]) -> List[str]:
             continue
 
         # Required fields
-        required = ['name', 'cost', 'build_time']
+        required = ["name", "cost", "build_time"]
         for field in required:
             if field not in building_data:
-                errors.append(f"Building '{building_id}': Missing required field '{field}'")
+                errors.append(
+                    f"Building '{building_id}': Missing required field '{field}'"
+                )
 
         # Validate cost
-        if 'cost' in building_data:
-            cost = building_data['cost']
+        if "cost" in building_data:
+            cost = building_data["cost"]
             if not isinstance(cost, dict):
                 errors.append(f"Building '{building_id}': 'cost' must be a dictionary")
             else:
@@ -285,8 +286,8 @@ def validate_building_definitions(buildings: Dict[str, Any]) -> List[str]:
                         )
 
         # Validate build_time
-        if 'build_time' in building_data:
-            build_time = building_data['build_time']
+        if "build_time" in building_data:
+            build_time = building_data["build_time"]
             if not isinstance(build_time, (int, float)) or build_time < 0:
                 errors.append(
                     f"Building '{building_id}': 'build_time' must be non-negative number"
@@ -316,22 +317,22 @@ def validate_item_definitions(items: Dict[str, Any]) -> List[str]:
             continue
 
         # Required fields
-        required = ['name', 'type']
+        required = ["name", "type"]
         for field in required:
             if field not in item_data:
                 errors.append(f"Item '{item_id}': Missing required field '{field}'")
 
         # Validate type
-        if 'type' in item_data:
-            valid_types = ['weapon', 'armor', 'consumable', 'resource', 'quest', 'misc']
-            if item_data['type'] not in valid_types:
+        if "type" in item_data:
+            valid_types = ["weapon", "armor", "consumable", "resource", "quest", "misc"]
+            if item_data["type"] not in valid_types:
                 errors.append(
                     f"Item '{item_id}': Invalid type '{item_data['type']}'. "
                     f"Must be one of: {', '.join(valid_types)}"
                 )
 
         # Validate numeric fields
-        numeric_fields = ['value', 'weight', 'stack_size', 'damage', 'defense']
+        numeric_fields = ["value", "weight", "stack_size", "damage", "defense"]
         for field in numeric_fields:
             if field in item_data:
                 value = item_data[field]
@@ -364,14 +365,16 @@ def validate_character_definitions(characters: Dict[str, Any]) -> List[str]:
             continue
 
         # Required fields
-        required = ['name', 'class']
+        required = ["name", "class"]
         for field in required:
             if field not in char_data:
-                errors.append(f"Character '{char_id}': Missing required field '{field}'")
+                errors.append(
+                    f"Character '{char_id}': Missing required field '{field}'"
+                )
 
         # Validate stats
-        if 'stats' in char_data:
-            stats = char_data['stats']
+        if "stats" in char_data:
+            stats = char_data["stats"]
             if not isinstance(stats, dict):
                 errors.append(f"Character '{char_id}': 'stats' must be a dictionary")
             else:
@@ -400,12 +403,12 @@ def get_deprecation_warnings(config: Dict[str, Any]) -> List[str]:
     # Example: Check for deprecated settings
     # This can be expanded as the engine evolves
 
-    settings = config.get('settings', {})
+    settings = config.get("settings", {})
 
     # Deprecated field examples (add real ones as needed)
     deprecated_fields = {
-        'use_legacy_renderer': 'The legacy renderer is deprecated. Use the new renderer instead.',
-        'old_audio_system': 'The old audio system is deprecated. Update to the new audio manager.',
+        "use_legacy_renderer": "The legacy renderer is deprecated. Use the new renderer instead.",
+        "old_audio_system": "The old audio system is deprecated. Update to the new audio manager.",
     }
 
     for field, message in deprecated_fields.items():
@@ -429,14 +432,14 @@ def validate_config_file_references(config: Dict[str, Any], project_root) -> Lis
     from pathlib import Path
 
     warnings = []
-    settings = config.get('settings', {})
-    config_path = Path(project_root) / config.get('paths', {}).get('config', 'config')
+    settings = config.get("settings", {})
+    config_path = Path(project_root) / config.get("paths", {}).get("config", "config")
 
     file_references = {
-        'building_definitions': 'Building definitions file',
-        'item_definitions': 'Item definitions file',
-        'character_definitions': 'Character definitions file',
-        'quest_definitions': 'Quest definitions file',
+        "building_definitions": "Building definitions file",
+        "item_definitions": "Item definitions file",
+        "character_definitions": "Character definitions file",
+        "quest_definitions": "Quest definitions file",
     }
 
     for setting, description in file_references.items():
@@ -444,12 +447,12 @@ def validate_config_file_references(config: Dict[str, Any], project_root) -> Lis
             file_path = settings[setting]
 
             # Remove 'config/' prefix if present
-            if file_path.startswith('config/'):
+            if file_path.startswith("config/"):
                 file_path = file_path[7:]
 
             # Add .json extension if missing
-            if not file_path.endswith('.json'):
-                file_path += '.json'
+            if not file_path.endswith(".json"):
+                file_path += ".json"
 
             full_path = config_path / file_path
 

@@ -2,6 +2,7 @@
 NeonWorks Master UI Manager - Unified UI System Management
 Provides a single interface for managing all visual UI systems in NeonWorks.
 """
+
 from typing import Optional, Dict, Any
 import pygame
 from .game_hud import GameHUD
@@ -26,10 +27,14 @@ class MasterUIManager:
     Provides a unified interface for managing and rendering all UIs.
     """
 
-    def __init__(self, screen: pygame.Surface, world: World,
-                 state_manager: Optional[StateManager] = None,
-                 audio_manager: Optional[AudioManager] = None,
-                 input_manager: Optional[InputManager] = None):
+    def __init__(
+        self,
+        screen: pygame.Surface,
+        world: World,
+        state_manager: Optional[StateManager] = None,
+        audio_manager: Optional[AudioManager] = None,
+        input_manager: Optional[InputManager] = None,
+    ):
         self.screen = screen
         self.world = world
         self.state_manager = state_manager
@@ -49,7 +54,7 @@ class MasterUIManager:
         self.asset_browser = AssetBrowserUI(screen)
 
         # UI state
-        self.current_mode = 'game'  # 'game', 'editor', 'menu'
+        self.current_mode = "game"  # 'game', 'editor', 'menu'
 
         # Key bindings
         self.keybinds = {
@@ -70,7 +75,7 @@ class MasterUIManager:
         Render all active UI systems.
         """
         # Always render game HUD if in game mode
-        if self.current_mode == 'game' and self.game_hud.visible:
+        if self.current_mode == "game" and self.game_hud.visible:
             self.game_hud.render(self.world, fps)
 
         # Render combat UI if visible
@@ -236,15 +241,15 @@ class MasterUIManager:
         self.current_mode = mode
 
         # Configure UI visibility based on mode
-        if mode == 'game':
+        if mode == "game":
             self.game_hud.visible = True
             self.combat_ui.visible = True
             self.level_builder.visible = False
             self.navmesh_editor.visible = False
-        elif mode == 'editor':
+        elif mode == "editor":
             self.game_hud.visible = False
             self.combat_ui.visible = False
-        elif mode == 'menu':
+        elif mode == "menu":
             self.game_hud.visible = False
             self.combat_ui.visible = False
 
@@ -253,7 +258,9 @@ class MasterUIManager:
         self.game_hud.set_selected_entity(entity_id)
         self.debug_console.selected_entity = entity_id
 
-    def show_notification(self, message: str, duration: float = 3.0, color: tuple = (255, 255, 255)):
+    def show_notification(
+        self, message: str, duration: float = 3.0, color: tuple = (255, 255, 255)
+    ):
         """
         Show a notification message.
         """
@@ -286,20 +293,20 @@ class MasterUIManager:
         Save UI state for persistence.
         """
         return {
-            'game_hud_visible': self.game_hud.visible,
-            'current_mode': self.current_mode,
-            'settings': self.settings_ui.settings,
+            "game_hud_visible": self.game_hud.visible,
+            "current_mode": self.current_mode,
+            "settings": self.settings_ui.settings,
         }
 
     def load_ui_state(self, state: Dict[str, Any]):
         """
         Load UI state from saved data.
         """
-        if 'game_hud_visible' in state:
-            self.game_hud.visible = state['game_hud_visible']
+        if "game_hud_visible" in state:
+            self.game_hud.visible = state["game_hud_visible"]
 
-        if 'current_mode' in state:
-            self.set_mode(state['current_mode'])
+        if "current_mode" in state:
+            self.set_mode(state["current_mode"])
 
-        if 'settings' in state:
-            self.settings_ui.settings = state['settings']
+        if "settings" in state:
+            self.settings_ui.settings = state["settings"]

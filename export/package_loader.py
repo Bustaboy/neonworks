@@ -13,13 +13,12 @@ try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
     CRYPTO_AVAILABLE = True
 except ImportError:
     CRYPTO_AVAILABLE = False
 
-from .package_format import (
-    PackageHeader, FileEntry, HEADER_SIZE, compute_data_hash
-)
+from .package_format import PackageHeader, FileEntry, HEADER_SIZE, compute_data_hash
 
 
 class PackageLoader:
@@ -38,7 +37,7 @@ class PackageLoader:
         if self._loaded:
             return
 
-        with open(self.package_path, 'rb') as f:
+        with open(self.package_path, "rb") as f:
             # Read header
             header_data = f.read(HEADER_SIZE)
             self.header = PackageHeader.unpack(header_data)
@@ -49,7 +48,9 @@ class PackageLoader:
                     raise ValueError("Password required for encrypted package")
 
                 if not CRYPTO_AVAILABLE:
-                    raise RuntimeError("Cryptography library not available for decryption")
+                    raise RuntimeError(
+                        "Cryptography library not available for decryption"
+                    )
 
                 salt = f.read(32)
                 self._prepare_decryption(salt)
@@ -80,7 +81,7 @@ class PackageLoader:
             salt=salt,
             iterations=100000,
         )
-        self._key = kdf.derive(self.password.encode('utf-8'))
+        self._key = kdf.derive(self.password.encode("utf-8"))
 
     def list_files(self) -> List[str]:
         """List all files in package"""
@@ -120,7 +121,7 @@ class PackageLoader:
         entry = self.file_index[filename]
 
         # Read file data
-        with open(self.package_path, 'rb') as f:
+        with open(self.package_path, "rb") as f:
             f.seek(self.header.data_offset + entry.offset)
             file_data = f.read(entry.size)
 
@@ -163,7 +164,7 @@ class PackageLoader:
         data = self.load_file(filename, verify_hash=verify_hash)
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(data)
 
     def extract_all(self, output_dir: Path, verify_hash: bool = True):
@@ -181,12 +182,12 @@ class PackageLoader:
             self.load_index()
 
         return {
-            'version': self.header.version,
-            'file_count': self.header.file_count,
-            'encrypted': self.header.is_encrypted,
-            'compressed': self.header.is_compressed,
-            'encryption_method': self.header.encryption_method,
-            'compression_method': self.header.compression_method,
+            "version": self.header.version,
+            "file_count": self.header.file_count,
+            "encrypted": self.header.is_encrypted,
+            "compressed": self.header.is_compressed,
+            "encryption_method": self.header.encryption_method,
+            "compression_method": self.header.compression_method,
         }
 
 

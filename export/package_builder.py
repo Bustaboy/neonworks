@@ -16,20 +16,32 @@ try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
     CRYPTO_AVAILABLE = True
 except ImportError:
     CRYPTO_AVAILABLE = False
 
 from .package_format import (
-    PackageHeader, FileEntry, MAGIC_NUMBER, FORMAT_VERSION,
-    FLAG_ENCRYPTED, FLAG_COMPRESSED, ENC_AES256_GCM, ENC_NONE,
-    COMP_ZLIB, COMP_NONE, HEADER_SIZE, compute_file_hash, compute_data_hash
+    PackageHeader,
+    FileEntry,
+    MAGIC_NUMBER,
+    FORMAT_VERSION,
+    FLAG_ENCRYPTED,
+    FLAG_COMPRESSED,
+    ENC_AES256_GCM,
+    ENC_NONE,
+    COMP_ZLIB,
+    COMP_NONE,
+    HEADER_SIZE,
+    compute_file_hash,
+    compute_data_hash,
 )
 
 
 @dataclass
 class PackageConfig:
     """Configuration for package building"""
+
     compress: bool = True
     encrypt: bool = False
     password: Optional[str] = None
@@ -38,12 +50,12 @@ class PackageConfig:
     def __post_init__(self):
         if self.exclude_patterns is None:
             self.exclude_patterns = [
-                '__pycache__',
-                '*.pyc',
-                '.git',
-                '.gitignore',
-                '*.tmp',
-                '.DS_Store'
+                "__pycache__",
+                "*.pyc",
+                ".git",
+                ".gitignore",
+                "*.tmp",
+                ".DS_Store",
             ]
 
         if self.encrypt and not self.password:
@@ -77,20 +89,21 @@ class PackageBuilder:
         if base_path is None:
             base_path = directory
 
-        for item in directory.rglob('*'):
+        for item in directory.rglob("*"):
             if item.is_file() and not self._should_exclude(item):
                 relative_path = str(item.relative_to(base_path))
                 # Normalize path separators to forward slashes
-                relative_path = relative_path.replace(os.sep, '/')
+                relative_path = relative_path.replace(os.sep, "/")
                 self.add_file(relative_path, item)
 
     def _should_exclude(self, path: Path) -> bool:
         """Check if file should be excluded based on patterns"""
         import fnmatch
+
         path_str = str(path)
 
         for pattern in self.config.exclude_patterns:
-            if fnmatch.fnmatch(path_str, f'*{pattern}*'):
+            if fnmatch.fnmatch(path_str, f"*{pattern}*"):
                 return True
             if fnmatch.fnmatch(path.name, pattern):
                 return True
@@ -112,9 +125,9 @@ class PackageBuilder:
             self._prepare_encryption()
 
         # Build package
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             # Reserve space for header
-            f.write(b'\x00' * HEADER_SIZE)
+            f.write(b"\x00" * HEADER_SIZE)
 
             # Write salt if encrypted
             if self.config.encrypt:
@@ -131,7 +144,7 @@ class PackageBuilder:
 
             for relative_path, file_path in self.files:
                 # Read file
-                with open(file_path, 'rb') as file_f:
+                with open(file_path, "rb") as file_f:
                     file_data = file_f.read()
 
                 original_size = len(file_data)
@@ -158,14 +171,14 @@ class PackageBuilder:
                     size=compressed_size,
                     original_size=original_size,
                     file_hash=file_hash,
-                    flags=0
+                    flags=0,
                 )
 
                 file_entries.append(entry)
                 file_data_list.append(file_data)
 
             # Write file index
-            index_data = b''
+            index_data = b""
             for entry in file_entries:
                 index_data += entry.pack()
 
@@ -186,7 +199,7 @@ class PackageBuilder:
                     size=entry.size,
                     original_size=entry.original_size,
                     file_hash=entry.file_hash,
-                    flags=entry.flags
+                    flags=entry.flags,
                 )
                 updated_entries.append(updated_entry)
                 current_offset += len(file_data)
@@ -206,7 +219,7 @@ class PackageBuilder:
                 index_offset=index_offset,
                 data_offset=data_offset,
                 encryption_method=ENC_AES256_GCM if self.config.encrypt else ENC_NONE,
-                compression_method=COMP_ZLIB if self.config.compress else COMP_NONE
+                compression_method=COMP_ZLIB if self.config.compress else COMP_NONE,
             )
 
             # Go back and write header
@@ -219,15 +232,19 @@ class PackageBuilder:
                 f.write(entry.pack())
 
         # Calculate compression ratio
-        compression_ratio = (1 - total_compressed_size / total_original_size) * 100 if total_original_size > 0 else 0
+        compression_ratio = (
+            (1 - total_compressed_size / total_original_size) * 100
+            if total_original_size > 0
+            else 0
+        )
 
         return {
-            'file_count': len(self.files),
-            'original_size': total_original_size,
-            'package_size': total_compressed_size,
-            'compression_ratio': compression_ratio,
-            'encrypted': self.config.encrypt,
-            'compressed': self.config.compress
+            "file_count": len(self.files),
+            "original_size": total_original_size,
+            "package_size": total_compressed_size,
+            "compression_ratio": compression_ratio,
+            "encrypted": self.config.encrypt,
+            "compressed": self.config.compress,
         }
 
     def _prepare_encryption(self):
@@ -245,7 +262,7 @@ class PackageBuilder:
             salt=self._salt,
             iterations=100000,
         )
-        self._key = kdf.derive(self.config.password.encode('utf-8'))
+        self._key = kdf.derive(self.config.password.encode("utf-8"))
 
     def _encrypt_data(self, data: bytes) -> bytes:
         """Encrypt data using AES-256-GCM"""
@@ -268,7 +285,7 @@ def build_package(
     output_path: Path,
     compress: bool = True,
     encrypt: bool = False,
-    password: Optional[str] = None
+    password: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Convenience function to build a package
@@ -283,11 +300,7 @@ def build_package(
     Returns:
         Build statistics dictionary
     """
-    config = PackageConfig(
-        compress=compress,
-        encrypt=encrypt,
-        password=password
-    )
+    config = PackageConfig(compress=compress, encrypt=encrypt, password=password)
 
     builder = PackageBuilder(config)
     builder.add_directory(project_path)

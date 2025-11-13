@@ -63,7 +63,9 @@ class BossAISystem(System):
             if boss_phase.should_advance_phase(hp_percentage):
                 self._trigger_phase_transition(world, boss, boss_phase)
 
-    def _trigger_phase_transition(self, world: World, boss: Entity, boss_phase: BossPhase):
+    def _trigger_phase_transition(
+        self, world: World, boss: Entity, boss_phase: BossPhase
+    ):
         """Trigger boss phase transition"""
         old_phase = boss_phase.current_phase
         boss_phase.advance_phase()
@@ -77,18 +79,22 @@ class BossAISystem(System):
             self._apply_phase_changes(world, boss, phase_data)
 
         # Emit phase change event
-        self.event_manager.emit(Event(
-            EventType.CUSTOM,
-            {
-                "type": "boss_phase_change",
-                "boss_id": boss.id,
-                "old_phase": old_phase,
-                "new_phase": new_phase,
-                "phase_data": phase_data,
-            }
-        ))
+        self.event_manager.emit(
+            Event(
+                EventType.CUSTOM,
+                {
+                    "type": "boss_phase_change",
+                    "boss_id": boss.id,
+                    "old_phase": old_phase,
+                    "new_phase": new_phase,
+                    "phase_data": phase_data,
+                },
+            )
+        )
 
-    def _apply_phase_changes(self, world: World, boss: Entity, phase_data: Dict[str, Any]):
+    def _apply_phase_changes(
+        self, world: World, boss: Entity, phase_data: Dict[str, Any]
+    ):
         """Apply changes when boss enters new phase"""
         stats = boss.get_component(JRPGStats)
         ai = boss.get_component(BattleAI)
@@ -128,18 +134,22 @@ class BossAISystem(System):
             position = add.get("position", 0)
 
             # Emit summon event
-            self.event_manager.emit(Event(
-                EventType.CUSTOM,
-                {
-                    "type": "boss_summon_add",
-                    "boss_id": boss.id,
-                    "enemy_id": enemy_id,
-                    "level": level,
-                    "position": position,
-                }
-            ))
+            self.event_manager.emit(
+                Event(
+                    EventType.CUSTOM,
+                    {
+                        "type": "boss_summon_add",
+                        "boss_id": boss.id,
+                        "enemy_id": enemy_id,
+                        "level": level,
+                        "position": position,
+                    },
+                )
+            )
 
-    def create_boss_template(self, boss_id: str, name: str, phases: int = 2) -> Dict[str, Any]:
+    def create_boss_template(
+        self, boss_id: str, name: str, phases: int = 2
+    ) -> Dict[str, Any]:
         """
         Create a boss template with default multi-phase setup.
 
@@ -204,7 +214,6 @@ BOSS_TEMPLATES = {
             },
         },
     },
-
     "dragon": {
         "boss_id": "dragon",
         "name": "Ancient Dragon",
@@ -238,7 +247,6 @@ BOSS_TEMPLATES = {
             },
         },
     },
-
     "dark_sorcerer": {
         "boss_id": "dark_sorcerer",
         "name": "Dark Sorcerer",
@@ -278,8 +286,9 @@ BOSS_TEMPLATES = {
 }
 
 
-def create_boss_entity(world: World, boss_template: Dict[str, Any],
-                      level: int = 10) -> Entity:
+def create_boss_entity(
+    world: World, boss_template: Dict[str, Any], level: int = 10
+) -> Entity:
     """
     Create a boss entity from template.
 
@@ -304,34 +313,42 @@ def create_boss_entity(world: World, boss_template: Dict[str, Any],
     boss.add_component(Sprite(texture="boss_sprite.png", width=64, height=64))
 
     # Enemy data
-    boss.add_component(EnemyData(
-        enemy_id=boss_template["boss_id"],
-        enemy_name=boss_template["name"],
-        enemy_type="boss",
-        is_boss=True,
-        can_escape_from=False,
-    ))
+    boss.add_component(
+        EnemyData(
+            enemy_id=boss_template["boss_id"],
+            enemy_name=boss_template["name"],
+            enemy_type="boss",
+            is_boss=True,
+            can_escape_from=False,
+        )
+    )
 
     # Combat stats (scale with level)
     base_hp = 500
     base_mp = 100
-    boss.add_component(Health(
-        max_hp=base_hp + level * 50,
-        hp=base_hp + level * 50,
-    ))
-    boss.add_component(MagicPoints(
-        max_mp=base_mp + level * 10,
-        current_mp=base_mp + level * 10,
-    ))
-    boss.add_component(JRPGStats(
-        level=level,
-        attack=15 + level,
-        defense=12 + level,
-        magic_attack=18 + level,
-        magic_defense=15 + level,
-        speed=10 + level // 2,
-        luck=8,
-    ))
+    boss.add_component(
+        Health(
+            max_hp=base_hp + level * 50,
+            hp=base_hp + level * 50,
+        )
+    )
+    boss.add_component(
+        MagicPoints(
+            max_mp=base_mp + level * 10,
+            current_mp=base_mp + level * 10,
+        )
+    )
+    boss.add_component(
+        JRPGStats(
+            level=level,
+            attack=15 + level,
+            defense=12 + level,
+            magic_attack=18 + level,
+            magic_defense=15 + level,
+            speed=10 + level // 2,
+            luck=8,
+        )
+    )
 
     # Boss phase component
     boss_phase = BossPhase(
@@ -344,11 +361,13 @@ def create_boss_entity(world: World, boss_template: Dict[str, Any],
 
     # Battle AI
     phase_1_data = boss_template["phases"][1]
-    boss.add_component(BattleAI(
-        ai_type="boss",
-        attack_pattern=phase_1_data.get("attack_pattern", ["attack"]),
-        preferred_spells=phase_1_data.get("preferred_spells", []),
-    ))
+    boss.add_component(
+        BattleAI(
+            ai_type="boss",
+            attack_pattern=phase_1_data.get("attack_pattern", ["attack"]),
+            preferred_spells=phase_1_data.get("preferred_spells", []),
+        )
+    )
 
     # Spell list
     all_spells = []
@@ -357,13 +376,15 @@ def create_boss_entity(world: World, boss_template: Dict[str, Any],
     boss.add_component(SpellList(learned_spells=list(set(all_spells))))
 
     # Rewards (bosses give big rewards)
-    boss.add_component(BattleRewards(
-        experience=100 * level,
-        gold=50 * level,
-        items=[
-            {"item_id": "boss_drop", "chance": 100.0, "quantity": 1},
-            {"item_id": "rare_item", "chance": 50.0, "quantity": 1},
-        ],
-    ))
+    boss.add_component(
+        BattleRewards(
+            experience=100 * level,
+            gold=50 * level,
+            items=[
+                {"item_id": "boss_drop", "chance": 100.0, "quantity": 1},
+                {"item_id": "rare_item", "chance": 50.0, "quantity": 1},
+            ],
+        )
+    )
 
     return boss

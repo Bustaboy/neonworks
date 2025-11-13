@@ -13,6 +13,7 @@ from engine.rendering.assets import AssetManager, get_asset_manager
 
 class Color:
     """Common colors"""
+
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     RED = (255, 0, 0)
@@ -29,7 +30,13 @@ class Color:
 class Renderer:
     """2D renderer for grid-based games"""
 
-    def __init__(self, width: int, height: int, tile_size: int = 32, asset_manager: Optional[AssetManager] = None):
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        tile_size: int = 32,
+        asset_manager: Optional[AssetManager] = None,
+    ):
         pygame.init()
         self.width = width
         self.height = height
@@ -100,14 +107,19 @@ class Renderer:
             surface = self._get_or_load_sprite(sprite.texture)
 
             # Scale if needed
-            if sprite.width != surface.get_width() or sprite.height != surface.get_height():
+            if (
+                sprite.width != surface.get_width()
+                or sprite.height != surface.get_height()
+            ):
                 surface = pygame.transform.scale(surface, (sprite.width, sprite.height))
 
             # Apply color tint if not white
             if sprite.color != (255, 255, 255, 255):
                 # Create a colored overlay
                 colored_surface = surface.copy()
-                colored_surface.fill(sprite.color[:3] + (0,), special_flags=pygame.BLEND_RGBA_MULT)
+                colored_surface.fill(
+                    sprite.color[:3] + (0,), special_flags=pygame.BLEND_RGBA_MULT
+                )
                 surface = colored_surface
 
             # Draw the sprite
@@ -119,27 +131,36 @@ class Renderer:
                 screen_x - sprite.width // 2,
                 screen_y - sprite.height // 2,
                 sprite.width,
-                sprite.height
+                sprite.height,
             )
             pygame.draw.rect(self.screen, sprite.color, rect)
 
     def render_grid_sprite(self, grid_pos: GridPosition, sprite: Sprite):
         """Render a sprite at a grid position"""
         # Convert grid position to screen position
-        screen_x, screen_y = self.camera.grid_to_screen(grid_pos.grid_x, grid_pos.grid_y)
+        screen_x, screen_y = self.camera.grid_to_screen(
+            grid_pos.grid_x, grid_pos.grid_y
+        )
 
         # If sprite has a texture, load and render it
         if sprite.texture:
             surface = self._get_or_load_sprite(sprite.texture)
 
             # Scale to tile size
-            if surface.get_width() != self.tile_size or surface.get_height() != self.tile_size:
-                surface = pygame.transform.scale(surface, (self.tile_size, self.tile_size))
+            if (
+                surface.get_width() != self.tile_size
+                or surface.get_height() != self.tile_size
+            ):
+                surface = pygame.transform.scale(
+                    surface, (self.tile_size, self.tile_size)
+                )
 
             # Apply color tint if not white
             if sprite.color != (255, 255, 255, 255):
                 colored_surface = surface.copy()
-                colored_surface.fill(sprite.color[:3] + (0,), special_flags=pygame.BLEND_RGBA_MULT)
+                colored_surface.fill(
+                    sprite.color[:3] + (0,), special_flags=pygame.BLEND_RGBA_MULT
+                )
                 surface = colored_surface
 
             # Draw the sprite
@@ -155,7 +176,9 @@ class Renderer:
     def _get_or_load_sprite(self, texture_path: str) -> pygame.Surface:
         """Get sprite from cache or load it"""
         if texture_path not in self._sprite_cache:
-            self._sprite_cache[texture_path] = self.asset_manager.load_sprite(texture_path)
+            self._sprite_cache[texture_path] = self.asset_manager.load_sprite(
+                texture_path
+            )
         return self._sprite_cache[texture_path]
 
     def render_grid(self, grid_width: int, grid_height: int):
@@ -177,35 +200,43 @@ class Renderer:
         for x in range(min_x, max_x + 1):
             screen_x, _ = self.camera.grid_to_screen(x, 0)
             pygame.draw.line(
-                self.screen,
-                Color.DARK_GRAY,
-                (screen_x, 0),
-                (screen_x, self.height)
+                self.screen, Color.DARK_GRAY, (screen_x, 0), (screen_x, self.height)
             )
 
         # Draw horizontal lines
         for y in range(min_y, max_y + 1):
             _, screen_y = self.camera.grid_to_screen(0, y)
             pygame.draw.line(
-                self.screen,
-                Color.DARK_GRAY,
-                (0, screen_y),
-                (self.width, screen_y)
+                self.screen, Color.DARK_GRAY, (0, screen_y), (self.width, screen_y)
             )
 
-    def render_text(self, text: str, x: int, y: int, color: Tuple[int, int, int] = Color.WHITE):
+    def render_text(
+        self, text: str, x: int, y: int, color: Tuple[int, int, int] = Color.WHITE
+    ):
         """Render text at screen position"""
         surface = self.font.render(text, True, color)
         self.screen.blit(surface, (x, y))
 
-    def render_text_world(self, text: str, world_x: float, world_y: float,
-                          color: Tuple[int, int, int] = Color.WHITE):
+    def render_text_world(
+        self,
+        text: str,
+        world_x: float,
+        world_y: float,
+        color: Tuple[int, int, int] = Color.WHITE,
+    ):
         """Render text at world position"""
         screen_x, screen_y = self.camera.world_to_screen(world_x, world_y)
         self.render_text(text, screen_x, screen_y, color)
 
-    def render_rect(self, x: int, y: int, width: int, height: int,
-                    color: Tuple[int, int, int], filled: bool = True):
+    def render_rect(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        color: Tuple[int, int, int],
+        filled: bool = True,
+    ):
         """Render a rectangle at screen position"""
         rect = pygame.Rect(x, y, width, height)
         if filled:
@@ -213,16 +244,29 @@ class Renderer:
         else:
             pygame.draw.rect(self.screen, color, rect, 2)
 
-    def render_circle(self, x: int, y: int, radius: int,
-                     color: Tuple[int, int, int], filled: bool = True):
+    def render_circle(
+        self,
+        x: int,
+        y: int,
+        radius: int,
+        color: Tuple[int, int, int],
+        filled: bool = True,
+    ):
         """Render a circle at screen position"""
         if filled:
             pygame.draw.circle(self.screen, color, (x, y), radius)
         else:
             pygame.draw.circle(self.screen, color, (x, y), radius, 2)
 
-    def render_line(self, x1: int, y1: int, x2: int, y2: int,
-                   color: Tuple[int, int, int], width: int = 1):
+    def render_line(
+        self,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        color: Tuple[int, int, int],
+        width: int = 1,
+    ):
         """Render a line"""
         pygame.draw.line(self.screen, color, (x1, y1), (x2, y2), width)
 

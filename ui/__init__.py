@@ -11,19 +11,19 @@ from engine.ui.ui_system import (
     UIManager,
     UIBuilder,
     VerticalLayout,
-    HorizontalLayout
+    HorizontalLayout,
 )
 
 __all__ = [
-    'Anchor',
-    'UIStyle',
-    'UIWidget',
-    'UILabel',
-    'UIButton',
-    'UIPanel',
-    'UIContainer',
-    'UIManager',
-    'UIBuilder',
-    'VerticalLayout',
-    'HorizontalLayout'
+    "Anchor",
+    "UIStyle",
+    "UIWidget",
+    "UILabel",
+    "UIButton",
+    "UIPanel",
+    "UIContainer",
+    "UIManager",
+    "UIBuilder",
+    "VerticalLayout",
+    "HorizontalLayout",
 ]

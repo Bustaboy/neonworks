@@ -10,14 +10,22 @@ import math
 from engine.core.ecs import System, World, Entity, Transform, Health
 from engine.core.events import EventManager, Event, EventType
 from .components import (
-    Velocity, PlayerController, CombatStats, AIController, AIState,
-    UIHealthBar, GameStats, GameScreen, ScreenState
+    Velocity,
+    PlayerController,
+    CombatStats,
+    AIController,
+    AIState,
+    UIHealthBar,
+    GameStats,
+    GameScreen,
+    ScreenState,
 )
 
 
 # ============================================================================
 # Input System - Priority: 0 (runs first)
 # ============================================================================
+
 
 class PlayerInputSystem(System):
     """
@@ -72,7 +80,7 @@ class PlayerInputSystem(System):
 
         # Normalize diagonal movement so speed is consistent
         if dx != 0 or dy != 0:
-            length = math.sqrt(dx*dx + dy*dy)
+            length = math.sqrt(dx * dx + dy * dy)
             dx /= length
             dy /= length
 
@@ -109,19 +117,22 @@ class PlayerInputSystem(System):
                 enemy_health.current -= combat_stats.attack_damage
 
                 # Visual feedback: print to console
-                print(f"Player attacks enemy! Damage: {combat_stats.attack_damage}, "
-                      f"Enemy HP: {enemy_health.current}/{enemy_health.maximum}")
+                print(
+                    f"Player attacks enemy! Damage: {combat_stats.attack_damage}, "
+                    f"Enemy HP: {enemy_health.current}/{enemy_health.maximum}"
+                )
 
     def _distance(self, transform1: Transform, transform2: Transform) -> float:
         """Calculate distance between two transforms."""
         dx = transform2.x - transform1.x
         dy = transform2.y - transform1.y
-        return math.sqrt(dx*dx + dy*dy)
+        return math.sqrt(dx * dx + dy * dy)
 
 
 # ============================================================================
 # Movement System - Priority: 10
 # ============================================================================
+
 
 class MovementSystem(System):
     """
@@ -161,6 +172,7 @@ class MovementSystem(System):
 # ============================================================================
 # AI System - Priority: 20
 # ============================================================================
+
 
 class AISystem(System):
     """
@@ -241,7 +253,9 @@ class AISystem(System):
             velocity.dx = 0
             velocity.dy = 0
 
-    def _chase_behavior(self, entity: Entity, target_transform: Transform, delta_time: float):
+    def _chase_behavior(
+        self, entity: Entity, target_transform: Transform, delta_time: float
+    ):
         """CHASE: Move towards player."""
         ai = entity.get_component(AIController)
         transform = entity.get_component(Transform)
@@ -251,7 +265,7 @@ class AISystem(System):
         dy = target_transform.y - transform.y
 
         # Normalize direction
-        length = math.sqrt(dx*dx + dy*dy)
+        length = math.sqrt(dx * dx + dy * dy)
         if length > 0:
             dx /= length
             dy /= length
@@ -265,7 +279,9 @@ class AISystem(System):
                 transform.x += dx * ai.movement_speed * delta_time
                 transform.y += dy * ai.movement_speed * delta_time
 
-    def _attack_behavior(self, entity: Entity, target: Entity, delta_time: float, world: World):
+    def _attack_behavior(
+        self, entity: Entity, target: Entity, delta_time: float, world: World
+    ):
         """ATTACK: Stop moving and attack player."""
         # Stop moving
         if entity.has_component(Velocity):
@@ -279,7 +295,7 @@ class AISystem(System):
             return
 
         # Simple cooldown system using a stored attribute
-        if not hasattr(entity, '_attack_timer'):
+        if not hasattr(entity, "_attack_timer"):
             entity._attack_timer = 0
 
         entity._attack_timer -= delta_time
@@ -288,8 +304,10 @@ class AISystem(System):
             target_health = target.get_component(Health)
             if target_health:
                 target_health.current -= combat_stats.attack_damage
-                print(f"Enemy attacks player! Damage: {combat_stats.attack_damage}, "
-                      f"Player HP: {target_health.current}/{target_health.maximum}")
+                print(
+                    f"Enemy attacks player! Damage: {combat_stats.attack_damage}, "
+                    f"Player HP: {target_health.current}/{target_health.maximum}"
+                )
 
             entity._attack_timer = combat_stats.attack_cooldown_duration
 
@@ -302,12 +320,13 @@ class AISystem(System):
         """Calculate distance between two transforms."""
         dx = transform2.x - transform1.x
         dy = transform2.y - transform1.y
-        return math.sqrt(dx*dx + dy*dy)
+        return math.sqrt(dx * dx + dy * dy)
 
 
 # ============================================================================
 # Cleanup System - Priority: 50
 # ============================================================================
+
 
 class CleanupSystem(System):
     """
@@ -383,6 +402,7 @@ class CleanupSystem(System):
 # ============================================================================
 # Game Stats System - Priority: 60
 # ============================================================================
+
 
 class GameStatsSystem(System):
     """

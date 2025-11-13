@@ -14,6 +14,7 @@ from engine.core.ecs import Component
 @dataclass
 class AnimationFrame:
     """Single frame of animation"""
+
     sprite: pygame.Surface
     duration: float  # Duration in seconds
 
@@ -21,6 +22,7 @@ class AnimationFrame:
 @dataclass
 class Animation:
     """Animation data"""
+
     name: str
     frames: List[AnimationFrame]
     loop: bool = True
@@ -33,6 +35,7 @@ class Animation:
 @dataclass
 class AnimationComponent(Component):
     """Component for animated sprites"""
+
     current_animation: Optional[str] = None
     animations: dict = None  # Dict[str, Animation]
     current_frame: int = 0
@@ -77,7 +80,9 @@ class AnimationComponent(Component):
 class AnimationSystem:
     """System for updating animations"""
 
-    def update_animation(self, anim_component: AnimationComponent, delta_time: float) -> pygame.Surface:
+    def update_animation(
+        self, anim_component: AnimationComponent, delta_time: float
+    ) -> pygame.Surface:
         """
         Update animation and return current frame sprite.
 
@@ -91,7 +96,9 @@ class AnimationSystem:
         if not anim_component.playing or not anim_component.current_animation:
             # Return first frame of current animation or None
             if anim_component.current_animation:
-                animation = anim_component.animations.get(anim_component.current_animation)
+                animation = anim_component.animations.get(
+                    anim_component.current_animation
+                )
                 if animation and animation.frames:
                     return animation.frames[0].sprite
             return None
@@ -125,8 +132,12 @@ class AnimationSystem:
 
         return current_frame_data.sprite
 
-    def play_animation(self, anim_component: AnimationComponent, animation_name: str,
-                      restart: bool = True):
+    def play_animation(
+        self,
+        anim_component: AnimationComponent,
+        animation_name: str,
+        restart: bool = True,
+    ):
         """
         Play an animation.
 
@@ -166,8 +177,10 @@ class AnimationSystem:
         if not animation or animation.loop:
             return False
 
-        return (anim_component.current_frame >= len(animation.frames) - 1 and
-                not anim_component.playing)
+        return (
+            anim_component.current_frame >= len(animation.frames) - 1
+            and not anim_component.playing
+        )
 
 
 class AnimationBuilder:
@@ -178,19 +191,24 @@ class AnimationBuilder:
         self.loop = loop
         self.frames: List[AnimationFrame] = []
 
-    def add_frame(self, sprite: pygame.Surface, duration: float = 0.1) -> 'AnimationBuilder':
+    def add_frame(
+        self, sprite: pygame.Surface, duration: float = 0.1
+    ) -> "AnimationBuilder":
         """Add a frame to the animation"""
         self.frames.append(AnimationFrame(sprite, duration))
         return self
 
-    def add_frames(self, sprites: List[pygame.Surface], duration: float = 0.1) -> 'AnimationBuilder':
+    def add_frames(
+        self, sprites: List[pygame.Surface], duration: float = 0.1
+    ) -> "AnimationBuilder":
         """Add multiple frames with the same duration"""
         for sprite in sprites:
             self.add_frame(sprite, duration)
         return self
 
-    def add_frames_from_sheet(self, sprite_sheet, indices: List[int],
-                             columns: int, duration: float = 0.1) -> 'AnimationBuilder':
+    def add_frames_from_sheet(
+        self, sprite_sheet, indices: List[int], columns: int, duration: float = 0.1
+    ) -> "AnimationBuilder":
         """Add frames from a sprite sheet by indices"""
         for index in indices:
             sprite = sprite_sheet.get_sprite_by_index(index, columns)
@@ -202,9 +220,14 @@ class AnimationBuilder:
         return Animation(self.name, self.frames, self.loop)
 
 
-def create_animation_from_sheet(name: str, sprite_sheet, frame_indices: List[int],
-                               columns: int, frame_duration: float = 0.1,
-                               loop: bool = True) -> Animation:
+def create_animation_from_sheet(
+    name: str,
+    sprite_sheet,
+    frame_indices: List[int],
+    columns: int,
+    frame_duration: float = 0.1,
+    loop: bool = True,
+) -> Animation:
     """
     Convenience function to create an animation from a sprite sheet.
 
@@ -219,9 +242,11 @@ def create_animation_from_sheet(name: str, sprite_sheet, frame_indices: List[int
     Returns:
         Animation object
     """
-    return (AnimationBuilder(name, loop)
-            .add_frames_from_sheet(sprite_sheet, frame_indices, columns, frame_duration)
-            .build())
+    return (
+        AnimationBuilder(name, loop)
+        .add_frames_from_sheet(sprite_sheet, frame_indices, columns, frame_duration)
+        .build()
+    )
 
 
 # ========== Animation State Machine ==========
@@ -229,6 +254,7 @@ def create_animation_from_sheet(name: str, sprite_sheet, frame_indices: List[int
 
 class TransitionConditionType(Enum):
     """Types of transition conditions"""
+
     GREATER_THAN = "greater_than"
     LESS_THAN = "less_than"
     EQUALS = "equals"
@@ -240,11 +266,12 @@ class TransitionConditionType(Enum):
 @dataclass
 class TransitionCondition:
     """Condition for state transition"""
+
     condition_type: TransitionConditionType
     parameter_name: Optional[str] = None
     value: Any = None
 
-    def evaluate(self, state_machine: 'AnimationStateMachine') -> bool:
+    def evaluate(self, state_machine: "AnimationStateMachine") -> bool:
         """Evaluate if condition is met"""
         if self.condition_type == TransitionConditionType.TRIGGER:
             return state_machine.is_trigger_set(self.parameter_name)
@@ -270,12 +297,13 @@ class TransitionCondition:
 @dataclass
 class StateTransition:
     """Transition between animation states"""
+
     from_state: str
     to_state: str
     conditions: List[TransitionCondition] = field(default_factory=list)
     transition_duration: float = 0.0  # Blend duration in seconds
 
-    def can_transition(self, state_machine: 'AnimationStateMachine') -> bool:
+    def can_transition(self, state_machine: "AnimationStateMachine") -> bool:
         """Check if all conditions are met for transition"""
         if not self.conditions:
             return True
@@ -286,6 +314,7 @@ class StateTransition:
 @dataclass
 class AnimationState:
     """State in the animation state machine"""
+
     name: str
     animation_name: str
     on_enter: Optional[Callable[[], None]] = None
@@ -431,8 +460,7 @@ class AnimationStateMachine(Component):
             if transition.from_state == self.current_state:
                 if transition.can_transition(self):
                     self._transition_to_state(
-                        transition.to_state,
-                        transition.transition_duration
+                        transition.to_state, transition.transition_duration
                     )
                     # Reset triggers after transition
                     self.reset_all_triggers()
@@ -451,8 +479,10 @@ class AnimationStateMachine(Component):
         if not animation:
             return False
 
-        return (self.animation_component.current_frame >= len(animation.frames) - 1 and
-                not self.animation_component.playing)
+        return (
+            self.animation_component.current_frame >= len(animation.frames) - 1
+            and not self.animation_component.playing
+        )
 
     def get_current_state_name(self) -> Optional[str]:
         """Get name of current state"""
@@ -482,9 +512,15 @@ class AnimationStateMachineBuilder:
     def __init__(self):
         self.state_machine = AnimationStateMachine()
 
-    def add_state(self, name: str, animation_name: str, loop: bool = True,
-                 speed: float = 1.0, on_enter: Optional[Callable] = None,
-                 on_exit: Optional[Callable] = None) -> 'AnimationStateMachineBuilder':
+    def add_state(
+        self,
+        name: str,
+        animation_name: str,
+        loop: bool = True,
+        speed: float = 1.0,
+        on_enter: Optional[Callable] = None,
+        on_exit: Optional[Callable] = None,
+    ) -> "AnimationStateMachineBuilder":
         """Add a state"""
         state = AnimationState(
             name=name,
@@ -492,25 +528,31 @@ class AnimationStateMachineBuilder:
             loop=loop,
             speed=speed,
             on_enter=on_enter,
-            on_exit=on_exit
+            on_exit=on_exit,
         )
         self.state_machine.add_state(state)
         return self
 
-    def add_transition(self, from_state: str, to_state: str,
-                      conditions: Optional[List[TransitionCondition]] = None,
-                      transition_duration: float = 0.0) -> 'AnimationStateMachineBuilder':
+    def add_transition(
+        self,
+        from_state: str,
+        to_state: str,
+        conditions: Optional[List[TransitionCondition]] = None,
+        transition_duration: float = 0.0,
+    ) -> "AnimationStateMachineBuilder":
         """Add a transition"""
         transition = StateTransition(
             from_state=from_state,
             to_state=to_state,
             conditions=conditions or [],
-            transition_duration=transition_duration
+            transition_duration=transition_duration,
         )
         self.state_machine.add_transition(transition)
         return self
 
-    def add_parameter(self, name: str, default_value: Any) -> 'AnimationStateMachineBuilder':
+    def add_parameter(
+        self, name: str, default_value: Any
+    ) -> "AnimationStateMachineBuilder":
         """Add a parameter with default value"""
         self.state_machine.set_parameter(name, default_value)
         return self

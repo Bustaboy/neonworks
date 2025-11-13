@@ -16,6 +16,7 @@ import json
 @dataclass
 class AtlasRegion:
     """Region in a texture atlas"""
+
     name: str
     x: int
     y: int
@@ -29,7 +30,7 @@ class AtlasRegion:
             "x": self.x,
             "y": self.y,
             "width": self.width,
-            "height": self.height
+            "height": self.height,
         }
 
 
@@ -97,19 +98,23 @@ class TextureAtlasBuilder:
 
             # Check if we have space
             if current_y + img_height + self.padding > atlas_height:
-                raise ValueError(f"Atlas size {self.max_size}x{self.max_size} too small for all images")
+                raise ValueError(
+                    f"Atlas size {self.max_size}x{self.max_size} too small for all images"
+                )
 
             # Paste image
             atlas.paste(img, (current_x, current_y))
 
             # Add region
-            regions.append(AtlasRegion(
-                name=name,
-                x=current_x,
-                y=current_y,
-                width=img_width,
-                height=img_height
-            ))
+            regions.append(
+                AtlasRegion(
+                    name=name,
+                    x=current_x,
+                    y=current_y,
+                    width=img_width,
+                    height=img_height,
+                )
+            )
 
             # Update position
             current_x += img_width + self.padding
@@ -135,9 +140,9 @@ class TextureAtlasBuilder:
             metadata = {
                 "atlas": output_path,
                 "size": {"width": atlas.width, "height": atlas.height},
-                "regions": [region.to_dict() for region in regions]
+                "regions": [region.to_dict() for region in regions],
             }
-            with open(metadata_path, 'w') as f:
+            with open(metadata_path, "w") as f:
                 json.dump(metadata, f, indent=2)
 
         return atlas, regions
@@ -147,9 +152,12 @@ class ImageOptimizer:
     """Optimize images for game use"""
 
     @staticmethod
-    def optimize_for_game(input_path: str, output_path: str,
-                         max_size: Optional[Tuple[int, int]] = None,
-                         quality: int = 95) -> Image.Image:
+    def optimize_for_game(
+        input_path: str,
+        output_path: str,
+        max_size: Optional[Tuple[int, int]] = None,
+        quality: int = 95,
+    ) -> Image.Image:
         """
         Optimize image for game use.
 
@@ -174,8 +182,12 @@ class ImageOptimizer:
             img.save(output_path, "PNG", optimize=True)
         else:
             # No transparency - can use JPEG
-            if output_path.lower().endswith('.jpg') or output_path.lower().endswith('.jpeg'):
-                img.convert("RGB").save(output_path, "JPEG", quality=quality, optimize=True)
+            if output_path.lower().endswith(".jpg") or output_path.lower().endswith(
+                ".jpeg"
+            ):
+                img.convert("RGB").save(
+                    output_path, "JPEG", quality=quality, optimize=True
+                )
             else:
                 img.save(output_path, "PNG", optimize=True)
 
@@ -212,8 +224,11 @@ class ImageEffects:
     """Apply effects to images"""
 
     @staticmethod
-    def create_outline(image: Image.Image, outline_color: Tuple[int, int, int, int] = (0, 0, 0, 255),
-                      thickness: int = 1) -> Image.Image:
+    def create_outline(
+        image: Image.Image,
+        outline_color: Tuple[int, int, int, int] = (0, 0, 0, 255),
+        thickness: int = 1,
+    ) -> Image.Image:
         """
         Create an outline around non-transparent pixels.
 
@@ -267,8 +282,12 @@ class ImageEffects:
         return result
 
     @staticmethod
-    def apply_shadow(image: Image.Image, offset: Tuple[int, int] = (2, 2),
-                    blur_radius: int = 2, shadow_color: Tuple[int, int, int, int] = (0, 0, 0, 128)) -> Image.Image:
+    def apply_shadow(
+        image: Image.Image,
+        offset: Tuple[int, int] = (2, 2),
+        blur_radius: int = 2,
+        shadow_color: Tuple[int, int, int, int] = (0, 0, 0, 128),
+    ) -> Image.Image:
         """
         Add drop shadow to image.
 
@@ -295,8 +314,10 @@ class ImageEffects:
         shadow = shadow.filter(ImageFilter.GaussianBlur(blur_radius))
 
         # Create result with padding for offset
-        result_size = (img.size[0] + abs(offset[0]) + blur_radius * 2,
-                      img.size[1] + abs(offset[1]) + blur_radius * 2)
+        result_size = (
+            img.size[0] + abs(offset[0]) + blur_radius * 2,
+            img.size[1] + abs(offset[1]) + blur_radius * 2,
+        )
         result = Image.new("RGBA", result_size, (0, 0, 0, 0))
 
         # Paste shadow with offset
@@ -314,8 +335,15 @@ class SpriteSheetExtractor:
     """Extract individual sprites from sprite sheets"""
 
     @staticmethod
-    def extract_grid(image_path: str, tile_width: int, tile_height: int,
-                    columns: int, rows: int, spacing: int = 0, margin: int = 0) -> List[Image.Image]:
+    def extract_grid(
+        image_path: str,
+        tile_width: int,
+        tile_height: int,
+        columns: int,
+        rows: int,
+        spacing: int = 0,
+        margin: int = 0,
+    ) -> List[Image.Image]:
         """
         Extract sprites from a grid-based sprite sheet.
 
@@ -345,7 +373,9 @@ class SpriteSheetExtractor:
         return sprites
 
     @staticmethod
-    def save_sprites(sprites: List[Image.Image], output_dir: str, prefix: str = "sprite"):
+    def save_sprites(
+        sprites: List[Image.Image], output_dir: str, prefix: str = "sprite"
+    ):
         """
         Save extracted sprites to individual files.
 

@@ -7,13 +7,22 @@ Player and NPC movement control with physics and animation integration.
 from typing import Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component, System, World, Entity, Transform, RigidBody, Collider
+from engine.core.ecs import (
+    Component,
+    System,
+    World,
+    Entity,
+    Transform,
+    RigidBody,
+    Collider,
+)
 from engine.input.input_manager import InputManager
 from engine.rendering.animation import AnimationComponent
 
 
 class MovementState(Enum):
     """Character movement states"""
+
     IDLE = "idle"
     WALKING = "walking"
     RUNNING = "running"
@@ -29,6 +38,7 @@ class CharacterController(Component):
 
     Handles movement input, collision response, and state management.
     """
+
     # Movement parameters
     move_speed: float = 200.0  # Pixels per second
     run_speed: float = 400.0
@@ -104,9 +114,13 @@ class CharacterControllerSystem(System):
 
             # Apply movement
             if rigidbody:
-                self._apply_movement_with_physics(controller, rigidbody, move_direction, delta_time)
+                self._apply_movement_with_physics(
+                    controller, rigidbody, move_direction, delta_time
+                )
             else:
-                self._apply_movement_direct(controller, transform, move_direction, delta_time)
+                self._apply_movement_direct(
+                    controller, transform, move_direction, delta_time
+                )
 
             # Update movement state
             self._update_movement_state(controller, rigidbody, move_direction)
@@ -124,7 +138,9 @@ class CharacterControllerSystem(System):
         if controller.dash_cooldown_timer > 0:
             controller.dash_cooldown_timer -= delta_time
 
-    def _get_movement_input(self, controller: CharacterController, entity: Entity) -> Tuple[float, float]:
+    def _get_movement_input(
+        self, controller: CharacterController, entity: Entity
+    ) -> Tuple[float, float]:
         """
         Get movement direction from input.
 
@@ -151,8 +167,12 @@ class CharacterControllerSystem(System):
             vertical += 1.0
 
         # Handle dash
-        if controller.can_dash and self.input_manager.is_action_just_pressed(controller.input_dash):
-            if controller.dash_cooldown_timer <= 0 and (horizontal != 0 or vertical != 0):
+        if controller.can_dash and self.input_manager.is_action_just_pressed(
+            controller.input_dash
+        ):
+            if controller.dash_cooldown_timer <= 0 and (
+                horizontal != 0 or vertical != 0
+            ):
                 controller.is_dashing = True
                 controller.dash_timer = controller.dash_duration
                 controller.dash_cooldown_timer = controller.dash_cooldown
@@ -165,15 +185,22 @@ class CharacterControllerSystem(System):
 
         return (horizontal, vertical)
 
-    def _apply_movement_with_physics(self, controller: CharacterController, rigidbody: RigidBody,
-                                     move_direction: Tuple[float, float], delta_time: float):
+    def _apply_movement_with_physics(
+        self,
+        controller: CharacterController,
+        rigidbody: RigidBody,
+        move_direction: Tuple[float, float],
+        delta_time: float,
+    ):
         """Apply movement using physics/rigidbody"""
         horizontal, vertical = move_direction
 
         # Determine target speed
         if controller.is_dashing:
             target_speed = controller.dash_speed
-        elif self.input_manager and self.input_manager.is_action_pressed(controller.input_run):
+        elif self.input_manager and self.input_manager.is_action_pressed(
+            controller.input_run
+        ):
             target_speed = controller.run_speed
         else:
             target_speed = controller.move_speed
@@ -187,9 +214,13 @@ class CharacterControllerSystem(System):
             # Accelerate
             accel = controller.acceleration * delta_time
             if rigidbody.velocity_x < target_velocity_x:
-                rigidbody.velocity_x = min(rigidbody.velocity_x + accel, target_velocity_x)
+                rigidbody.velocity_x = min(
+                    rigidbody.velocity_x + accel, target_velocity_x
+                )
             else:
-                rigidbody.velocity_x = max(rigidbody.velocity_x - accel, target_velocity_x)
+                rigidbody.velocity_x = max(
+                    rigidbody.velocity_x - accel, target_velocity_x
+                )
         else:
             # Apply friction
             friction = controller.friction * delta_time
@@ -216,9 +247,13 @@ class CharacterControllerSystem(System):
             if vertical != 0:
                 accel = controller.acceleration * delta_time
                 if rigidbody.velocity_y < target_velocity_y:
-                    rigidbody.velocity_y = min(rigidbody.velocity_y + accel, target_velocity_y)
+                    rigidbody.velocity_y = min(
+                        rigidbody.velocity_y + accel, target_velocity_y
+                    )
                 else:
-                    rigidbody.velocity_y = max(rigidbody.velocity_y - accel, target_velocity_y)
+                    rigidbody.velocity_y = max(
+                        rigidbody.velocity_y - accel, target_velocity_y
+                    )
             else:
                 friction = controller.friction * delta_time
                 if abs(rigidbody.velocity_y) < friction:
@@ -232,8 +267,13 @@ class CharacterControllerSystem(System):
         if horizontal != 0 or vertical != 0:
             controller.facing_direction = (horizontal, vertical)
 
-    def _apply_movement_direct(self, controller: CharacterController, transform: Transform,
-                               move_direction: Tuple[float, float], delta_time: float):
+    def _apply_movement_direct(
+        self,
+        controller: CharacterController,
+        transform: Transform,
+        move_direction: Tuple[float, float],
+        delta_time: float,
+    ):
         """Apply movement directly to transform (no physics)"""
         horizontal, vertical = move_direction
 
@@ -243,7 +283,9 @@ class CharacterControllerSystem(System):
         # Determine speed
         if controller.is_dashing:
             speed = controller.dash_speed
-        elif self.input_manager and self.input_manager.is_action_pressed(controller.input_run):
+        elif self.input_manager and self.input_manager.is_action_pressed(
+            controller.input_run
+        ):
             speed = controller.run_speed
         else:
             speed = controller.move_speed
@@ -261,8 +303,12 @@ class CharacterControllerSystem(System):
         # Update facing direction
         controller.facing_direction = (horizontal, vertical)
 
-    def _update_movement_state(self, controller: CharacterController, rigidbody: Optional[RigidBody],
-                               move_direction: Tuple[float, float]):
+    def _update_movement_state(
+        self,
+        controller: CharacterController,
+        rigidbody: Optional[RigidBody],
+        move_direction: Tuple[float, float],
+    ):
         """Update the character's movement state"""
         horizontal, vertical = move_direction
 
@@ -271,7 +317,7 @@ class CharacterControllerSystem(System):
 
         if rigidbody:
             # Use velocity to determine state
-            speed = (rigidbody.velocity_x ** 2 + rigidbody.velocity_y ** 2) ** 0.5
+            speed = (rigidbody.velocity_x**2 + rigidbody.velocity_y**2) ** 0.5
             is_moving = speed > 10.0  # Small threshold
 
         # Update state
@@ -314,7 +360,7 @@ class CharacterControllerSystem(System):
             MovementState.RUNNING: "run",
             MovementState.JUMPING: "jump",
             MovementState.FALLING: "fall",
-            MovementState.DASHING: "dash"
+            MovementState.DASHING: "dash",
         }
 
         target_animation = animation_map.get(controller.movement_state, "idle")
@@ -333,6 +379,7 @@ class AIController(Component):
 
     Works with CharacterController to provide autonomous movement.
     """
+
     # AI behavior type
     behavior: str = "wander"  # wander, patrol, chase, flee, idle
 
@@ -387,8 +434,13 @@ class AIControllerSystem(System):
                 self._update_flee(ai, controller, transform, delta_time)
             # idle behavior = do nothing
 
-    def _update_wander(self, ai: AIController, controller: CharacterController,
-                       transform: Transform, delta_time: float):
+    def _update_wander(
+        self,
+        ai: AIController,
+        controller: CharacterController,
+        transform: Transform,
+        delta_time: float,
+    ):
         """Random wandering behavior"""
         import random
 
@@ -399,16 +451,21 @@ class AIControllerSystem(System):
             angle = random.uniform(0, 2 * 3.14159)
             distance = random.uniform(50, ai.wander_radius)
             ai.wander_target = (
-                transform.x + distance * (angle ** 0.5),  # Simplified random direction
-                transform.y + distance * ((1 - angle/6.28) ** 0.5)
+                transform.x + distance * (angle**0.5),  # Simplified random direction
+                transform.y + distance * ((1 - angle / 6.28) ** 0.5),
             )
             ai.wander_timer = ai.wander_change_time
 
         # Move towards target
         self._move_towards(controller, transform, ai.wander_target, ai.ai_move_speed)
 
-    def _update_patrol(self, ai: AIController, controller: CharacterController,
-                       transform: Transform, delta_time: float):
+    def _update_patrol(
+        self,
+        ai: AIController,
+        controller: CharacterController,
+        transform: Transform,
+        delta_time: float,
+    ):
         """Patrol between waypoints"""
         if not ai.patrol_points or len(ai.patrol_points) == 0:
             return
@@ -434,8 +491,13 @@ class AIControllerSystem(System):
         # Move towards current point
         self._move_towards(controller, transform, target, ai.ai_move_speed)
 
-    def _update_chase(self, ai: AIController, controller: CharacterController,
-                      transform: Transform, delta_time: float):
+    def _update_chase(
+        self,
+        ai: AIController,
+        controller: CharacterController,
+        transform: Transform,
+        delta_time: float,
+    ):
         """Chase target entity"""
         if not ai.target_entity:
             return
@@ -454,10 +516,20 @@ class AIControllerSystem(System):
             return
 
         # Move towards target
-        self._move_towards(controller, transform, (target_transform.x, target_transform.y), ai.ai_move_speed)
+        self._move_towards(
+            controller,
+            transform,
+            (target_transform.x, target_transform.y),
+            ai.ai_move_speed,
+        )
 
-    def _update_flee(self, ai: AIController, controller: CharacterController,
-                     transform: Transform, delta_time: float):
+    def _update_flee(
+        self,
+        ai: AIController,
+        controller: CharacterController,
+        transform: Transform,
+        delta_time: float,
+    ):
         """Flee from target entity"""
         if not ai.target_entity:
             return
@@ -479,8 +551,13 @@ class AIControllerSystem(System):
         flee_point = (transform.x - dx, transform.y - dy)
         self._move_towards(controller, transform, flee_point, ai.ai_move_speed)
 
-    def _move_towards(self, controller: CharacterController, transform: Transform,
-                      target: Tuple[float, float], speed_override: Optional[float]):
+    def _move_towards(
+        self,
+        controller: CharacterController,
+        transform: Transform,
+        target: Tuple[float, float],
+        speed_override: Optional[float],
+    ):
         """Helper to set movement direction towards target"""
         dx = target[0] - transform.x
         dy = target[1] - transform.y

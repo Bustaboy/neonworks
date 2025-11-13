@@ -13,7 +13,7 @@ from engine.physics.collision import (
     CollisionDetector,
     CollisionSystem,
     CollisionInfo,
-    QuadTreeNode
+    QuadTreeNode,
 )
 
 
@@ -48,13 +48,13 @@ class TestCollider:
             width=20,
             height=20,
             offset_x=10,
-            offset_y=5
+            offset_y=5,
         )
 
         min_x, min_y, max_x, max_y = collider.get_bounds(transform)
 
         assert min_x == 100  # 100 + 10 - 10
-        assert min_y == 95   # 100 + 5 - 10
+        assert min_y == 95  # 100 + 5 - 10
         assert max_x == 120  # 100 + 10 + 10
         assert max_y == 115  # 100 + 5 + 10
 
@@ -102,11 +102,15 @@ class TestAABBCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=40, height=40))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=40, height=40)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=30, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=40, height=40))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=40, height=40)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -121,11 +125,15 @@ class TestAABBCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=50, y=50))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -137,11 +145,15 @@ class TestAABBCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=40))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=40)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=15, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=40))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=40)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -156,11 +168,15 @@ class TestAABBCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=40, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=40, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=0, y=15))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=40, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=40, height=20)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -175,11 +191,15 @@ class TestAABBCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=20, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -286,7 +306,9 @@ class TestAABBCircleCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=15, y=0))
@@ -302,7 +324,9 @@ class TestAABBCircleCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=50, y=50))
@@ -322,7 +346,9 @@ class TestAABBCircleCollision:
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=15, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -334,7 +360,9 @@ class TestAABBCircleCollision:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=100, height=100))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=100, height=100)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=0, y=0))
@@ -359,7 +387,9 @@ class TestPointCollision:
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=50, y=50))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=40, height=40))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=40, height=40)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -375,7 +405,9 @@ class TestPointCollision:
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=50, y=50))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -423,22 +455,21 @@ class TestLayerMasking:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            layer=0,
-            mask=0b1  # Can collide with layer 0
-        ))
+        entity_a.add_component(
+            Collider(
+                collider_type=ColliderType.AABB,
+                width=20,
+                height=20,
+                layer=0,
+                mask=0b1,  # Can collide with layer 0
+            )
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=0, y=0))
-        entity_b.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            layer=0
-        ))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20, layer=0)
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -450,22 +481,26 @@ class TestLayerMasking:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            layer=0,
-            mask=0b10  # Can only collide with layer 1
-        ))
+        entity_a.add_component(
+            Collider(
+                collider_type=ColliderType.AABB,
+                width=20,
+                height=20,
+                layer=0,
+                mask=0b10,  # Can only collide with layer 1
+            )
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=0, y=0))
-        entity_b.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            layer=0  # On layer 0
-        ))
+        entity_b.add_component(
+            Collider(
+                collider_type=ColliderType.AABB,
+                width=20,
+                height=20,
+                layer=0,  # On layer 0
+            )
+        )
 
         collision = CollisionDetector.check_collision(entity_a, entity_b)
 
@@ -490,7 +525,9 @@ class TestQuadTree:
 
         entity = world.create_entity()
         entity.add_component(Transform(x=50, y=50))
-        entity.add_component(Collider(collider_type=ColliderType.AABB, width=10, height=10))
+        entity.add_component(
+            Collider(collider_type=ColliderType.AABB, width=10, height=10)
+        )
 
         transform = entity.get_component(Transform)
         collider = entity.get_component(Collider)
@@ -509,7 +546,9 @@ class TestQuadTree:
         for i in range(3):
             entity = world.create_entity()
             entity.add_component(Transform(x=10 + i * 5, y=10 + i * 5))
-            entity.add_component(Collider(collider_type=ColliderType.AABB, width=5, height=5))
+            entity.add_component(
+                Collider(collider_type=ColliderType.AABB, width=5, height=5)
+            )
 
             transform = entity.get_component(Transform)
             collider = entity.get_component(Collider)
@@ -526,14 +565,22 @@ class TestQuadTree:
 
         entity1 = world.create_entity()
         entity1.add_component(Transform(x=25, y=25))
-        entity1.add_component(Collider(collider_type=ColliderType.AABB, width=10, height=10))
+        entity1.add_component(
+            Collider(collider_type=ColliderType.AABB, width=10, height=10)
+        )
 
         entity2 = world.create_entity()
         entity2.add_component(Transform(x=75, y=75))
-        entity2.add_component(Collider(collider_type=ColliderType.AABB, width=10, height=10))
+        entity2.add_component(
+            Collider(collider_type=ColliderType.AABB, width=10, height=10)
+        )
 
-        quadtree.insert(entity1, entity1.get_component(Transform), entity1.get_component(Collider))
-        quadtree.insert(entity2, entity2.get_component(Transform), entity2.get_component(Collider))
+        quadtree.insert(
+            entity1, entity1.get_component(Transform), entity1.get_component(Collider)
+        )
+        quadtree.insert(
+            entity2, entity2.get_component(Transform), entity2.get_component(Collider)
+        )
 
         # Query top-left quadrant
         results = quadtree.query((0, 0, 50, 50))
@@ -550,8 +597,12 @@ class TestQuadTree:
         for i in range(5):
             entity = world.create_entity()
             entity.add_component(Transform(x=i * 20, y=i * 20))
-            entity.add_component(Collider(collider_type=ColliderType.AABB, width=5, height=5))
-            quadtree.insert(entity, entity.get_component(Transform), entity.get_component(Collider))
+            entity.add_component(
+                Collider(collider_type=ColliderType.AABB, width=5, height=5)
+            )
+            quadtree.insert(
+                entity, entity.get_component(Transform), entity.get_component(Collider)
+            )
             entities.append(entity)
 
         # Query entire bounds
@@ -578,11 +629,15 @@ class TestCollisionSystem:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=10, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         # Should not crash
         system.update(world)
@@ -599,16 +654,20 @@ class TestCollisionSystem:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            on_collision_enter=on_collision
-        ))
+        entity_a.add_component(
+            Collider(
+                collider_type=ColliderType.AABB,
+                width=20,
+                height=20,
+                on_collision_enter=on_collision,
+            )
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=10, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         system.update(world)
 
@@ -627,16 +686,20 @@ class TestCollisionSystem:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            on_collision_stay=on_collision_stay
-        ))
+        entity_a.add_component(
+            Collider(
+                collider_type=ColliderType.AABB,
+                width=20,
+                height=20,
+                on_collision_stay=on_collision_stay,
+            )
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=10, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         # First update - enter
         system.update(world)
@@ -659,16 +722,20 @@ class TestCollisionSystem:
         entity_a = world.create_entity()
         transform_a = Transform(x=0, y=0)
         entity_a.add_component(transform_a)
-        entity_a.add_component(Collider(
-            collider_type=ColliderType.AABB,
-            width=20,
-            height=20,
-            on_collision_exit=on_collision_exit
-        ))
+        entity_a.add_component(
+            Collider(
+                collider_type=ColliderType.AABB,
+                width=20,
+                height=20,
+                on_collision_exit=on_collision_exit,
+            )
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=10, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         # First update - enter collision
         system.update(world)
@@ -692,7 +759,9 @@ class TestCollisionSystem:
         for i in range(15):
             entity = world.create_entity()
             entity.add_component(Transform(x=i * 50, y=i * 50))
-            entity.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+            entity.add_component(
+                Collider(collider_type=ColliderType.AABB, width=20, height=20)
+            )
 
         # Should not crash
         system.update(world)
@@ -705,11 +774,15 @@ class TestCollisionSystem:
 
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
-        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_a.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=10, y=0))
-        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
+        entity_b.add_component(
+            Collider(collider_type=ColliderType.AABB, width=20, height=20)
+        )
 
         # Should not crash
         system.update(world)

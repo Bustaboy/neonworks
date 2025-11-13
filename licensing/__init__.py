@@ -10,9 +10,9 @@ from .license_validator import LicenseValidator
 from .hardware_id import get_hardware_id
 
 __all__ = [
-    'LicenseKey',
-    'LicenseKeyGenerator',
-    'LicenseTier',
-    'LicenseValidator',
-    'get_hardware_id'
+    "LicenseKey",
+    "LicenseKeyGenerator",
+    "LicenseTier",
+    "LicenseValidator",
+    "get_hardware_id",
 ]

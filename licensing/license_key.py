@@ -18,6 +18,7 @@ from dataclasses import dataclass, asdict, field
 
 class LicenseTier(Enum):
     """License tier levels"""
+
     FREE = "free"
     INDIE = "indie"
     PROFESSIONAL = "professional"
@@ -33,6 +34,7 @@ class LicenseKey:
     - XX: Version/tier code
     - Rest: Encoded license data + checksum
     """
+
     tier: LicenseTier
     licensee_name: str
     licensee_email: str
@@ -45,13 +47,13 @@ class LicenseKey:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         data = asdict(self)
-        data['tier'] = self.tier.value
+        data["tier"] = self.tier.value
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'LicenseKey':
+    def from_dict(cls, data: Dict[str, Any]) -> "LicenseKey":
         """Create from dictionary"""
-        data['tier'] = LicenseTier(data['tier'])
+        data["tier"] = LicenseTier(data["tier"])
         return cls(**data)
 
     def is_expired(self) -> bool:
@@ -71,7 +73,7 @@ class LicenseKey:
         return {
             LicenseTier.FREE: "Free (Open Source)",
             LicenseTier.INDIE: "Indie License",
-            LicenseTier.PROFESSIONAL: "Professional License"
+            LicenseTier.PROFESSIONAL: "Professional License",
         }[self.tier]
 
 
@@ -90,7 +92,7 @@ class LicenseKeyGenerator:
             # For production, this should be a fixed secret stored securely
             secret_key = secrets.token_hex(32)
 
-        self.secret_key = secret_key.encode('utf-8')
+        self.secret_key = secret_key.encode("utf-8")
 
     def generate(
         self,
@@ -100,7 +102,7 @@ class LicenseKeyGenerator:
         duration_days: Optional[int] = None,
         hardware_id: Optional[str] = None,
         max_exports: Optional[int] = None,
-        custom_data: Optional[Dict[str, Any]] = None
+        custom_data: Optional[Dict[str, Any]] = None,
     ) -> tuple[str, LicenseKey]:
         """
         Generate a license key.
@@ -132,7 +134,7 @@ class LicenseKeyGenerator:
             expiry_date=expiry_date,
             hardware_id=hardware_id,
             max_exports=max_exports,
-            custom_data=custom_data or {}
+            custom_data=custom_data or {},
         )
 
         # Encode license data
@@ -159,50 +161,48 @@ class LicenseKeyGenerator:
         """Encode license data into key string"""
         # Convert to JSON
         data_dict = license_data.to_dict()
-        data_json = json.dumps(data_dict, separators=(',', ':'))
-        data_bytes = data_json.encode('utf-8')
+        data_json = json.dumps(data_dict, separators=(",", ":"))
+        data_bytes = data_json.encode("utf-8")
 
         # Create HMAC signature
-        signature = hmac.new(
-            self.secret_key,
-            data_bytes,
-            hashlib.sha256
-        ).digest()[:16]  # Use first 16 bytes
+        signature = hmac.new(self.secret_key, data_bytes, hashlib.sha256).digest()[
+            :16
+        ]  # Use first 16 bytes
 
         # Combine data + signature
         combined = data_bytes + signature
 
         # Base64 encode
-        encoded = base64.urlsafe_b64encode(combined).decode('ascii')
+        encoded = base64.urlsafe_b64encode(combined).decode("ascii")
 
         # Format as license key: NWXX-AAAA-BBBB-CCCC-DDDD...
         tier_code = {
-            LicenseTier.FREE: 'FR',
-            LicenseTier.INDIE: 'IN',
-            LicenseTier.PROFESSIONAL: 'PR'
+            LicenseTier.FREE: "FR",
+            LicenseTier.INDIE: "IN",
+            LicenseTier.PROFESSIONAL: "PR",
         }[license_data.tier]
 
         # Split into chunks of 4 characters
-        chunks = ['NW' + tier_code]
+        chunks = ["NW" + tier_code]
         for i in range(0, len(encoded), 4):
-            chunks.append(encoded[i:i+4])
+            chunks.append(encoded[i : i + 4])
 
-        return '-'.join(chunks)
+        return "-".join(chunks)
 
     def _decode_license(self, encoded_key: str) -> LicenseKey:
         """Decode license key string into license data"""
         # Remove dashes and prefix
-        key_without_dashes = encoded_key.replace('-', '')
+        key_without_dashes = encoded_key.replace("-", "")
 
-        if not key_without_dashes.startswith('NW'):
+        if not key_without_dashes.startswith("NW"):
             raise ValueError("Invalid license key format")
 
         # Extract tier code
         tier_code = key_without_dashes[2:4]
         tier_map = {
-            'FR': LicenseTier.FREE,
-            'IN': LicenseTier.INDIE,
-            'PR': LicenseTier.PROFESSIONAL
+            "FR": LicenseTier.FREE,
+            "IN": LicenseTier.INDIE,
+            "PR": LicenseTier.PROFESSIONAL,
         }
 
         if tier_code not in tier_map:
@@ -215,7 +215,7 @@ class LicenseKeyGenerator:
         try:
             # Add correct padding
             padding_needed = (4 - len(encoded_data) % 4) % 4
-            encoded_data_padded = encoded_data + ('=' * padding_needed)
+            encoded_data_padded = encoded_data + ("=" * padding_needed)
             combined = base64.urlsafe_b64decode(encoded_data_padded)
         except Exception as e:
             raise ValueError(f"Invalid license key encoding: {e}")
@@ -229,9 +229,7 @@ class LicenseKeyGenerator:
 
         # Verify signature
         expected_signature = hmac.new(
-            self.secret_key,
-            data_bytes,
-            hashlib.sha256
+            self.secret_key, data_bytes, hashlib.sha256
         ).digest()[:16]
 
         if not hmac.compare_digest(signature, expected_signature):
@@ -239,7 +237,7 @@ class LicenseKeyGenerator:
 
         # Parse JSON data
         try:
-            data_json = data_bytes.decode('utf-8')
+            data_json = data_bytes.decode("utf-8")
             data_dict = json.loads(data_json)
         except Exception:
             raise ValueError("Invalid license key data")

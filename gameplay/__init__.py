@@ -5,7 +5,7 @@ from engine.gameplay.character_controller import (
     CharacterControllerSystem,
     AIController,
     AIControllerSystem,
-    MovementState
+    MovementState,
 )
 
 from engine.gameplay.combat import (
@@ -18,25 +18,25 @@ from engine.gameplay.combat import (
     DamageType,
     DamageInstance,
     HealthSystem,
-    CombatSystem
+    CombatSystem,
 )
 
 __all__ = [
     # Character Controller
-    'CharacterController',
-    'CharacterControllerSystem',
-    'AIController',
-    'AIControllerSystem',
-    'MovementState',
+    "CharacterController",
+    "CharacterControllerSystem",
+    "AIController",
+    "AIControllerSystem",
+    "MovementState",
     # Combat
-    'Health',
-    'CombatStats',
-    'Weapon',
-    'ActionPoints',
-    'TeamComponent',
-    'Team',
-    'DamageType',
-    'DamageInstance',
-    'HealthSystem',
-    'CombatSystem'
+    "Health",
+    "CombatStats",
+    "Weapon",
+    "ActionPoints",
+    "TeamComponent",
+    "Team",
+    "DamageType",
+    "DamageInstance",
+    "HealthSystem",
+    "CombatSystem",
 ]
