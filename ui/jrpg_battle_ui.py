@@ -4,11 +4,13 @@ JRPG Battle UI
 Traditional JRPG battle interface with HP/MP bars, command menus, and battle display.
 """
 
-import pygame
-from typing import List, Optional, Callable
 from dataclasses import dataclass
 from enum import Enum
-from ui.ui_system import UIWidget, UIStyle, Anchor
+from typing import Callable, List, Optional
+
+import pygame
+
+from ui.ui_system import Anchor, UIStyle, UIWidget
 
 
 class BattleMenuState(Enum):

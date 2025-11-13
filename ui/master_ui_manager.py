@@ -3,22 +3,24 @@ NeonWorks Master UI Manager - Unified UI System Management
 Provides a single interface for managing all visual UI systems in NeonWorks.
 """
 
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 import pygame
-from .game_hud import GameHUD
-from .building_ui import BuildingUI
-from .combat_ui import CombatUI
-from .navmesh_editor_ui import NavmeshEditorUI
-from .level_builder_ui import LevelBuilderUI
-from .settings_ui import SettingsUI
-from .project_manager_ui import ProjectManagerUI
-from .debug_console_ui import DebugConsoleUI
-from .quest_editor_ui import QuestEditorUI
-from .asset_browser_ui import AssetBrowserUI
+
+from ..audio.audio_manager import AudioManager
 from ..core.ecs import World
 from ..core.state import StateManager
-from ..audio.audio_manager import AudioManager
 from ..input.input_manager import InputManager
+from .asset_browser_ui import AssetBrowserUI
+from .building_ui import BuildingUI
+from .combat_ui import CombatUI
+from .debug_console_ui import DebugConsoleUI
+from .game_hud import GameHUD
+from .level_builder_ui import LevelBuilderUI
+from .navmesh_editor_ui import NavmeshEditorUI
+from .project_manager_ui import ProjectManagerUI
+from .quest_editor_ui import QuestEditorUI
+from .settings_ui import SettingsUI
 
 
 class MasterUIManager:

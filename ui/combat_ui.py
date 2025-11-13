@@ -3,11 +3,13 @@ NeonWorks Combat UI - Turn-Based Combat Visualization
 Provides complete visual interface for turn-based combat system.
 """
 
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Transform, Health, Sprite
-from ..systems.turn_system import TurnSystem, TurnActor
+
+from ..core.ecs import Health, Sprite, Transform, World
 from ..rendering.ui import UI
+from ..systems.turn_system import TurnActor, TurnSystem
 
 
 class CombatUI:

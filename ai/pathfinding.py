@@ -5,11 +5,12 @@ A* pathfinding algorithm with grid-based navigation.
 Optimized with NumPy for improved performance.
 """
 
-from typing import List, Tuple, Optional, Set, Callable
-from dataclasses import dataclass, field
-from enum import Enum
 import heapq
 import math
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Callable, List, Optional, Set, Tuple
+
 import numpy as np
 
 

@@ -4,19 +4,16 @@ Comprehensive tests for Tilemap System
 Tests tile operations, layers, rendering, and coordinate conversions.
 """
 
-import pytest
-import pygame
 from unittest.mock import Mock, patch
-from neonworks.rendering.tilemap import (
-    Tile,
-    Tileset,
-    TileLayer,
-    Tilemap,
-    TilemapRenderer,
-    TilemapBuilder,
-)
+
+import pygame
+import pytest
+
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
+from neonworks.rendering.tilemap import (Tile, TileLayer, Tilemap,
+                                         TilemapBuilder, TilemapRenderer,
+                                         Tileset)
 
 
 @pytest.fixture

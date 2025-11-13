@@ -6,20 +6,21 @@ Coordinates package building, executable bundling, and installer creation.
 Includes license validation and tier-based feature enforcement.
 """
 
-import sys
 import shutil
-from pathlib import Path
-from typing import Optional, Dict, Any
+import sys
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Optional
 
-from .package_builder import PackageBuilder, PackageConfig
-from .executable_bundler import ExecutableBundler, BundleConfig, create_launcher_script
+from .executable_bundler import (BundleConfig, ExecutableBundler,
+                                 create_launcher_script)
 from .installer_builder import InstallerBuilder, InstallerConfig
+from .package_builder import PackageBuilder, PackageConfig
 
 # Import licensing system
 try:
-    from neonworks.licensing.license_validator import get_global_validator
     from neonworks.licensing.license_key import LicenseTier
+    from neonworks.licensing.license_validator import get_global_validator
 
     LICENSING_AVAILABLE = True
 except ImportError:

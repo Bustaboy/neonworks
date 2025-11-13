@@ -5,10 +5,10 @@ Intelligent level design assistance with smart placement suggestions,
 balance analysis, and automated layout generation.
 """
 
-from typing import List, Tuple, Set, Dict, Optional
+import random
 from dataclasses import dataclass
 from enum import Enum, auto
-import random
+from typing import Dict, List, Optional, Set, Tuple
 
 
 class PlacementPriority(Enum):

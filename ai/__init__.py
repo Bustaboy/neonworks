@@ -4,12 +4,7 @@ AI Module
 Navigation, pathfinding, and AI behaviors.
 """
 
-from .pathfinding import (
-    NavigationGrid,
-    Pathfinder,
-    PathfindingSystem,
-    Heuristic,
-    PathNode,
-)
+from .pathfinding import (Heuristic, NavigationGrid, Pathfinder,
+                          PathfindingSystem, PathNode)
 
 __all__ = ["NavigationGrid", "Pathfinder", "PathfindingSystem", "Heuristic", "PathNode"]

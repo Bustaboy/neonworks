@@ -4,8 +4,9 @@ Input Manager
 Handles keyboard, mouse, and gamepad input with action mapping and buffering.
 """
 
-from typing import Dict, Set, Tuple, Optional, Callable
 from enum import Enum, auto
+from typing import Callable, Dict, Optional, Set, Tuple
+
 import pygame
 
 

@@ -3,12 +3,14 @@ NeonWorks Settings UI - Visual Settings Management
 Provides complete visual interface for game settings (audio, input, graphics).
 """
 
-from typing import Optional, Dict, Any, List
-import pygame
 import json
-from ..rendering.ui import UI
+from typing import Any, Dict, List, Optional
+
+import pygame
+
 from ..audio.audio_manager import AudioManager
 from ..input.input_manager import InputManager
+from ..rendering.ui import UI
 
 
 class SettingsUI:

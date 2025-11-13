@@ -3,10 +3,12 @@ NeonWorks Level Builder UI - Visual Level Editing
 Provides complete visual interface for creating and editing game levels.
 """
 
-from typing import Optional, Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Transform, GridPosition, Sprite
-from ..rendering.tilemap import Tilemap, Tile
+
+from ..core.ecs import GridPosition, Sprite, Transform, World
+from ..rendering.tilemap import Tile, Tilemap
 from ..rendering.ui import UI
 
 
@@ -425,7 +427,7 @@ class LevelBuilderUI:
         )
 
         # Add other components based on template
-        from ..core.ecs import Health, Survival, TurnActor, ResourceStorage
+        from ..core.ecs import Health, ResourceStorage, Survival, TurnActor
 
         if "Health" in template["components"]:
             self.world.add_component(entity_id, Health(current=100, maximum=100))

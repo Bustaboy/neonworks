@@ -4,11 +4,14 @@
 Grid-based 2D rendering system with pygame.
 """
 
-from typing import Optional, Tuple, List, Dict
+from typing import Dict, List, Optional, Tuple
+
 import pygame
-from neonworks.core.ecs import World, Entity, Transform, GridPosition, Sprite, System
-from neonworks.rendering.camera import Camera
+
+from neonworks.core.ecs import (Entity, GridPosition, Sprite, System,
+                                Transform, World)
 from neonworks.rendering.assets import AssetManager, get_asset_manager
+from neonworks.rendering.camera import Camera
 
 
 class Color:

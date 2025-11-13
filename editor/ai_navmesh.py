@@ -5,9 +5,10 @@ Intelligent navmesh generation with automatic obstacle detection,
 terrain analysis, and smart walkability determination.
 """
 
-from typing import Set, Tuple, List, Dict, Optional
 from dataclasses import dataclass
-from neonworks.core.ecs import World, Entity, GridPosition, Building, Navmesh
+from typing import Dict, List, Optional, Set, Tuple
+
+from neonworks.core.ecs import Building, Entity, GridPosition, Navmesh, World
 
 
 @dataclass

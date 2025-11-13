@@ -4,9 +4,11 @@ Exploration UI
 UI components for tile-based exploration, dialogue, and interactions.
 """
 
-import pygame
-from typing import Optional, Callable, List
 from dataclasses import dataclass
+from typing import Callable, List, Optional
+
+import pygame
+
 from ui.ui_system import UIWidget
 
 

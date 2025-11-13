@@ -3,9 +3,11 @@ NeonWorks Game HUD - Comprehensive Visual Interface
 Provides all necessary visual feedback for gameplay systems.
 """
 
-from typing import Optional, Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Component
+
+from ..core.ecs import Component, World
 from ..rendering.ui import UI
 
 
@@ -73,7 +75,7 @@ class GameHUD:
 
     def _render_turn_info(self, world: World, x: int, y: int):
         """Render turn-based combat information."""
-        from ..systems.turn_system import TurnSystem, TurnActor
+        from ..systems.turn_system import TurnActor, TurnSystem
 
         # Find turn system
         turn_system = None
@@ -305,15 +307,8 @@ class GameHUD:
         self.ui.label("Components:", x + 10, info_y, size=16, color=(200, 200, 255))
         info_y += line_height + 5
 
-        from ..core.ecs import (
-            Transform,
-            Sprite,
-            Health,
-            Survival,
-            Building,
-            TurnActor,
-            ResourceStorage,
-        )
+        from ..core.ecs import (Building, Health, ResourceStorage, Sprite,
+                                Survival, Transform, TurnActor)
 
         # Transform
         transform = world.get_component(self.selected_entity, Transform)

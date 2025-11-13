@@ -8,10 +8,10 @@ Generates installers for different platforms:
 """
 
 import subprocess
-from pathlib import Path
-from typing import Optional, Dict, Any
-from dataclasses import dataclass
 import uuid
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 
 @dataclass

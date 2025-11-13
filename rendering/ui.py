@@ -4,9 +4,10 @@ UI System
 Immediate mode UI system for game and editor interfaces.
 """
 
-from typing import Tuple, Optional, Callable, List
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Callable, List, Optional, Tuple
+
 import pygame
 
 

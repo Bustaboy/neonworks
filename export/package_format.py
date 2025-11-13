@@ -53,11 +53,10 @@ When compressed (Flag bit 1 = 1):
 - Original size stored in index for decompression
 """
 
-import struct
 import hashlib
-from typing import NamedTuple, Optional
+import struct
 from pathlib import Path
-
+from typing import NamedTuple, Optional
 
 # Constants
 MAGIC_NUMBER = b"NWPK"

@@ -4,10 +4,12 @@ Animation System
 Sprite animation system with frame-by-frame playback.
 """
 
-from typing import List, Optional, Callable, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
 import pygame
+
 from neonworks.core.ecs import Component
 
 

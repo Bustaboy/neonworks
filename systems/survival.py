@@ -4,8 +4,9 @@ Survival System
 Manages survival needs: hunger, thirst, energy, and their effects on entities.
 """
 
-from neonworks.core.ecs import System, World, Entity, Survival, Health
-from neonworks.core.events import EventManager, Event, EventType, get_event_manager
+from neonworks.core.ecs import Entity, Health, Survival, System, World
+from neonworks.core.events import (Event, EventManager, EventType,
+                                   get_event_manager)
 
 
 class SurvivalSystem(System):

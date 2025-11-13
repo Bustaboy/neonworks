@@ -4,17 +4,13 @@ Base Building System
 Manage construction, upgrades, and building functionality.
 """
 
-from typing import Dict, Optional
 from dataclasses import dataclass
-from neonworks.core.ecs import (
-    System,
-    World,
-    Entity,
-    Building,
-    ResourceStorage,
-    GridPosition,
-)
-from neonworks.core.events import EventManager, Event, EventType, get_event_manager
+from typing import Dict, Optional
+
+from neonworks.core.ecs import (Building, Entity, GridPosition,
+                                ResourceStorage, System, World)
+from neonworks.core.events import (Event, EventManager, EventType,
+                                   get_event_manager)
 
 
 @dataclass

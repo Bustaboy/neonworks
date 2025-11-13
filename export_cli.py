@@ -7,10 +7,10 @@ Command-line tool for exporting game projects.
 
 import argparse
 import sys
-from pathlib import Path
 from getpass import getpass
+from pathlib import Path
 
-from export.exporter import ProjectExporter, ExportConfig
+from export.exporter import ExportConfig, ProjectExporter
 
 
 def main():

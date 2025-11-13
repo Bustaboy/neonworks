@@ -4,11 +4,12 @@ Camera System
 2D camera with pan, zoom, entity tracking, shake, bounds, and effects.
 """
 
-from typing import Tuple, Optional, List
-from enum import Enum
-import random
 import math
-from neonworks.core.ecs import Entity, Transform, GridPosition
+import random
+from enum import Enum
+from typing import List, Optional, Tuple
+
+from neonworks.core.ecs import Entity, GridPosition, Transform
 
 
 class EaseType(Enum):

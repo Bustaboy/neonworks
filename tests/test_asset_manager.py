@@ -4,18 +4,16 @@ Comprehensive tests for Asset Manager and Sprite Loading
 Tests sprite loading, caching, sprite sheets, and transformations.
 """
 
-import pytest
-import pygame
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pygame
+import pytest
+
+from neonworks.rendering.animation import (Animation, AnimationBuilder,
+                                           AnimationComponent, AnimationFrame,
+                                           AnimationSystem)
 from neonworks.rendering.assets import AssetManager, SpriteSheet
-from neonworks.rendering.animation import (
-    Animation,
-    AnimationFrame,
-    AnimationComponent,
-    AnimationSystem,
-    AnimationBuilder,
-)
 
 
 @pytest.fixture

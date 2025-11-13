@@ -3,11 +3,13 @@ NeonWorks Building UI - Visual Building Placement and Management
 Provides complete visual interface for base building system.
 """
 
-from typing import Optional, Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Transform, GridPosition, Sprite
-from ..systems.base_building import Building, ResourceStorage, BuildingSystem
+
+from ..core.ecs import GridPosition, Sprite, Transform, World
 from ..rendering.ui import UI
+from ..systems.base_building import Building, BuildingSystem, ResourceStorage
 
 
 class BuildingUI:

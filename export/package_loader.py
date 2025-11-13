@@ -7,18 +7,19 @@ Handles decompression and decryption.
 
 import zlib
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
 
 try:
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
     CRYPTO_AVAILABLE = True
 except ImportError:
     CRYPTO_AVAILABLE = False
 
-from .package_format import PackageHeader, FileEntry, HEADER_SIZE, compute_data_hash
+from .package_format import (HEADER_SIZE, FileEntry, PackageHeader,
+                             compute_data_hash)
 
 
 class PackageLoader:

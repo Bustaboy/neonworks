@@ -5,15 +5,15 @@ Generate and parse license keys for Neon Works engine.
 Supports multiple license tiers and hardware binding.
 """
 
+import base64
 import hashlib
 import hmac
-import secrets
-import base64
 import json
+import secrets
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Dict, Any
-from dataclasses import dataclass, asdict, field
+from typing import Any, Dict, Optional
 
 
 class LicenseTier(Enum):

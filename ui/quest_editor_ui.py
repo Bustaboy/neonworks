@@ -3,9 +3,11 @@ NeonWorks Quest/Dialogue Editor UI - Visual Quest and Dialogue Creation
 Provides complete visual interface for creating quests and dialogue trees.
 """
 
-from typing import Optional, List, Dict, Any, Tuple
-import pygame
 import json
+from typing import Any, Dict, List, Optional, Tuple
+
+import pygame
+
 from ..rendering.ui import UI
 
 

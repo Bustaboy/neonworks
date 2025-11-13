@@ -4,11 +4,12 @@ UI System
 Comprehensive UI system with widgets, layouts, and event handling.
 """
 
-import pygame
-from typing import Optional, List, Callable, Tuple, Dict
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from abc import ABC, abstractmethod
+from typing import Callable, Dict, List, Optional, Tuple
+
+import pygame
 
 
 class Anchor(Enum):

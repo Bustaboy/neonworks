@@ -5,10 +5,10 @@ Provides code obfuscation and compilation for IP protection.
 Supports PyArmor obfuscation and Cython compilation.
 """
 
-import subprocess
 import shutil
+import subprocess
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 
 class PyArmorObfuscator:

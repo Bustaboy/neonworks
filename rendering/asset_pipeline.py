@@ -5,12 +5,13 @@ Image processing and optimization tools using Pillow (PIL).
 Provides texture atlas generation, format conversion, and asset optimization.
 """
 
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 import pygame
 from PIL import Image, ImageDraw, ImageFilter
-from typing import List, Tuple, Dict, Optional
-from pathlib import Path
-from dataclasses import dataclass
-import json
 
 
 @dataclass

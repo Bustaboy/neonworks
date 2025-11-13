@@ -4,9 +4,10 @@ JRPG Combat Components
 Components for traditional JRPG-style combat with MP, magic, formations, etc.
 """
 
-from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
 from neonworks.core.ecs import Component
 
 

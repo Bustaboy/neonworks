@@ -5,11 +5,11 @@ AI-assisted procedural generation for levels, terrain, and content.
 Helps rapidly create diverse game content with intelligent variation.
 """
 
-from typing import List, Tuple, Dict, Set, Optional
+import math
+import random
 from dataclasses import dataclass
 from enum import Enum, auto
-import random
-import math
+from typing import Dict, List, Optional, Set, Tuple
 
 
 class TerrainType(Enum):

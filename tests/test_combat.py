@@ -4,21 +4,15 @@ Comprehensive tests for Combat System
 Tests health, damage, combat stats, weapons, action points, and combat calculations.
 """
 
-import pytest
 from unittest.mock import Mock, patch
-from neonworks.gameplay.combat import (
-    Health,
-    CombatStats,
-    Weapon,
-    ActionPoints,
-    TeamComponent,
-    Team,
-    DamageType,
-    DamageInstance,
-    HealthSystem,
-    CombatSystem,
-)
-from neonworks.core.ecs import World, Entity, Transform, GridPosition
+
+import pytest
+
+from neonworks.core.ecs import Entity, GridPosition, Transform, World
+from neonworks.gameplay.combat import (ActionPoints, CombatStats, CombatSystem,
+                                       DamageInstance, DamageType, Health,
+                                       HealthSystem, Team, TeamComponent,
+                                       Weapon)
 
 
 @pytest.fixture

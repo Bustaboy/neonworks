@@ -4,11 +4,12 @@ Boss AI System
 Advanced AI system for boss battles with multi-phase mechanics and patterns.
 """
 
-from typing import Dict, List, Optional, Any
-from neonworks.core.ecs import System, World, Entity
-from neonworks.core.events import Event, EventManager, EventType
+from typing import Any, Dict, List, Optional
+
 from gameplay.combat import Health
-from gameplay.jrpg_combat import BossPhase, BattleAI, JRPGStats
+from gameplay.jrpg_combat import BattleAI, BossPhase, JRPGStats
+from neonworks.core.ecs import Entity, System, World
+from neonworks.core.events import Event, EventManager, EventType
 
 
 class BossAISystem(System):
@@ -300,8 +301,8 @@ def create_boss_entity(
     Returns:
         Created boss entity
     """
-    from neonworks.core.ecs import Transform, GridPosition, Sprite
     from gameplay.jrpg_combat import EnemyData, MagicPoints, SpellList
+    from neonworks.core.ecs import GridPosition, Sprite, Transform
 
     boss = world.create_entity()
     boss.add_tag("enemy")

@@ -4,10 +4,11 @@ Asset Loading System
 Load and cache sprites, textures, and other game assets.
 """
 
-from typing import Dict, Optional, Tuple
-from pathlib import Path
-import pygame
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Optional, Tuple
+
+import pygame
 
 
 @dataclass

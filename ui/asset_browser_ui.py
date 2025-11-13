@@ -3,11 +3,13 @@ NeonWorks Asset Browser UI - Visual Asset Management
 Provides complete visual interface for browsing and managing game assets.
 """
 
-from typing import Optional, List, Dict, Tuple
-import pygame
 from pathlib import Path
-from ..rendering.ui import UI
+from typing import Dict, List, Optional, Tuple
+
+import pygame
+
 from ..rendering.assets import AssetManager
+from ..rendering.ui import UI
 
 
 class AssetBrowserUI:

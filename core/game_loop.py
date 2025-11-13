@@ -5,13 +5,15 @@ Main game engine with fixed timestep update and variable rendering.
 """
 
 import time
-import pygame
 from typing import Optional
+
+import pygame
+
+from neonworks.audio.audio_manager import AudioManager
 from neonworks.core.ecs import World
 from neonworks.core.events import EventManager, get_event_manager
 from neonworks.core.state import StateManager
 from neonworks.input.input_manager import InputManager
-from neonworks.audio.audio_manager import AudioManager
 
 
 class GameEngine:

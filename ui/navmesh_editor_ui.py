@@ -3,9 +3,11 @@ NeonWorks Navmesh Editor UI - Visual Navmesh Editing
 Provides complete visual interface for creating and editing navmeshes.
 """
 
-from typing import Optional, List, Tuple, Set
+from typing import List, Optional, Set, Tuple
+
 import pygame
-from ..core.ecs import World, GridPosition, Navmesh
+
+from ..core.ecs import GridPosition, Navmesh, World
 from ..editor.ai_navmesh import NavmeshGenerator
 from ..rendering.ui import UI
 

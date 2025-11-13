@@ -4,21 +4,16 @@ Exploration System for JRPG-style Tile-based Movement
 Handles player movement, NPC interactions, and zone exploration.
 """
 
+from typing import List, Optional, Set, Tuple
+
 import pygame
-from typing import Optional, Tuple, List, Set
-from neonworks.core.ecs import System, World, Entity
-from neonworks.core.ecs import Transform, GridPosition
+
+from gameplay.movement import (AnimationState, Collider2D, Direction,
+                               Interactable, Movement, NPCBehavior,
+                               TileCollisionMap)
+from neonworks.core.ecs import Entity, GridPosition, System, Transform, World
 from neonworks.core.events import Event, EventManager, EventType
 from neonworks.input.input_manager import InputManager
-from gameplay.movement import (
-    Movement,
-    Direction,
-    Collider2D,
-    Interactable,
-    AnimationState,
-    TileCollisionMap,
-    NPCBehavior,
-)
 
 
 class ExplorationSystem(System):

@@ -5,12 +5,14 @@ Comprehensive collision detection with spatial partitioning.
 Optimized with NumPy for improved performance.
 """
 
-from typing import List, Optional, Callable, Set, Tuple
+import math
 from dataclasses import dataclass, field
 from enum import Enum
-import math
+from typing import Callable, List, Optional, Set, Tuple
+
 import numpy as np
-from neonworks.core.ecs import Component, Entity, World, Transform
+
+from neonworks.core.ecs import Component, Entity, Transform, World
 
 
 class ColliderType(Enum):

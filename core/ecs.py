@@ -4,10 +4,10 @@ Entity Component System (ECS)
 A flexible ECS implementation for managing game entities, components, and systems.
 """
 
-from typing import Dict, List, Type, Optional, Set, Any
-from dataclasses import dataclass, field
-from abc import ABC, abstractmethod
 import uuid
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional, Set, Type
 
 
 class Component:

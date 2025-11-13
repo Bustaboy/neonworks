@@ -3,9 +3,11 @@ NeonWorks Debug Console UI - Visual Debugging Interface
 Provides complete visual interface for debugging, console commands, and entity inspection.
 """
 
-from typing import Optional, List, Dict, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
+
 import pygame
-from ..core.ecs import World, Transform, Sprite, Health, Survival, GridPosition
+
+from ..core.ecs import GridPosition, Health, Sprite, Survival, Transform, World
 from ..rendering.ui import UI
 
 

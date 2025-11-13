@@ -4,21 +4,10 @@ Physics Module
 Physics simulation and collision detection.
 """
 
-from .collision import (
-    Collider,
-    ColliderType,
-    CollisionInfo,
-    CollisionDetector,
-    CollisionSystem,
-    QuadTreeNode,
-)
-
-from .rigidbody import (
-    RigidBody,
-    PhysicsSystem,
-    PhysicsSettings,
-    IntegratedPhysicsSystem,
-)
+from .collision import (Collider, ColliderType, CollisionDetector,
+                        CollisionInfo, CollisionSystem, QuadTreeNode)
+from .rigidbody import (IntegratedPhysicsSystem, PhysicsSettings,
+                        PhysicsSystem, RigidBody)
 
 __all__ = [
     "Collider",

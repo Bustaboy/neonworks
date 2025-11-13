@@ -4,7 +4,7 @@ Configuration Validation
 Validates project configuration files and provides helpful error messages.
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 class ValidationError(Exception):

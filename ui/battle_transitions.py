@@ -4,11 +4,12 @@ Battle Transition Effects
 Visual effects for transitioning between exploration and battle.
 """
 
-import pygame
 import math
 import random
-from typing import Optional, Callable
 from enum import Enum
+from typing import Callable, Optional
+
+import pygame
 
 
 class TransitionType(Enum):

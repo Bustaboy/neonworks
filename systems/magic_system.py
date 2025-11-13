@@ -4,19 +4,13 @@ Magic System for JRPG-style Spell Casting
 Handles spell casting, MP management, and magical effects.
 """
 
-from typing import Optional, List, Dict
-from neonworks.core.ecs import System, World, Entity
-from neonworks.core.events import Event, EventManager, EventType
+from typing import Dict, List, Optional
+
 from gameplay.combat import Health
-from gameplay.jrpg_combat import (
-    MagicPoints,
-    JRPGStats,
-    SpellList,
-    Spell,
-    ElementalResistances,
-    ElementType,
-    TargetType,
-)
+from gameplay.jrpg_combat import (ElementalResistances, ElementType, JRPGStats,
+                                  MagicPoints, Spell, SpellList, TargetType)
+from neonworks.core.ecs import Entity, System, World
+from neonworks.core.events import Event, EventManager, EventType
 
 
 class SpellDatabase:

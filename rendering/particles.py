@@ -5,13 +5,15 @@ Flexible particle system for visual effects like explosions, trails, smoke, etc.
 Optimized with NumPy for batch particle updates.
 """
 
-import pygame
-import random
 import math
-import numpy as np
-from typing import Tuple, Optional, Callable, List
+import random
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Callable, List, Optional, Tuple
+
+import numpy as np
+import pygame
+
 from neonworks.core.ecs import Component
 
 

@@ -4,11 +4,12 @@ Rigid Body Physics System
 Physics simulation with forces, velocity, and collision response.
 """
 
-from typing import Tuple, Optional
-from dataclasses import dataclass, field
-from neonworks.core.ecs import Component, Entity, World, Transform
-from neonworks.physics.collision import Collider, CollisionInfo
 import math
+from dataclasses import dataclass, field
+from typing import Optional, Tuple
+
+from neonworks.core.ecs import Component, Entity, Transform, World
+from neonworks.physics.collision import Collider, CollisionInfo
 
 
 @dataclass
@@ -341,7 +342,7 @@ class IntegratedPhysicsSystem:
 
     def _detect_and_resolve_collisions(self, world: World):
         """Detect collisions and apply physics responses"""
-        from neonworks.physics.collision import CollisionDetector, Collider
+        from neonworks.physics.collision import Collider, CollisionDetector
 
         # Get all entities with colliders
         entities_with_colliders = []

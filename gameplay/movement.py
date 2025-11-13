@@ -4,9 +4,10 @@ Movement Components for JRPG-style Exploration
 Components for tile-based character movement, collision, and animation.
 """
 
-from typing import Optional, Callable, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Callable, Optional, Tuple
+
 from neonworks.core.ecs import Component
 
 

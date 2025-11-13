@@ -17,13 +17,13 @@ Usage:
     neonworks validate my_game
 """
 
-import sys
 import argparse
 import json
-from pathlib import Path
-from datetime import datetime
-from typing import Optional
 import shutil
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
 
 # Add engine to path if running as script
 if __name__ == "__main__":

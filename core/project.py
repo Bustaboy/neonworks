@@ -7,9 +7,9 @@ This allows the engine to be completely reusable for different games.
 
 import json
 import os
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

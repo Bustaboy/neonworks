@@ -4,16 +4,15 @@ Comprehensive tests for Rigid Body Physics System
 Tests physics simulation, forces, and collision response.
 """
 
-import pytest
 import math
-from neonworks.core.ecs import World, Transform
-from neonworks.physics.rigidbody import (
-    RigidBody,
-    PhysicsSystem,
-    PhysicsSettings,
-    IntegratedPhysicsSystem,
-)
+
+import pytest
+
+from neonworks.core.ecs import Transform, World
 from neonworks.physics.collision import Collider, ColliderType, CollisionInfo
+from neonworks.physics.rigidbody import (IntegratedPhysicsSystem,
+                                         PhysicsSettings, PhysicsSystem,
+                                         RigidBody)
 
 
 class TestRigidBody:

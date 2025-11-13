@@ -4,9 +4,11 @@ Magic Menu UI
 Spell selection interface for JRPG battles and field use.
 """
 
-import pygame
-from typing import List, Optional, Callable, Dict
 from dataclasses import dataclass
+from typing import Callable, Dict, List, Optional
+
+import pygame
+
 from ui.ui_system import UIWidget
 
 

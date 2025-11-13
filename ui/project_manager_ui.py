@@ -3,14 +3,16 @@ NeonWorks Project Manager UI - Visual Project and Scene Management
 Provides complete visual interface for managing projects, scenes, and saves.
 """
 
-from typing import Optional, List, Dict, Tuple
-import pygame
-import os
 import json
+import os
 from pathlib import Path
-from ..rendering.ui import UI
+from typing import Dict, List, Optional, Tuple
+
+import pygame
+
 from ..core.project import Project
 from ..core.state import StateManager
+from ..rendering.ui import UI
 
 
 class ProjectManagerUI:

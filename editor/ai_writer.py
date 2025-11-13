@@ -5,10 +5,10 @@ Intelligent assistance for dialog, quest writing, and narrative design.
 Helps game designers create compelling stories, branching dialogs, and engaging quests.
 """
 
-from typing import List, Dict, Optional
+import random
 from dataclasses import dataclass
 from enum import Enum, auto
-import random
+from typing import Dict, List, Optional
 
 
 class DialogTone(Enum):

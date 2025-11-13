@@ -4,9 +4,9 @@ State Management
 Game state and scene management system.
 """
 
-from typing import Optional, Dict, Any
 from abc import ABC, abstractmethod
 from enum import Enum, auto
+from typing import Any, Dict, Optional
 
 
 class StateTransition(Enum):

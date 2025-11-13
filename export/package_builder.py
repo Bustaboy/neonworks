@@ -5,37 +5,27 @@ Builds .nwdata packages from game projects.
 Handles compression, encryption, and file packaging.
 """
 
-import zlib
 import os
 import secrets
-from pathlib import Path
-from typing import List, Optional, Dict, Any
+import zlib
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 try:
-    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
     CRYPTO_AVAILABLE = True
 except ImportError:
     CRYPTO_AVAILABLE = False
 
-from .package_format import (
-    PackageHeader,
-    FileEntry,
-    MAGIC_NUMBER,
-    FORMAT_VERSION,
-    FLAG_ENCRYPTED,
-    FLAG_COMPRESSED,
-    ENC_AES256_GCM,
-    ENC_NONE,
-    COMP_ZLIB,
-    COMP_NONE,
-    HEADER_SIZE,
-    compute_file_hash,
-    compute_data_hash,
-)
+from .package_format import (COMP_NONE, COMP_ZLIB, ENC_AES256_GCM, ENC_NONE,
+                             FLAG_COMPRESSED, FLAG_ENCRYPTED, FORMAT_VERSION,
+                             HEADER_SIZE, MAGIC_NUMBER, FileEntry,
+                             PackageHeader, compute_data_hash,
+                             compute_file_hash)
 
 
 @dataclass

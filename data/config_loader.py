@@ -6,11 +6,12 @@ Provides unified interface for reading game configuration data.
 Supports loading from both filesystem and .nwdata packages.
 """
 
-import json
-import yaml
 import io
+import json
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
+
+import yaml
 
 
 class ConfigLoader:

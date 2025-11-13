@@ -6,12 +6,12 @@ Embeds the .nwdata package and creates platform-specific executables.
 """
 
 import os
-import sys
 import shutil
 import subprocess
-from pathlib import Path
-from typing import Optional, List, Dict, Any
+import sys
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

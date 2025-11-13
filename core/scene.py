@@ -4,9 +4,10 @@ Scene Management System
 Manages game scenes/states with transitions and effects.
 """
 
-from typing import Optional, List, Callable, Dict, Any
-from enum import Enum
 from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
+
 import pygame
 
 

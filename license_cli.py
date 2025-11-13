@@ -5,21 +5,18 @@ Neon Works License Manager CLI
 Manage engine licenses, activate keys, check status, and generate test licenses.
 """
 
-import sys
 import argparse
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Add engine to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from licensing.license_key import (
-    LicenseKeyGenerator,
-    LicenseTier,
-    get_production_generator,
-)
-from licensing.license_validator import LicenseValidator, get_global_validator
 from licensing.hardware_id import get_hardware_id, get_machine_info
+from licensing.license_key import (LicenseKeyGenerator, LicenseTier,
+                                   get_production_generator)
+from licensing.license_validator import LicenseValidator, get_global_validator
 
 
 def cmd_activate(args):

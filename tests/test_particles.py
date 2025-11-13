@@ -4,19 +4,16 @@ Comprehensive tests for Particle System
 Tests particles, emitters, rendering, and presets.
 """
 
-import pytest
+from unittest.mock import MagicMock, Mock
+
 import pygame
-from unittest.mock import Mock, MagicMock
-from neonworks.rendering.particles import (
-    Particle,
-    ParticleEmitter,
-    ParticleSystem,
-    ParticleRenderer,
-    ParticlePresets,
-    EmitterShape,
-    ParticleBlendMode,
-)
+import pytest
+
 from neonworks.rendering.camera import Camera
+from neonworks.rendering.particles import (EmitterShape, Particle,
+                                           ParticleBlendMode, ParticleEmitter,
+                                           ParticlePresets, ParticleRenderer,
+                                           ParticleSystem)
 
 
 @pytest.fixture

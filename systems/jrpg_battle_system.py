@@ -4,27 +4,19 @@ JRPG Battle System
 Traditional JRPG-style turn-based combat with side-view presentation.
 """
 
-import pygame
 import random
-from typing import List, Optional, Dict, Tuple
 from enum import Enum
-from neonworks.core.ecs import System, World, Entity
-from neonworks.core.events import Event, EventManager, EventType
+from typing import Dict, List, Optional, Tuple
+
+import pygame
+
 from gameplay.combat import Health, Team
-from gameplay.jrpg_combat import (
-    MagicPoints,
-    JRPGStats,
-    SpellList,
-    BattleState,
-    BattleFormation,
-    BattleAI,
-    BattleRewards,
-    BossPhase,
-    PartyMember,
-    EnemyData,
-    BattleCommand,
-    TargetType,
-)
+from gameplay.jrpg_combat import (BattleAI, BattleCommand, BattleFormation,
+                                  BattleRewards, BattleState, BossPhase,
+                                  EnemyData, JRPGStats, MagicPoints,
+                                  PartyMember, SpellList, TargetType)
+from neonworks.core.ecs import Entity, System, World
+from neonworks.core.events import Event, EventManager, EventType
 
 
 class BattlePhase(Enum):

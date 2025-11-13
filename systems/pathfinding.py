@@ -4,9 +4,10 @@ Pathfinding System
 A* pathfinding with navmesh support and intelligent path planning.
 """
 
-from typing import List, Tuple, Optional, Set
 import heapq
-from neonworks.core.ecs import System, World, Entity, GridPosition, Navmesh
+from typing import List, Optional, Set, Tuple
+
+from neonworks.core.ecs import Entity, GridPosition, Navmesh, System, World
 
 
 class PathNode:
