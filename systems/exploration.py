@@ -11,8 +11,13 @@ from neonworks.core.ecs import Transform, GridPosition
 from neonworks.core.events import Event, EventManager, EventType
 from neonworks.input.input_manager import InputManager
 from gameplay.movement import (
-    Movement, Direction, Collider2D, Interactable,
-    AnimationState, TileCollisionMap, NPCBehavior
+    Movement,
+    Direction,
+    Collider2D,
+    Interactable,
+    AnimationState,
+    TileCollisionMap,
+    NPCBehavior,
 )
 
 
@@ -165,10 +170,12 @@ class ExplorationSystem(System):
                 # Increment step counter for encounters
                 if entity.has_tag("player"):
                     self.step_count += 1
-                    self.event_manager.emit(Event(
-                        EventType.CUSTOM,
-                        {"type": "player_step", "steps": self.step_count}
-                    ))
+                    self.event_manager.emit(
+                        Event(
+                            EventType.CUSTOM,
+                            {"type": "player_step", "steps": self.step_count},
+                        )
+                    )
             else:
                 # Interpolate position
                 start_x = grid_pos.grid_x * self.tile_size
@@ -215,14 +222,22 @@ class ExplorationSystem(System):
                 continue  # Static NPCs don't move
 
             elif behavior.behavior_type == "wander":
-                self._update_wander_behavior(npc, behavior, grid_pos, movement, delta_time, world)
+                self._update_wander_behavior(
+                    npc, behavior, grid_pos, movement, delta_time, world
+                )
 
             elif behavior.behavior_type == "patrol":
                 self._update_patrol_behavior(npc, behavior, grid_pos, movement, world)
 
-    def _update_wander_behavior(self, npc: Entity, behavior: NPCBehavior,
-                                grid_pos: GridPosition, movement: Movement,
-                                delta_time: float, world: World):
+    def _update_wander_behavior(
+        self,
+        npc: Entity,
+        behavior: NPCBehavior,
+        grid_pos: GridPosition,
+        movement: Movement,
+        delta_time: float,
+        world: World,
+    ):
         """Update wandering NPC behavior"""
         behavior.wander_timer += delta_time
 
@@ -231,6 +246,7 @@ class ExplorationSystem(System):
 
             # Pick random direction
             import random
+
             directions = [Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT]
             move_dir = random.choice(directions)
 
@@ -248,9 +264,14 @@ class ExplorationSystem(System):
                 movement.facing = move_dir
                 behavior.sprite_facing = move_dir
 
-    def _update_patrol_behavior(self, npc: Entity, behavior: NPCBehavior,
-                               grid_pos: GridPosition, movement: Movement,
-                               world: World):
+    def _update_patrol_behavior(
+        self,
+        npc: Entity,
+        behavior: NPCBehavior,
+        grid_pos: GridPosition,
+        movement: Movement,
+        world: World,
+    ):
         """Update patrolling NPC behavior"""
         if not behavior.patrol_points:
             return
@@ -263,7 +284,9 @@ class ExplorationSystem(System):
         if grid_pos.grid_x == target_x and grid_pos.grid_y == target_y:
             # Move to next patrol point
             if behavior.patrol_loop:
-                behavior.current_patrol_index = (behavior.current_patrol_index + 1) % len(behavior.patrol_points)
+                behavior.current_patrol_index = (
+                    behavior.current_patrol_index + 1
+                ) % len(behavior.patrol_points)
             else:
                 # Reverse direction at ends
                 if behavior.current_patrol_index >= len(behavior.patrol_points) - 1:
@@ -330,16 +353,18 @@ class ExplorationSystem(System):
                     interactable.on_interact(self.player_entity)
 
                 # Emit interaction event
-                self.event_manager.emit(Event(
-                    EventType.CUSTOM,
-                    {
-                        "type": "interaction",
-                        "player_id": self.player_entity.id,
-                        "target_id": entity.id,
-                        "interaction_type": interactable.interaction_type,
-                        "dialogue_id": interactable.dialogue_id,
-                    }
-                ))
+                self.event_manager.emit(
+                    Event(
+                        EventType.CUSTOM,
+                        {
+                            "type": "interaction",
+                            "player_id": self.player_entity.id,
+                            "target_id": entity.id,
+                            "interaction_type": interactable.interaction_type,
+                            "dialogue_id": interactable.dialogue_id,
+                        },
+                    )
+                )
                 return
 
     def _get_movement_direction(self) -> Optional[Direction]:

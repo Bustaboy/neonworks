@@ -15,6 +15,7 @@ from neonworks.core.ecs import Component, Entity, World, Transform
 
 class ColliderType(Enum):
     """Types of colliders"""
+
     AABB = "aabb"  # Axis-Aligned Bounding Box
     CIRCLE = "circle"
     POINT = "point"
@@ -23,6 +24,7 @@ class ColliderType(Enum):
 @dataclass
 class CollisionInfo:
     """Information about a collision"""
+
     entity_a: Entity
     entity_b: Entity
     normal: Tuple[float, float] = (0.0, 0.0)  # Collision normal
@@ -33,6 +35,7 @@ class CollisionInfo:
 @dataclass
 class Collider(Component):
     """Base collider component"""
+
     collider_type: ColliderType = ColliderType.AABB
 
     # AABB properties
@@ -76,8 +79,7 @@ class Collider(Component):
             half_h = self.height / 2
             return (x - half_w, y - half_h, x + half_w, y + half_h)
         elif self.collider_type == ColliderType.CIRCLE:
-            return (x - self.radius, y - self.radius,
-                   x + self.radius, y + self.radius)
+            return (x - self.radius, y - self.radius, x + self.radius, y + self.radius)
         else:  # POINT
             return (x, y, x, y)
 
@@ -114,25 +116,34 @@ class CollisionDetector:
             return None
 
         # Dispatch to appropriate collision check
-        if (collider_a.collider_type == ColliderType.AABB and
-            collider_b.collider_type == ColliderType.AABB):
+        if (
+            collider_a.collider_type == ColliderType.AABB
+            and collider_b.collider_type == ColliderType.AABB
+        ):
             return CollisionDetector._check_aabb_aabb(
                 entity_a, entity_b, collider_a, collider_b, transform_a, transform_b
             )
-        elif (collider_a.collider_type == ColliderType.CIRCLE and
-              collider_b.collider_type == ColliderType.CIRCLE):
+        elif (
+            collider_a.collider_type == ColliderType.CIRCLE
+            and collider_b.collider_type == ColliderType.CIRCLE
+        ):
             return CollisionDetector._check_circle_circle(
                 entity_a, entity_b, collider_a, collider_b, transform_a, transform_b
             )
-        elif ((collider_a.collider_type == ColliderType.AABB and
-               collider_b.collider_type == ColliderType.CIRCLE) or
-              (collider_a.collider_type == ColliderType.CIRCLE and
-               collider_b.collider_type == ColliderType.AABB)):
+        elif (
+            collider_a.collider_type == ColliderType.AABB
+            and collider_b.collider_type == ColliderType.CIRCLE
+        ) or (
+            collider_a.collider_type == ColliderType.CIRCLE
+            and collider_b.collider_type == ColliderType.AABB
+        ):
             return CollisionDetector._check_aabb_circle(
                 entity_a, entity_b, collider_a, collider_b, transform_a, transform_b
             )
-        elif (collider_a.collider_type == ColliderType.POINT or
-              collider_b.collider_type == ColliderType.POINT):
+        elif (
+            collider_a.collider_type == ColliderType.POINT
+            or collider_b.collider_type == ColliderType.POINT
+        ):
             return CollisionDetector._check_point_collision(
                 entity_a, entity_b, collider_a, collider_b, transform_a, transform_b
             )
@@ -140,16 +151,20 @@ class CollisionDetector:
         return None
 
     @staticmethod
-    def _check_aabb_aabb(entity_a: Entity, entity_b: Entity,
-                        collider_a: Collider, collider_b: Collider,
-                        transform_a: Transform, transform_b: Transform) -> Optional[CollisionInfo]:
+    def _check_aabb_aabb(
+        entity_a: Entity,
+        entity_b: Entity,
+        collider_a: Collider,
+        collider_b: Collider,
+        transform_a: Transform,
+        transform_b: Transform,
+    ) -> Optional[CollisionInfo]:
         """AABB vs AABB collision detection"""
         min_ax, min_ay, max_ax, max_ay = collider_a.get_bounds(transform_a)
         min_bx, min_by, max_bx, max_by = collider_b.get_bounds(transform_b)
 
         # Check overlap
-        if (max_ax < min_bx or min_ax > max_bx or
-            max_ay < min_by or min_ay > max_by):
+        if max_ax < min_bx or min_ax > max_bx or max_ay < min_by or min_ay > max_by:
             return None
 
         # Calculate penetration
@@ -179,13 +194,18 @@ class CollisionDetector:
             entity_b=entity_b,
             normal=(normal_x, normal_y),
             penetration=penetration,
-            point=(contact_x, contact_y)
+            point=(contact_x, contact_y),
         )
 
     @staticmethod
-    def _check_circle_circle(entity_a: Entity, entity_b: Entity,
-                            collider_a: Collider, collider_b: Collider,
-                            transform_a: Transform, transform_b: Transform) -> Optional[CollisionInfo]:
+    def _check_circle_circle(
+        entity_a: Entity,
+        entity_b: Entity,
+        collider_a: Collider,
+        collider_b: Collider,
+        transform_a: Transform,
+        transform_b: Transform,
+    ) -> Optional[CollisionInfo]:
         """Circle vs Circle collision detection - optimized with NumPy"""
         center_ax, center_ay = collider_a.get_center(transform_a)
         center_bx, center_by = collider_b.get_center(transform_b)
@@ -223,13 +243,18 @@ class CollisionDetector:
             entity_b=entity_b,
             normal=(normal_x, normal_y),
             penetration=penetration,
-            point=(contact_x, contact_y)
+            point=(contact_x, contact_y),
         )
 
     @staticmethod
-    def _check_aabb_circle(entity_a: Entity, entity_b: Entity,
-                          collider_a: Collider, collider_b: Collider,
-                          transform_a: Transform, transform_b: Transform) -> Optional[CollisionInfo]:
+    def _check_aabb_circle(
+        entity_a: Entity,
+        entity_b: Entity,
+        collider_a: Collider,
+        collider_b: Collider,
+        transform_a: Transform,
+        transform_b: Transform,
+    ) -> Optional[CollisionInfo]:
         """AABB vs Circle collision detection"""
         # Ensure A is AABB and B is Circle
         if collider_a.collider_type == ColliderType.CIRCLE:
@@ -284,13 +309,18 @@ class CollisionDetector:
             entity_b=entity_b,
             normal=(normal_x, normal_y),
             penetration=penetration,
-            point=(closest_x, closest_y)
+            point=(closest_x, closest_y),
         )
 
     @staticmethod
-    def _check_point_collision(entity_a: Entity, entity_b: Entity,
-                              collider_a: Collider, collider_b: Collider,
-                              transform_a: Transform, transform_b: Transform) -> Optional[CollisionInfo]:
+    def _check_point_collision(
+        entity_a: Entity,
+        entity_b: Entity,
+        collider_a: Collider,
+        collider_b: Collider,
+        transform_a: Transform,
+        transform_b: Transform,
+    ) -> Optional[CollisionInfo]:
         """Point collision detection"""
         # Ensure A is the point
         if collider_b.collider_type == ColliderType.POINT:
@@ -302,13 +332,13 @@ class CollisionDetector:
 
         if collider_b.collider_type == ColliderType.AABB:
             min_bx, min_by, max_bx, max_by = collider_b.get_bounds(transform_b)
-            if (min_bx <= point_x <= max_bx and min_by <= point_y <= max_by):
+            if min_bx <= point_x <= max_bx and min_by <= point_y <= max_by:
                 return CollisionInfo(
                     entity_a=entity_a,
                     entity_b=entity_b,
                     normal=(0.0, -1.0),  # Default normal
                     penetration=0.0,
-                    point=(point_x, point_y)
+                    point=(point_x, point_y),
                 )
         elif collider_b.collider_type == ColliderType.CIRCLE:
             center_bx, center_by = collider_b.get_center(transform_b)
@@ -327,7 +357,7 @@ class CollisionDetector:
                     entity_b=entity_b,
                     normal=normal,
                     penetration=0.0,
-                    point=(point_x, point_y)
+                    point=(point_x, point_y),
                 )
 
         return None
@@ -336,9 +366,10 @@ class CollisionDetector:
 @dataclass
 class QuadTreeNode:
     """Node in a QuadTree for spatial partitioning"""
+
     bounds: Tuple[float, float, float, float]  # (min_x, min_y, max_x, max_y)
     entities: List[Entity] = field(default_factory=list)
-    children: Optional[List['QuadTreeNode']] = None
+    children: Optional[List["QuadTreeNode"]] = None
     max_entities: int = 4
     max_depth: int = 5
     depth: int = 0
@@ -372,10 +403,26 @@ class QuadTreeNode:
         mid_y = (min_y + max_y) / 2
 
         self.children = [
-            QuadTreeNode((min_x, min_y, mid_x, mid_y), max_depth=self.max_depth, depth=self.depth + 1),  # Top-left
-            QuadTreeNode((mid_x, min_y, max_x, mid_y), max_depth=self.max_depth, depth=self.depth + 1),  # Top-right
-            QuadTreeNode((min_x, mid_y, mid_x, max_y), max_depth=self.max_depth, depth=self.depth + 1),  # Bottom-left
-            QuadTreeNode((mid_x, mid_y, max_x, max_y), max_depth=self.max_depth, depth=self.depth + 1),  # Bottom-right
+            QuadTreeNode(
+                (min_x, min_y, mid_x, mid_y),
+                max_depth=self.max_depth,
+                depth=self.depth + 1,
+            ),  # Top-left
+            QuadTreeNode(
+                (mid_x, min_y, max_x, mid_y),
+                max_depth=self.max_depth,
+                depth=self.depth + 1,
+            ),  # Top-right
+            QuadTreeNode(
+                (min_x, mid_y, mid_x, max_y),
+                max_depth=self.max_depth,
+                depth=self.depth + 1,
+            ),  # Bottom-left
+            QuadTreeNode(
+                (mid_x, mid_y, max_x, max_y),
+                max_depth=self.max_depth,
+                depth=self.depth + 1,
+            ),  # Bottom-right
         ]
 
         # Move entities to children
@@ -404,8 +451,12 @@ class QuadTreeNode:
                 # Check if entity bounds intersect query bounds
                 min_x, min_y, max_x, max_y = entity_bounds
                 query_min_x, query_min_y, query_max_x, query_max_y = bounds
-                if not (max_x < query_min_x or min_x > query_max_x or
-                       max_y < query_min_y or min_y > query_max_y):
+                if not (
+                    max_x < query_min_x
+                    or min_x > query_max_x
+                    or max_y < query_min_y
+                    or min_y > query_max_y
+                ):
                     result.add(entity)
 
         # Query children
@@ -420,14 +471,20 @@ class QuadTreeNode:
         min_x, min_y, max_x, max_y = self.bounds
         other_min_x, other_min_y, other_max_x, other_max_y = bounds
 
-        return not (max_x < other_min_x or min_x > other_max_x or
-                   max_y < other_min_y or min_y > other_max_y)
+        return not (
+            max_x < other_min_x
+            or min_x > other_max_x
+            or max_y < other_min_y
+            or min_y > other_max_y
+        )
 
 
 class CollisionSystem:
     """System for detecting and responding to collisions"""
 
-    def __init__(self, world_bounds: Optional[Tuple[float, float, float, float]] = None):
+    def __init__(
+        self, world_bounds: Optional[Tuple[float, float, float, float]] = None
+    ):
         """
         Initialize collision system.
 
@@ -476,7 +533,7 @@ class CollisionSystem:
                 bounds = collider_a.get_bounds(transform_a)
                 candidates = quadtree.query(bounds)
             else:
-                candidates = entities_with_colliders[i + 1:]
+                candidates = entities_with_colliders[i + 1 :]
 
             for entity_b in candidates:
                 # Skip self-collision
@@ -510,9 +567,12 @@ class CollisionSystem:
                             flipped_info = CollisionInfo(
                                 entity_a=entity_b,
                                 entity_b=entity_a,
-                                normal=(-collision_info.normal[0], -collision_info.normal[1]),
+                                normal=(
+                                    -collision_info.normal[0],
+                                    -collision_info.normal[1],
+                                ),
                                 penetration=collision_info.penetration,
-                                point=collision_info.point
+                                point=collision_info.point,
                             )
                             collider_b.on_collision_enter(entity_a, flipped_info)
                     else:
@@ -522,9 +582,12 @@ class CollisionSystem:
                             flipped_info = CollisionInfo(
                                 entity_a=entity_b,
                                 entity_b=entity_a,
-                                normal=(-collision_info.normal[0], -collision_info.normal[1]),
+                                normal=(
+                                    -collision_info.normal[0],
+                                    -collision_info.normal[1],
+                                ),
                                 penetration=collision_info.penetration,
-                                point=collision_info.point
+                                point=collision_info.point,
                             )
                             collider_b.on_collision_stay(entity_a, flipped_info)
 

@@ -21,11 +21,11 @@ import json
 
 # Add the engine to Python path
 # This allows us to import from the engine module
-engine_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+engine_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, engine_path)
 
 # Add scripts to Python path
-scripts_path = os.path.join(os.path.dirname(__file__), 'scripts')
+scripts_path = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.insert(0, scripts_path)
 
 from neonworks.core.ecs import World
@@ -35,8 +35,8 @@ from scripts.components import GameScreen, ScreenState
 
 def load_config():
     """Load project configuration."""
-    config_path = os.path.join(os.path.dirname(__file__), 'project.json')
-    with open(config_path, 'r') as f:
+    config_path = os.path.join(os.path.dirname(__file__), "project.json")
+    with open(config_path, "r") as f:
         return json.load(f)
 
 
@@ -44,21 +44,21 @@ def main():
     """Main game loop."""
     # Load configuration
     config = load_config()
-    window_config = config['settings']['window']
-    custom_data = config.get('custom_data', {})
+    window_config = config["settings"]["window"]
+    custom_data = config.get("custom_data", {})
 
     # Initialize Pygame
     pygame.init()
 
     # Create window
-    screen_width = window_config['width']
-    screen_height = window_config['height']
+    screen_width = window_config["width"]
+    screen_height = window_config["height"]
     screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption(window_config['title'])
+    pygame.display.set_caption(window_config["title"])
 
     # Create clock for frame rate control
     clock = pygame.time.Clock()
-    target_fps = config['settings']['target_fps']
+    target_fps = config["settings"]["target_fps"]
 
     # Create world and set up game
     world = World()
@@ -100,7 +100,10 @@ def main():
                         start_gameplay(world, screen_width, screen_height, custom_data)
                         gameplay_started = True
 
-                    elif screen_state.current_screen in [GameScreen.GAME_OVER, GameScreen.VICTORY]:
+                    elif screen_state.current_screen in [
+                        GameScreen.GAME_OVER,
+                        GameScreen.VICTORY,
+                    ]:
                         # Restart gameplay
                         screen_state.change_screen(GameScreen.GAMEPLAY)
                         start_gameplay(world, screen_width, screen_height, custom_data)

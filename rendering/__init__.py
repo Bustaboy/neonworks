@@ -9,7 +9,7 @@ from neonworks.rendering.particles import (
     ParticleRenderer,
     ParticlePresets,
     EmitterShape,
-    ParticleBlendMode
+    ParticleBlendMode,
 )
 from neonworks.rendering.animation import AnimationStateMachine, Animation
 from neonworks.rendering.tilemap import Tilemap, TileLayer, Tileset, Tile
@@ -24,41 +24,44 @@ try:
         ImageEffects,
         SpriteSheetExtractor,
         PygameConverter,
-        AtlasRegion
+        AtlasRegion,
     )
+
     ASSET_PIPELINE_AVAILABLE = True
 except ImportError:
     ASSET_PIPELINE_AVAILABLE = False
 
 __all__ = [
-    'Renderer',
-    'Camera',
-    'Particle',
-    'ParticleEmitter',
-    'ParticleSystem',
-    'ParticleRenderer',
-    'ParticlePresets',
-    'EmitterShape',
-    'ParticleBlendMode',
-    'AnimationStateMachine',
-    'Animation',
-    'Tilemap',
-    'TileLayer',
-    'Tileset',
-    'Tile',
-    'UI',
-    'UIState',
-    'UIStyle',
-    'HUD',
-    'AssetManager',
+    "Renderer",
+    "Camera",
+    "Particle",
+    "ParticleEmitter",
+    "ParticleSystem",
+    "ParticleRenderer",
+    "ParticlePresets",
+    "EmitterShape",
+    "ParticleBlendMode",
+    "AnimationStateMachine",
+    "Animation",
+    "Tilemap",
+    "TileLayer",
+    "Tileset",
+    "Tile",
+    "UI",
+    "UIState",
+    "UIStyle",
+    "HUD",
+    "AssetManager",
 ]
 
 if ASSET_PIPELINE_AVAILABLE:
-    __all__.extend([
-        'TextureAtlasBuilder',
-        'ImageOptimizer',
-        'ImageEffects',
-        'SpriteSheetExtractor',
-        'PygameConverter',
-        'AtlasRegion'
-    ])
+    __all__.extend(
+        [
+            "TextureAtlasBuilder",
+            "ImageOptimizer",
+            "ImageEffects",
+            "SpriteSheetExtractor",
+            "PygameConverter",
+            "AtlasRegion",
+        ]
+    )

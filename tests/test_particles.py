@@ -14,7 +14,7 @@ from neonworks.rendering.particles import (
     ParticleRenderer,
     ParticlePresets,
     EmitterShape,
-    ParticleBlendMode
+    ParticleBlendMode,
 )
 from neonworks.rendering.camera import Camera
 
@@ -150,7 +150,7 @@ class TestParticleEmitter:
             initial_speed=100,
             initial_speed_variance=0,
             emission_angle=0,
-            emission_spread=0
+            emission_spread=0,
         )
 
         particle = emitter.emit_particle()
@@ -209,12 +209,14 @@ class TestParticleEmitter:
         spawn_x, spawn_y = emitter._get_spawn_position()
 
         # Should be within radius
-        distance = (spawn_x ** 2 + spawn_y ** 2) ** 0.5
+        distance = (spawn_x**2 + spawn_y**2) ** 0.5
         assert distance <= 50
 
     def test_emitter_shape_box(self):
         """Test box emitter spawns within box"""
-        emitter = ParticleEmitter(shape=EmitterShape.BOX, shape_width=100, shape_height=100)
+        emitter = ParticleEmitter(
+            shape=EmitterShape.BOX, shape_width=100, shape_height=100
+        )
 
         spawn_x, spawn_y = emitter._get_spawn_position()
 
@@ -224,10 +226,7 @@ class TestParticleEmitter:
 
     def test_particle_lifetime_variance(self):
         """Test particles have varying lifetimes"""
-        emitter = ParticleEmitter(
-            particle_lifetime=2.0,
-            particle_lifetime_variance=1.0
-        )
+        emitter = ParticleEmitter(particle_lifetime=2.0, particle_lifetime_variance=1.0)
 
         lifetimes = set()
         for _ in range(10):
@@ -316,7 +315,7 @@ class TestParticleSystem:
         emitter = ParticleEmitter(
             start_color=(255, 0, 0, 255),
             end_color=(0, 0, 255, 255),
-            particle_lifetime=1.0
+            particle_lifetime=1.0,
         )
         system.add_emitter(emitter)
 
@@ -337,11 +336,7 @@ class TestParticleSystem:
     def test_size_interpolation(self):
         """Test particles interpolate size over lifetime"""
         system = ParticleSystem()
-        emitter = ParticleEmitter(
-            start_size=10.0,
-            end_size=2.0,
-            particle_lifetime=1.0
-        )
+        emitter = ParticleEmitter(start_size=10.0, end_size=2.0, particle_lifetime=1.0)
         system.add_emitter(emitter)
 
         emitter.burst(1)
@@ -370,10 +365,7 @@ class TestParticleSystem:
     def test_emitter_removed_after_lifetime_and_no_particles(self):
         """Test emitter is removed when done"""
         system = ParticleSystem()
-        emitter = ParticleEmitter(
-            emitter_lifetime=0.1,
-            particle_lifetime=0.1
-        )
+        emitter = ParticleEmitter(emitter_lifetime=0.1, particle_lifetime=0.1)
         system.add_emitter(emitter)
 
         # Update past both lifetimes
@@ -513,7 +505,7 @@ class TestParticleIntegration:
             emit_rate=10,
             particle_lifetime=0.5,
             particle_lifetime_variance=0,  # No variance for predictable test
-            auto_emit=True
+            auto_emit=True,
         )
         system.add_emitter(emitter)
 
@@ -553,11 +545,7 @@ class TestParticleIntegration:
     def test_continuous_emission(self):
         """Test continuous particle emission"""
         system = ParticleSystem()
-        emitter = ParticleEmitter(
-            emit_rate=30,
-            max_particles=50,
-            particle_lifetime=2.0
-        )
+        emitter = ParticleEmitter(emit_rate=30, max_particles=50, particle_lifetime=2.0)
         system.add_emitter(emitter)
 
         # Run for a while
@@ -573,8 +561,12 @@ class TestParticleIntegration:
         """Test multiple emitters in one system"""
         system = ParticleSystem()
 
-        emitter1 = ParticleEmitter(x=100, y=100, auto_emit=False, particle_lifetime=10.0)
-        emitter2 = ParticleEmitter(x=200, y=200, auto_emit=False, particle_lifetime=10.0)
+        emitter1 = ParticleEmitter(
+            x=100, y=100, auto_emit=False, particle_lifetime=10.0
+        )
+        emitter2 = ParticleEmitter(
+            x=200, y=200, auto_emit=False, particle_lifetime=10.0
+        )
 
         system.add_emitter(emitter1)
         system.add_emitter(emitter2)

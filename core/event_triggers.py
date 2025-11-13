@@ -11,17 +11,21 @@ from enum import Enum
 import json
 
 from core.event_commands import (
-    GameEvent, EventPage, TriggerType, EventContext,
-    GameState
+    GameEvent,
+    EventPage,
+    TriggerType,
+    EventContext,
+    GameState,
 )
 
 
 class TriggerResult(Enum):
     """Result of trigger check"""
+
     NOT_TRIGGERED = 0  # Event not triggered
-    TRIGGERED = 1      # Event triggered
-    RUNNING = 2        # Event already running
-    BLOCKED = 3        # Event blocked by conditions
+    TRIGGERED = 1  # Event triggered
+    RUNNING = 2  # Event already running
+    BLOCKED = 3  # Event blocked by conditions
 
 
 @dataclass
@@ -29,10 +33,11 @@ class TriggerCondition:
     """
     Defines a condition that must be met for a trigger to activate.
     """
+
     condition_type: str  # "proximity", "facing", "switch", "variable", "timer"
     parameters: Dict[str, any] = field(default_factory=dict)
 
-    def evaluate(self, context: 'TriggerContext') -> bool:
+    def evaluate(self, context: "TriggerContext") -> bool:
         """
         Evaluate if this condition is met.
 
@@ -55,7 +60,7 @@ class TriggerCondition:
         else:
             return True
 
-    def _check_proximity(self, context: 'TriggerContext') -> bool:
+    def _check_proximity(self, context: "TriggerContext") -> bool:
         """Check if player is within range"""
         max_distance = self.parameters.get("max_distance", 1)
         event_pos = self.parameters.get("event_pos", (0, 0))
@@ -65,18 +70,18 @@ class TriggerCondition:
         dy = abs(player_pos[1] - event_pos[1])
         return dx <= max_distance and dy <= max_distance
 
-    def _check_facing(self, context: 'TriggerContext') -> bool:
+    def _check_facing(self, context: "TriggerContext") -> bool:
         """Check if player is facing the event"""
         required_direction = self.parameters.get("direction")
         return context.player_direction == required_direction
 
-    def _check_switch(self, context: 'TriggerContext') -> bool:
+    def _check_switch(self, context: "TriggerContext") -> bool:
         """Check switch state"""
         switch_id = self.parameters.get("switch_id")
         required_value = self.parameters.get("value", True)
         return context.game_state.get_switch(switch_id) == required_value
 
-    def _check_variable(self, context: 'TriggerContext') -> bool:
+    def _check_variable(self, context: "TriggerContext") -> bool:
         """Check variable value"""
         variable_id = self.parameters.get("variable_id")
         operator = self.parameters.get("operator", ">=")
@@ -98,24 +103,20 @@ class TriggerCondition:
             return var_value <= value
         return False
 
-    def _check_timer(self, context: 'TriggerContext') -> bool:
+    def _check_timer(self, context: "TriggerContext") -> bool:
         """Check timer value"""
         # Implementation depends on game timer system
         return True
 
     def to_dict(self) -> Dict[str, any]:
         """Serialize to dictionary"""
-        return {
-            "condition_type": self.condition_type,
-            "parameters": self.parameters
-        }
+        return {"condition_type": self.condition_type, "parameters": self.parameters}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, any]) -> 'TriggerCondition':
+    def from_dict(cls, data: Dict[str, any]) -> "TriggerCondition":
         """Deserialize from dictionary"""
         return cls(
-            condition_type=data["condition_type"],
-            parameters=data.get("parameters", {})
+            condition_type=data["condition_type"], parameters=data.get("parameters", {})
         )
 
 
@@ -127,6 +128,7 @@ class TriggerContext:
     Contains current game state, player position, and other relevant data
     needed to evaluate trigger conditions.
     """
+
     game_state: GameState
     player_position: Tuple[int, int]
     player_direction: int  # 2=down, 4=left, 6=right, 8=up
@@ -177,6 +179,7 @@ class EventTriggerHandler:
     """
     Manages event triggering logic for different trigger types.
     """
+
     event: GameEvent
     page: EventPage
     is_active: bool = False
@@ -213,8 +216,9 @@ class EventTriggerHandler:
 
         return TriggerResult.NOT_TRIGGERED
 
-    def _check_action_button(self, context: TriggerContext,
-                            event_pos: Tuple[int, int]) -> TriggerResult:
+    def _check_action_button(
+        self, context: TriggerContext, event_pos: Tuple[int, int]
+    ) -> TriggerResult:
         """Check action button trigger"""
         # Must press action button while facing event
         if not context.action_button_pressed:
@@ -229,8 +233,9 @@ class EventTriggerHandler:
 
         return TriggerResult.TRIGGERED
 
-    def _check_player_touch(self, context: TriggerContext,
-                           event_pos: Tuple[int, int]) -> TriggerResult:
+    def _check_player_touch(
+        self, context: TriggerContext, event_pos: Tuple[int, int]
+    ) -> TriggerResult:
         """Check player touch trigger"""
         # Trigger when player steps on event tile
         if context.player_position != event_pos:
@@ -241,8 +246,9 @@ class EventTriggerHandler:
 
         return TriggerResult.TRIGGERED
 
-    def _check_event_touch(self, context: TriggerContext,
-                          event_pos: Tuple[int, int]) -> TriggerResult:
+    def _check_event_touch(
+        self, context: TriggerContext, event_pos: Tuple[int, int]
+    ) -> TriggerResult:
         """Check event touch trigger"""
         # Event moves toward player and triggers on touch
         # This requires event movement logic which would be in a separate system
@@ -277,6 +283,7 @@ class EventTriggerManager:
 
     Handles trigger detection, event activation, and event execution.
     """
+
     game_state: GameState
     events: Dict[int, GameEvent] = field(default_factory=dict)
     active_handlers: Dict[int, EventTriggerHandler] = field(default_factory=dict)
@@ -313,8 +320,7 @@ class EventTriggerManager:
             if active_page:
                 if event.id not in self.active_handlers:
                     self.active_handlers[event.id] = EventTriggerHandler(
-                        event=event,
-                        page=active_page
+                        event=event, page=active_page
                     )
                 else:
                     # Update page if it changed
@@ -327,7 +333,9 @@ class EventTriggerManager:
                 if event.id in self.active_handlers:
                     del self.active_handlers[event.id]
 
-    def check_triggers(self, context: TriggerContext) -> List[Tuple[GameEvent, EventPage]]:
+    def check_triggers(
+        self, context: TriggerContext
+    ) -> List[Tuple[GameEvent, EventPage]]:
         """
         Check all event triggers and return triggered events.
 
@@ -468,13 +476,14 @@ class EventTriggerManager:
         """Serialize manager state to dictionary"""
         return {
             "events": {
-                event_id: event.to_dict()
-                for event_id, event in self.events.items()
+                event_id: event.to_dict() for event_id, event in self.events.items()
             }
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, any], game_state: GameState) -> 'EventTriggerManager':
+    def from_dict(
+        cls, data: Dict[str, any], game_state: GameState
+    ) -> "EventTriggerManager":
         """Deserialize manager state from dictionary"""
         manager = cls(game_state=game_state)
 
@@ -490,7 +499,7 @@ class EventTriggerManager:
         return json.dumps(self.to_dict(), indent=2)
 
     @classmethod
-    def from_json(cls, json_str: str, game_state: GameState) -> 'EventTriggerManager':
+    def from_json(cls, json_str: str, game_state: GameState) -> "EventTriggerManager":
         """Deserialize from JSON string"""
         return cls.from_dict(json.loads(json_str), game_state)
 
@@ -498,26 +507,22 @@ class EventTriggerManager:
 def create_proximity_trigger(max_distance: int = 1) -> TriggerCondition:
     """Create a proximity-based trigger condition"""
     return TriggerCondition(
-        condition_type="proximity",
-        parameters={"max_distance": max_distance}
+        condition_type="proximity", parameters={"max_distance": max_distance}
     )
 
 
 def create_switch_trigger(switch_id: int, value: bool = True) -> TriggerCondition:
     """Create a switch-based trigger condition"""
     return TriggerCondition(
-        condition_type="switch",
-        parameters={"switch_id": switch_id, "value": value}
+        condition_type="switch", parameters={"switch_id": switch_id, "value": value}
     )
 
 
-def create_variable_trigger(variable_id: int, operator: str, value: int) -> TriggerCondition:
+def create_variable_trigger(
+    variable_id: int, operator: str, value: int
+) -> TriggerCondition:
     """Create a variable comparison trigger condition"""
     return TriggerCondition(
         condition_type="variable",
-        parameters={
-            "variable_id": variable_id,
-            "operator": operator,
-            "value": value
-        }
+        parameters={"variable_id": variable_id, "operator": operator, "value": value},
     )

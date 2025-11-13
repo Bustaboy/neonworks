@@ -15,6 +15,7 @@ from neonworks.core.ecs import Component, Entity, World
 
 class SerializationFormat(Enum):
     """Serialization format types"""
+
     JSON = "json"
     BINARY = "binary"
 
@@ -22,6 +23,7 @@ class SerializationFormat(Enum):
 @dataclass
 class SerializationMetadata:
     """Metadata for saved games"""
+
     version: str = "1.0"
     timestamp: Optional[str] = None
     game_version: Optional[str] = None
@@ -30,6 +32,7 @@ class SerializationMetadata:
 
 class SerializationError(Exception):
     """Error during serialization/deserialization"""
+
     pass
 
 
@@ -54,9 +57,12 @@ class ComponentSerializer:
         type_name = component_class.__name__
         self._component_types[type_name] = component_class
 
-    def register_custom_serializer(self, component_class: Type,
-                                   serializer: Callable[[Any], Dict],
-                                   deserializer: Callable[[Dict], Any]):
+    def register_custom_serializer(
+        self,
+        component_class: Type,
+        serializer: Callable[[Any], Dict],
+        deserializer: Callable[[Dict], Any],
+    ):
         """
         Register custom serializer/deserializer for a component type.
 
@@ -84,10 +90,7 @@ class ComponentSerializer:
         # Check for custom serializer
         if component_type in self._custom_serializers:
             data = self._custom_serializers[component_type](component)
-            return {
-                "_type": type_name,
-                "_data": data
-            }
+            return {"_type": type_name, "_data": data}
 
         # Default serialization for dataclasses
         if is_dataclass(component):
@@ -96,16 +99,10 @@ class ComponentSerializer:
                 value = getattr(component, f.name)
                 data[f.name] = self._serialize_value(value)
 
-            return {
-                "_type": type_name,
-                "_data": data
-            }
+            return {"_type": type_name, "_data": data}
 
         # Fallback for non-dataclass components
-        return {
-            "_type": type_name,
-            "_data": self._serialize_value(component.__dict__)
-        }
+        return {"_type": type_name, "_data": self._serialize_value(component.__dict__)}
 
     def deserialize_component(self, data: Dict[str, Any]) -> Component:
         """
@@ -151,7 +148,10 @@ class ComponentSerializer:
         elif is_dataclass(value):
             return {
                 "_dataclass": value.__class__.__name__,
-                "_fields": {f.name: self._serialize_value(getattr(value, f.name)) for f in fields(value)}
+                "_fields": {
+                    f.name: self._serialize_value(getattr(value, f.name))
+                    for f in fields(value)
+                },
             }
         else:
             # Try to convert to string for unknown types
@@ -200,7 +200,7 @@ class EntitySerializer:
             "id": entity.id,
             "active": entity.active,
             "components": components,
-            "tags": list(entity.tags)
+            "tags": list(entity.tags),
         }
 
     def deserialize_entity(self, data: Dict[str, Any], world: World) -> Entity:
@@ -240,7 +240,9 @@ class WorldSerializer:
         self.component_serializer = component_serializer
         self.entity_serializer = EntitySerializer(component_serializer)
 
-    def serialize_world(self, world: World, metadata: Optional[SerializationMetadata] = None) -> Dict[str, Any]:
+    def serialize_world(
+        self, world: World, metadata: Optional[SerializationMetadata] = None
+    ) -> Dict[str, Any]:
         """
         Serialize a world.
 
@@ -255,16 +257,14 @@ class WorldSerializer:
         for entity in world._entities.values():
             entities.append(self.entity_serializer.serialize_entity(entity))
 
-        data = {
-            "entities": entities
-        }
+        data = {"entities": entities}
 
         if metadata:
             data["_metadata"] = {
                 "version": metadata.version,
                 "timestamp": metadata.timestamp,
                 "game_version": metadata.game_version,
-                "custom_data": metadata.custom_data
+                "custom_data": metadata.custom_data,
             }
 
         return data
@@ -304,17 +304,24 @@ class GameSerializer:
         for component_class in component_classes:
             self.register_component(component_class)
 
-    def register_custom_serializer(self, component_class: Type,
-                                   serializer: Callable[[Any], Dict],
-                                   deserializer: Callable[[Dict], Any]):
+    def register_custom_serializer(
+        self,
+        component_class: Type,
+        serializer: Callable[[Any], Dict],
+        deserializer: Callable[[Dict], Any],
+    ):
         """Register custom serializer for a component"""
         self.component_serializer.register_custom_serializer(
             component_class, serializer, deserializer
         )
 
-    def save_game(self, world: World, file_path: Path,
-                 format: SerializationFormat = SerializationFormat.JSON,
-                 metadata: Optional[SerializationMetadata] = None):
+    def save_game(
+        self,
+        world: World,
+        file_path: Path,
+        format: SerializationFormat = SerializationFormat.JSON,
+        metadata: Optional[SerializationMetadata] = None,
+    ):
         """
         Save game state to file.
 
@@ -327,16 +334,17 @@ class GameSerializer:
         data = self.world_serializer.serialize_world(world, metadata)
 
         if format == SerializationFormat.JSON:
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(data, f, indent=2)
         elif format == SerializationFormat.BINARY:
-            with open(file_path, 'wb') as f:
+            with open(file_path, "wb") as f:
                 pickle.dump(data, f)
         else:
             raise SerializationError(f"Unsupported format: {format}")
 
-    def load_game(self, file_path: Path,
-                 format: SerializationFormat = SerializationFormat.JSON) -> World:
+    def load_game(
+        self, file_path: Path, format: SerializationFormat = SerializationFormat.JSON
+    ) -> World:
         """
         Load game state from file.
 
@@ -348,18 +356,19 @@ class GameSerializer:
             Loaded world
         """
         if format == SerializationFormat.JSON:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = json.load(f)
         elif format == SerializationFormat.BINARY:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 data = pickle.load(f)
         else:
             raise SerializationError(f"Unsupported format: {format}")
 
         return self.world_serializer.deserialize_world(data)
 
-    def save_game_to_string(self, world: World,
-                           metadata: Optional[SerializationMetadata] = None) -> str:
+    def save_game_to_string(
+        self, world: World, metadata: Optional[SerializationMetadata] = None
+    ) -> str:
         """
         Save game state to JSON string.
 
@@ -386,8 +395,9 @@ class GameSerializer:
         data = json.loads(json_str)
         return self.world_serializer.deserialize_world(data)
 
-    def get_metadata(self, file_path: Path,
-                    format: SerializationFormat = SerializationFormat.JSON) -> Optional[SerializationMetadata]:
+    def get_metadata(
+        self, file_path: Path, format: SerializationFormat = SerializationFormat.JSON
+    ) -> Optional[SerializationMetadata]:
         """
         Get metadata from save file without loading full game.
 
@@ -399,10 +409,10 @@ class GameSerializer:
             Metadata if available
         """
         if format == SerializationFormat.JSON:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = json.load(f)
         elif format == SerializationFormat.BINARY:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 data = pickle.load(f)
         else:
             return None
@@ -413,7 +423,7 @@ class GameSerializer:
                 version=metadata_data.get("version", "1.0"),
                 timestamp=metadata_data.get("timestamp"),
                 game_version=metadata_data.get("game_version"),
-                custom_data=metadata_data.get("custom_data", {})
+                custom_data=metadata_data.get("custom_data", {}),
             )
 
         return None

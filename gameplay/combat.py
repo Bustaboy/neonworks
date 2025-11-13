@@ -13,6 +13,7 @@ from neonworks.core.ecs import Component, System, World, Entity
 
 class DamageType(Enum):
     """Types of damage"""
+
     PHYSICAL = "physical"
     ENERGY = "energy"
     TECH = "tech"
@@ -21,6 +22,7 @@ class DamageType(Enum):
 
 class Team(Enum):
     """Team affiliations for targeting"""
+
     PLAYER = "player"
     ENEMY = "enemy"
     NEUTRAL = "neutral"
@@ -34,6 +36,7 @@ class Health(Component):
 
     Tracks HP, armor, and alive state.
     """
+
     max_hp: float = 100.0
     hp: float = 100.0
     armor: float = 0.0  # Damage reduction percentage (0-100)
@@ -44,7 +47,7 @@ class Health(Component):
     is_invulnerable: bool = False  # Temporary invincibility
 
     # Callbacks
-    on_damage: Optional[Callable[[float, 'DamageType'], None]] = None
+    on_damage: Optional[Callable[[float, "DamageType"], None]] = None
     on_death: Optional[Callable[[], None]] = None
     on_heal: Optional[Callable[[float], None]] = None
 
@@ -75,6 +78,7 @@ class CombatStats(Component):
 
     Based on Cyberpunk-style attribute system.
     """
+
     # Core attributes (1-10 typical range)
     body: int = 5  # Physical strength and toughness
     reflexes: int = 5  # Speed and agility
@@ -117,6 +121,7 @@ class Weapon(Component):
 
     Defines weapon properties and damage calculations.
     """
+
     name: str = "Unarmed"
     damage: float = 10.0
     damage_type: DamageType = DamageType.PHYSICAL
@@ -146,6 +151,7 @@ class ActionPoints(Component):
 
     Tracks available actions per turn.
     """
+
     max_ap: int = 3
     ap: int = 3
 
@@ -184,11 +190,12 @@ class TeamComponent(Component):
     """
     Team affiliation for targeting and AI.
     """
+
     team: Team = Team.NEUTRAL
     is_hostile_to_player: bool = False
     is_friendly_fire_enabled: bool = False
 
-    def is_enemy_of(self, other: 'TeamComponent') -> bool:
+    def is_enemy_of(self, other: "TeamComponent") -> bool:
         """Check if this entity is enemy of another"""
         # Same team with friendly fire enabled = enemies
         if self.team == other.team and self.is_friendly_fire_enabled:
@@ -211,6 +218,7 @@ class TeamComponent(Component):
 @dataclass
 class DamageInstance:
     """Represents a single damage event"""
+
     amount: float
     damage_type: DamageType
     source: Optional[Entity] = None
@@ -404,7 +412,9 @@ class CombatSystem(System):
             return (10.0, False)  # Default punch
 
         # Base damage with variance
-        variance = random.uniform(weapon.damage_variance_min, weapon.damage_variance_max)
+        variance = random.uniform(
+            weapon.damage_variance_min, weapon.damage_variance_max
+        )
         base_damage = weapon.damage * variance
 
         # Stat bonus
@@ -455,28 +465,28 @@ class CombatSystem(System):
 
         if not weapon or not target_health:
             return {
-                'hit': False,
-                'damage': 0,
-                'is_critical': False,
-                'message': 'Invalid attack'
+                "hit": False,
+                "damage": 0,
+                "is_critical": False,
+                "message": "Invalid attack",
             }
 
         # Check if target is alive
         if not target_health.is_alive:
             return {
-                'hit': False,
-                'damage': 0,
-                'is_critical': False,
-                'message': 'Target already dead'
+                "hit": False,
+                "damage": 0,
+                "is_critical": False,
+                "message": "Target already dead",
             }
 
         # Check ammo
         if weapon.has_ammo and weapon.ammo <= 0:
             return {
-                'hit': False,
-                'damage': 0,
-                'is_critical': False,
-                'message': 'Out of ammo'
+                "hit": False,
+                "damage": 0,
+                "is_critical": False,
+                "message": "Out of ammo",
             }
 
         # Spend ammo
@@ -490,10 +500,10 @@ class CombatSystem(System):
         if roll > hit_chance:
             # Miss
             return {
-                'hit': False,
-                'damage': 0,
-                'is_critical': False,
-                'message': f'Miss! (Needed {hit_chance:.0f}%, rolled {roll:.0f}%)'
+                "hit": False,
+                "damage": 0,
+                "is_critical": False,
+                "message": f"Miss! (Needed {hit_chance:.0f}%, rolled {roll:.0f}%)",
             }
 
         # Hit! Calculate damage
@@ -505,7 +515,7 @@ class CombatSystem(System):
             damage_type=weapon.damage_type,
             source=attacker,
             is_critical=is_crit,
-            armor_penetration=weapon.armor_penetration
+            armor_penetration=weapon.armor_penetration,
         )
 
         actual_damage = 0.0
@@ -521,18 +531,20 @@ class CombatSystem(System):
                 target_health.is_alive = False
 
         crit_text = " CRITICAL!" if is_crit else ""
-        message = f'Hit for {actual_damage:.0f} damage{crit_text}!'
+        message = f"Hit for {actual_damage:.0f} damage{crit_text}!"
 
         self.add_log(message)
 
         return {
-            'hit': True,
-            'damage': actual_damage,
-            'is_critical': is_crit,
-            'message': message
+            "hit": True,
+            "damage": actual_damage,
+            "is_critical": is_crit,
+            "message": message,
         }
 
-    def check_range(self, attacker: Entity, target: Entity, world: World) -> Tuple[bool, float]:
+    def check_range(
+        self, attacker: Entity, target: Entity, world: World
+    ) -> Tuple[bool, float]:
         """
         Check if target is in range.
 
@@ -543,7 +555,7 @@ class CombatSystem(System):
 
         weapon = attacker.get_component(Weapon)
         if not weapon:
-            return (False, float('inf'))
+            return (False, float("inf"))
 
         # Try GridPosition first (for grid-based games)
         attacker_grid = attacker.get_component(GridPosition)
@@ -551,15 +563,16 @@ class CombatSystem(System):
 
         if attacker_grid and target_grid:
             # Manhattan distance for grid
-            distance = abs(attacker_grid.grid_x - target_grid.grid_x) + \
-                      abs(attacker_grid.grid_y - target_grid.grid_y)
+            distance = abs(attacker_grid.grid_x - target_grid.grid_x) + abs(
+                attacker_grid.grid_y - target_grid.grid_y
+            )
         else:
             # Euclidean distance for continuous space
             attacker_transform = attacker.get_component(Transform)
             target_transform = target.get_component(Transform)
 
             if not attacker_transform or not target_transform:
-                return (False, float('inf'))
+                return (False, float("inf"))
 
             dx = target_transform.x - attacker_transform.x
             dy = target_transform.y - attacker_transform.y

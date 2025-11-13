@@ -12,7 +12,14 @@ from neonworks.core.ecs import System, World, Entity, GridPosition, Navmesh
 class PathNode:
     """Node for A* pathfinding"""
 
-    def __init__(self, x: int, y: int, g_cost: float, h_cost: float, parent: Optional['PathNode'] = None):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        g_cost: float,
+        h_cost: float,
+        parent: Optional["PathNode"] = None,
+    ):
         self.x = x
         self.y = y
         self.g_cost = g_cost  # Cost from start
@@ -50,8 +57,14 @@ class PathfindingSystem(System):
                 self.navmesh_entity = navmesh_entities[0]
                 self.navmesh = self.navmesh_entity.get_component(Navmesh)
 
-    def find_path(self, start_x: int, start_y: int, goal_x: int, goal_y: int,
-                  navmesh: Optional[Navmesh] = None) -> Optional[List[Tuple[int, int]]]:
+    def find_path(
+        self,
+        start_x: int,
+        start_y: int,
+        goal_x: int,
+        goal_y: int,
+        navmesh: Optional[Navmesh] = None,
+    ) -> Optional[List[Tuple[int, int]]]:
         """
         Find path from start to goal using A* algorithm.
 
@@ -72,7 +85,9 @@ class PathfindingSystem(System):
             return None
 
         # Initialize
-        start_node = PathNode(start_x, start_y, 0, self._heuristic(start_x, start_y, goal_x, goal_y))
+        start_node = PathNode(
+            start_x, start_y, 0, self._heuristic(start_x, start_y, goal_x, goal_y)
+        )
         open_set = [start_node]
         closed_set: Set[Tuple[int, int]] = set()
         open_dict = {(start_x, start_y): start_node}
@@ -118,7 +133,9 @@ class PathfindingSystem(System):
                         heapq.heapify(open_set)  # Re-heapify after update
                 else:
                     # Add new node to open set
-                    neighbor_node = PathNode(neighbor_x, neighbor_y, g_cost, h_cost, current)
+                    neighbor_node = PathNode(
+                        neighbor_x, neighbor_y, g_cost, h_cost, current
+                    )
                     heapq.heappush(open_set, neighbor_node)
                     open_dict[neighbor_pos] = neighbor_node
 
@@ -161,8 +178,9 @@ class PathfindingSystem(System):
 
         return total_cost
 
-    def is_line_of_sight(self, x1: int, y1: int, x2: int, y2: int,
-                         navmesh: Navmesh) -> bool:
+    def is_line_of_sight(
+        self, x1: int, y1: int, x2: int, y2: int, navmesh: Navmesh
+    ) -> bool:
         """Check if there's a clear line of sight between two points"""
         # Bresenham's line algorithm
         dx = abs(x2 - x1)
@@ -190,7 +208,9 @@ class PathfindingSystem(System):
 
         return True
 
-    def smooth_path(self, path: List[Tuple[int, int]], navmesh: Navmesh) -> List[Tuple[int, int]]:
+    def smooth_path(
+        self, path: List[Tuple[int, int]], navmesh: Navmesh
+    ) -> List[Tuple[int, int]]:
         """Smooth path by removing unnecessary waypoints"""
         if len(path) <= 2:
             return path
@@ -216,8 +236,9 @@ class PathfindingSystem(System):
 
         return smoothed
 
-    def get_movement_range(self, start_x: int, start_y: int, movement_points: int,
-                          navmesh: Navmesh) -> Set[Tuple[int, int]]:
+    def get_movement_range(
+        self, start_x: int, start_y: int, movement_points: int, navmesh: Navmesh
+    ) -> Set[Tuple[int, int]]:
         """Get all reachable positions within movement range"""
         reachable = set()
         open_set = [(start_x, start_y, 0)]  # (x, y, cost)

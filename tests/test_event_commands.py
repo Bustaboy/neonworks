@@ -28,7 +28,7 @@ from core.event_commands import (
     EventPage,
     GameEvent,
     EventContext,
-    create_sample_event
+    create_sample_event,
 )
 
 
@@ -67,9 +67,7 @@ class TestEventCommand:
     def test_command_creation(self):
         """Test creating basic event command"""
         cmd = EventCommand(
-            command_type=CommandType.SHOW_TEXT,
-            parameters={"text": "Hello"},
-            indent=0
+            command_type=CommandType.SHOW_TEXT, parameters={"text": "Hello"}, indent=0
         )
         assert cmd.command_type == CommandType.SHOW_TEXT
         assert cmd.parameters["text"] == "Hello"
@@ -78,9 +76,7 @@ class TestEventCommand:
     def test_command_serialization(self):
         """Test command to_dict/from_dict"""
         cmd = EventCommand(
-            command_type=CommandType.WAIT,
-            parameters={"duration": 60},
-            indent=1
+            command_type=CommandType.WAIT, parameters={"duration": 60}, indent=1
         )
 
         data = cmd.to_dict()
@@ -105,7 +101,7 @@ class TestShowTextCommand:
             face_name="Actor1",
             face_index=2,
             background=1,
-            position=0
+            position=0,
         )
 
         assert cmd.command_type == CommandType.SHOW_TEXT
@@ -129,9 +125,7 @@ class TestShowChoicesCommand:
     def test_creation(self):
         """Test creating show choices command"""
         cmd = ShowChoicesCommand(
-            choices=["Yes", "No", "Maybe"],
-            cancel_type=2,
-            default_choice=0
+            choices=["Yes", "No", "Maybe"], cancel_type=2, default_choice=0
         )
 
         assert cmd.command_type == CommandType.SHOW_CHOICES
@@ -145,11 +139,7 @@ class TestConditionalBranchCommand:
 
     def test_switch_condition(self):
         """Test switch condition"""
-        cmd = ConditionalBranchCommand(
-            condition_type="switch",
-            switch_id=5,
-            value=True
-        )
+        cmd = ConditionalBranchCommand(condition_type="switch", switch_id=5, value=True)
 
         assert cmd.command_type == CommandType.CONDITIONAL_BRANCH
         assert cmd.parameters["condition_type"] == "switch"
@@ -159,10 +149,7 @@ class TestConditionalBranchCommand:
     def test_variable_condition(self):
         """Test variable condition"""
         cmd = ConditionalBranchCommand(
-            condition_type="variable",
-            variable_id=10,
-            operator=">=",
-            value=100
+            condition_type="variable", variable_id=10, operator=">=", value=100
         )
 
         assert cmd.parameters["condition_type"] == "variable"
@@ -194,10 +181,7 @@ class TestControlCommands:
     def test_control_variables(self):
         """Test controlling variables"""
         cmd = ControlVariablesCommand(
-            variable_id=1,
-            operation="add",
-            operand_type="constant",
-            operand_value=10
+            variable_id=1, operation="add", operand_type="constant", operand_value=10
         )
 
         assert cmd.command_type == CommandType.CONTROL_VARIABLES
@@ -212,13 +196,7 @@ class TestTransferPlayerCommand:
 
     def test_creation(self):
         """Test creating transfer command"""
-        cmd = TransferPlayerCommand(
-            map_id=5,
-            x=10,
-            y=20,
-            direction=2,
-            fade_type=0
-        )
+        cmd = TransferPlayerCommand(map_id=5, x=10, y=20, direction=2, fade_type=0)
 
         assert cmd.command_type == CommandType.TRANSFER_PLAYER
         assert cmd.parameters["map_id"] == 5
@@ -233,12 +211,7 @@ class TestAudioCommands:
 
     def test_play_bgm(self):
         """Test BGM command"""
-        cmd = PlayBGMCommand(
-            name="Theme1",
-            volume=80,
-            pitch=110,
-            pan=10
-        )
+        cmd = PlayBGMCommand(name="Theme1", volume=80, pitch=110, pan=10)
 
         assert cmd.command_type == CommandType.PLAY_BGM
         assert cmd.parameters["name"] == "Theme1"
@@ -276,7 +249,7 @@ class TestEventPage:
             trigger=TriggerType.ACTION_BUTTON,
             character_name="NPC1",
             direction=2,
-            move_type=MoveType.RANDOM
+            move_type=MoveType.RANDOM,
         )
 
         assert page.trigger == TriggerType.ACTION_BUTTON
@@ -294,10 +267,7 @@ class TestEventPage:
 
     def test_page_condition_switch(self):
         """Test page with switch condition"""
-        page = EventPage(
-            condition_switch1_valid=True,
-            condition_switch1_id=5
-        )
+        page = EventPage(condition_switch1_valid=True, condition_switch1_id=5)
 
         game_state = MockGameState()
 
@@ -314,7 +284,7 @@ class TestEventPage:
             condition_switch1_valid=True,
             condition_switch1_id=1,
             condition_switch2_valid=True,
-            condition_switch2_id=2
+            condition_switch2_id=2,
         )
 
         game_state = MockGameState()
@@ -335,7 +305,7 @@ class TestEventPage:
         page = EventPage(
             condition_variable_valid=True,
             condition_variable_id=10,
-            condition_variable_value=50
+            condition_variable_value=50,
         )
 
         game_state = MockGameState()
@@ -354,10 +324,7 @@ class TestEventPage:
 
     def test_page_condition_item(self):
         """Test page with item condition"""
-        page = EventPage(
-            condition_item_valid=True,
-            condition_item_id=15
-        )
+        page = EventPage(condition_item_valid=True, condition_item_id=15)
 
         game_state = MockGameState()
 
@@ -378,7 +345,7 @@ class TestEventPage:
             direction=4,
             move_type=MoveType.APPROACH,
             move_speed=MoveSpeed.FAST,
-            trigger=TriggerType.PLAYER_TOUCH
+            trigger=TriggerType.PLAYER_TOUCH,
         )
 
         # Add commands
@@ -410,12 +377,7 @@ class TestGameEvent:
 
     def test_event_creation(self):
         """Test creating game event"""
-        event = GameEvent(
-            id=1,
-            name="Test Event",
-            x=5,
-            y=10
-        )
+        event = GameEvent(id=1, name="Test Event", x=5, y=10)
 
         assert event.id == 1
         assert event.name == "Test Event"
@@ -433,10 +395,7 @@ class TestGameEvent:
         event.pages.append(page1)
 
         # Page 2: After switch 1
-        page2 = EventPage(
-            condition_switch1_valid=True,
-            condition_switch1_id=1
-        )
+        page2 = EventPage(condition_switch1_valid=True, condition_switch1_id=1)
         page2.commands.append(ShowTextCommand("After quest"))
         event.pages.append(page2)
 
@@ -462,17 +421,11 @@ class TestGameEvent:
         event.pages.append(page1)
 
         # Page 2: Requires switch 1
-        page2 = EventPage(
-            condition_switch1_valid=True,
-            condition_switch1_id=1
-        )
+        page2 = EventPage(condition_switch1_valid=True, condition_switch1_id=1)
         event.pages.append(page2)
 
         # Page 3: Requires switch 2
-        page3 = EventPage(
-            condition_switch1_valid=True,
-            condition_switch1_id=2
-        )
+        page3 = EventPage(condition_switch1_valid=True, condition_switch1_id=2)
         event.pages.append(page3)
 
         game_state = MockGameState()
@@ -590,15 +543,13 @@ class TestEventContext:
 
         # Create commands with labels
         page.commands.append(ShowTextCommand("Start"))
-        page.commands.append(EventCommand(
-            command_type=CommandType.LABEL,
-            parameters={"name": "middle"}
-        ))
+        page.commands.append(
+            EventCommand(command_type=CommandType.LABEL, parameters={"name": "middle"})
+        )
         page.commands.append(ShowTextCommand("Middle"))
-        page.commands.append(EventCommand(
-            command_type=CommandType.LABEL,
-            parameters={"name": "end"}
-        ))
+        page.commands.append(
+            EventCommand(command_type=CommandType.LABEL, parameters={"name": "end"})
+        )
         page.commands.append(ShowTextCommand("End"))
 
         context = EventContext(event=event, page=page)

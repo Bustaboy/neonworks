@@ -12,7 +12,7 @@ from neonworks.core.scene import (
     SceneManager,
     SceneTransition,
     SceneState,
-    TransitionType
+    TransitionType,
 )
 
 

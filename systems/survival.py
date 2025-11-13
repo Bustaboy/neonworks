@@ -79,30 +79,25 @@ class SurvivalSystem(System):
 
         if health.current <= 0.0:
             # Entity died
-            self.event_manager.emit(Event(
-                EventType.UNIT_DIED,
-                {
-                    "entity_id": entity.id,
-                    "cause": "survival_needs"
-                }
-            ))
+            self.event_manager.emit(
+                Event(
+                    EventType.UNIT_DIED,
+                    {"entity_id": entity.id, "cause": "survival_needs"},
+                )
+            )
 
     def _emit_critical_event(self, entity: Entity, need_type: str, value: float):
         """Emit critical need event"""
         event_types = {
             "hunger": EventType.HUNGER_CRITICAL,
             "thirst": EventType.THIRST_CRITICAL,
-            "energy": EventType.ENERGY_DEPLETED
+            "energy": EventType.ENERGY_DEPLETED,
         }
 
         if need_type in event_types:
-            self.event_manager.emit(Event(
-                event_types[need_type],
-                {
-                    "entity_id": entity.id,
-                    "value": value
-                }
-            ))
+            self.event_manager.emit(
+                Event(event_types[need_type], {"entity_id": entity.id, "value": value})
+            )
 
     def consume_food(self, entity: Entity, amount: float):
         """Consume food to restore hunger"""
@@ -137,16 +132,7 @@ class SurvivalSystem(System):
                 return "critical"
 
         return {
-            "hunger": {
-                "value": survival.hunger,
-                "state": get_state(survival.hunger)
-            },
-            "thirst": {
-                "value": survival.thirst,
-                "state": get_state(survival.thirst)
-            },
-            "energy": {
-                "value": survival.energy,
-                "state": get_state(survival.energy)
-            }
+            "hunger": {"value": survival.hunger, "state": get_state(survival.hunger)},
+            "thirst": {"value": survival.thirst, "state": get_state(survival.thirst)},
+            "energy": {"value": survival.energy, "state": get_state(survival.energy)},
         }

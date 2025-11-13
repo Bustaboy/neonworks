@@ -17,6 +17,7 @@ from neonworks.core.ecs import Component
 
 class EmitterShape(Enum):
     """Particle emitter shapes"""
+
     POINT = "point"
     CIRCLE = "circle"
     CONE = "cone"
@@ -26,6 +27,7 @@ class EmitterShape(Enum):
 
 class ParticleBlendMode(Enum):
     """Particle blending modes"""
+
     NORMAL = "normal"
     ADDITIVE = "additive"
     MULTIPLY = "multiply"
@@ -34,6 +36,7 @@ class ParticleBlendMode(Enum):
 @dataclass
 class Particle:
     """Single particle in the system"""
+
     # Position and velocity
     x: float = 0.0
     y: float = 0.0
@@ -99,6 +102,7 @@ class ParticleEmitter(Component):
 
     Emits particles with configurable properties and behaviors.
     """
+
     # Position (world coordinates, if not attached to entity)
     x: float = 0.0
     y: float = 0.0
@@ -163,14 +167,21 @@ class ParticleEmitter(Component):
         spawn_x, spawn_y = self._get_spawn_position()
 
         # Determine velocity based on emission angle and spread
-        angle_rad = math.radians(self.emission_angle + random.uniform(-self.emission_spread/2, self.emission_spread/2))
-        speed = self.initial_speed + random.uniform(-self.initial_speed_variance, self.initial_speed_variance)
+        angle_rad = math.radians(
+            self.emission_angle
+            + random.uniform(-self.emission_spread / 2, self.emission_spread / 2)
+        )
+        speed = self.initial_speed + random.uniform(
+            -self.initial_speed_variance, self.initial_speed_variance
+        )
 
         velocity_x = math.cos(angle_rad) * speed
         velocity_y = math.sin(angle_rad) * speed
 
         # Determine lifetime
-        lifetime = self.particle_lifetime + random.uniform(-self.particle_lifetime_variance, self.particle_lifetime_variance)
+        lifetime = self.particle_lifetime + random.uniform(
+            -self.particle_lifetime_variance, self.particle_lifetime_variance
+        )
         lifetime = max(0.1, lifetime)
 
         # Determine size
@@ -178,7 +189,9 @@ class ParticleEmitter(Component):
         size = max(0.5, size)
 
         # Determine rotation speed
-        rot_speed = self.rotation_speed + random.uniform(-self.rotation_speed_variance, self.rotation_speed_variance)
+        rot_speed = self.rotation_speed + random.uniform(
+            -self.rotation_speed_variance, self.rotation_speed_variance
+        )
 
         # Create particle
         particle = Particle(
@@ -193,7 +206,7 @@ class ParticleEmitter(Component):
             rotation_speed=rot_speed,
             gravity_x=self.gravity_x,
             gravity_y=self.gravity_y,
-            drag=self.drag
+            drag=self.drag,
         )
 
         return particle
@@ -209,13 +222,13 @@ class ParticleEmitter(Component):
             return (math.cos(angle) * radius, math.sin(angle) * radius)
 
         elif self.shape == EmitterShape.BOX:
-            x = random.uniform(-self.shape_width/2, self.shape_width/2)
-            y = random.uniform(-self.shape_height/2, self.shape_height/2)
+            x = random.uniform(-self.shape_width / 2, self.shape_width / 2)
+            y = random.uniform(-self.shape_height / 2, self.shape_height / 2)
             return (x, y)
 
         elif self.shape == EmitterShape.CONE:
             # Emit from a cone shape
-            angle = random.uniform(-self.shape_angle/2, self.shape_angle/2)
+            angle = random.uniform(-self.shape_angle / 2, self.shape_angle / 2)
             distance = random.uniform(0, self.shape_radius)
             angle_rad = math.radians(angle + self.emission_angle)
             return (math.cos(angle_rad) * distance, math.sin(angle_rad) * distance)
@@ -276,7 +289,10 @@ class ParticleSystem:
             if emitter.is_emitting and emitter.auto_emit:
                 emitter.emission_accumulator += emitter.emit_rate * delta_time
 
-                while emitter.emission_accumulator >= 1.0 and len(emitter.particles) < emitter.max_particles:
+                while (
+                    emitter.emission_accumulator >= 1.0
+                    and len(emitter.particles) < emitter.max_particles
+                ):
                     particle = emitter.emit_particle()
                     emitter.particles.append(particle)
                     emitter.emission_accumulator -= 1.0
@@ -298,12 +314,17 @@ class ParticleSystem:
                     # Apply color interpolation
                     if emitter.end_color is not None:
                         progress = particle.get_life_progress()
-                        particle.color = self._interpolate_color(emitter.start_color, emitter.end_color, progress)
+                        particle.color = self._interpolate_color(
+                            emitter.start_color, emitter.end_color, progress
+                        )
 
                     # Apply size interpolation
                     if emitter.end_size is not None:
                         progress = particle.get_life_progress()
-                        particle.size = emitter.start_size + (emitter.end_size - emitter.start_size) * progress
+                        particle.size = (
+                            emitter.start_size
+                            + (emitter.end_size - emitter.start_size) * progress
+                        )
 
                     # Remove dead particles
                     if not particle.is_alive:
@@ -311,7 +332,10 @@ class ParticleSystem:
 
             # Remove emitter if it's done and has no particles
             if emitter.emitter_lifetime is not None:
-                if emitter.emitter_age >= emitter.emitter_lifetime and len(emitter.particles) == 0:
+                if (
+                    emitter.emitter_age >= emitter.emitter_lifetime
+                    and len(emitter.particles) == 0
+                ):
                     self.remove_emitter(emitter)
 
     def _update_particles_vectorized(self, emitter: ParticleEmitter, delta_time: float):
@@ -335,7 +359,9 @@ class ParticleSystem:
         gy = np.array([p.gravity_y for p in emitter.particles], dtype=np.float32)
         drags = np.array([p.drag for p in emitter.particles], dtype=np.float32)
         rotations = np.array([p.rotation for p in emitter.particles], dtype=np.float32)
-        rot_speeds = np.array([p.rotation_speed for p in emitter.particles], dtype=np.float32)
+        rot_speeds = np.array(
+            [p.rotation_speed for p in emitter.particles], dtype=np.float32
+        )
 
         # Update ages
         ages += delta_time
@@ -375,12 +401,16 @@ class ParticleSystem:
                 # Apply color interpolation
                 if emitter.end_color is not None:
                     t = float(progress[i])
-                    particle.color = self._interpolate_color(emitter.start_color, emitter.end_color, t)
+                    particle.color = self._interpolate_color(
+                        emitter.start_color, emitter.end_color, t
+                    )
 
                 # Apply size interpolation
                 if emitter.end_size is not None:
                     t = float(progress[i])
-                    particle.size = emitter.start_size + (emitter.end_size - emitter.start_size) * t
+                    particle.size = (
+                        emitter.start_size + (emitter.end_size - emitter.start_size) * t
+                    )
 
                 alive_particles.append(particle)
             else:
@@ -388,8 +418,9 @@ class ParticleSystem:
 
         emitter.particles = alive_particles
 
-    def _interpolate_color(self, start: Tuple[int, int, int, int],
-                           end: Tuple[int, int, int, int], t: float) -> Tuple[int, int, int, int]:
+    def _interpolate_color(
+        self, start: Tuple[int, int, int, int], end: Tuple[int, int, int, int], t: float
+    ) -> Tuple[int, int, int, int]:
         """Interpolate between two colors"""
         r = int(start[0] + (end[0] - start[0]) * t)
         g = int(start[1] + (end[1] - start[1]) * t)
@@ -435,13 +466,17 @@ class ParticleRenderer:
 
             # Render particle
             if emitter.texture:
-                self._render_textured_particle(screen, particle, screen_x, screen_y, emitter.texture)
+                self._render_textured_particle(
+                    screen, particle, screen_x, screen_y, emitter.texture
+                )
             else:
                 self._render_circle_particle(screen, particle, screen_x, screen_y)
 
             self.draw_count += 1
 
-    def _render_circle_particle(self, screen: pygame.Surface, particle: Particle, x: int, y: int):
+    def _render_circle_particle(
+        self, screen: pygame.Surface, particle: Particle, x: int, y: int
+    ):
         """Render particle as colored circle"""
         size = int(particle.size)
         if size < 1:
@@ -454,8 +489,14 @@ class ParticleRenderer:
         # Blit to screen
         screen.blit(particle_surface, (x - size, y - size))
 
-    def _render_textured_particle(self, screen: pygame.Surface, particle: Particle,
-                                   x: int, y: int, texture: pygame.Surface):
+    def _render_textured_particle(
+        self,
+        screen: pygame.Surface,
+        particle: Particle,
+        x: int,
+        y: int,
+        texture: pygame.Surface,
+    ):
         """Render particle with texture"""
         # Scale texture to particle size
         size = int(particle.size * 2)
@@ -487,7 +528,8 @@ class ParticlePresets:
     def explosion(x: float, y: float) -> ParticleEmitter:
         """Create explosion effect"""
         return ParticleEmitter(
-            x=x, y=y,
+            x=x,
+            y=y,
             emit_rate=0,  # Burst only
             burst_count=50,
             auto_emit=False,
@@ -504,14 +546,15 @@ class ParticlePresets:
             end_size=2.0,
             gravity_y=50,
             drag=2.0,
-            emitter_lifetime=1.5
+            emitter_lifetime=1.5,
         )
 
     @staticmethod
     def smoke(x: float, y: float) -> ParticleEmitter:
         """Create smoke effect"""
         return ParticleEmitter(
-            x=x, y=y,
+            x=x,
+            y=y,
             emit_rate=20,
             max_particles=100,
             particle_lifetime=2.0,
@@ -525,14 +568,15 @@ class ParticlePresets:
             start_size=6.0,
             end_size=12.0,
             gravity_y=-20,  # Float up
-            drag=0.5
+            drag=0.5,
         )
 
     @staticmethod
     def fire(x: float, y: float) -> ParticleEmitter:
         """Create fire effect"""
         return ParticleEmitter(
-            x=x, y=y,
+            x=x,
+            y=y,
             emit_rate=30,
             max_particles=100,
             particle_lifetime=0.8,
@@ -546,14 +590,15 @@ class ParticlePresets:
             start_size=8.0,
             end_size=2.0,
             gravity_y=-50,  # Float up
-            drag=0.3
+            drag=0.3,
         )
 
     @staticmethod
     def sparks(x: float, y: float) -> ParticleEmitter:
         """Create sparks effect"""
         return ParticleEmitter(
-            x=x, y=y,
+            x=x,
+            y=y,
             emit_rate=0,
             burst_count=30,
             auto_emit=False,
@@ -570,14 +615,15 @@ class ParticlePresets:
             end_size=1.0,
             gravity_y=400,
             drag=3.0,
-            emitter_lifetime=1.0
+            emitter_lifetime=1.0,
         )
 
     @staticmethod
     def trail(x: float, y: float, angle: float = 0) -> ParticleEmitter:
         """Create trail effect (for moving objects)"""
         return ParticleEmitter(
-            x=x, y=y,
+            x=x,
+            y=y,
             emit_rate=50,
             max_particles=50,
             particle_lifetime=0.5,
@@ -591,14 +637,15 @@ class ParticlePresets:
             start_size=5.0,
             end_size=1.0,
             gravity_y=0,
-            drag=1.0
+            drag=1.0,
         )
 
     @staticmethod
     def heal(x: float, y: float) -> ParticleEmitter:
         """Create healing effect"""
         return ParticleEmitter(
-            x=x, y=y,
+            x=x,
+            y=y,
             emit_rate=20,
             max_particles=50,
             particle_lifetime=1.5,
@@ -613,5 +660,5 @@ class ParticlePresets:
             end_size=8.0,
             gravity_y=-30,  # Float up
             drag=0.5,
-            emitter_lifetime=2.0
+            emitter_lifetime=2.0,
         )
