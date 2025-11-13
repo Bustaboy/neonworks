@@ -27,7 +27,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Neon Works Team",
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=requirements,
     entry_points={
@@ -53,10 +53,8 @@ setup(
         "Topic :: Games/Entertainment",
         "Topic :: Software Development :: Libraries :: pygame",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     keywords="game-engine pygame 2d turn-based strategy",
     project_urls={
