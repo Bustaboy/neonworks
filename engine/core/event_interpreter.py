@@ -20,7 +20,6 @@ from neonworks.core.event_commands import (
 )
 from neonworks.core.events import Event, EventManager, EventType
 
-
 logger = logging.getLogger(__name__)
 
 
