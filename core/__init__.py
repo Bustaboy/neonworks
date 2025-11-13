@@ -22,12 +22,15 @@ def __getattr__(name):
             SceneTransition,
             TransitionType,
         )
-        globals().update({
-            "Scene": Scene,
-            "SceneManager": SceneManager,
-            "SceneState": SceneState,
-            "SceneTransition": SceneTransition,
-            "TransitionType": TransitionType,
-        })
+
+        globals().update(
+            {
+                "Scene": Scene,
+                "SceneManager": SceneManager,
+                "SceneState": SceneState,
+                "SceneTransition": SceneTransition,
+                "TransitionType": TransitionType,
+            }
+        )
         return globals()[name]
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
