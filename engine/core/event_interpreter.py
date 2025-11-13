@@ -256,10 +256,8 @@ class EventInterpreter:
         Returns:
             True if the instance has finished execution
         """
-        if instance.is_finished():
-            return True
-
-        # Handle wait states
+        # Handle wait states BEFORE checking if finished
+        # (wait frames need to count down even if at end of command list)
         if instance.wait_frames > 0:
             instance.wait_frames -= 1
             if instance.wait_frames == 0:
@@ -267,6 +265,9 @@ class EventInterpreter:
                 if instance.on_wait_complete:
                     instance.on_wait_complete()
             return False
+
+        if instance.is_finished():
+            return True
 
         if (
             instance.wait_for_message
@@ -314,6 +315,8 @@ class EventInterpreter:
         # Check if we should skip this command due to branching
         if self._should_skip_command(instance, command):
             instance.context.advance()
+            # Check for loop jump-back even when skipping commands
+            self._check_loop_jump_back(instance)
             return True
 
         # Execute command based on type
@@ -325,11 +328,7 @@ class EventInterpreter:
                 self.on_command_execute(command, instance.context)
 
             # Check if we've reached the end of a loop and need to jump back
-            if instance.loop_stack:
-                current_frame = instance.loop_stack[-1]
-                # If we've moved past the loop end, jump back to the start
-                if instance.context.command_index > current_frame.loop_end:
-                    instance.context.command_index = current_frame.loop_start + 1
+            self._check_loop_jump_back(instance)
 
             return True
         except Exception as e:
@@ -337,6 +336,19 @@ class EventInterpreter:
                 f"Error executing command {command.command_type.name} "
                 f"at index {instance.context.command_index}: {str(e)}"
             )
+
+    def _check_loop_jump_back(self, instance: InterpreterInstance):
+        """
+        Check if we've reached the end of a loop and need to jump back.
+
+        Args:
+            instance: The interpreter instance
+        """
+        if instance.loop_stack:
+            current_frame = instance.loop_stack[-1]
+            # If we've moved past the loop end, jump back to the start
+            if instance.context.command_index > current_frame.loop_end:
+                instance.context.command_index = current_frame.loop_start + 1
 
     def _should_skip_command(
         self, instance: InterpreterInstance, command: EventCommand
