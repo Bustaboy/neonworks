@@ -9,9 +9,18 @@ from unittest.mock import MagicMock, Mock
 import pygame
 import pytest
 
-from neonworks.ui.ui_system import (Anchor, HorizontalLayout, UIBuilder,
-                                    UIButton, UIContainer, UILabel, UIManager,
-                                    UIPanel, UIStyle, VerticalLayout)
+from neonworks.ui.ui_system import (
+    Anchor,
+    HorizontalLayout,
+    UIBuilder,
+    UIButton,
+    UIContainer,
+    UILabel,
+    UIManager,
+    UIPanel,
+    UIStyle,
+    VerticalLayout,
+)
 
 
 @pytest.fixture

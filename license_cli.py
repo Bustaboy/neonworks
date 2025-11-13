@@ -14,8 +14,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from licensing.hardware_id import get_hardware_id, get_machine_info
-from licensing.license_key import (LicenseKeyGenerator, LicenseTier,
-                                   get_production_generator)
+from licensing.license_key import (
+    LicenseKeyGenerator,
+    LicenseTier,
+    get_production_generator,
+)
 from licensing.license_validator import LicenseValidator, get_global_validator
 
 

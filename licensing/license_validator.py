@@ -10,8 +10,12 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from .hardware_id import get_hardware_id, validate_hardware_id
-from .license_key import (LicenseKey, LicenseKeyGenerator, LicenseTier,
-                          get_production_generator)
+from .license_key import (
+    LicenseKey,
+    LicenseKeyGenerator,
+    LicenseTier,
+    get_production_generator,
+)
 
 
 class LicenseValidator:

@@ -11,10 +11,20 @@ from typing import Dict, List, Optional, Tuple
 import pygame
 
 from gameplay.combat import Health, Team
-from gameplay.jrpg_combat import (BattleAI, BattleCommand, BattleFormation,
-                                  BattleRewards, BattleState, BossPhase,
-                                  EnemyData, JRPGStats, MagicPoints,
-                                  PartyMember, SpellList, TargetType)
+from gameplay.jrpg_combat import (
+    BattleAI,
+    BattleCommand,
+    BattleFormation,
+    BattleRewards,
+    BattleState,
+    BossPhase,
+    EnemyData,
+    JRPGStats,
+    MagicPoints,
+    PartyMember,
+    SpellList,
+    TargetType,
+)
 from neonworks.core.ecs import Entity, System, World
 from neonworks.core.events import Event, EventManager, EventType
 

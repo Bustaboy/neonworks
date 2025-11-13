@@ -7,8 +7,7 @@ Manages turn order, action points, and turn-based gameplay.
 from typing import List, Optional
 
 from neonworks.core.ecs import Entity, System, TurnActor, World
-from neonworks.core.events import (Event, EventManager, EventType,
-                                   get_event_manager)
+from neonworks.core.events import Event, EventManager, EventType, get_event_manager
 
 
 class TurnSystem(System):

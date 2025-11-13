@@ -307,8 +307,15 @@ class GameHUD:
         self.ui.label("Components:", x + 10, info_y, size=16, color=(200, 200, 255))
         info_y += line_height + 5
 
-        from ..core.ecs import (Building, Health, ResourceStorage, Sprite,
-                                Survival, Transform, TurnActor)
+        from ..core.ecs import (
+            Building,
+            Health,
+            ResourceStorage,
+            Sprite,
+            Survival,
+            Transform,
+            TurnActor,
+        )
 
         # Transform
         transform = world.get_component(self.selected_entity, Transform)

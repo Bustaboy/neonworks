@@ -94,7 +94,7 @@ jobs:
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only . --skip .git --skip __pycache__ --skip .pytest_cache
+        isort --check-only . --skip .git --skip __pycache__ --skip .pytest_cache --profile black
 
     - name: Lint with pylint
       run: |

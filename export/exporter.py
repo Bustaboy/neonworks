@@ -12,8 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from .executable_bundler import (BundleConfig, ExecutableBundler,
-                                 create_launcher_script)
+from .executable_bundler import BundleConfig, ExecutableBundler, create_launcher_script
 from .installer_builder import InstallerBuilder, InstallerConfig
 from .package_builder import PackageBuilder, PackageConfig
 

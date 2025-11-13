@@ -3,21 +3,29 @@
 from neonworks.rendering.animation import Animation, AnimationStateMachine
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
-from neonworks.rendering.particles import (EmitterShape, Particle,
-                                           ParticleBlendMode, ParticleEmitter,
-                                           ParticlePresets, ParticleRenderer,
-                                           ParticleSystem)
+from neonworks.rendering.particles import (
+    EmitterShape,
+    Particle,
+    ParticleBlendMode,
+    ParticleEmitter,
+    ParticlePresets,
+    ParticleRenderer,
+    ParticleSystem,
+)
 from neonworks.rendering.renderer import Renderer
 from neonworks.rendering.tilemap import Tile, TileLayer, Tilemap, Tileset
 from neonworks.rendering.ui import HUD, UI, UIState, UIStyle
 
 # Asset pipeline utilities (requires Pillow)
 try:
-    from neonworks.rendering.asset_pipeline import (AtlasRegion, ImageEffects,
-                                                    ImageOptimizer,
-                                                    PygameConverter,
-                                                    SpriteSheetExtractor,
-                                                    TextureAtlasBuilder)
+    from neonworks.rendering.asset_pipeline import (
+        AtlasRegion,
+        ImageEffects,
+        ImageOptimizer,
+        PygameConverter,
+        SpriteSheetExtractor,
+        TextureAtlasBuilder,
+    )
 
     ASSET_PIPELINE_AVAILABLE = True
 except ImportError:

@@ -9,14 +9,19 @@ from unittest.mock import MagicMock, Mock
 import pygame
 import pytest
 
-from neonworks.rendering.animation import (Animation, AnimationBuilder,
-                                           AnimationComponent, AnimationFrame,
-                                           AnimationState,
-                                           AnimationStateMachine,
-                                           AnimationStateMachineBuilder,
-                                           AnimationSystem, StateTransition,
-                                           TransitionCondition,
-                                           TransitionConditionType)
+from neonworks.rendering.animation import (
+    Animation,
+    AnimationBuilder,
+    AnimationComponent,
+    AnimationFrame,
+    AnimationState,
+    AnimationStateMachine,
+    AnimationStateMachineBuilder,
+    AnimationSystem,
+    StateTransition,
+    TransitionCondition,
+    TransitionConditionType,
+)
 
 
 @pytest.fixture

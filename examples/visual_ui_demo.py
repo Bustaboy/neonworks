@@ -26,12 +26,10 @@ import pygame
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from neonworks.audio.audio_manager import AudioManager
-from neonworks.core.ecs import (GridPosition, Health, Sprite, Survival,
-                                Transform, World)
+from neonworks.core.ecs import GridPosition, Health, Sprite, Survival, Transform, World
 from neonworks.core.game_loop import GameLoop
 from neonworks.input.input_manager import InputManager
-from neonworks.systems.base_building import (Building, BuildingSystem,
-                                             ResourceStorage)
+from neonworks.systems.base_building import Building, BuildingSystem, ResourceStorage
 from neonworks.systems.survival_system import SurvivalSystem
 from neonworks.systems.turn_system import TurnActor, TurnSystem
 from neonworks.ui.master_ui_manager import MasterUIManager

@@ -10,9 +10,12 @@ import pytest
 
 from neonworks.core.ecs import Transform, World
 from neonworks.physics.collision import Collider, ColliderType, CollisionInfo
-from neonworks.physics.rigidbody import (IntegratedPhysicsSystem,
-                                         PhysicsSettings, PhysicsSystem,
-                                         RigidBody)
+from neonworks.physics.rigidbody import (
+    IntegratedPhysicsSystem,
+    PhysicsSettings,
+    PhysicsSystem,
+    RigidBody,
+)
 
 
 class TestRigidBody:

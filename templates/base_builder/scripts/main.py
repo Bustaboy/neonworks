@@ -27,8 +27,7 @@ engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
 from neonworks.core.ecs import Component, Entity, System, World
-from neonworks.systems.base_building import (Building, BuildingComponent,
-                                             BuildingLibrary)
+from neonworks.systems.base_building import Building, BuildingComponent, BuildingLibrary
 
 
 # Components

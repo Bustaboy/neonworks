@@ -12,9 +12,17 @@ import pygame
 from neonworks.core.ecs import Entity, Health, System, Transform, World
 from neonworks.core.events import Event, EventManager, EventType
 
-from .components import (AIController, AIState, CombatStats, GameScreen,
-                         GameStats, PlayerController, ScreenState, UIHealthBar,
-                         Velocity)
+from .components import (
+    AIController,
+    AIState,
+    CombatStats,
+    GameScreen,
+    GameStats,
+    PlayerController,
+    ScreenState,
+    UIHealthBar,
+    Velocity,
+)
 
 # ============================================================================
 # Input System - Priority: 0 (runs first)

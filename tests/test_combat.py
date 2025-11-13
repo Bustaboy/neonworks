@@ -9,10 +9,18 @@ from unittest.mock import Mock, patch
 import pytest
 
 from neonworks.core.ecs import Entity, GridPosition, Transform, World
-from neonworks.gameplay.combat import (ActionPoints, CombatStats, CombatSystem,
-                                       DamageInstance, DamageType, Health,
-                                       HealthSystem, Team, TeamComponent,
-                                       Weapon)
+from neonworks.gameplay.combat import (
+    ActionPoints,
+    CombatStats,
+    CombatSystem,
+    DamageInstance,
+    DamageType,
+    Health,
+    HealthSystem,
+    Team,
+    TeamComponent,
+    Weapon,
+)
 
 
 @pytest.fixture

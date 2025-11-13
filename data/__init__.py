@@ -1,7 +1,10 @@
 """Data management systems"""
 
-from neonworks.data.serialization import (AutoSaveManager, GameSerializer,
-                                          SaveGameManager)
+from neonworks.data.serialization import (
+    AutoSaveManager,
+    GameSerializer,
+    SaveGameManager,
+)
 
 # Config loader (requires PyYAML for YAML support)
 try:

@@ -10,10 +10,15 @@ import pygame
 import pytest
 
 from neonworks.rendering.camera import Camera
-from neonworks.rendering.particles import (EmitterShape, Particle,
-                                           ParticleBlendMode, ParticleEmitter,
-                                           ParticlePresets, ParticleRenderer,
-                                           ParticleSystem)
+from neonworks.rendering.particles import (
+    EmitterShape,
+    Particle,
+    ParticleBlendMode,
+    ParticleEmitter,
+    ParticlePresets,
+    ParticleRenderer,
+    ParticleSystem,
+)
 
 
 @pytest.fixture

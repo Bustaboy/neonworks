@@ -21,11 +21,21 @@ try:
 except ImportError:
     CRYPTO_AVAILABLE = False
 
-from .package_format import (COMP_NONE, COMP_ZLIB, ENC_AES256_GCM, ENC_NONE,
-                             FLAG_COMPRESSED, FLAG_ENCRYPTED, FORMAT_VERSION,
-                             HEADER_SIZE, MAGIC_NUMBER, FileEntry,
-                             PackageHeader, compute_data_hash,
-                             compute_file_hash)
+from .package_format import (
+    COMP_NONE,
+    COMP_ZLIB,
+    ENC_AES256_GCM,
+    ENC_NONE,
+    FLAG_COMPRESSED,
+    FLAG_ENCRYPTED,
+    FORMAT_VERSION,
+    HEADER_SIZE,
+    MAGIC_NUMBER,
+    FileEntry,
+    PackageHeader,
+    compute_data_hash,
+    compute_file_hash,
+)
 
 
 @dataclass

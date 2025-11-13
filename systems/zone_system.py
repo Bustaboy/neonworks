@@ -9,8 +9,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
 from gameplay.movement import Direction, TileCollisionMap, ZoneTrigger
-from neonworks.core.ecs import (Entity, GridPosition, Sprite, System,
-                                Transform, World)
+from neonworks.core.ecs import Entity, GridPosition, Sprite, System, Transform, World
 from neonworks.core.events import Event, EventManager, EventType
 from neonworks.rendering.tilemap import Tile, TileLayer, Tilemap, Tileset
 
@@ -333,8 +332,12 @@ class ZoneSystem(System):
 
     def _spawn_npc(self, world: World, npc_data: dict):
         """Spawn an NPC entity"""
-        from gameplay.movement import (AnimationState, Interactable, Movement,
-                                       NPCBehavior)
+        from gameplay.movement import (
+            AnimationState,
+            Interactable,
+            Movement,
+            NPCBehavior,
+        )
 
         npc = world.create_entity()
         npc.add_tag("npc")

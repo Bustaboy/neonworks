@@ -18,8 +18,7 @@ try:
 except ImportError:
     CRYPTO_AVAILABLE = False
 
-from .package_format import (HEADER_SIZE, FileEntry, PackageHeader,
-                             compute_data_hash)
+from .package_format import HEADER_SIZE, FileEntry, PackageHeader, compute_data_hash
 
 
 class PackageLoader:

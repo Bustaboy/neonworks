@@ -8,8 +8,13 @@ import math
 
 import pytest
 
-from neonworks.ai.pathfinding import (Heuristic, NavigationGrid, Pathfinder,
-                                      PathfindingSystem, PathNode)
+from neonworks.ai.pathfinding import (
+    Heuristic,
+    NavigationGrid,
+    Pathfinder,
+    PathfindingSystem,
+    PathNode,
+)
 
 
 class TestNavigationGrid:

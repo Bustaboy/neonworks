@@ -12,12 +12,16 @@ from pathlib import Path
 import pytest
 
 from neonworks.core.ecs import Component, GridPosition, Transform, World
-from neonworks.core.serialization import (ComponentSerializer,
-                                          EntitySerializer, GameSerializer,
-                                          SerializationError,
-                                          SerializationFormat,
-                                          SerializationMetadata,
-                                          WorldSerializer, get_game_serializer)
+from neonworks.core.serialization import (
+    ComponentSerializer,
+    EntitySerializer,
+    GameSerializer,
+    SerializationError,
+    SerializationFormat,
+    SerializationMetadata,
+    WorldSerializer,
+    get_game_serializer,
+)
 
 
 @dataclass

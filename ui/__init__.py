@@ -1,8 +1,18 @@
 """UI system"""
 
-from neonworks.ui.ui_system import (Anchor, HorizontalLayout, UIBuilder,
-                                    UIButton, UIContainer, UILabel, UIManager,
-                                    UIPanel, UIStyle, UIWidget, VerticalLayout)
+from neonworks.ui.ui_system import (
+    Anchor,
+    HorizontalLayout,
+    UIBuilder,
+    UIButton,
+    UIContainer,
+    UILabel,
+    UIManager,
+    UIPanel,
+    UIStyle,
+    UIWidget,
+    VerticalLayout,
+)
 
 __all__ = [
     "Anchor",

@@ -8,8 +8,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional, Tuple
 
-from neonworks.core.ecs import (Collider, Component, Entity, RigidBody, System,
-                                Transform, World)
+from neonworks.core.ecs import (
+    Collider,
+    Component,
+    Entity,
+    RigidBody,
+    System,
+    Transform,
+    World,
+)
 from neonworks.input.input_manager import InputManager
 from neonworks.rendering.animation import AnimationComponent
 

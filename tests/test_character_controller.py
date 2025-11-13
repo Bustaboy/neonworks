@@ -10,14 +10,15 @@ import pygame
 import pytest
 
 from neonworks.core.ecs import Collider, RigidBody, Transform, World
-from neonworks.gameplay.character_controller import (AIController,
-                                                     AIControllerSystem,
-                                                     CharacterController,
-                                                     CharacterControllerSystem,
-                                                     MovementState)
+from neonworks.gameplay.character_controller import (
+    AIController,
+    AIControllerSystem,
+    CharacterController,
+    CharacterControllerSystem,
+    MovementState,
+)
 from neonworks.input.input_manager import InputManager
-from neonworks.rendering.animation import (Animation, AnimationComponent,
-                                           AnimationFrame)
+from neonworks.rendering.animation import Animation, AnimationComponent, AnimationFrame
 
 
 @pytest.fixture

@@ -9,8 +9,13 @@ from unittest.mock import MagicMock, Mock, patch
 import pygame
 import pytest
 
-from neonworks.core.scene import (Scene, SceneManager, SceneState,
-                                  SceneTransition, TransitionType)
+from neonworks.core.scene import (
+    Scene,
+    SceneManager,
+    SceneState,
+    SceneTransition,
+    TransitionType,
+)
 
 
 @pytest.fixture

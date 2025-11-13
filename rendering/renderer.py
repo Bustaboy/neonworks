@@ -8,8 +8,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pygame
 
-from neonworks.core.ecs import (Entity, GridPosition, Sprite, System,
-                                Transform, World)
+from neonworks.core.ecs import Entity, GridPosition, Sprite, System, Transform, World
 from neonworks.rendering.assets import AssetManager, get_asset_manager
 from neonworks.rendering.camera import Camera
 

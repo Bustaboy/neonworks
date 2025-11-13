@@ -10,8 +10,12 @@ import pytest
 
 from neonworks.export.exporter import ExportConfig, ProjectExporter
 from neonworks.export.package_builder import PackageBuilder, PackageConfig
-from neonworks.export.package_format import (FORMAT_VERSION, MAGIC_NUMBER,
-                                             FileEntry, PackageHeader)
+from neonworks.export.package_format import (
+    FORMAT_VERSION,
+    MAGIC_NUMBER,
+    FileEntry,
+    PackageHeader,
+)
 from neonworks.export.package_loader import PackageLoader
 
 

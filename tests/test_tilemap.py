@@ -11,9 +11,14 @@ import pytest
 
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
-from neonworks.rendering.tilemap import (Tile, TileLayer, Tilemap,
-                                         TilemapBuilder, TilemapRenderer,
-                                         Tileset)
+from neonworks.rendering.tilemap import (
+    Tile,
+    TileLayer,
+    Tilemap,
+    TilemapBuilder,
+    TilemapRenderer,
+    Tileset,
+)
 
 
 @pytest.fixture

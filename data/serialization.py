@@ -9,10 +9,22 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from neonworks.core.ecs import (Building, Collider, Component, Entity,
-                                GridPosition, Health, Navmesh, ResourceStorage,
-                                RigidBody, Sprite, Survival, Transform,
-                                TurnActor, World)
+from neonworks.core.ecs import (
+    Building,
+    Collider,
+    Component,
+    Entity,
+    GridPosition,
+    Health,
+    Navmesh,
+    ResourceStorage,
+    RigidBody,
+    Sprite,
+    Survival,
+    Transform,
+    TurnActor,
+    World,
+)
 from neonworks.core.project import Project
 
 

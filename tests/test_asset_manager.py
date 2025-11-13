@@ -10,9 +10,13 @@ from unittest.mock import MagicMock, Mock, patch
 import pygame
 import pytest
 
-from neonworks.rendering.animation import (Animation, AnimationBuilder,
-                                           AnimationComponent, AnimationFrame,
-                                           AnimationSystem)
+from neonworks.rendering.animation import (
+    Animation,
+    AnimationBuilder,
+    AnimationComponent,
+    AnimationFrame,
+    AnimationSystem,
+)
 from neonworks.rendering.assets import AssetManager, SpriteSheet
 
 
