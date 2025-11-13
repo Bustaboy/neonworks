@@ -11,7 +11,7 @@ import subprocess
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -46,7 +46,7 @@ class WindowsInstallerBuilder:
         self,
         executable_path: Path,
         output_dir: Path,
-        additional_files: list[tuple[Path, str]] = None,
+        additional_files: Optional[List[Tuple[Path, str]]] = None,
     ) -> Path:
         """
         Generate Inno Setup script
@@ -137,7 +137,7 @@ class WindowsInstallerBuilder:
         self,
         executable_path: Path,
         output_dir: Path,
-        additional_files: list[tuple[Path, str]],
+        additional_files: Optional[List[Tuple[Path, str]]],
     ) -> str:
         """Generate Inno Setup script content"""
         # Determine if we're bundling a single file or directory

@@ -7,7 +7,7 @@ Provides health, damage, stats, weapons, and action points.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from neonworks.core.ecs import Component, Entity, System, World
 
@@ -368,7 +368,7 @@ class CombatSystem(System):
         self.health_system = health_system
 
         # Combat log (optional)
-        self.combat_log: list[str] = []
+        self.combat_log: List[str] = []
         self.max_log_size = 50
 
     def update(self, world: World, delta_time: float):
@@ -588,7 +588,7 @@ class CombatSystem(System):
         if len(self.combat_log) > self.max_log_size:
             self.combat_log.pop(0)
 
-    def get_log(self) -> list[str]:
+    def get_log(self) -> List[str]:
         """Get combat log"""
         return self.combat_log.copy()
 
