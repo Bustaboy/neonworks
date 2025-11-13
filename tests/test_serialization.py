@@ -9,8 +9,8 @@ import json
 import tempfile
 from pathlib import Path
 from dataclasses import dataclass
-from engine.core.ecs import Component, World, Transform, GridPosition
-from engine.core.serialization import (
+from neonworks.core.ecs import Component, World, Transform, GridPosition
+from neonworks.core.serialization import (
     ComponentSerializer,
     EntitySerializer,
     WorldSerializer,

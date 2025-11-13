@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import math
 import numpy as np
-from engine.core.ecs import Component, Entity, World, Transform
+from neonworks.core.ecs import Component, Entity, World, Transform
 
 
 class ColliderType(Enum):

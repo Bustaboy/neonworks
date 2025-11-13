@@ -8,7 +8,7 @@ Provides health, damage, stats, weapons, and action points.
 from typing import Optional, Tuple, Callable, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component, System, World, Entity
+from neonworks.core.ecs import Component, System, World, Entity
 
 
 class DamageType(Enum):

@@ -8,10 +8,10 @@ Originally developed for Neon Collapse.
 __version__ = "0.1.0"
 __author__ = "Neon Works Team"
 
-from engine.core.ecs import Entity, Component, System, World
-from engine.core.game_loop import GameEngine
-from engine.core.events import EventManager, Event
-from engine.core.state import StateManager, GameState
+from neonworks.core.ecs import Entity, Component, System, World
+from neonworks.core.game_loop import GameEngine
+from neonworks.core.events import EventManager, Event
+from neonworks.core.state import StateManager, GameState
 
 __all__ = [
     "Entity",

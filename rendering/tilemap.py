@@ -8,9 +8,9 @@ import pygame
 from typing import List, Dict, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from enum import Enum
-from engine.core.ecs import Component
-from engine.rendering.assets import AssetManager
-from engine.rendering.camera import Camera
+from neonworks.core.ecs import Component
+from neonworks.rendering.assets import AssetManager
+from neonworks.rendering.camera import Camera
 
 
 @dataclass

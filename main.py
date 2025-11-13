@@ -10,16 +10,16 @@ Usage:
 
 import sys
 from pathlib import Path
-from engine.core.project import load_project, Project
-from engine.core.game_loop import GameEngine, EngineConfig
-from engine.core.ecs import World
-from engine.core.state import GameplayState, MenuState
-from engine.rendering.renderer import Renderer
-from engine.systems.turn_system import TurnSystem
-from engine.systems.base_building import BuildingSystem, BuildingLibrary
-from engine.systems.survival import SurvivalSystem
-from engine.systems.pathfinding import PathfindingSystem
-from engine.data.serialization import SaveGameManager
+from neonworks.core.project import load_project, Project
+from neonworks.core.game_loop import GameEngine, EngineConfig
+from neonworks.core.ecs import World
+from neonworks.core.state import GameplayState, MenuState
+from neonworks.rendering.renderer import Renderer
+from neonworks.systems.turn_system import TurnSystem
+from neonworks.systems.base_building import BuildingSystem, BuildingLibrary
+from neonworks.systems.survival import SurvivalSystem
+from neonworks.systems.pathfinding import PathfindingSystem
+from neonworks.data.serialization import SaveGameManager
 
 
 class GameApplication:
@@ -141,7 +141,7 @@ class GameApplication:
         state_manager.register_state(gameplay_state)
 
         # Start with the initial scene from project settings
-        from engine.core.state import StateTransition
+        from neonworks.core.state import StateTransition
         initial_scene = self.project.config.settings.initial_scene
         state_manager.change_state(initial_scene, StateTransition.PUSH)
 
@@ -175,7 +175,7 @@ class GameApplication:
         print(f"   • Read docs/getting_started.md for a complete tutorial")
         print(f"\n📁 Available projects:")
 
-        from engine.core.project import get_project_manager
+        from neonworks.core.project import get_project_manager
         pm = get_project_manager()
         projects = pm.list_projects()
 
@@ -208,7 +208,7 @@ Available Projects:
     """)
 
     # List available projects
-    from engine.core.project import get_project_manager
+    from neonworks.core.project import get_project_manager
     pm = get_project_manager()
     projects = pm.list_projects()
 

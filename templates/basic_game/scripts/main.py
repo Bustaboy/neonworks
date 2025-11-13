@@ -21,10 +21,10 @@ from pathlib import Path
 engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
-from engine.core.ecs import World, Entity, Component, System
-from engine.core.game_loop import GameEngine
-from engine.rendering.renderer import Renderer
-from engine.input.input_manager import InputManager
+from neonworks.core.ecs import World, Entity, Component, System
+from neonworks.core.game_loop import GameEngine
+from neonworks.rendering.renderer import Renderer
+from neonworks.input.input_manager import InputManager
 
 
 # Components

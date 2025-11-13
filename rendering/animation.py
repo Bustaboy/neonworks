@@ -8,7 +8,7 @@ from typing import List, Optional, Callable, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import pygame
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 
 @dataclass

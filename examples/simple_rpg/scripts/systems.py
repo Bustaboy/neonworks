@@ -7,8 +7,8 @@ Systems process entities with specific components each frame.
 
 import pygame
 import math
-from engine.core.ecs import System, World, Entity, Transform, Health
-from engine.core.events import EventManager, Event, EventType
+from neonworks.core.ecs import System, World, Entity, Transform, Health
+from neonworks.core.events import EventManager, Event, EventType
 from .components import (
     Velocity, PlayerController, CombatStats, AIController, AIState,
     UIHealthBar, GameStats, GameScreen, ScreenState

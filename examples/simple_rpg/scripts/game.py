@@ -11,7 +11,7 @@ This file demonstrates how to set up a complete game with:
 import pygame
 import json
 import os
-from engine.core.ecs import World, Transform, Health, Sprite
+from neonworks.core.ecs import World, Transform, Health, Sprite
 from .components import (
     Velocity, PlayerController, CombatStats, AIController, AIState,
     UIHealthBar, GameStats, GameScreen, ScreenState

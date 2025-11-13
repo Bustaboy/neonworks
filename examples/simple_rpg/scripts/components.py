@@ -8,7 +8,7 @@ Components are pure data containers with no logic.
 from dataclasses import dataclass, field
 from typing import Optional, Dict
 from enum import Enum
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 
 # ============================================================================
