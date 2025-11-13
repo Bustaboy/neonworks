@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     ControlSwitchesCommand,
     EventPage,
     GameEvent,
@@ -17,7 +17,7 @@ from core.event_commands import (
     TriggerType,
     WaitCommand,
 )
-from core.event_triggers import (
+from neonworks.core.event_triggers import (
     EventTriggerHandler,
     EventTriggerManager,
     TriggerCondition,
