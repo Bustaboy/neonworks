@@ -146,7 +146,7 @@ def test_conditional_branch_true(interpreter, game_state):
     branch_cmd = EventCommand(
         command_type=CommandType.CONDITIONAL_BRANCH,
         parameters={"condition_type": "switch", "switch_id": 1, "value": True},
-        indent=0
+        indent=0,
     )
 
     true_branch_cmd = EventCommand(
@@ -155,9 +155,9 @@ def test_conditional_branch_true(interpreter, game_state):
             "variable_id": 1,
             "operation": "set",
             "operand_type": "constant",
-            "operand_value": 100
+            "operand_value": 100,
         },
-        indent=1
+        indent=1,
     )
 
     page.commands = [branch_cmd, true_branch_cmd]
@@ -181,7 +181,7 @@ def test_conditional_branch_false(interpreter, game_state):
     branch_cmd = EventCommand(
         command_type=CommandType.CONDITIONAL_BRANCH,
         parameters={"condition_type": "switch", "switch_id": 1, "value": True},
-        indent=0
+        indent=0,
     )
 
     false_branch_cmd = EventCommand(
@@ -190,9 +190,9 @@ def test_conditional_branch_false(interpreter, game_state):
             "variable_id": 1,
             "operation": "set",
             "operand_type": "constant",
-            "operand_value": 100
+            "operand_value": 100,
         },
-        indent=1
+        indent=1,
     )
 
     page.commands = [branch_cmd, false_branch_cmd]
@@ -220,15 +220,20 @@ def test_loop_execution(interpreter, game_state):
                 "variable_id": 1,
                 "operation": "add",
                 "operand_type": "constant",
-                "operand_value": 1
+                "operand_value": 1,
             },
-            indent=1
+            indent=1,
         ),
         # Break loop when variable reaches 5
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={"condition_type": "variable", "variable_id": 1, "operator": ">=", "value": 5},
-            indent=1
+            parameters={
+                "condition_type": "variable",
+                "variable_id": 1,
+                "operator": ">=",
+                "value": 5,
+            },
+            indent=1,
         ),
         EventCommand(command_type=CommandType.BREAK_LOOP, parameters={}, indent=2),
     ]
@@ -252,11 +257,23 @@ def test_label_jump(interpreter, game_state):
     page = EventPage()
 
     page.commands = [
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=1),
-        EventCommand(command_type=CommandType.JUMP_TO_LABEL, parameters={"label": "skip"}, indent=0),
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=999),  # Should be skipped
-        EventCommand(command_type=CommandType.LABEL, parameters={"name": "skip"}, indent=0),
-        ControlVariablesCommand(variable_id=2, operation="set", operand_type="constant", operand_value=2),
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=1
+        ),
+        EventCommand(
+            command_type=CommandType.JUMP_TO_LABEL,
+            parameters={"label": "skip"},
+            indent=0,
+        ),
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=999
+        ),  # Should be skipped
+        EventCommand(
+            command_type=CommandType.LABEL, parameters={"name": "skip"}, indent=0
+        ),
+        ControlVariablesCommand(
+            variable_id=2, operation="set", operand_type="constant", operand_value=2
+        ),
     ]
 
     instance = interpreter.start_event(event, page)
@@ -274,9 +291,13 @@ def test_exit_event(interpreter, game_state):
     page = EventPage()
 
     page.commands = [
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=1),
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=1
+        ),
         EventCommand(command_type=CommandType.EXIT_EVENT, parameters={}, indent=0),
-        ControlVariablesCommand(variable_id=2, operation="set", operand_type="constant", operand_value=2),  # Should not execute
+        ControlVariablesCommand(
+            variable_id=2, operation="set", operand_type="constant", operand_value=2
+        ),  # Should not execute
     ]
 
     instance = interpreter.start_event(event, page)
@@ -296,13 +317,17 @@ def test_parallel_event_execution(interpreter, game_state):
     event1 = GameEvent(id=1, name="Parallel Event 1", x=0, y=0)
     page1 = EventPage(trigger=TriggerType.PARALLEL)
     page1.commands = [
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=10),
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=10
+        ),
     ]
 
     event2 = GameEvent(id=2, name="Parallel Event 2", x=0, y=0)
     page2 = EventPage(trigger=TriggerType.PARALLEL)
     page2.commands = [
-        ControlVariablesCommand(variable_id=2, operation="set", operand_type="constant", operand_value=20),
+        ControlVariablesCommand(
+            variable_id=2, operation="set", operand_type="constant", operand_value=20
+        ),
     ]
 
     # Start both as parallel
@@ -332,8 +357,13 @@ def create_door_event(door_id: int, locked: bool = False) -> GameEvent:
             ShowTextCommand("The door is locked."),
             EventCommand(
                 command_type=CommandType.CONDITIONAL_BRANCH,
-                parameters={"condition_type": "variable", "variable_id": 10, "operator": ">=", "value": 1},
-                indent=0
+                parameters={
+                    "condition_type": "variable",
+                    "variable_id": 10,
+                    "operator": ">=",
+                    "value": 1,
+                },
+                indent=0,
             ),
             ShowTextCommand("You used the key!", indent=1),
             ControlSwitchesCommand(switch_id=door_id, value=True, indent=1),
@@ -364,7 +394,7 @@ def create_chest_event(chest_id: int, item_name: str, item_id: int) -> GameEvent
             variable_id=item_id,
             operation="add",
             operand_type="constant",
-            operand_value=1
+            operand_value=1,
         ),
         ControlSwitchesCommand(switch_id=chest_id, value=True),
         PlaySECommand("item_get", volume=90),
@@ -395,34 +425,46 @@ def create_npc_dialogue_event(npc_id: int, npc_name: str) -> GameEvent:
         ShowChoicesCommand(
             choices=["Tell me about this place", "What can you do?", "Goodbye"],
             cancel_type=2,
-            default_choice=0
+            default_choice=0,
         ),
         # Choice 0: Tell me about this place
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={"condition_type": "variable", "variable_id": 0, "operator": "==", "value": 0},
-            indent=0
+            parameters={
+                "condition_type": "variable",
+                "variable_id": 0,
+                "operator": "==",
+                "value": 0,
+            },
+            indent=0,
         ),
         ShowTextCommand("This is a bustling city full of adventure!", indent=1),
         ShowTextCommand("Many travelers come here seeking their fortune.", indent=1),
-
         # Choice 1: What can you do?
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={"condition_type": "variable", "variable_id": 0, "operator": "==", "value": 1},
-            indent=0
+            parameters={
+                "condition_type": "variable",
+                "variable_id": 0,
+                "operator": "==",
+                "value": 1,
+            },
+            indent=0,
         ),
         ShowTextCommand("I'm a merchant! I sell various goods.", indent=1),
         ShowTextCommand("Come back when you have some gold!", indent=1),
-
         # Choice 2: Goodbye
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={"condition_type": "variable", "variable_id": 0, "operator": "==", "value": 2},
-            indent=0
+            parameters={
+                "condition_type": "variable",
+                "variable_id": 0,
+                "operator": "==",
+                "value": 2,
+            },
+            indent=0,
         ),
         ShowTextCommand("Safe travels, adventurer!", indent=1),
-
         # Mark as talked to
         ControlSwitchesCommand(switch_id=npc_id, value=True),
     ]
@@ -527,9 +569,11 @@ def test_error_handling(interpreter, game_state):
         EventCommand(
             command_type=CommandType.SCRIPT,
             parameters={"script": "raise ValueError('Test error')"},
-            indent=0
+            indent=0,
         ),
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=99),
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=99
+        ),
     ]
 
     errors_caught = []
@@ -550,8 +594,14 @@ def test_label_not_found(interpreter, game_state):
     page = EventPage()
 
     page.commands = [
-        EventCommand(command_type=CommandType.JUMP_TO_LABEL, parameters={"label": "nonexistent"}, indent=0),
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=1),
+        EventCommand(
+            command_type=CommandType.JUMP_TO_LABEL,
+            parameters={"label": "nonexistent"},
+            indent=0,
+        ),
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=1
+        ),
     ]
 
     instance = interpreter.start_event(event, page)
@@ -596,25 +646,40 @@ def test_complex_event_flow(interpreter, game_state):
 
     page.commands = [
         # Set initial value
-        ControlVariablesCommand(variable_id=1, operation="set", operand_type="constant", operand_value=0),
-
+        ControlVariablesCommand(
+            variable_id=1, operation="set", operand_type="constant", operand_value=0
+        ),
         # Loop to increment
         EventCommand(command_type=CommandType.LOOP, parameters={}, indent=0),
-        ControlVariablesCommand(variable_id=1, operation="add", operand_type="constant", operand_value=1, indent=1),
-
+        ControlVariablesCommand(
+            variable_id=1,
+            operation="add",
+            operand_type="constant",
+            operand_value=1,
+            indent=1,
+        ),
         # Break if >= 3
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={"condition_type": "variable", "variable_id": 1, "operator": ">=", "value": 3},
-            indent=1
+            parameters={
+                "condition_type": "variable",
+                "variable_id": 1,
+                "operator": ">=",
+                "value": 3,
+            },
+            indent=1,
         ),
         EventCommand(command_type=CommandType.BREAK_LOOP, parameters={}, indent=2),
-
         # After loop, check value
         EventCommand(
             command_type=CommandType.CONDITIONAL_BRANCH,
-            parameters={"condition_type": "variable", "variable_id": 1, "operator": "==", "value": 3},
-            indent=0
+            parameters={
+                "condition_type": "variable",
+                "variable_id": 1,
+                "operator": "==",
+                "value": 3,
+            },
+            indent=0,
         ),
         ControlSwitchesCommand(switch_id=1, value=True, indent=1),
     ]
