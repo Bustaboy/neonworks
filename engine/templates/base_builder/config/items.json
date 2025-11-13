@@ -1,0 +1,47 @@
+{
+  "wood": {
+    "name": "Wood",
+    "type": "resource",
+    "description": "Basic building material from trees",
+    "stack_size": 100,
+    "value": 1
+  },
+  "stone": {
+    "name": "Stone",
+    "type": "resource",
+    "description": "Durable material for construction",
+    "stack_size": 100,
+    "value": 2
+  },
+  "food": {
+    "name": "Food",
+    "type": "resource",
+    "description": "Sustenance for your population",
+    "stack_size": 50,
+    "value": 1
+  },
+  "iron_ore": {
+    "name": "Iron Ore",
+    "type": "resource",
+    "description": "Raw iron that can be smelted",
+    "stack_size": 50,
+    "value": 5
+  },
+  "iron_bar": {
+    "name": "Iron Bar",
+    "type": "resource",
+    "description": "Refined iron for advanced construction",
+    "stack_size": 50,
+    "value": 10
+  },
+  "tools": {
+    "name": "Tools",
+    "type": "equipment",
+    "description": "Improves worker efficiency",
+    "stack_size": 1,
+    "value": 50,
+    "effect": {
+      "production_bonus": 0.25
+    }
+  }
+}

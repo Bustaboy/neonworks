@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "name": "Simple RPG Example",
+    "version": "1.0.0",
+    "description": "A simple RPG demonstrating NeonWorks features: player movement, combat, enemies, UI, and multiple screens",
+    "author": "NeonWorks Team",
+    "engine_version": "0.1.0"
+  },
+  "paths": {
+    "assets": "assets",
+    "scripts": "scripts"
+  },
+  "settings": {
+    "window": {
+      "width": 800,
+      "height": 600,
+      "title": "Simple RPG - NeonWorks Example",
+      "fullscreen": false
+    },
+    "tile_size": 32,
+    "target_fps": 60,
+    "features_enabled": {
+      "rendering": true,
+      "physics": true,
+      "audio": false
+    }
+  },
+  "custom_data": {
+    "player": {
+      "starting_health": 100,
+      "movement_speed": 200,
+      "attack_damage": 15
+    },
+    "enemy": {
+      "health": 50,
+      "movement_speed": 100,
+      "attack_damage": 10,
+      "attack_range": 40,
+      "detection_range": 200
+    }
+  }
+}

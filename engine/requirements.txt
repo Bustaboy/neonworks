@@ -1,0 +1,30 @@
+# Runtime dependencies for Neon Works Game Engine
+# A standalone, reusable 2D game engine
+
+# Core rendering and input
+pygame==2.5.2
+
+# Performance optimization for math-heavy operations
+# Used in pathfinding, physics, and particle systems
+numpy>=1.24.0
+
+# Image processing and asset pipeline
+# Used for texture atlases, format conversions, and editor tools
+Pillow>=10.0.0
+
+# Configuration file format support
+# Provides YAML support for more readable game data files
+PyYAML>=6.0.1
+
+# Export system dependencies
+# Encryption for packaged games (IP protection)
+cryptography>=41.0.0
+
+# Executable bundling for standalone distribution
+pyinstaller>=6.0.0
+
+# Optional: Code obfuscation for engine IP protection (requires separate license)
+# Uncomment if you have PyArmor license: pyarmor>=8.0.0
+
+# Optional: Cython compilation for maximum protection (Professional tier)
+# Uncomment for Cython support: Cython>=3.0.0

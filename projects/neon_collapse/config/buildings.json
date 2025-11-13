@@ -1,0 +1,296 @@
+{
+  "buildings": [
+    {
+      "id": "command_center",
+      "name": "Command Center",
+      "description": "Central hub for managing your base operations",
+      "category": "core",
+      "construction_cost": {
+        "metal": 200,
+        "components": 50,
+        "energy": 100
+      },
+      "construction_time": 10,
+      "max_level": 5,
+      "upgrade_costs": {
+        "2": {"metal": 400, "components": 100, "energy": 200},
+        "3": {"metal": 800, "components": 200, "energy": 400},
+        "4": {"metal": 1600, "components": 400, "energy": 800},
+        "5": {"metal": 3200, "components": 800, "energy": 1600}
+      },
+      "provides_storage": {
+        "metal": 1000,
+        "components": 500,
+        "energy": 500
+      },
+      "size": {"width": 3, "height": 3},
+      "sprite": "buildings/command_center.png"
+    },
+    {
+      "id": "warehouse",
+      "name": "Warehouse",
+      "description": "Stores resources and materials",
+      "category": "storage",
+      "construction_cost": {
+        "metal": 50,
+        "energy": 20
+      },
+      "construction_time": 3,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 100, "energy": 40},
+        "3": {"metal": 200, "energy": 80}
+      },
+      "provides_storage": {
+        "metal": 500,
+        "food": 300,
+        "water": 200,
+        "components": 100
+      },
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/warehouse.png"
+    },
+    {
+      "id": "generator",
+      "name": "Power Generator",
+      "description": "Generates energy to power your base",
+      "category": "production",
+      "construction_cost": {
+        "metal": 100,
+        "components": 20
+      },
+      "construction_time": 5,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 200, "components": 40},
+        "3": {"metal": 400, "components": 80}
+      },
+      "produces_per_turn": {
+        "energy": 10
+      },
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/generator.png"
+    },
+    {
+      "id": "hydroponics",
+      "name": "Hydroponics Bay",
+      "description": "Grows food using advanced hydroponic systems",
+      "category": "production",
+      "construction_cost": {
+        "metal": 80,
+        "water": 50,
+        "energy": 30
+      },
+      "construction_time": 4,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 160, "water": 100, "energy": 60},
+        "3": {"metal": 320, "water": 200, "energy": 120}
+      },
+      "produces_per_turn": {
+        "food": 5
+      },
+      "consumes_per_turn": {
+        "water": 2,
+        "energy": 3
+      },
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/hydroponics.png"
+    },
+    {
+      "id": "water_reclamation",
+      "name": "Water Reclamation Plant",
+      "description": "Purifies and recycles water",
+      "category": "production",
+      "construction_cost": {
+        "metal": 120,
+        "components": 30,
+        "energy": 40
+      },
+      "construction_time": 5,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 240, "components": 60, "energy": 80},
+        "3": {"metal": 480, "components": 120, "energy": 160}
+      },
+      "produces_per_turn": {
+        "water": 8
+      },
+      "consumes_per_turn": {
+        "energy": 4
+      },
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/water_reclamation.png"
+    },
+    {
+      "id": "fabricator",
+      "name": "Fabrication Plant",
+      "description": "Manufactures components and parts",
+      "category": "production",
+      "construction_cost": {
+        "metal": 150,
+        "components": 40,
+        "energy": 50
+      },
+      "construction_time": 6,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 300, "components": 80, "energy": 100},
+        "3": {"metal": 600, "components": 160, "energy": 200}
+      },
+      "produces_per_turn": {
+        "components": 3
+      },
+      "consumes_per_turn": {
+        "metal": 5,
+        "energy": 5
+      },
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/fabricator.png"
+    },
+    {
+      "id": "turret",
+      "name": "Defense Turret",
+      "description": "Automated defense system that attacks hostile units",
+      "category": "defense",
+      "construction_cost": {
+        "metal": 150,
+        "components": 30,
+        "energy": 40
+      },
+      "construction_time": 6,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 300, "components": 60, "energy": 80},
+        "3": {"metal": 600, "components": 120, "energy": 160}
+      },
+      "consumes_per_turn": {
+        "energy": 2
+      },
+      "combat_stats": {
+        "damage": 15,
+        "range": 8,
+        "accuracy": 75
+      },
+      "size": {"width": 1, "height": 1},
+      "sprite": "buildings/turret.png"
+    },
+    {
+      "id": "wall",
+      "name": "Defensive Wall",
+      "description": "Blocks enemy movement and provides cover",
+      "category": "defense",
+      "construction_cost": {
+        "metal": 30,
+        "energy": 10
+      },
+      "construction_time": 2,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 60, "energy": 20},
+        "3": {"metal": 120, "energy": 40}
+      },
+      "combat_stats": {
+        "health": 200,
+        "armor": 10
+      },
+      "size": {"width": 1, "height": 1},
+      "sprite": "buildings/wall.png"
+    },
+    {
+      "id": "medbay",
+      "name": "Medical Bay",
+      "description": "Heals injured units and provides medical care",
+      "category": "support",
+      "construction_cost": {
+        "metal": 100,
+        "medical_supplies": 50,
+        "energy": 30
+      },
+      "construction_time": 5,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 200, "medical_supplies": 100, "energy": 60},
+        "3": {"metal": 400, "medical_supplies": 200, "energy": 120}
+      },
+      "consumes_per_turn": {
+        "energy": 2,
+        "medical_supplies": 1
+      },
+      "healing_per_turn": 20,
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/medbay.png"
+    },
+    {
+      "id": "lab",
+      "name": "Research Lab",
+      "description": "Unlocks new technologies and upgrades",
+      "category": "research",
+      "construction_cost": {
+        "metal": 200,
+        "components": 50,
+        "energy": 50
+      },
+      "construction_time": 8,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 400, "components": 100, "energy": 100},
+        "3": {"metal": 800, "components": 200, "energy": 200}
+      },
+      "consumes_per_turn": {
+        "energy": 5
+      },
+      "research_speed_bonus": 1.0,
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/lab.png"
+    },
+    {
+      "id": "barracks",
+      "name": "Barracks",
+      "description": "Houses and trains combat units",
+      "category": "military",
+      "construction_cost": {
+        "metal": 120,
+        "components": 30,
+        "energy": 40
+      },
+      "construction_time": 6,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 240, "components": 60, "energy": 80},
+        "3": {"metal": 480, "components": 120, "energy": 160}
+      },
+      "consumes_per_turn": {
+        "food": 3,
+        "energy": 2
+      },
+      "unit_capacity": 5,
+      "training_speed_bonus": 1.0,
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/barracks.png"
+    },
+    {
+      "id": "workshop",
+      "name": "Workshop",
+      "description": "Repairs equipment and crafts items",
+      "category": "support",
+      "construction_cost": {
+        "metal": 90,
+        "components": 25,
+        "energy": 30
+      },
+      "construction_time": 5,
+      "max_level": 3,
+      "upgrade_costs": {
+        "2": {"metal": 180, "components": 50, "energy": 60},
+        "3": {"metal": 360, "components": 100, "energy": 120}
+      },
+      "consumes_per_turn": {
+        "energy": 3
+      },
+      "crafting_speed_bonus": 1.0,
+      "size": {"width": 2, "height": 2},
+      "sprite": "buildings/workshop.png"
+    }
+  ]
+}
