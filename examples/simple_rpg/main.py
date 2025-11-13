@@ -14,10 +14,11 @@ This is a complete, working game that demonstrates NeonWorks features:
 Run this file to play the game!
 """
 
-import pygame
-import sys
-import os
 import json
+import os
+import sys
+
+import pygame
 
 # Add the engine to Python path
 # This allows us to import from the engine module
@@ -28,9 +29,10 @@ sys.path.insert(0, engine_path)
 scripts_path = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.insert(0, scripts_path)
 
-from neonworks.core.ecs import World
-from scripts.game import setup_game, start_gameplay, render_game
 from scripts.components import GameScreen, ScreenState
+from scripts.game import render_game, setup_game, start_gameplay
+
+from neonworks.core.ecs import World
 
 
 def load_config():

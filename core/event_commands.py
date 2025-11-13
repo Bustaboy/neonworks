@@ -5,10 +5,10 @@ RPG-style event command system for cutscenes, dialogue, and scripted sequences.
 Inspired by RPG Maker's event system but adapted for NeonWorks.
 """
 
-from typing import Any, Dict, List, Optional, Union
+import json
 from dataclasses import dataclass, field
 from enum import Enum, auto
-import json
+from typing import Any, Dict, List, Optional, Union
 
 
 class CommandType(Enum):

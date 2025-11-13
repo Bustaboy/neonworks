@@ -5,9 +5,10 @@ Handles random battles triggered during exploration.
 """
 
 import random
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
-from neonworks.core.ecs import System, World, Entity
+from typing import Dict, List, Optional, Tuple
+
+from neonworks.core.ecs import Entity, System, World
 from neonworks.core.events import Event, EventManager, EventType
 
 

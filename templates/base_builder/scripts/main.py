@@ -16,17 +16,18 @@ Controls:
 - ESC: Quit game
 """
 
-import pygame
 import sys
-from pathlib import Path
 from enum import Enum
+from pathlib import Path
+
+import pygame
 
 # Add engine to Python path
 engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
-from neonworks.core.ecs import World, Entity, Component, System
-from neonworks.systems.base_building import BuildingComponent, BuildingLibrary, Building
+from neonworks.core.ecs import Component, Entity, System, World
+from neonworks.systems.base_building import Building, BuildingComponent, BuildingLibrary
 
 
 # Components

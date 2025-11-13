@@ -4,20 +4,22 @@ Comprehensive tests for UI System
 Tests widgets, layouts, event handling, and rendering.
 """
 
-import pytest
+from unittest.mock import MagicMock, Mock
+
 import pygame
-from unittest.mock import Mock, MagicMock
+import pytest
+
 from neonworks.ui.ui_system import (
     Anchor,
-    UIStyle,
-    UILabel,
-    UIButton,
-    UIPanel,
-    UIContainer,
-    UIManager,
-    UIBuilder,
-    VerticalLayout,
     HorizontalLayout,
+    UIBuilder,
+    UIButton,
+    UIContainer,
+    UILabel,
+    UIManager,
+    UIPanel,
+    UIStyle,
+    VerticalLayout,
 )
 
 

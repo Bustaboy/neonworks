@@ -4,20 +4,22 @@ Comprehensive tests for Serialization System
 Tests component, entity, and world serialization.
 """
 
-import pytest
 import json
 import tempfile
-from pathlib import Path
 from dataclasses import dataclass
-from neonworks.core.ecs import Component, World, Transform, GridPosition
+from pathlib import Path
+
+import pytest
+
+from neonworks.core.ecs import Component, GridPosition, Transform, World
 from neonworks.core.serialization import (
     ComponentSerializer,
     EntitySerializer,
-    WorldSerializer,
     GameSerializer,
-    SerializationMetadata,
-    SerializationFormat,
     SerializationError,
+    SerializationFormat,
+    SerializationMetadata,
+    WorldSerializer,
     get_game_serializer,
 )
 

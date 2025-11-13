@@ -5,22 +5,24 @@ This file demonstrates how to create custom systems that implement game logic.
 Systems process entities with specific components each frame.
 """
 
-import pygame
 import math
-from neonworks.core.ecs import System, World, Entity, Transform, Health
-from neonworks.core.events import EventManager, Event, EventType
+
+import pygame
+
+from neonworks.core.ecs import Entity, Health, System, Transform, World
+from neonworks.core.events import Event, EventManager, EventType
+
 from .components import (
-    Velocity,
-    PlayerController,
-    CombatStats,
     AIController,
     AIState,
-    UIHealthBar,
-    GameStats,
+    CombatStats,
     GameScreen,
+    GameStats,
+    PlayerController,
     ScreenState,
+    UIHealthBar,
+    Velocity,
 )
-
 
 # ============================================================================
 # Input System - Priority: 0 (runs first)

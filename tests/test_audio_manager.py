@@ -4,11 +4,13 @@ Comprehensive tests for Audio Manager
 Tests sound effects, music, volume control, and spatial audio.
 """
 
-import pytest
-import pygame
-from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
-from neonworks.audio.audio_manager import AudioManager, AudioCategory
+from unittest.mock import MagicMock, Mock, patch
+
+import pygame
+import pytest
+
+from neonworks.audio.audio_manager import AudioCategory, AudioManager
 
 
 @pytest.fixture

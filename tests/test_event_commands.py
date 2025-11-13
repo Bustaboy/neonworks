@@ -4,30 +4,31 @@ Comprehensive tests for Event Command System
 Tests event commands, event pages, and game events with serialization.
 """
 
-import pytest
 import json
 from dataclasses import dataclass
 
+import pytest
+
 from core.event_commands import (
     CommandType,
-    TriggerType,
-    MoveType,
-    MoveSpeed,
-    MoveFrequency,
-    EventCommand,
-    ShowTextCommand,
-    ShowChoicesCommand,
     ConditionalBranchCommand,
     ControlSwitchesCommand,
     ControlVariablesCommand,
-    TransferPlayerCommand,
-    WaitCommand,
+    EventCommand,
+    EventContext,
+    EventPage,
+    GameEvent,
+    MoveFrequency,
+    MoveSpeed,
+    MoveType,
     PlayBGMCommand,
     PlaySECommand,
     ScriptCommand,
-    EventPage,
-    GameEvent,
-    EventContext,
+    ShowChoicesCommand,
+    ShowTextCommand,
+    TransferPlayerCommand,
+    TriggerType,
+    WaitCommand,
     create_sample_event,
 )
 

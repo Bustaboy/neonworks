@@ -10,16 +10,17 @@ Usage:
 
 import sys
 from pathlib import Path
-from neonworks.core.project import load_project, Project
-from neonworks.core.game_loop import GameEngine, EngineConfig
+
 from neonworks.core.ecs import World
+from neonworks.core.game_loop import EngineConfig, GameEngine
+from neonworks.core.project import Project, load_project
 from neonworks.core.state import GameplayState, MenuState
-from neonworks.rendering.renderer import Renderer
-from neonworks.systems.turn_system import TurnSystem
-from neonworks.systems.base_building import BuildingSystem, BuildingLibrary
-from neonworks.systems.survival import SurvivalSystem
-from neonworks.systems.pathfinding import PathfindingSystem
 from neonworks.data.serialization import SaveGameManager
+from neonworks.rendering.renderer import Renderer
+from neonworks.systems.base_building import BuildingLibrary, BuildingSystem
+from neonworks.systems.pathfinding import PathfindingSystem
+from neonworks.systems.survival import SurvivalSystem
+from neonworks.systems.turn_system import TurnSystem
 
 
 class GameApplication:

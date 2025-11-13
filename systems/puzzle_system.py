@@ -4,21 +4,22 @@ Puzzle System for Dungeon Mechanics
 Handles switches, pressure plates, pushable blocks, and puzzle logic.
 """
 
-from typing import Optional, List
-from neonworks.core.ecs import System, World, Entity, GridPosition
-from neonworks.core.events import Event, EventManager, EventType
+from typing import List, Optional
+
+from gameplay.movement import Collider2D, Direction, Movement
 from gameplay.puzzle_objects import (
-    Switch,
-    PressurePlate,
-    PushableBlock,
-    Door,
-    TeleportPad,
-    PuzzleController,
-    IceTile,
     Chest,
     CrackableWall,
+    Door,
+    IceTile,
+    PressurePlate,
+    PushableBlock,
+    PuzzleController,
+    Switch,
+    TeleportPad,
 )
-from gameplay.movement import Movement, Direction, Collider2D
+from neonworks.core.ecs import Entity, GridPosition, System, World
+from neonworks.core.events import Event, EventManager, EventType
 
 
 class PuzzleSystem(System):

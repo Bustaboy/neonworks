@@ -5,10 +5,11 @@ ECS-based combat components and systems for turn-based and real-time combat.
 Provides health, damage, stats, weapons, and action points.
 """
 
-from typing import Optional, Tuple, Callable, Dict, Any
 from dataclasses import dataclass, field
 from enum import Enum
-from neonworks.core.ecs import Component, System, World, Entity
+from typing import Any, Callable, Dict, Optional, Tuple
+
+from neonworks.core.ecs import Component, Entity, System, World
 
 
 class DamageType(Enum):
@@ -551,7 +552,7 @@ class CombatSystem(System):
         Returns:
             (in_range, distance)
         """
-        from neonworks.core.ecs import Transform, GridPosition
+        from neonworks.core.ecs import GridPosition, Transform
 
         weapon = attacker.get_component(Weapon)
         if not weapon:

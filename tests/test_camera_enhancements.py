@@ -5,8 +5,9 @@ Tests shake, bounds, multi-target tracking, deadzone, and utility methods.
 """
 
 import pytest
+
+from neonworks.core.ecs import Entity, GridPosition, Transform, World
 from neonworks.rendering.camera import Camera, EaseType
-from neonworks.core.ecs import World, Entity, Transform, GridPosition
 
 
 @pytest.fixture

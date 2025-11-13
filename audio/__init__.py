@@ -1,8 +1,8 @@
 """Audio systems"""
 
 from neonworks.audio.audio_manager import (
-    AudioManager,
     AudioCategory,
+    AudioManager,
     SoundInstance,
     get_audio_manager,
     set_audio_manager,

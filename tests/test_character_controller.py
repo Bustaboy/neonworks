@@ -4,19 +4,21 @@ Comprehensive tests for Character Controller
 Tests player movement, AI behaviors, and animation integration.
 """
 
-import pytest
 from unittest.mock import Mock, patch
-from neonworks.core.ecs import World, Transform, RigidBody, Collider
+
+import pygame
+import pytest
+
+from neonworks.core.ecs import Collider, RigidBody, Transform, World
 from neonworks.gameplay.character_controller import (
-    CharacterController,
-    CharacterControllerSystem,
     AIController,
     AIControllerSystem,
+    CharacterController,
+    CharacterControllerSystem,
     MovementState,
 )
 from neonworks.input.input_manager import InputManager
-from neonworks.rendering.animation import AnimationComponent, Animation, AnimationFrame
-import pygame
+from neonworks.rendering.animation import Animation, AnimationComponent, AnimationFrame
 
 
 @pytest.fixture

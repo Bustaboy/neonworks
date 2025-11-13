@@ -15,20 +15,21 @@ Controls:
 - ESC: Quit game
 """
 
-import pygame
-import sys
 import random
-from pathlib import Path
+import sys
 from enum import Enum
+from pathlib import Path
+
+import pygame
 
 # Add engine to Python path
 engine_path = Path(__file__).parent.parent.parent.parent.parent
 sys.path.insert(0, str(engine_path))
 
-from neonworks.core.ecs import World, Entity, Component, System
+from neonworks.core.ecs import Component, Entity, System, World
 from neonworks.core.game_loop import GameEngine
-from neonworks.systems.turn_system import TurnSystem, TurnComponent
 from neonworks.gameplay.combat import CombatComponent, DamageCalculator
+from neonworks.systems.turn_system import TurnComponent, TurnSystem
 
 
 # Game States

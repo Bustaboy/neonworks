@@ -4,24 +4,25 @@ Comprehensive tests for Event Trigger System
 Tests trigger detection, event triggering, and event management.
 """
 
-import pytest
 import json
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
+
+import pytest
 
 from core.event_commands import (
-    GameEvent,
-    EventPage,
-    TriggerType,
-    ShowTextCommand,
-    WaitCommand,
     ControlSwitchesCommand,
+    EventPage,
+    GameEvent,
+    ShowTextCommand,
+    TriggerType,
+    WaitCommand,
 )
 from core.event_triggers import (
-    TriggerResult,
-    TriggerCondition,
-    TriggerContext,
     EventTriggerHandler,
     EventTriggerManager,
+    TriggerCondition,
+    TriggerContext,
+    TriggerResult,
     create_proximity_trigger,
     create_switch_trigger,
     create_variable_trigger,

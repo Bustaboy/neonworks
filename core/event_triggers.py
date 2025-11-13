@@ -5,17 +5,17 @@ Handles detection and triggering of game events based on various conditions
 such as player proximity, button presses, and automatic triggers.
 """
 
-from typing import Dict, List, Optional, Set, Tuple, Callable
+import json
 from dataclasses import dataclass, field
 from enum import Enum
-import json
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 from core.event_commands import (
-    GameEvent,
-    EventPage,
-    TriggerType,
     EventContext,
+    EventPage,
+    GameEvent,
     GameState,
+    TriggerType,
 )
 
 

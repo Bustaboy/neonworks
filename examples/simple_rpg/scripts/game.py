@@ -8,29 +8,31 @@ This file demonstrates how to set up a complete game with:
 - UI rendering
 """
 
-import pygame
 import json
 import os
-from neonworks.core.ecs import World, Transform, Health, Sprite
+
+import pygame
+
+from neonworks.core.ecs import Health, Sprite, Transform, World
+
 from .components import (
-    Velocity,
-    PlayerController,
-    CombatStats,
     AIController,
     AIState,
-    UIHealthBar,
-    GameStats,
+    CombatStats,
     GameScreen,
+    GameStats,
+    PlayerController,
     ScreenState,
+    UIHealthBar,
+    Velocity,
 )
 from .systems import (
-    PlayerInputSystem,
-    MovementSystem,
     AISystem,
     CleanupSystem,
     GameStatsSystem,
+    MovementSystem,
+    PlayerInputSystem,
 )
-
 
 # ============================================================================
 # Entity Factory Functions

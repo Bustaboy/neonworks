@@ -4,10 +4,12 @@ Tilemap System
 Grid-based level rendering with multiple layers, tilesets, and efficient culling.
 """
 
-import pygame
-from typing import List, Dict, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Dict, List, Optional, Set, Tuple
+
+import pygame
+
 from neonworks.core.ecs import Component
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera

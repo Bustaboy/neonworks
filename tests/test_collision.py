@@ -4,15 +4,17 @@ Comprehensive tests for Collision Detection System
 Tests collision detection, spatial partitioning, and callbacks.
 """
 
-import pytest
 import math
-from neonworks.core.ecs import World, Transform
+
+import pytest
+
+from neonworks.core.ecs import Transform, World
 from neonworks.physics.collision import (
     Collider,
     ColliderType,
     CollisionDetector,
-    CollisionSystem,
     CollisionInfo,
+    CollisionSystem,
     QuadTreeNode,
 )
 

@@ -4,12 +4,13 @@ Serialization System
 Save and load game state with component serialization.
 """
 
-from typing import Any, Dict, Optional, Callable, Type, List
-from dataclasses import dataclass, field, fields, is_dataclass
-from enum import Enum
 import json
 import pickle
+from dataclasses import dataclass, field, fields, is_dataclass
+from enum import Enum
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Type
+
 from neonworks.core.ecs import Component, Entity, World
 
 

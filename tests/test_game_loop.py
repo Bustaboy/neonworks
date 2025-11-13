@@ -4,11 +4,13 @@ Comprehensive tests for Game Loop System
 Tests timing, FPS, fixed timestep, and stats.
 """
 
-import pytest
 import time
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
 import pygame
-from neonworks.core.game_loop import GameEngine, EngineConfig
+import pytest
+
+from neonworks.core.game_loop import EngineConfig, GameEngine
 
 
 class TestEngineConfig:

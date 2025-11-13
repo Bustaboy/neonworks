@@ -17,20 +17,21 @@ This example shows how to use:
 Press F1-F10 to toggle different UI systems (see on-screen help).
 """
 
-import pygame
 import sys
 from pathlib import Path
+
+import pygame
 
 # Add engine to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from neonworks.core.ecs import World, Transform, Sprite, Health, Survival, GridPosition
-from neonworks.core.game_loop import GameLoop
-from neonworks.systems.turn_system import TurnSystem, TurnActor
-from neonworks.systems.survival_system import SurvivalSystem
-from neonworks.systems.base_building import BuildingSystem, Building, ResourceStorage
 from neonworks.audio.audio_manager import AudioManager
+from neonworks.core.ecs import GridPosition, Health, Sprite, Survival, Transform, World
+from neonworks.core.game_loop import GameLoop
 from neonworks.input.input_manager import InputManager
+from neonworks.systems.base_building import Building, BuildingSystem, ResourceStorage
+from neonworks.systems.survival_system import SurvivalSystem
+from neonworks.systems.turn_system import TurnActor, TurnSystem
 from neonworks.ui.master_ui_manager import MasterUIManager
 
 

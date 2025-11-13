@@ -4,9 +4,11 @@ Comprehensive tests for Input Manager
 Tests keyboard, mouse, action mapping, and axis input.
 """
 
-import pytest
-import pygame
 from unittest.mock import Mock, patch
+
+import pygame
+import pytest
+
 from neonworks.input.input_manager import InputManager, InputState, MouseButton
 
 

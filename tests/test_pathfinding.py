@@ -4,13 +4,15 @@ Comprehensive tests for Navigation and Pathfinding System
 Tests A* pathfinding, grid navigation, and path smoothing.
 """
 
-import pytest
 import math
+
+import pytest
+
 from neonworks.ai.pathfinding import (
+    Heuristic,
     NavigationGrid,
     Pathfinder,
     PathfindingSystem,
-    Heuristic,
     PathNode,
 )
 

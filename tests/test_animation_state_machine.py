@@ -4,21 +4,23 @@ Comprehensive tests for Animation State Machine
 Tests animation states, transitions, conditions, and blending.
 """
 
-import pytest
+from unittest.mock import MagicMock, Mock
+
 import pygame
-from unittest.mock import Mock, MagicMock
+import pytest
+
 from neonworks.rendering.animation import (
     Animation,
-    AnimationFrame,
-    AnimationComponent,
-    AnimationSystem,
     AnimationBuilder,
+    AnimationComponent,
+    AnimationFrame,
     AnimationState,
     AnimationStateMachine,
     AnimationStateMachineBuilder,
+    AnimationSystem,
+    StateTransition,
     TransitionCondition,
     TransitionConditionType,
-    StateTransition,
 )
 
 

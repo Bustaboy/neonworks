@@ -6,10 +6,10 @@ Components are pure data containers with no logic.
 """
 
 from dataclasses import dataclass, field
-from typing import Optional, Dict
 from enum import Enum
-from neonworks.core.ecs import Component
+from typing import Dict, Optional
 
+from neonworks.core.ecs import Component
 
 # ============================================================================
 # Movement Components
