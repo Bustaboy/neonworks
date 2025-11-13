@@ -8,7 +8,7 @@ import pytest
 import json
 from dataclasses import dataclass
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     CommandType,
     TriggerType,
     MoveType,

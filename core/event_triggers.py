@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import json
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     GameEvent, EventPage, TriggerType, EventContext,
     GameState
 )

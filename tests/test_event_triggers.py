@@ -8,7 +8,7 @@ import pytest
 import json
 from unittest.mock import Mock, MagicMock
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     GameEvent,
     EventPage,
     TriggerType,
@@ -16,7 +16,7 @@ from core.event_commands import (
     WaitCommand,
     ControlSwitchesCommand
 )
-from core.event_triggers import (
+from neonworks.core.event_triggers import (
     TriggerResult,
     TriggerCondition,
     TriggerContext,
