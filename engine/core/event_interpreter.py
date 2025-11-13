@@ -295,6 +295,10 @@ class EventInterpreter:
                 self._handle_error(instance, str(e))
                 return True  # Finish event on error
 
+        # Don't mark as finished if we're waiting
+        if instance.is_waiting():
+            return False
+
         return instance.is_finished()
 
     def _execute_next_command(self, instance: InterpreterInstance) -> bool:
