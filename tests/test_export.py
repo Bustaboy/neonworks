@@ -243,7 +243,7 @@ class TestProjectExporter:
         )
 
         exporter = ProjectExporter(config)
-        results = exporter.export()
+        results = exporter.export(skip_confirmation=True)
 
         assert "package" in results
         assert results["package"]["path"].exists()
@@ -263,7 +263,7 @@ class TestProjectExporter:
         )
 
         exporter = ProjectExporter(config)
-        results = exporter.export()
+        results = exporter.export(skip_confirmation=True)
 
         assert results["package"]["encrypted"] is True
 

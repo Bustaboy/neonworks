@@ -84,9 +84,12 @@ class ProjectExporter:
         self.config = config
         self.results: Dict[str, Any] = {}
 
-    def export(self) -> Dict[str, Any]:
+    def export(self, skip_confirmation: bool = False) -> Dict[str, Any]:
         """
         Run the complete export pipeline
+
+        Args:
+            skip_confirmation: Skip user confirmation prompts (for automated/testing use)
 
         Returns:
             Dictionary with export results and paths
@@ -114,10 +117,14 @@ class ProjectExporter:
                     print("⚠ Exported games will include attribution watermark")
                     print("⚠ Commercial use requires a paid license\n")
 
-                    response = input("Continue with free tier export? (y/N): ")
-                    if response.lower() != "y":
-                        print("\nExport cancelled.")
-                        return {"error": "Export cancelled by user"}
+                    if not skip_confirmation:
+                        response = input("Continue with free tier export? (y/N): ")
+                        if response.lower() != "y":
+                            print("\nExport cancelled.")
+                            return {"error": "Export cancelled by user"}
+                    else:
+                        print("(Skipping confirmation - automated mode)")
+
                 else:
                     raise RuntimeError("License validation failed")
 
