@@ -12,14 +12,18 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from licensing.hardware_id import get_hardware_id, get_machine_info, validate_hardware_id
-from licensing.license_key import (
+from neonworks.licensing.hardware_id import (
+    get_hardware_id,
+    get_machine_info,
+    validate_hardware_id,
+)
+from neonworks.licensing.license_key import (
     LicenseKey,
     LicenseKeyGenerator,
     LicenseTier,
     get_production_generator,
 )
-from licensing.license_validator import LicenseValidator, get_global_validator
+from neonworks.licensing.license_validator import LicenseValidator, get_global_validator
 
 
 # ===========================

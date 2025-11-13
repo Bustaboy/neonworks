@@ -32,9 +32,9 @@ from neonworks.gameplay.puzzle_objects import (
     Chest,
     PuzzleController,
 )
-from systems.turn_system import TurnSystem
-from systems.jrpg_battle_system import JRPGBattleSystem, BattlePhase
-from systems.puzzle_system import PuzzleSystem
+from neonworks.systems.turn_system import TurnSystem
+from neonworks.systems.jrpg_battle_system import JRPGBattleSystem, BattlePhase
+from neonworks.systems.puzzle_system import PuzzleSystem
 
 
 @pytest.fixture

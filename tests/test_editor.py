@@ -8,13 +8,13 @@ from unittest.mock import Mock, patch
 import pytest
 
 from neonworks.core.ecs import World, Entity, GridPosition, Building, Navmesh
-from editor.ai_level_builder import (
+from neonworks.editor.ai_level_builder import (
     AILevelBuilder,
     PlacementSuggestion,
     PlacementPriority,
 )
-from editor.ai_navmesh import AINavmeshGenerator, NavmeshConfig
-from editor.ai_writer import (
+from neonworks.editor.ai_navmesh import AINavmeshGenerator, NavmeshConfig
+from neonworks.editor.ai_writer import (
     AIWritingAssistant,
     DialogLine,
     DialogChoice,

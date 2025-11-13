@@ -11,8 +11,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from data.config_loader import ConfigLoader, GameDataLoader
-from data.serialization import GameSerializer
+from neonworks.data.config_loader import ConfigLoader, GameDataLoader
+from neonworks.data.serialization import GameSerializer
 from neonworks.core.ecs import (
     World,
     Entity,
@@ -494,8 +494,16 @@ class TestDataIntegration:
             # 2. Create game data files
             items_file = data_dir / "items.json"
             items_data = {
-                "health_potion": {"name": "Health Potion", "effect": "heal", "amount": 50},
-                "mana_potion": {"name": "Mana Potion", "effect": "restore_mana", "amount": 30},
+                "health_potion": {
+                    "name": "Health Potion",
+                    "effect": "heal",
+                    "amount": 50,
+                },
+                "mana_potion": {
+                    "name": "Mana Potion",
+                    "effect": "restore_mana",
+                    "amount": 30,
+                },
             }
 
             with open(items_file, "w") as f:

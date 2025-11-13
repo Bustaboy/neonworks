@@ -22,17 +22,18 @@ class TestCLITemplates:
     def test_templates_defined(self):
         """Test that templates are properly defined"""
         # Import templates
-        import sys
+        from neonworks import cli
 
-        sys.path.insert(0, str(Path(__file__).parent.parent))
-        from cli import TEMPLATES
+        TEMPLATES = cli.TEMPLATES
 
         assert "basic_game" in TEMPLATES
         assert "turn_based_rpg" in TEMPLATES
 
     def test_template_structure(self):
         """Test template data structure"""
-        from cli import TEMPLATES
+        from neonworks import cli
+
+        TEMPLATES = cli.TEMPLATES
 
         for template_id, template in TEMPLATES.items():
             assert "name" in template
@@ -42,7 +43,9 @@ class TestCLITemplates:
 
     def test_template_settings(self):
         """Test template settings are valid"""
-        from cli import TEMPLATES
+        from neonworks import cli
+
+        TEMPLATES = cli.TEMPLATES
 
         basic_template = TEMPLATES["basic_game"]
         settings = basic_template["settings"]
@@ -64,27 +67,30 @@ class TestCLICommands:
 
     def test_cli_module_imports(self):
         """Test that CLI module can be imported"""
-        import cli
+        from neonworks import cli
 
         assert cli is not None
 
     def test_templates_constant(self):
         """Test TEMPLATES constant exists"""
-        from cli import TEMPLATES
+        from neonworks import cli
 
+        TEMPLATES = cli.TEMPLATES
         assert isinstance(TEMPLATES, dict)
         assert len(TEMPLATES) > 0
 
     def test_lazy_import_functions_exist(self):
         """Test lazy import functions are defined"""
-        import cli
+        from neonworks import cli
 
         assert hasattr(cli, "lazy_import_project_module")
         assert hasattr(cli, "lazy_import_validation_module")
 
     def test_template_basic_game(self):
         """Test basic_game template configuration"""
-        from cli import TEMPLATES
+        from neonworks import cli
+
+        TEMPLATES = cli.TEMPLATES
 
         template = TEMPLATES["basic_game"]
 
@@ -95,7 +101,9 @@ class TestCLICommands:
 
     def test_template_turn_based_rpg(self):
         """Test turn_based_rpg template configuration"""
-        from cli import TEMPLATES
+        from neonworks import cli
+
+        TEMPLATES = cli.TEMPLATES
 
         template = TEMPLATES["turn_based_rpg"]
 
@@ -126,7 +134,9 @@ class TestCLIIntegration:
 
     def test_all_templates_have_required_fields(self):
         """Test all templates have required configuration"""
-        from cli import TEMPLATES
+        from neonworks import cli
+
+        TEMPLATES = cli.TEMPLATES
 
         required_settings = [
             "window_title",
@@ -162,7 +172,7 @@ class TestExportCLI:
 
     def test_export_cli_imports(self):
         """Test export_cli can be imported"""
-        import export_cli
+        from neonworks import export_cli
 
         assert export_cli is not None
 
@@ -183,7 +193,7 @@ class TestLicenseCLI:
 
     def test_license_cli_imports(self):
         """Test license_cli can be imported"""
-        import license_cli
+        from neonworks import license_cli
 
         assert license_cli is not None
 
