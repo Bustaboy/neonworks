@@ -10,7 +10,7 @@ from unittest.mock import Mock, MagicMock
 from dataclasses import dataclass, field
 from typing import Dict, Any, List
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventContext,
@@ -27,8 +27,8 @@ from core.event_commands import (
     PlayBGMCommand,
     PlaySECommand,
 )
-from core.events import EventManager, Event, EventType
-from engine.core.event_interpreter import (
+from neonworks.core.events import EventManager, Event, EventType
+from neonworks.engine.core.event_interpreter import (
     EventInterpreter,
     InterpreterState,
     InterpreterInstance,

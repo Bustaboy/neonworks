@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dataclasses import dataclass
 from typing import Dict, List
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventContext,
@@ -32,8 +32,8 @@ from core.event_commands import (
     WaitCommand,
     PlaySECommand,
 )
-from core.events import EventManager
-from engine.core.event_interpreter import EventInterpreter
+from neonworks.core.events import EventManager
+from neonworks.engine.core.event_interpreter import EventInterpreter
 
 
 class DemoGameState(GameState):

@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Set
 import logging
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventContext,
@@ -19,7 +19,7 @@ from core.event_commands import (
     GameState,
     ComparisonOperator,
 )
-from core.events import Event, EventManager, EventType
+from neonworks.core.events import Event, EventManager, EventType
 
 
 logger = logging.getLogger(__name__)
