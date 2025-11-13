@@ -211,7 +211,7 @@ class PuzzleSystem(System):
         grid_pos.grid_y = teleport.target_y
 
         # Update transform if exists
-        from engine.core.ecs import Transform
+        from neonworks.core.ecs import Transform
         transform = entity.get_component(Transform)
         if transform:
             # Assuming 32x32 tile size (should be configurable)

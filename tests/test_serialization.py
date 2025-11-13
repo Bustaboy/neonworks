@@ -455,7 +455,7 @@ class TestGlobalSerializer:
 
     def test_set_global_serializer(self):
         """Test setting global serializer"""
-        from engine.core.serialization import set_game_serializer
+        from neonworks.core.serialization import set_game_serializer
 
         custom_serializer = GameSerializer()
         set_game_serializer(custom_serializer)

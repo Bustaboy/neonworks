@@ -539,7 +539,7 @@ class CombatSystem(System):
         Returns:
             (in_range, distance)
         """
-        from engine.core.ecs import Transform, GridPosition
+        from neonworks.core.ecs import Transform, GridPosition
 
         weapon = attacker.get_component(Weapon)
         if not weapon:

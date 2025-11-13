@@ -180,7 +180,7 @@ class TestSoundPlayback:
         mock_channel.stop = Mock()
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
         audio_manager._playing_sounds[0] = SoundInstance(
             channel=mock_channel,
             sound=mock_sound,
@@ -198,7 +198,7 @@ class TestSoundPlayback:
         mock_channel2 = Mock()
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
         audio_manager._playing_sounds[0] = SoundInstance(
             channel=mock_channel1,
             sound=mock_sound,
@@ -355,7 +355,7 @@ class TestAudioUpdate:
         mock_channel.get_busy = Mock(return_value=False)  # Sound finished
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
         audio_manager._playing_sounds[0] = SoundInstance(
             channel=mock_channel,
             sound=mock_sound,
@@ -373,7 +373,7 @@ class TestAudioUpdate:
         mock_channel.get_busy = Mock(return_value=True)  # Still playing
         mock_sound = Mock()
 
-        from engine.audio.audio_manager import SoundInstance
+        from neonworks.audio.audio_manager import SoundInstance
         audio_manager._playing_sounds[0] = SoundInstance(
             channel=mock_channel,
             sound=mock_sound,
@@ -600,7 +600,7 @@ class TestEnhancedUtilities:
 
     def test_cache_info_includes_pools(self, audio_manager):
         """Test cache info includes sound pools"""
-        from engine.audio.audio_manager import SoundPool
+        from neonworks.audio.audio_manager import SoundPool
 
         audio_manager._sound_pools["test1"] = SoundPool()
         audio_manager._sound_pools["test2"] = SoundPool()
@@ -612,7 +612,7 @@ class TestEnhancedUtilities:
 
     def test_clear_cache_clears_pools(self, audio_manager):
         """Test clear cache also clears sound pools"""
-        from engine.audio.audio_manager import SoundPool
+        from neonworks.audio.audio_manager import SoundPool
 
         audio_manager._sound_pools["test"] = SoundPool()
 
