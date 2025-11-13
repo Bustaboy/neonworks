@@ -1,0 +1,92 @@
+{
+  "name": "Ancient Dungeon",
+  "width": 30,
+  "height": 20,
+  "tile_size": 32,
+  "background_music": "dungeon_theme.mp3",
+  "encounter_rate": 40.0,
+  "encounter_table": "dungeon",
+  "spawn_points": [
+    {
+      "name": "entrance",
+      "x": 2,
+      "y": 2,
+      "direction": "RIGHT"
+    },
+    {
+      "name": "boss_room",
+      "x": 28,
+      "y": 18,
+      "direction": "LEFT"
+    }
+  ],
+  "tilemap": {
+    "tilesets": [
+      {
+        "name": "dungeon",
+        "image": "tilesets/dungeon.png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "columns": 10,
+        "tile_count": 100
+      }
+    ],
+    "layers": [
+      {
+        "name": "floor",
+        "visible": true,
+        "data": "..."
+      },
+      {
+        "name": "walls",
+        "visible": true,
+        "data": "..."
+      }
+    ]
+  },
+  "collision": {
+    "layer": "walls",
+    "blocked_tiles": [1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 23]
+  },
+  "npcs": [],
+  "objects": [
+    {
+      "x": 10,
+      "y": 10,
+      "sprite": "objects/chest.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "open",
+      "item_id": "chest_dungeon_1"
+    },
+    {
+      "x": 15,
+      "y": 8,
+      "sprite": "objects/switch.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "use"
+    }
+  ],
+  "triggers": [
+    {
+      "x": 1,
+      "y": 2,
+      "target_zone": "overworld",
+      "target_spawn": "dungeon_exit",
+      "transition_type": "fade"
+    },
+    {
+      "x": 28,
+      "y": 19,
+      "target_zone": "boss_room",
+      "target_spawn": "entrance",
+      "transition_type": "fade"
+    }
+  ],
+  "properties": {
+    "puzzle_type": "switch_and_plate",
+    "boss_id": "skeleton_king",
+    "recommended_level": 5
+  }
+}
