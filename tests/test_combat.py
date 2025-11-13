@@ -1,778 +1,789 @@
 """
-Comprehensive test suite for combat.py
+Comprehensive tests for Combat System
 
-Tests cover:
-- Combat initialization
-- Initiative system
-- Turn management
-- Combat log
-- Escape system
-- Victory conditions
-- Enemy AI
-- Valid moves and targets
-- Edge cases
+Tests health, damage, combat stats, weapons, action points, and combat calculations.
 """
 
 import pytest
-import random
-from unittest.mock import patch, MagicMock
-import sys
-from pathlib import Path
-
-# Add game directory to path
-game_dir = Path(__file__).parent.parent / "game"
-sys.path.insert(0, str(game_dir))
-
-from combat import CombatEncounter
-from character import Character
-import config
-
-
-class TestCombatInitialization:
-    """Test combat encounter creation and setup."""
-
-    def test_combat_creation(self, basic_combat_scenario):
-        """Test basic combat creation."""
-        player_team, enemy_team = basic_combat_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-
-        assert combat.player_team == player_team
-        assert combat.enemy_team == enemy_team
-        assert len(combat.all_characters) == 2
-        assert combat.combat_active is True
-
-    def test_combat_teams_separated(self, team_combat_scenario):
-        """Test teams are correctly separated."""
-        player_team, enemy_team = team_combat_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-
-        assert len(combat.player_team) == 2
-        assert len(combat.enemy_team) == 2
-        assert len(combat.all_characters) == 4
-
-    def test_combat_initial_state(self, combat_encounter):
-        """Test initial combat state."""
-        assert combat_encounter.turn_count == 0
-        assert combat_encounter.combat_active is True
-        assert combat_encounter.escape_available is False
-        assert combat_encounter.victor is None
-
-    def test_combat_log_initialized(self, combat_encounter):
-        """Test combat log is created and has initial messages."""
-        assert isinstance(combat_encounter.combat_log, list)
-        assert len(combat_encounter.combat_log) > 0
-        assert "COMBAT START" in combat_encounter.combat_log[0]
-
-
-class TestInitiativeSystem:
-    """Test initiative rolling and turn order."""
-
-    def test_initiative_rolled_on_creation(self, combat_encounter):
-        """Test that initiative is rolled during combat creation."""
-        assert len(combat_encounter.turn_order) > 0
-        assert combat_encounter.current_character is not None
-
-    def test_initiative_order_descending(self, team_combat_encounter):
-        """Test that turn order is sorted by initiative (highest first)."""
-        # Initiative is random, but we can verify it's in descending order
-        # by checking that the first character has initiative >= subsequent characters
-        # We can't directly test this without mocking, so we'll just verify turn_order exists
-        assert len(team_combat_encounter.turn_order) == 4
-
-    def test_all_characters_in_turn_order(self, team_combat_encounter):
-        """Test that all characters are in turn order."""
-        all_chars = team_combat_encounter.all_characters
-        turn_chars = team_combat_encounter.turn_order
-
-        assert len(all_chars) == len(turn_chars)
-        for char in all_chars:
-            assert char in turn_chars
-
-    def test_initiative_logging(self, combat_encounter):
-        """Test that initiative rolls are logged."""
-        log_text = " ".join(combat_encounter.combat_log)
-        assert "initiative" in log_text.lower()
-
-    @patch('random.randint')
-    def test_initiative_deterministic(self, mock_randint, basic_combat_scenario):
-        """Test initiative with deterministic rolls."""
-        mock_randint.return_value = 5
-
-        player_team, enemy_team = basic_combat_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-
-        # With fixed roll, can verify initiative calculation
-        # Player reflexes = 6, enemy reflexes = 4
-        # Player init = 6*2 + 5 = 17
-        # Enemy init = 4*2 + 5 = 13
-        # Player should go first
-        assert combat.current_character == player_team[0]
-
-
-class TestTurnManagement:
-    """Test turn progression and management."""
-
-    def test_next_turn_advances_index(self, combat_encounter):
-        """Test that next_turn advances turn index."""
-        initial_char = combat_encounter.current_character
-        combat_encounter.next_turn()
+from unittest.mock import Mock, patch
+from engine.gameplay.combat import (
+    Health,
+    CombatStats,
+    Weapon,
+    ActionPoints,
+    TeamComponent,
+    Team,
+    DamageType,
+    DamageInstance,
+    HealthSystem,
+    CombatSystem
+)
+from engine.core.ecs import World, Entity, Transform, GridPosition
+
+
+@pytest.fixture
+def world():
+    """Create a test world"""
+    return World()
+
+
+@pytest.fixture
+def health_system():
+    """Create a health system"""
+    return HealthSystem()
+
+
+@pytest.fixture
+def combat_system(health_system):
+    """Create a combat system"""
+    return CombatSystem(health_system)
+
+
+class TestHealth:
+    """Test Health component"""
+
+    def test_health_creation(self):
+        """Test creating health component"""
+        health = Health(max_hp=100, hp=100)
+        assert health.max_hp == 100
+        assert health.hp == 100
+        assert health.is_alive
+
+    def test_health_defaults(self):
+        """Test default health values"""
+        health = Health()
+        assert health.max_hp == 100
+        assert health.hp == 100
+        assert health.armor == 0
+        assert health.is_alive
+
+    def test_health_initialization(self):
+        """Test health initializes to max if over"""
+        health = Health(max_hp=50, hp=100)
+        assert health.hp == 50
+
+    def test_get_hp_percentage(self):
+        """Test HP percentage calculation"""
+        health = Health(max_hp=100, hp=75)
+        assert health.get_hp_percentage() == 75.0
+
+        health.hp = 50
+        assert health.get_hp_percentage() == 50.0
+
+    def test_is_full_health(self):
+        """Test full health check"""
+        health = Health(max_hp=100, hp=100)
+        assert health.is_full_health()
+
+        health.hp = 99
+        assert not health.is_full_health()
+
+    def test_is_critical(self):
+        """Test critical health check (<25%)"""
+        health = Health(max_hp=100, hp=24)
+        assert health.is_critical()
+
+        health.hp = 25
+        assert not health.is_critical()
+
+
+class TestCombatStats:
+    """Test CombatStats component"""
+
+    def test_stats_creation(self):
+        """Test creating combat stats"""
+        stats = CombatStats(body=8, reflexes=7, cool=6)
+        assert stats.body == 8
+        assert stats.reflexes == 7
+        assert stats.cool == 6
+
+    def test_stats_defaults(self):
+        """Test default stat values"""
+        stats = CombatStats()
+        assert stats.body == 5
+        assert stats.reflexes == 5
+        assert stats.intelligence == 5
+        assert stats.morale == 100
+
+    def test_get_initiative_bonus(self):
+        """Test initiative calculation"""
+        stats = CombatStats(reflexes=8)
+        assert stats.get_initiative_bonus() == 16
+
+    def test_get_dodge_chance(self):
+        """Test dodge chance calculation"""
+        stats = CombatStats(reflexes=5)
+        assert stats.get_dodge_chance() == 15.0
+
+        # Test cap at 20
+        stats.reflexes = 10
+        assert stats.get_dodge_chance() == 20.0
+
+    def test_get_crit_chance(self):
+        """Test critical hit chance"""
+        stats = CombatStats(cool=7)
+        assert stats.get_crit_chance() == 14.0
+
+    def test_get_morale_modifier(self):
+        """Test morale damage modifier"""
+        stats = CombatStats(morale=100)
+        assert stats.get_morale_modifier() == 1.25
+
+        stats.morale = 50
+        assert stats.get_morale_modifier() == 1.0
+
+        stats.morale = 0
+        assert stats.get_morale_modifier() == 0.75
+
+    def test_get_melee_damage_bonus(self):
+        """Test melee damage bonus from body"""
+        stats = CombatStats(body=8)
+        assert stats.get_melee_damage_bonus() == 24.0
+
+    def test_get_ranged_damage_bonus(self):
+        """Test ranged damage bonus from reflexes"""
+        stats = CombatStats(reflexes=7)
+        assert stats.get_ranged_damage_bonus() == 14.0
+
+
+class TestWeapon:
+    """Test Weapon component"""
+
+    def test_weapon_creation(self):
+        """Test creating weapon"""
+        weapon = Weapon(
+            name="Pistol",
+            damage=25,
+            range=5,
+            accuracy=80
+        )
+        assert weapon.name == "Pistol"
+        assert weapon.damage == 25
+        assert weapon.range == 5
+        assert weapon.accuracy == 80
+
+    def test_weapon_defaults(self):
+        """Test default weapon values"""
+        weapon = Weapon()
+        assert weapon.name == "Unarmed"
+        assert weapon.damage == 10
+        assert weapon.accuracy == 75
+        assert weapon.is_ranged
+
+    def test_weapon_melee(self):
+        """Test melee weapon"""
+        weapon = Weapon(name="Sword", is_melee=True, is_ranged=False)
+        assert weapon.is_melee
+        assert not weapon.is_ranged
+
+    def test_weapon_ammo(self):
+        """Test weapon with ammo"""
+        weapon = Weapon(has_ammo=True, ammo=30, max_ammo=30)
+        assert weapon.has_ammo
+        assert weapon.ammo == 30
+
+
+class TestActionPoints:
+    """Test ActionPoints component"""
+
+    def test_ap_creation(self):
+        """Test creating action points"""
+        ap = ActionPoints(max_ap=5, ap=5)
+        assert ap.max_ap == 5
+        assert ap.ap == 5
+
+    def test_ap_defaults(self):
+        """Test default AP values"""
+        ap = ActionPoints()
+        assert ap.max_ap == 3
+        assert ap.ap == 3
+
+    def test_can_afford(self):
+        """Test checking if can afford action"""
+        ap = ActionPoints(ap=3)
+        assert ap.can_afford(2)
+        assert ap.can_afford(3)
+        assert not ap.can_afford(4)
+
+    def test_spend_ap(self):
+        """Test spending AP"""
+        ap = ActionPoints(ap=3)
+
+        success = ap.spend(2)
+        assert success
+        assert ap.ap == 1
+        assert ap.has_acted_this_turn
+
+    def test_spend_insufficient_ap(self):
+        """Test spending more AP than available"""
+        ap = ActionPoints(ap=1)
+
+        success = ap.spend(2)
+        assert not success
+        assert ap.ap == 1
+
+    def test_refund_ap(self):
+        """Test refunding AP"""
+        ap = ActionPoints(max_ap=3, ap=1)
+
+        ap.refund(1)
+        assert ap.ap == 2
+
+        # Test cap at max
+        ap.refund(5)
+        assert ap.ap == 3
+
+    def test_reset_ap(self):
+        """Test resetting AP"""
+        ap = ActionPoints(max_ap=3, ap=0)
+        ap.has_acted_this_turn = True
+
+        ap.reset()
+        assert ap.ap == 3
+        assert not ap.has_acted_this_turn
+
+
+class TestTeamComponent:
+    """Test TeamComponent"""
+
+    def test_team_creation(self):
+        """Test creating team component"""
+        team = TeamComponent(team=Team.PLAYER)
+        assert team.team == Team.PLAYER
+
+    def test_team_defaults(self):
+        """Test default team values"""
+        team = TeamComponent()
+        assert team.team == Team.NEUTRAL
+        assert not team.is_hostile_to_player
+
+    def test_is_enemy_of_same_team(self):
+        """Test same team not enemies"""
+        player1 = TeamComponent(team=Team.PLAYER)
+        player2 = TeamComponent(team=Team.PLAYER)
+
+        assert not player1.is_enemy_of(player2)
+
+    def test_is_enemy_of_different_teams(self):
+        """Test player vs enemy"""
+        player = TeamComponent(team=Team.PLAYER)
+        enemy = TeamComponent(team=Team.ENEMY)
+
+        assert player.is_enemy_of(enemy)
+        assert enemy.is_enemy_of(player)
+
+    def test_is_enemy_of_neutral(self):
+        """Test neutral not enemies"""
+        player = TeamComponent(team=Team.PLAYER)
+        neutral = TeamComponent(team=Team.NEUTRAL)
+
+        assert not player.is_enemy_of(neutral)
+        assert not neutral.is_enemy_of(player)
+
+    def test_friendly_fire(self):
+        """Test friendly fire enabled"""
+        player1 = TeamComponent(team=Team.PLAYER, is_friendly_fire_enabled=True)
+        player2 = TeamComponent(team=Team.PLAYER)
+
+        assert player1.is_enemy_of(player2)
+
+
+class TestHealthSystem:
+    """Test HealthSystem"""
+
+    def test_health_system_creation(self):
+        """Test creating health system"""
+        system = HealthSystem()
+        assert system.priority == 10
+
+    def test_apply_damage(self, world, health_system):
+        """Test applying damage"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=100, armor=0)
+        entity.add_component(health)
+
+        damage = DamageInstance(amount=30, damage_type=DamageType.PHYSICAL)
+        dealt = health_system.apply_damage(entity, damage)
+
+        assert dealt == 30
+        assert health.hp == 70
+        assert health.is_alive
+
+    def test_apply_damage_with_armor(self, world, health_system):
+        """Test damage with armor reduction"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=100, armor=50)  # 50% armor
+        entity.add_component(health)
+
+        damage = DamageInstance(amount=40, damage_type=DamageType.PHYSICAL)
+        dealt = health_system.apply_damage(entity, damage)
+
+        # Should deal 50% damage = 20
+        assert dealt == 20
+        assert health.hp == 80
+
+    def test_apply_damage_armor_penetration(self, world, health_system):
+        """Test armor penetration"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=100, armor=50)
+        entity.add_component(health)
+
+        # 50% armor pen
+        damage = DamageInstance(amount=40, damage_type=DamageType.PHYSICAL, armor_penetration=0.5)
+        dealt = health_system.apply_damage(entity, damage)
+
+        # Effective armor = 50 * (1 - 0.5) = 25%
+        # Damage = 40 * (1 - 0.25) = 30
+        assert dealt == 30
+        assert health.hp == 70
+
+    def test_apply_damage_minimum(self, world, health_system):
+        """Test minimum damage of 1"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=100, armor=99)  # 99% armor
+        entity.add_component(health)
+
+        damage = DamageInstance(amount=10, damage_type=DamageType.PHYSICAL)
+        dealt = health_system.apply_damage(entity, damage)
+
+        # Should deal at least 1 damage
+        assert dealt >= 1
+        assert health.hp < 100
+
+    def test_apply_damage_kills(self, world, health_system):
+        """Test damage kills entity"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=20)
+        entity.add_component(health)
+
+        damage = DamageInstance(amount=50, damage_type=DamageType.PHYSICAL)
+        health_system.apply_damage(entity, damage)
+
+        assert health.hp == 0
+        assert not health.is_alive
+
+    def test_apply_damage_invulnerable(self, world, health_system):
+        """Test invulnerable entities take no damage"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=100, is_invulnerable=True)
+        entity.add_component(health)
+
+        damage = DamageInstance(amount=50, damage_type=DamageType.PHYSICAL)
+        dealt = health_system.apply_damage(entity, damage)
+
+        assert dealt == 0
+        assert health.hp == 100
+
+    def test_apply_damage_callback(self, world, health_system):
+        """Test damage callback"""
+        entity = world.create_entity()
+
+        damage_taken = []
+        health = Health(max_hp=100, hp=100)
+        health.on_damage = lambda dmg, dtype: damage_taken.append(dmg)
+        entity.add_component(health)
+
+        damage = DamageInstance(amount=25, damage_type=DamageType.PHYSICAL)
+        health_system.apply_damage(entity, damage)
+
+        assert len(damage_taken) == 1
+        assert damage_taken[0] == 25
+
+    def test_apply_damage_morale_loss(self, world, health_system):
+        """Test morale loss from high damage"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=100)
+        stats = CombatStats(morale=100)
+        entity.add_component(health)
+        entity.add_component(stats)
+
+        # 30% damage
+        damage = DamageInstance(amount=30, damage_type=DamageType.PHYSICAL)
+        health_system.apply_damage(entity, damage)
+
+        # Should lose 20 morale
+        assert stats.morale == 80
+
+    def test_heal(self, world, health_system):
+        """Test healing"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=50)
+        entity.add_component(health)
+
+        healed = health_system.heal(entity, 30)
+
+        assert healed == 30
+        assert health.hp == 80
+
+    def test_heal_caps_at_max(self, world, health_system):
+        """Test healing caps at max HP"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=90)
+        entity.add_component(health)
+
+        healed = health_system.heal(entity, 30)
+
+        assert healed == 10
+        assert health.hp == 100
+
+    def test_heal_callback(self, world, health_system):
+        """Test heal callback"""
+        entity = world.create_entity()
+
+        heals_received = []
+        health = Health(max_hp=100, hp=50)
+        health.on_heal = lambda amount: heals_received.append(amount)
+        entity.add_component(health)
+
+        health_system.heal(entity, 20)
+
+        assert len(heals_received) == 1
+        assert heals_received[0] == 20
+
+    def test_kill(self, world, health_system):
+        """Test killing entity"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=50)
+        entity.add_component(health)
+
+        health_system.kill(entity)
+
+        assert health.hp == 0
+        assert not health.is_alive
+
+    def test_kill_callback(self, world, health_system):
+        """Test death callback"""
+        entity = world.create_entity()
+
+        deaths = []
+        health = Health(max_hp=100, hp=50)
+        health.on_death = lambda: deaths.append(True)
+        entity.add_component(health)
+
+        health_system.kill(entity)
+
+        assert len(deaths) == 1
+
+    def test_revive(self, world, health_system):
+        """Test reviving entity"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=0, is_alive=False)
+        entity.add_component(health)
+
+        health_system.revive(entity)
+
+        assert health.hp == 100
+        assert health.is_alive
+
+    def test_revive_partial_hp(self, world, health_system):
+        """Test reviving with partial HP"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=0, is_alive=False)
+        entity.add_component(health)
+
+        health_system.revive(entity, hp=50)
+
+        assert health.hp == 50
+        assert health.is_alive
+
+    def test_regeneration(self, world, health_system):
+        """Test health regeneration over time"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=50, regeneration_rate=10)  # 10 HP/sec
+        entity.add_component(health)
+
+        # Update for 1 second
+        health_system.update(world, 1.0)
+
+        assert health.hp == 60
+
+    def test_regeneration_stops_at_max(self, world, health_system):
+        """Test regeneration stops at max HP"""
+        entity = world.create_entity()
+        health = Health(max_hp=100, hp=95, regeneration_rate=10)
+        entity.add_component(health)
+
+        health_system.update(world, 1.0)
+
+        assert health.hp == 100
+
+
+class TestCombatSystem:
+    """Test CombatSystem"""
+
+    def test_combat_system_creation(self):
+        """Test creating combat system"""
+        system = CombatSystem()
+        assert system.priority == 9
+
+    def test_calculate_hit_chance_basic(self, world, combat_system):
+        """Test basic hit chance calculation"""
+        attacker = world.create_entity()
+        target = world.create_entity()
+
+        weapon = Weapon(accuracy=80)
+        attacker.add_component(weapon)
+
+        target_stats = CombatStats(reflexes=5)  # 15% dodge
+        target.add_component(target_stats)
+
+        hit_chance = combat_system.calculate_hit_chance(attacker, target)
+
+        # 80 - 15 = 65
+        assert hit_chance == 65
+
+    def test_calculate_hit_chance_clamped(self, world, combat_system):
+        """Test hit chance clamped to 5-95%"""
+        attacker = world.create_entity()
+        target = world.create_entity()
+
+        # Very high accuracy
+        weapon = Weapon(accuracy=200)
+        attacker.add_component(weapon)
+
+        target_stats = CombatStats(reflexes=0)
+        target.add_component(target_stats)
+
+        hit_chance = combat_system.calculate_hit_chance(attacker, target)
+        assert hit_chance == 95  # Capped at 95
+
+        # Very low accuracy
+        weapon.accuracy = 0
+        hit_chance = combat_system.calculate_hit_chance(attacker, target)
+        assert hit_chance == 5  # Capped at 5
+
+    def test_calculate_damage_basic(self, world, combat_system):
+        """Test basic damage calculation"""
+        attacker = world.create_entity()
+        target = world.create_entity()
+
+        weapon = Weapon(damage=50, damage_variance_min=1.0, damage_variance_max=1.0)
+        attacker.add_component(weapon)
+
+        stats = CombatStats(reflexes=5, morale=50)  # No bonus
+        attacker.add_component(stats)
+
+        with patch('random.uniform', return_value=1.0):
+            with patch('random.randint', return_value=100):  # No crit
+                damage, is_crit = combat_system.calculate_damage(attacker, target)
 
-        # Current character should change (if more than 1 character alive)
-        if len([c for c in combat_encounter.all_characters if c.is_alive]) > 1:
-            assert combat_encounter.current_character != initial_char
+        # 50 base + 10 reflex bonus = 60
+        assert damage == 60
+        assert not is_crit
 
-    def test_next_turn_wraps_around(self, combat_encounter):
-        """Test that turn order wraps around after last character."""
-        # Go through all turns
-        num_chars = len([c for c in combat_encounter.all_characters if c.is_alive])
+    def test_calculate_damage_melee_bonus(self, world, combat_system):
+        """Test melee damage bonus from body"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-        for _ in range(num_chars):
-            combat_encounter.next_turn()
+        weapon = Weapon(damage=20, is_melee=True, is_ranged=False,
+                       damage_variance_min=1.0, damage_variance_max=1.0)
+        attacker.add_component(weapon)
 
-        # Should have wrapped around
-        assert combat_encounter.turn_count == 1
+        stats = CombatStats(body=8, morale=50)
+        attacker.add_component(stats)
 
-    def test_turn_count_increments(self, combat_encounter):
-        """Test that turn count increments after full round."""
-        initial_count = combat_encounter.turn_count
-        num_chars = len(combat_encounter.all_characters)
+        with patch('random.uniform', return_value=1.0):
+            with patch('random.randint', return_value=100):  # No crit
+                damage, _ = combat_system.calculate_damage(attacker, target)
 
-        # Complete a full round
-        for _ in range(num_chars):
-            combat_encounter.next_turn()
+        # 20 base + 24 body bonus = 44
+        assert damage == 44
 
-        assert combat_encounter.turn_count == initial_count + 1
+    def test_calculate_damage_critical(self, world, combat_system):
+        """Test critical hit damage"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-    def test_dead_characters_skipped(self, combat_encounter):
-        """Test that dead characters are skipped in turn order."""
-        # Kill a character
-        combat_encounter.all_characters[0].is_alive = False
+        weapon = Weapon(damage=50, crit_multiplier=2.0,
+                       damage_variance_min=1.0, damage_variance_max=1.0)
+        attacker.add_component(weapon)
 
-        initial_char = combat_encounter.current_character
-        combat_encounter.next_turn()
+        stats = CombatStats(reflexes=5, cool=10, morale=50)
+        attacker.add_component(stats)
 
-        # Should skip the dead character
-        assert combat_encounter.current_character.is_alive is True
+        # Force critical hit
+        with patch('random.uniform', return_value=1.0):  # variance
+            with patch('random.randint', return_value=1):  # Guarantee crit (roll 1, crit chance 20%)
+                damage, is_crit = combat_system.calculate_damage(attacker, target)
 
-    def test_current_character_turn_starts(self, combat_encounter):
-        """Test that current character's turn is started."""
-        combat_encounter.current_character.ap = 0
-        combat_encounter.next_turn()
+        # (50 + 10) * 2.0 = 120
+        assert damage == 120
+        assert is_crit
 
-        # New current character should have full AP
-        assert combat_encounter.current_character.ap == config.MAX_ACTION_POINTS
+    def test_perform_attack_hit(self, world, combat_system, health_system):
+        """Test successful attack"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-    def test_previous_character_turn_ends(self, combat_encounter):
-        """Test that previous character's turn ends."""
-        first_char = combat_encounter.current_character
-        first_char.has_acted = False
+        weapon = Weapon(damage=30, accuracy=100, damage_variance_min=1.0, damage_variance_max=1.0)
+        attacker.add_component(weapon)
 
-        combat_encounter.next_turn()
+        stats = CombatStats(reflexes=0, morale=50)
+        attacker.add_component(stats)
 
-        # Previous character should have has_acted set
-        assert first_char.has_acted is True
+        health = Health(max_hp=100, hp=100, armor=0)
+        target.add_component(health)
 
-    def test_get_current_team(self, combat_encounter):
-        """Test getting current character's team."""
-        team = combat_encounter.get_current_team()
-        assert team in ['player', 'enemy']
-        assert team == combat_encounter.current_character.team
+        # Force hit, no crit
+        with patch('random.uniform', return_value=1.0):  # Hit roll
+            with patch('random.randint', return_value=100):  # No crit
+                result = combat_system.perform_attack(attacker, target)
 
+        assert result['hit']
+        assert result['damage'] == 30
+        assert health.hp == 70
 
-class TestCombatLog:
-    """Test combat logging functionality."""
+    def test_perform_attack_miss(self, world, combat_system):
+        """Test missed attack"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-    def test_add_log_appends(self, combat_encounter):
-        """Test that add_log appends messages."""
-        initial_length = len(combat_encounter.combat_log)
-        combat_encounter.add_log("Test message")
+        weapon = Weapon(damage=30, accuracy=50)
+        attacker.add_component(weapon)
 
-        assert len(combat_encounter.combat_log) == initial_length + 1
-        assert "Test message" in combat_encounter.combat_log
+        health = Health(max_hp=100, hp=100)
+        target.add_component(health)
 
-    def test_log_max_length(self, combat_encounter):
-        """Test that log maintains maximum length."""
-        # Add more than 20 messages
-        for i in range(30):
-            combat_encounter.add_log(f"Message {i}")
+        # Force miss
+        with patch('random.uniform', return_value=99.0):
+            result = combat_system.perform_attack(attacker, target)
 
-        # Should cap at 20
-        assert len(combat_encounter.combat_log) <= 20
+        assert not result['hit']
+        assert result['damage'] == 0
+        assert health.hp == 100
 
-    def test_log_oldest_removed_first(self, combat_encounter):
-        """Test that oldest messages are removed first."""
-        # Clear log and add identifiable messages
-        combat_encounter.combat_log = []
+    def test_perform_attack_no_ammo(self, world, combat_system):
+        """Test attack with no ammo"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-        for i in range(25):
-            combat_encounter.add_log(f"Message {i}")
+        weapon = Weapon(has_ammo=True, ammo=0, max_ammo=10)
+        attacker.add_component(weapon)
 
-        # Should have last 20 messages
-        assert len(combat_encounter.combat_log) == 20
-        assert "Message 5" in combat_encounter.combat_log
-        assert "Message 24" in combat_encounter.combat_log
-        assert "Message 0" not in combat_encounter.combat_log
+        health = Health(max_hp=100, hp=100)
+        target.add_component(health)
 
-    def test_turn_logging(self, combat_encounter):
-        """Test that turns are logged."""
-        initial_log_len = len(combat_encounter.combat_log)
-        combat_encounter.next_turn()
+        result = combat_system.perform_attack(attacker, target)
 
-        assert len(combat_encounter.combat_log) > initial_log_len
+        assert not result['hit']
+        assert 'ammo' in result['message'].lower()
 
+    def test_perform_attack_consumes_ammo(self, world, combat_system):
+        """Test attack consumes ammo"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-class TestEscapeSystem:
-    """Test escape mechanics."""
+        weapon = Weapon(has_ammo=True, ammo=10, max_ammo=10, accuracy=100)
+        attacker.add_component(weapon)
 
-    def test_escape_not_available_early(self, combat_encounter):
-        """Test that escape is not available before turn 3."""
-        assert combat_encounter.escape_available is False
+        health = Health(max_hp=100, hp=100)
+        target.add_component(health)
 
-        success, msg = combat_encounter.attempt_escape()
-        assert success is False
-        assert "not available" in msg.lower()
+        with patch('random.uniform', return_value=1.0):
+            combat_system.perform_attack(attacker, target)
 
-    def test_escape_check_conditions_turn_3(self, combat_encounter):
-        """Test escape becomes available on turn 3."""
-        # Advance to turn 3
-        combat_encounter.turn_count = 3
+        assert weapon.ammo == 9
 
-        # Damage player to trigger escape condition (need > 50% damage, not exactly 50%)
-        for char in combat_encounter.player_team:
-            char.take_damage(int(char.max_hp * 0.6))  # 60% damage to ensure HP < 50%
+    def test_perform_attack_dead_target(self, world, combat_system):
+        """Test attack on dead target"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-        combat_encounter.check_escape_conditions()
-        assert combat_encounter.escape_available is True
+        weapon = Weapon(damage=30)
+        attacker.add_component(weapon)
 
-    def test_escape_condition_low_hp(self, combat_encounter):
-        """Test escape available when HP < 50%."""
-        combat_encounter.turn_count = 3
+        health = Health(max_hp=100, hp=0, is_alive=False)
+        target.add_component(health)
 
-        # Reduce player HP to below 50%
-        for char in combat_encounter.player_team:
-            char.hp = char.max_hp // 3  # 33% HP
+        result = combat_system.perform_attack(attacker, target)
 
-        combat_encounter.check_escape_conditions()
-        assert combat_encounter.escape_available is True
+        assert not result['hit']
+        assert 'dead' in result['message'].lower()
 
-    def test_escape_condition_casualties(self, combat_encounter):
-        """Test escape available with casualties."""
-        # Add second player character
-        stats = {
-            'body': 5, 'reflexes': 5, 'intelligence': 5,
-            'tech': 5, 'cool': 5, 'max_hp': 100, 'armor': 10
-        }
-        second_player = Character("Ally", 0, 0, stats, 'pistol', 'player')
-        combat_encounter.player_team.append(second_player)
-        combat_encounter.turn_count = 3
+    def test_check_range_grid(self, world, combat_system):
+        """Test range check with grid positions"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-        # Kill one player
-        second_player.is_alive = False
+        weapon = Weapon(range=5)
+        attacker.add_component(weapon)
 
-        combat_encounter.check_escape_conditions()
-        assert combat_encounter.escape_available is True
+        attacker_pos = GridPosition(grid_x=0, grid_y=0)
+        target_pos = GridPosition(grid_x=3, grid_y=2)
+        attacker.add_component(attacker_pos)
+        target.add_component(target_pos)
 
-    def test_escape_condition_outnumbered(self, outnumbered_scenario):
-        """Test escape available when outnumbered 2:1."""
-        player_team, enemy_team = outnumbered_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-        combat.turn_count = 3
+        in_range, distance = combat_system.check_range(attacker, target, world)
 
-        combat.check_escape_conditions()
-        assert combat.escape_available is True
+        # Manhattan distance = 3 + 2 = 5
+        assert distance == 5
+        assert in_range
 
-    @patch('random.randint')
-    def test_escape_solo_success(self, mock_randint, combat_encounter):
-        """Test successful solo escape."""
-        combat_encounter.escape_available = True
-        mock_randint.return_value = 1  # Guarantee success
+    def test_check_range_out_of_range(self, world, combat_system):
+        """Test out of range check"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-        success, msg = combat_encounter.attempt_escape()
+        weapon = Weapon(range=3)
+        attacker.add_component(weapon)
 
-        assert success is True
-        assert combat_encounter.combat_active is False
-        assert combat_encounter.victor == 'fled'
+        attacker_pos = GridPosition(grid_x=0, grid_y=0)
+        target_pos = GridPosition(grid_x=5, grid_y=5)
+        attacker.add_component(attacker_pos)
+        target.add_component(target_pos)
 
-    @patch('random.randint')
-    def test_escape_solo_failure(self, mock_randint, combat_encounter):
-        """Test failed solo escape."""
-        combat_encounter.escape_available = True
-        mock_randint.return_value = 100  # Guarantee failure
+        in_range, distance = combat_system.check_range(attacker, target, world)
 
-        player_initial_hp = combat_encounter.player_team[0].hp
+        assert distance == 10
+        assert not in_range
 
-        success, msg = combat_encounter.attempt_escape()
+    def test_check_range_continuous(self, world, combat_system):
+        """Test range check with continuous positions"""
+        attacker = world.create_entity()
+        target = world.create_entity()
 
-        assert success is False
-        assert combat_encounter.combat_active is True
-        # Should take damage on failed escape
-        assert combat_encounter.player_team[0].hp < player_initial_hp
+        weapon = Weapon(range=100)
+        attacker.add_component(weapon)
 
-    def test_escape_with_sacrifice_success(self, team_combat_scenario):
-        """Test successful escape with sacrifice."""
-        player_team, enemy_team = team_combat_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-        combat.escape_available = True
+        attacker_pos = Transform(x=0, y=0)
+        target_pos = Transform(x=60, y=80)
+        attacker.add_component(attacker_pos)
+        target.add_component(target_pos)
 
-        sacrifice = player_team[1]
+        in_range, distance = combat_system.check_range(attacker, target, world)
 
-        with patch('random.randint', return_value=1):  # Guarantee success
-            success, msg = combat.attempt_escape(sacrifice_character=sacrifice)
+        # Euclidean distance = sqrt(60^2 + 80^2) = 100
+        assert distance == 100
+        assert in_range
 
-        assert success is True
-        assert sacrifice.is_alive is False
-        assert combat.victor == 'fled'
+    def test_combat_log(self, combat_system):
+        """Test combat logging"""
+        combat_system.add_log("Player attacks!")
+        combat_system.add_log("Enemy takes damage!")
 
-    def test_escape_with_sacrifice_failure(self, team_combat_scenario):
-        """Test failed escape with sacrifice."""
-        player_team, enemy_team = team_combat_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-        combat.escape_available = True
+        log = combat_system.get_log()
+        assert len(log) == 2
+        assert "Player attacks!" in log
+        assert "Enemy takes damage!" in log
 
-        sacrifice = player_team[1]
+    def test_combat_log_max_size(self, combat_system):
+        """Test combat log max size"""
+        for i in range(60):
+            combat_system.add_log(f"Message {i}")
 
-        with patch('random.randint', return_value=100):  # Guarantee failure
-            success, msg = combat.attempt_escape(sacrifice_character=sacrifice)
+        log = combat_system.get_log()
+        assert len(log) == 50  # Max size
 
-        assert success is False
-        assert sacrifice.is_alive is False  # Sacrifice dies even on failure
-        assert combat.combat_active is True
+    def test_combat_log_clear(self, combat_system):
+        """Test clearing combat log"""
+        combat_system.add_log("Message")
+        combat_system.clear_log()
 
-    def test_escape_morale_penalty(self, combat_encounter):
-        """Test that escape applies morale penalty."""
-        combat_encounter.escape_available = True
+        log = combat_system.get_log()
+        assert len(log) == 0
 
-        with patch('random.randint', return_value=1):  # Guarantee success
-            initial_morale = combat_encounter.player_team[0].morale
-            combat_encounter.attempt_escape()
 
-            # Should lose morale
-            assert combat_encounter.player_team[0].morale < initial_morale
-
-    def test_escape_chance_calculation(self, combat_encounter):
-        """Test escape chance based on reflexes."""
-        combat_encounter.escape_available = True
-
-        # Reflexes = 6, so escape chance = 45 + (6 * 2) = 57%
-        # We can't directly test the calculation, but we can verify it runs
-        with patch('random.randint', return_value=50):
-            success, _ = combat_encounter.attempt_escape()
-            # With roll of 50 and chance of 57, should succeed
-            assert success is True
-
-
-class TestVictoryConditions:
-    """Test combat victory and defeat detection."""
-
-    def test_player_victory(self, combat_encounter):
-        """Test player victory when all enemies dead."""
-        # Kill all enemies
-        for enemy in combat_encounter.enemy_team:
-            enemy.is_alive = False
-
-        combat_encounter.check_victory()
-
-        assert combat_encounter.combat_active is False
-        assert combat_encounter.victor == 'player'
-
-    def test_player_defeat(self, combat_encounter):
-        """Test player defeat when all players dead."""
-        # Kill all players
-        for player in combat_encounter.player_team:
-            player.is_alive = False
-
-        combat_encounter.check_victory()
-
-        assert combat_encounter.combat_active is False
-        assert combat_encounter.victor == 'enemy'
-
-    def test_combat_continues_with_survivors(self, combat_encounter):
-        """Test combat continues when both sides have survivors."""
-        combat_encounter.check_victory()
-
-        # With all characters alive, combat should continue
-        assert combat_encounter.combat_active is True
-        assert combat_encounter.victor is None
-
-    def test_victory_logged(self, combat_encounter):
-        """Test that victory is logged."""
-        # Kill all enemies
-        for enemy in combat_encounter.enemy_team:
-            enemy.is_alive = False
-
-        combat_encounter.check_victory()
-
-        log_text = " ".join(combat_encounter.combat_log)
-        assert "VICTORY" in log_text
-
-    def test_defeat_logged(self, combat_encounter):
-        """Test that defeat is logged."""
-        # Kill all players
-        for player in combat_encounter.player_team:
-            player.is_alive = False
-
-        combat_encounter.check_victory()
-
-        log_text = " ".join(combat_encounter.combat_log)
-        assert "DEFEAT" in log_text
-
-
-class TestValidMoves:
-    """Test valid movement calculation."""
-
-    def test_get_valid_moves_returns_positions(self, combat_encounter):
-        """Test that get_valid_moves returns position tuples."""
-        char = combat_encounter.current_character
-        valid_moves = combat_encounter.get_valid_moves(char)
-
-        assert isinstance(valid_moves, list)
-        for move in valid_moves:
-            assert isinstance(move, tuple)
-            assert len(move) == 2
-
-    def test_valid_moves_within_range(self, combat_encounter):
-        """Test that valid moves are within movement range."""
-        char = combat_encounter.current_character
-        valid_moves = combat_encounter.get_valid_moves(char)
-
-        for x, y in valid_moves:
-            distance = abs(x - char.x) + abs(y - char.y)
-            assert distance <= char.movement_range
-
-    def test_valid_moves_within_bounds(self, combat_encounter):
-        """Test that valid moves are within grid bounds."""
-        char = combat_encounter.current_character
-        valid_moves = combat_encounter.get_valid_moves(char)
-
-        for x, y in valid_moves:
-            assert 0 <= x < config.GRID_WIDTH
-            assert 0 <= y < config.GRID_HEIGHT
-
-    def test_valid_moves_exclude_occupied(self, team_combat_encounter):
-        """Test that occupied tiles are excluded."""
-        char = team_combat_encounter.current_character
-        valid_moves = team_combat_encounter.get_valid_moves(char)
-
-        # Check that no other character's position is in valid moves
-        for other_char in team_combat_encounter.all_characters:
-            if other_char != char and other_char.is_alive:
-                assert (other_char.x, other_char.y) not in valid_moves
-
-    def test_valid_moves_from_corner(self):
-        """Test valid moves from grid corner."""
-        stats = {
-            'body': 5, 'reflexes': 5, 'intelligence': 5,
-            'tech': 5, 'cool': 5, 'max_hp': 100, 'armor': 10
-        }
-        corner_char = Character("Corner", 0, 0, stats, 'pistol', 'player')
-        enemy = Character("Enemy", 10, 10, stats, 'pistol', 'enemy')
-
-        combat = CombatEncounter([corner_char], [enemy])
-        valid_moves = combat.get_valid_moves(corner_char)
-
-        # All moves should be within bounds
-        for x, y in valid_moves:
-            assert x >= 0 and y >= 0
-
-    def test_valid_moves_manhattan_distance(self, combat_encounter):
-        """Test that valid moves use Manhattan distance."""
-        char = combat_encounter.current_character
-        valid_moves = combat_encounter.get_valid_moves(char)
-
-        # Verify Manhattan distance for each move
-        for x, y in valid_moves:
-            manhattan_dist = abs(x - char.x) + abs(y - char.y)
-            assert manhattan_dist <= char.movement_range
-
-
-class TestValidTargets:
-    """Test valid target calculation."""
-
-    def test_get_valid_targets_returns_characters(self, combat_encounter):
-        """Test that get_valid_targets returns character objects."""
-        char = combat_encounter.current_character
-        targets = combat_encounter.get_valid_targets(char)
-
-        assert isinstance(targets, list)
-        for target in targets:
-            assert isinstance(target, Character)
-
-    def test_valid_targets_enemy_team(self, combat_encounter):
-        """Test that valid targets are from enemy team."""
-        char = combat_encounter.current_character
-        targets = combat_encounter.get_valid_targets(char)
-
-        for target in targets:
-            assert target.team != char.team
-
-    def test_valid_targets_within_weapon_range(self, combat_encounter):
-        """Test that targets are within weapon range."""
-        char = combat_encounter.current_character
-        targets = combat_encounter.get_valid_targets(char)
-
-        for target in targets:
-            distance = abs(char.x - target.x) + abs(char.y - target.y)
-            assert distance <= char.weapon['range']
-
-    def test_valid_targets_only_alive(self, combat_encounter):
-        """Test that only alive enemies are included."""
-        char = combat_encounter.current_character
-
-        # Kill an enemy
-        for enemy in combat_encounter.enemy_team:
-            enemy.is_alive = False
-
-        targets = combat_encounter.get_valid_targets(char)
-
-        # Should have no targets
-        assert len(targets) == 0
-
-
-class TestEnemyAI:
-    """Test enemy AI behavior."""
-
-    def test_enemy_ai_attacks_when_in_range(self, combat_encounter):
-        """Test that enemy attacks when target is in range."""
-        # Set current character to enemy
-        enemy = combat_encounter.enemy_team[0]
-        combat_encounter.current_character = enemy
-        enemy.start_turn()
-
-        # Place player in range
-        player = combat_encounter.player_team[0]
-        player.x = enemy.x + 2
-        player.y = enemy.y
-
-        initial_ap = enemy.ap
-
-        combat_encounter.enemy_ai_turn(enemy)
-
-        # Should have spent AP on attack
-        assert enemy.ap < initial_ap
-
-    def test_enemy_ai_moves_toward_player(self, combat_encounter):
-        """Test that enemy moves toward player when out of range."""
-        enemy = combat_encounter.enemy_team[0]
-        player = combat_encounter.player_team[0]
-
-        # Place player far away
-        enemy.x = 0
-        enemy.y = 0
-        player.x = 10
-        player.y = 10
-
-        enemy.start_turn()
-        initial_x = enemy.x
-        initial_y = enemy.y
-
-        combat_encounter.enemy_ai_turn(enemy)
-
-        # Should have moved (at least tried)
-        # Distance should have decreased or stayed same if blocked
-        new_distance = abs(enemy.x - player.x) + abs(enemy.y - player.y)
-        old_distance = abs(initial_x - player.x) + abs(initial_y - player.y)
-        assert new_distance <= old_distance
-
-    def test_enemy_ai_targets_closest_player(self, team_combat_encounter):
-        """Test that enemy targets closest player."""
-        enemy = team_combat_encounter.enemy_team[0]
-        player1 = team_combat_encounter.player_team[0]
-        player2 = team_combat_encounter.player_team[1]
-
-        # Place players at different distances
-        enemy.x = 5
-        enemy.y = 5
-        player1.x = 6
-        player1.y = 5
-        player2.x = 10
-        player2.y = 10
-
-        enemy.start_turn()
-
-        # Enemy should target player1 (closer)
-        with patch('random.randint', return_value=1):  # Guarantee hit
-            initial_hp1 = player1.hp
-            initial_hp2 = player2.hp
-
-            team_combat_encounter.enemy_ai_turn(enemy)
-
-            # Player1 should have taken damage, player2 should not
-            assert player1.hp <= initial_hp1
-            assert player2.hp == initial_hp2
-
-    def test_enemy_ai_does_nothing_with_no_ap(self, combat_encounter):
-        """Test that enemy does nothing when out of AP."""
-        enemy = combat_encounter.enemy_team[0]
-        enemy.ap = 0
-
-        initial_x = enemy.x
-        initial_y = enemy.y
-
-        combat_encounter.enemy_ai_turn(enemy)
-
-        # Position should not have changed (even if AP might be reset by combat system)
-        assert enemy.x == initial_x
-        assert enemy.y == initial_y
-
-    def test_enemy_ai_avoids_occupied_tiles(self, team_combat_encounter):
-        """Test that enemy doesn't move to occupied tiles."""
-        enemy = team_combat_encounter.enemy_team[0]
-        blocker = team_combat_encounter.enemy_team[1]
-
-        # Place blocker in the way
-        enemy.x = 5
-        enemy.y = 5
-        blocker.x = 6
-        blocker.y = 5
-
-        enemy.start_turn()
-        initial_pos = (enemy.x, enemy.y)
-
-        team_combat_encounter.enemy_ai_turn(enemy)
-
-        # Enemy should not have moved to blocker's position
-        assert (enemy.x, enemy.y) != (blocker.x, blocker.y)
-
-
-class TestEdgeCases:
-    """Test edge cases and boundary conditions."""
-
-    def test_combat_with_one_character_each(self, basic_combat_scenario):
-        """Test combat with minimal characters."""
-        player_team, enemy_team = basic_combat_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-
-        assert len(combat.all_characters) == 2
-        assert combat.combat_active is True
-
-    def test_combat_with_many_characters(self):
-        """Test combat with many characters."""
-        stats = {
-            'body': 5, 'reflexes': 5, 'intelligence': 5,
-            'tech': 5, 'cool': 5, 'max_hp': 100, 'armor': 10
-        }
-
-        player_team = [
-            Character(f"Player{i}", i, 0, stats, 'pistol', 'player')
-            for i in range(5)
-        ]
-        enemy_team = [
-            Character(f"Enemy{i}", i, 10, stats, 'pistol', 'enemy')
-            for i in range(5)
-        ]
-
-        combat = CombatEncounter(player_team, enemy_team)
-
-        assert len(combat.all_characters) == 10
-        assert len(combat.turn_order) == 10
-
-    def test_turn_with_all_dead_except_one(self, combat_encounter):
-        """Test turn progression when only one character alive."""
-        # Kill all but one
-        alive_char = combat_encounter.all_characters[0]
-        for char in combat_encounter.all_characters:
-            if char != alive_char:
-                char.is_alive = False
-
-        combat_encounter.next_turn()
-
-        # Should still function
-        assert combat_encounter.current_character == alive_char
-
-    def test_escape_with_all_conditions_met(self, outnumbered_scenario):
-        """Test escape when multiple conditions are met."""
-        player_team, enemy_team = outnumbered_scenario
-        combat = CombatEncounter(player_team, enemy_team)
-
-        # Set multiple escape conditions
-        combat.turn_count = 3
-        player_team[0].hp = player_team[0].max_hp // 4  # Low HP
-        # Already outnumbered
-
-        combat.check_escape_conditions()
-        assert combat.escape_available is True
-
-    def test_combat_at_grid_boundaries(self):
-        """Test combat with characters at grid edges."""
-        stats = {
-            'body': 5, 'reflexes': 5, 'intelligence': 5,
-            'tech': 5, 'cool': 5, 'max_hp': 100, 'armor': 10
-        }
-
-        # Place at opposite corners
-        player = Character("Player", 0, 0, stats, 'pistol', 'player')
-        enemy = Character("Enemy", config.GRID_WIDTH-1, config.GRID_HEIGHT-1,
-                         stats, 'pistol', 'enemy')
-
-        combat = CombatEncounter([player], [enemy])
-
-        # Should create without error
-        assert combat.combat_active is True
-
-    def test_turn_counter_overflow(self, combat_encounter):
-        """Test that turn counter handles large values."""
-        combat_encounter.turn_count = 1000
-
-        # Should still function
-        combat_encounter.next_turn()
-        assert combat_encounter.turn_count >= 1000
-
-    def test_empty_log_message(self, combat_encounter):
-        """Test adding empty log message."""
-        combat_encounter.add_log("")
-        assert "" in combat_encounter.combat_log
-
-
-@pytest.mark.integration
-class TestCombatIntegration:
-    """Integration tests for complete combat scenarios."""
-
-    def test_full_combat_flow(self, combat_encounter):
-        """Test a complete combat flow from start to finish."""
-        max_turns = 50
-        turn = 0
-
-        while combat_encounter.combat_active and turn < max_turns:
-            current = combat_encounter.current_character
-
-            if current.team == 'enemy':
-                combat_encounter.enemy_ai_turn(current)
-            else:
-                # Simulate player action
-                targets = combat_encounter.get_valid_targets(current)
-                if targets and current.ap >= config.AP_BASIC_ATTACK:
-                    target = targets[0]
-                    current.attack(target)
-
-            combat_encounter.next_turn()
-            turn += 1
-
-        # Combat should have resolved
-        assert turn < max_turns or combat_encounter.combat_active is False
-
-    def test_escape_then_check_victory(self, combat_encounter):
-        """Test that escape properly ends combat."""
-        combat_encounter.escape_available = True
-
-        with patch('random.randint', return_value=1):
-            combat_encounter.attempt_escape()
-
-        # Should not be in active combat
-        assert combat_encounter.combat_active is False
-        assert combat_encounter.victor == 'fled'
-
-        # Victory check should not override escape
-        combat_encounter.check_victory()
-        assert combat_encounter.victor == 'fled'
-
-    def test_complete_round_robin(self, team_combat_encounter):
-        """Test that all characters get turns in order."""
-        initial_turn_order = team_combat_encounter.turn_order.copy()
-        turns_taken = []
-
-        for _ in range(len(initial_turn_order)):
-            turns_taken.append(team_combat_encounter.current_character)
-            team_combat_encounter.next_turn()
-
-        # All characters should have taken a turn
-        assert len(turns_taken) == len(initial_turn_order)
+# Run tests with: pytest engine/tests/test_combat.py -v
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

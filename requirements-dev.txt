@@ -1,10 +1,15 @@
-# Development and Testing Dependencies for Neon Collapse
+# Development and Testing Dependencies for Neon Works Game Engine
+
+# Include runtime dependencies
+-r requirements.txt
 
 # Testing Framework
 pytest==7.4.3
 pytest-cov==4.1.0
 pytest-mock==3.12.0
 pytest-xdist==3.5.0  # For parallel test execution
+pytest-pygame==0.0.2
+pytest-timeout==2.2.0
 
 # Code Quality
 flake8==6.1.0
@@ -18,8 +23,6 @@ coverage==7.3.4
 coverage-badge==1.1.0
 
 # Mocking and Testing Utilities
-pytest-pygame==0.0.2
-pytest-timeout==2.2.0
 faker==21.0.0  # For generating test data
 
 # Documentation
