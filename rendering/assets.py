@@ -2,11 +2,13 @@
 Asset Loading System
 
 Load and cache sprites, textures, and other game assets.
+Supports the NeonWorks asset library with manifest-based loading.
 """
 
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pygame
 
@@ -35,6 +37,59 @@ class SpriteSheet:
         return self.get_sprite(x, y)
 
 
+@dataclass
+class AssetMetadata:
+    """
+    Metadata for a single asset from the manifest.
+
+    This represents an entry from asset_manifest.json with all
+    the metadata needed to load and manage the asset.
+    """
+
+    id: str
+    name: str
+    file_path: str
+    format: str
+    category: str
+    tags: List[str] = field(default_factory=list)
+    license: Optional[str] = None
+    author: Optional[str] = None
+    attribution_required: bool = False
+    notes: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any], category: str) -> "AssetMetadata":
+        """Create AssetMetadata from a manifest dictionary entry."""
+        return cls(
+            id=data.get("id", ""),
+            name=data.get("name", ""),
+            file_path=data.get("file_path", ""),
+            format=data.get("format", ""),
+            category=category,
+            tags=data.get("tags", []),
+            license=data.get("license"),
+            author=data.get("author"),
+            attribution_required=data.get("attribution_required", False),
+            notes=data.get("notes"),
+            metadata=data,  # Store full metadata for category-specific fields
+        )
+
+
+@dataclass
+class LoadedAsset:
+    """
+    A loaded asset with its data and metadata.
+
+    Combines the actual loaded resource (sprite, sound, etc.)
+    with its metadata from the manifest.
+    """
+
+    metadata: AssetMetadata
+    resource: Any  # pygame.Surface, pygame.mixer.Sound, etc.
+    thumbnail: Optional[pygame.Surface] = None
+
+
 class AssetManager:
     """
     Manages loading and caching of game assets.
@@ -42,39 +97,108 @@ class AssetManager:
     Features:
     - Sprite/texture loading with caching
     - Sprite sheet support
-    - Color key transparency
-    - Asset preloading
+    - Asset manifest loading and management
+    - Category-specific asset helpers
+    - Lazy loading for performance
+    - Thumbnail generation for asset browser
+    - Asset search and filtering
     - Memory management
     """
 
-    def __init__(self, base_path: Optional[Path] = None):
+    def __init__(self, base_path: Optional[Path] = None, manifest_path: Optional[Path] = None):
         """
         Initialize asset manager.
 
         Args:
             base_path: Base path for asset loading. Defaults to 'assets/'
+            manifest_path: Path to asset_manifest.json. Defaults to 'assets/asset_manifest.json'
         """
         self.base_path = Path(base_path) if base_path else Path("assets")
+        self.manifest_path = (
+            Path(manifest_path) if manifest_path else self.base_path / "asset_manifest.json"
+        )
 
-        # Asset caches
+        # Asset caches (legacy)
         self._sprites: Dict[str, pygame.Surface] = {}
         self._sprite_sheets: Dict[str, SpriteSheet] = {}
         self._sounds: Dict[str, pygame.mixer.Sound] = {}
 
-        # Asset info
+        # Asset info (legacy)
         self._asset_sizes: Dict[str, int] = {}  # Track memory usage
+
+        # Asset library (new manifest-based system)
+        self._manifest: Dict[str, Any] = {}
+        self._asset_metadata: Dict[str, AssetMetadata] = {}  # id -> metadata
+        self._loaded_assets: Dict[str, LoadedAsset] = {}  # id -> loaded asset
+        self._thumbnails: Dict[str, pygame.Surface] = {}  # id -> thumbnail
+
+        # Lazy loading tracking
+        self._lazy_load_enabled = True
 
         # Placeholder surfaces for missing assets
         self._create_placeholders()
 
+        # Load manifest if it exists
+        self._load_manifest()
+
     def _create_placeholders(self):
         """Create placeholder graphics for missing assets"""
-        # Missing texture placeholder (magenta and black checkerboard)
-        self._missing_texture = pygame.Surface((32, 32))
+        # Missing texture placeholder (subtle gray checkerboard with border)
+        self._missing_texture = pygame.Surface((32, 32), pygame.SRCALPHA)
+        self._missing_texture.fill((80, 80, 90, 255))
+
+        # Add checkerboard pattern
         for y in range(32):
             for x in range(32):
-                color = (255, 0, 255) if (x // 8 + y // 8) % 2 == 0 else (0, 0, 0)
+                if (x // 8 + y // 8) % 2 == 0:
+                    color = (100, 100, 110, 255)
+                else:
+                    color = (60, 60, 70, 255)
                 self._missing_texture.set_at((x, y), color)
+
+        # Add border
+        pygame.draw.rect(self._missing_texture, (255, 100, 100, 255), (0, 0, 32, 32), 1)
+
+        # Add "?" icon in center
+        font_size = 20
+        try:
+            font = pygame.font.Font(None, font_size)
+            text = font.render("?", True, (255, 100, 100, 255))
+            text_rect = text.get_rect(center=(16, 16))
+            self._missing_texture.blit(text, text_rect)
+        except Exception:
+            pass  # If font fails, just use the checkerboard
+
+    def _load_manifest(self):
+        """Load the asset manifest from disk."""
+        if not self.manifest_path.exists():
+            print(f"ℹ Asset manifest not found: {self.manifest_path}")
+            print("  Asset library features will be limited.")
+            return
+
+        try:
+            with open(self.manifest_path, "r") as f:
+                self._manifest = json.load(f)
+
+            # Parse asset metadata from manifest
+            assets = self._manifest.get("assets", {})
+            for category, asset_list in assets.items():
+                for asset_data in asset_list:
+                    metadata = AssetMetadata.from_dict(asset_data, category)
+                    self._asset_metadata[metadata.id] = metadata
+
+            asset_count = len(self._asset_metadata)
+            print(f"✓ Loaded asset manifest: {asset_count} assets registered")
+
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"✗ Failed to load asset manifest: {e}")
+            print("  Asset library features will be limited.")
+
+    def reload_manifest(self):
+        """Reload the asset manifest from disk."""
+        self._manifest = {}
+        self._asset_metadata.clear()
+        self._load_manifest()
 
     # ========== Sprite Loading ==========
 
@@ -277,6 +401,368 @@ class AssetManager:
             del self._sprites[key]
             if key in self._asset_sizes:
                 del self._asset_sizes[key]
+
+    # ========== Asset Library (Manifest-Based) ==========
+
+    def get_asset_metadata(self, asset_id: str) -> Optional[AssetMetadata]:
+        """
+        Get metadata for an asset by ID.
+
+        Args:
+            asset_id: Asset ID from manifest
+
+        Returns:
+            AssetMetadata if found, None otherwise
+        """
+        return self._asset_metadata.get(asset_id)
+
+    def load_asset(self, asset_id: str) -> Optional[LoadedAsset]:
+        """
+        Load an asset by ID from the manifest.
+
+        Supports lazy loading - asset is only loaded from disk when first requested.
+
+        Args:
+            asset_id: Asset ID from manifest
+
+        Returns:
+            LoadedAsset if successful, None if asset not found or load failed
+        """
+        # Check if already loaded
+        if asset_id in self._loaded_assets:
+            return self._loaded_assets[asset_id]
+
+        # Get metadata
+        metadata = self._asset_metadata.get(asset_id)
+        if not metadata:
+            print(f"✗ Asset '{asset_id}' not found in manifest")
+            return None
+
+        # Load the asset based on category
+        resource = self._load_asset_by_category(metadata)
+        if resource is None:
+            return None
+
+        # Create loaded asset
+        loaded_asset = LoadedAsset(metadata=metadata, resource=resource)
+
+        # Cache it
+        self._loaded_assets[asset_id] = loaded_asset
+
+        return loaded_asset
+
+    def _load_asset_by_category(self, metadata: AssetMetadata) -> Optional[Any]:
+        """Load an asset based on its category."""
+        full_path = self.base_path / metadata.file_path
+
+        try:
+            if metadata.category in ["characters", "enemies", "icons", "ui", "faces"]:
+                # Image asset
+                return pygame.image.load(str(full_path)).convert_alpha()
+
+            elif metadata.category == "tilesets":
+                # Tileset (sprite sheet)
+                tile_width = metadata.metadata.get("tile_width", 32)
+                tile_height = metadata.metadata.get("tile_height", 32)
+                return self.load_sprite_sheet(metadata.file_path, tile_width, tile_height)
+
+            elif metadata.category == "animations":
+                # Animation (sprite sheet or gif)
+                return pygame.image.load(str(full_path)).convert_alpha()
+
+            elif metadata.category == "backgrounds":
+                # Background (may be larger, allow jpg)
+                return pygame.image.load(str(full_path)).convert()
+
+            elif metadata.category in ["music", "sfx"]:
+                # Audio asset
+                try:
+                    if metadata.category == "music":
+                        # Music loaded via pygame.mixer.music (not returned as object)
+                        return str(full_path)  # Return path for music
+                    else:
+                        # SFX loaded as Sound
+                        return pygame.mixer.Sound(str(full_path))
+                except pygame.error as e:
+                    print(f"✗ Failed to load audio '{metadata.id}': {e}")
+                    return None
+
+            else:
+                print(f"✗ Unknown asset category: {metadata.category}")
+                return None
+
+        except (pygame.error, FileNotFoundError) as e:
+            print(f"✗ Failed to load asset '{metadata.id}': {e}")
+            return None
+
+    def get_thumbnail(
+        self, asset_id: str, size: Tuple[int, int] = (64, 64)
+    ) -> Optional[pygame.Surface]:
+        """
+        Get or generate a thumbnail for an asset.
+
+        Args:
+            asset_id: Asset ID from manifest
+            size: Thumbnail size (width, height)
+
+        Returns:
+            Thumbnail surface if successful, None otherwise
+        """
+        # Check cache
+        cache_key = f"{asset_id}_{size[0]}x{size[1]}"
+        if cache_key in self._thumbnails:
+            return self._thumbnails[cache_key]
+
+        # Load asset if needed
+        loaded_asset = self.load_asset(asset_id)
+        if not loaded_asset:
+            return None
+
+        # Generate thumbnail based on category
+        thumbnail = None
+        metadata = loaded_asset.metadata
+
+        if metadata.category in [
+            "characters",
+            "enemies",
+            "icons",
+            "ui",
+            "faces",
+            "backgrounds",
+            "animations",
+        ]:
+            # Image asset - scale to thumbnail size
+            if isinstance(loaded_asset.resource, pygame.Surface):
+                thumbnail = pygame.transform.smoothscale(loaded_asset.resource, size)
+            elif isinstance(loaded_asset.resource, SpriteSheet):
+                # For sprite sheets, use first tile
+                first_sprite = loaded_asset.resource.get_sprite(0, 0)
+                thumbnail = pygame.transform.smoothscale(first_sprite, size)
+
+        elif metadata.category == "tilesets":
+            # Tileset - show first few tiles
+            if isinstance(loaded_asset.resource, SpriteSheet):
+                first_sprite = loaded_asset.resource.get_sprite(0, 0)
+                thumbnail = pygame.transform.smoothscale(first_sprite, size)
+
+        elif metadata.category in ["music", "sfx"]:
+            # Audio - create visual representation
+            thumbnail = pygame.Surface(size, pygame.SRCALPHA)
+            thumbnail.fill((40, 40, 50, 255))
+
+            # Add waveform icon
+            color = (100, 200, 255, 255) if metadata.category == "music" else (255, 200, 100, 255)
+            center_y = size[1] // 2
+            for x in range(0, size[0], 4):
+                height = (x % 20) + 5
+                pygame.draw.line(
+                    thumbnail, color, (x, center_y - height), (x, center_y + height), 2
+                )
+
+            # Add icon label
+            try:
+                font = pygame.font.Font(None, 16)
+                label = "♫" if metadata.category == "music" else "♪"
+                text = font.render(label, True, color)
+                text_rect = text.get_rect(center=(size[0] // 2, size[1] // 2))
+                thumbnail.blit(text, text_rect)
+            except Exception:
+                pass
+
+        if thumbnail:
+            self._thumbnails[cache_key] = thumbnail
+            loaded_asset.thumbnail = thumbnail
+
+        return thumbnail
+
+    # ========== Category-Specific Helpers ==========
+
+    def get_character(self, character_id: str) -> Optional[pygame.Surface]:
+        """Load a character sprite by ID."""
+        loaded = self.load_asset(character_id)
+        return loaded.resource if loaded else None
+
+    def get_enemy(self, enemy_id: str) -> Optional[pygame.Surface]:
+        """Load an enemy sprite by ID."""
+        loaded = self.load_asset(enemy_id)
+        return loaded.resource if loaded else None
+
+    def get_animation(self, animation_id: str) -> Optional[pygame.Surface]:
+        """Load an animation by ID."""
+        loaded = self.load_asset(animation_id)
+        return loaded.resource if loaded else None
+
+    def get_music(self, music_id: str) -> Optional[str]:
+        """
+        Get music file path by ID.
+
+        Note: Music is loaded via pygame.mixer.music, so this returns
+        the file path rather than a Sound object.
+
+        Returns:
+            File path string if found, None otherwise
+        """
+        loaded = self.load_asset(music_id)
+        return loaded.resource if loaded else None
+
+    def get_sfx(self, sfx_id: str) -> Optional[pygame.mixer.Sound]:
+        """Load a sound effect by ID."""
+        loaded = self.load_asset(sfx_id)
+        return loaded.resource if loaded else None
+
+    def get_tileset(self, tileset_id: str) -> Optional[SpriteSheet]:
+        """Load a tileset by ID."""
+        loaded = self.load_asset(tileset_id)
+        return loaded.resource if loaded else None
+
+    def get_icon(self, icon_id: str) -> Optional[pygame.Surface]:
+        """Load an icon by ID."""
+        loaded = self.load_asset(icon_id)
+        return loaded.resource if loaded else None
+
+    def get_ui_element(self, ui_id: str) -> Optional[pygame.Surface]:
+        """Load a UI element by ID."""
+        loaded = self.load_asset(ui_id)
+        return loaded.resource if loaded else None
+
+    def get_face(self, face_id: str) -> Optional[pygame.Surface]:
+        """Load a character face/portrait by ID."""
+        loaded = self.load_asset(face_id)
+        return loaded.resource if loaded else None
+
+    def get_background(self, background_id: str) -> Optional[pygame.Surface]:
+        """Load a background by ID."""
+        loaded = self.load_asset(background_id)
+        return loaded.resource if loaded else None
+
+    # ========== Asset Search and Filtering ==========
+
+    def find_assets_by_tag(self, tag: str) -> List[AssetMetadata]:
+        """
+        Find all assets with a specific tag.
+
+        Args:
+            tag: Tag to search for
+
+        Returns:
+            List of matching asset metadata
+        """
+        results = []
+        for metadata in self._asset_metadata.values():
+            if tag.lower() in [t.lower() for t in metadata.tags]:
+                results.append(metadata)
+        return results
+
+    def find_assets_by_category(self, category: str) -> List[AssetMetadata]:
+        """
+        Find all assets in a specific category.
+
+        Args:
+            category: Category name (characters, enemies, music, etc.)
+
+        Returns:
+            List of matching asset metadata
+        """
+        results = []
+        for metadata in self._asset_metadata.values():
+            if metadata.category == category:
+                results.append(metadata)
+        return results
+
+    def search_assets(self, query: str) -> List[AssetMetadata]:
+        """
+        Search assets by name, ID, or tags.
+
+        Args:
+            query: Search query (case-insensitive)
+
+        Returns:
+            List of matching asset metadata
+        """
+        query_lower = query.lower()
+        results = []
+
+        for metadata in self._asset_metadata.values():
+            # Check ID
+            if query_lower in metadata.id.lower():
+                results.append(metadata)
+                continue
+
+            # Check name
+            if query_lower in metadata.name.lower():
+                results.append(metadata)
+                continue
+
+            # Check tags
+            if any(query_lower in tag.lower() for tag in metadata.tags):
+                results.append(metadata)
+                continue
+
+        return results
+
+    def filter_assets(
+        self,
+        category: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        author: Optional[str] = None,
+    ) -> List[AssetMetadata]:
+        """
+        Filter assets by multiple criteria.
+
+        Args:
+            category: Filter by category (optional)
+            tags: Filter by tags (all must match, optional)
+            author: Filter by author (optional)
+
+        Returns:
+            List of matching asset metadata
+        """
+        results = list(self._asset_metadata.values())
+
+        # Filter by category
+        if category:
+            results = [m for m in results if m.category == category]
+
+        # Filter by tags (all must match)
+        if tags:
+            for tag in tags:
+                tag_lower = tag.lower()
+                results = [m for m in results if any(tag_lower in t.lower() for t in m.tags)]
+
+        # Filter by author
+        if author:
+            author_lower = author.lower()
+            results = [m for m in results if m.author and author_lower in m.author.lower()]
+
+        return results
+
+    def get_all_categories(self) -> List[str]:
+        """Get list of all asset categories in the manifest."""
+        categories = set()
+        for metadata in self._asset_metadata.values():
+            categories.add(metadata.category)
+        return sorted(list(categories))
+
+    def get_all_tags(self) -> List[str]:
+        """Get list of all unique tags across all assets."""
+        tags = set()
+        for metadata in self._asset_metadata.values():
+            tags.update(metadata.tags)
+        return sorted(list(tags))
+
+    def get_asset_count(self, category: Optional[str] = None) -> int:
+        """
+        Get count of assets.
+
+        Args:
+            category: Count only assets in this category (optional)
+
+        Returns:
+            Number of assets
+        """
+        if category:
+            return len([m for m in self._asset_metadata.values() if m.category == category])
+        return len(self._asset_metadata)
 
 
 # Global asset manager instance
