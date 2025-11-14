@@ -155,7 +155,10 @@ class MoveRouteParamEditor:
                 return False
             elif event.key == pygame.K_DELETE:
                 # Delete selected command
-                if self.selected_command_index is not None and 0 <= self.selected_command_index < len(self.commands):
+                if (
+                    self.selected_command_index is not None
+                    and 0 <= self.selected_command_index < len(self.commands)
+                ):
                     del self.commands[self.selected_command_index]
                     self.selected_command_index = None
 
@@ -217,7 +220,9 @@ class MoveRouteParamEditor:
 
         # Left panel: Command sequence
         sequence_width = 350
-        self._render_sequence_panel(dialog_x + 10, content_y, sequence_width, content_height)
+        self._render_sequence_panel(
+            dialog_x + 10, content_y, sequence_width, content_height
+        )
 
         # Right panel: Command palette
         palette_x = dialog_x + sequence_width + 20
@@ -258,7 +263,9 @@ class MoveRouteParamEditor:
         self.screen.blit(title_text, (x + 10, y + 10))
 
         # Command count
-        count_text = self.small_font.render(f"{len(self.commands)} commands", True, (150, 150, 170))
+        count_text = self.small_font.render(
+            f"{len(self.commands)} commands", True, (150, 150, 170)
+        )
         self.screen.blit(count_text, (x + width - 100, y + 12))
 
         # Command list
@@ -271,9 +278,13 @@ class MoveRouteParamEditor:
 
         if not self.commands:
             # Empty state
-            empty_text = self.small_font.render("No commands yet", True, (120, 120, 140))
+            empty_text = self.small_font.render(
+                "No commands yet", True, (120, 120, 140)
+            )
             self.screen.blit(empty_text, (x + width // 2 - 60, y + height // 2))
-            empty_text2 = self.small_font.render("Add commands from the palette →", True, (120, 120, 140))
+            empty_text2 = self.small_font.render(
+                "Add commands from the palette →", True, (120, 120, 140)
+            )
             self.screen.blit(empty_text2, (x + width // 2 - 105, y + height // 2 + 20))
         else:
             # Render commands
@@ -395,7 +406,9 @@ class MoveRouteParamEditor:
 
             # Tab text
             tab_text = self.small_font.render(category, True, (255, 255, 255))
-            text_rect = tab_text.get_rect(center=(current_x + tab_width // 2, y + tab_height // 2))
+            text_rect = tab_text.get_rect(
+                center=(current_x + tab_width // 2, y + tab_height // 2)
+            )
             self.screen.blit(tab_text, text_rect)
 
             # Handle click
@@ -475,7 +488,9 @@ class MoveRouteParamEditor:
             )
 
             btn_text = self.small_font.render(label, True, (255, 255, 255))
-            text_rect = btn_text.get_rect(center=(current_x + button_width // 2, y + button_height // 2))
+            text_rect = btn_text.get_rect(
+                center=(current_x + button_width // 2, y + button_height // 2)
+            )
             self.screen.blit(btn_text, text_rect)
 
             if is_hover and mouse_clicked:
@@ -513,10 +528,7 @@ class MoveRouteParamEditor:
         mouse_pos = pygame.mouse.get_pos()
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
-        is_hover = (
-            x <= mouse_pos[0] <= x + size
-            and y <= mouse_pos[1] <= y + size
-        )
+        is_hover = x <= mouse_pos[0] <= x + size and y <= mouse_pos[1] <= y + size
 
         # Checkbox box
         box_color = (80, 120, 180) if is_hover else (60, 80, 120)
@@ -567,7 +579,9 @@ class MoveRouteParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
+        ok_rect = ok_text.get_rect(
+            center=(x + button_width // 2, y + button_height // 2)
+        )
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:
@@ -589,7 +603,9 @@ class MoveRouteParamEditor:
         )
 
         cancel_text = self.font.render("Cancel", True, (255, 255, 255))
-        cancel_rect = cancel_text.get_rect(center=(cancel_x + button_width // 2, y + button_height // 2))
+        cancel_rect = cancel_text.get_rect(
+            center=(cancel_x + button_width // 2, y + button_height // 2)
+        )
         self.screen.blit(cancel_text, cancel_rect)
 
         if cancel_hover and mouse_clicked:
@@ -602,7 +618,16 @@ class MoveRouteParamEditor:
 
         if cmd_type == "move":
             direction = command.get("direction", 0)
-            directions = {2: "Down", 4: "Left", 6: "Right", 8: "Up", 1: "Lower Left", 3: "Lower Right", 7: "Upper Left", 9: "Upper Right"}
+            directions = {
+                2: "Down",
+                4: "Left",
+                6: "Right",
+                8: "Up",
+                1: "Lower Left",
+                3: "Lower Right",
+                7: "Upper Left",
+                9: "Upper Right",
+            }
             return f"Move {directions.get(direction, '?')}"
         elif cmd_type == "turn":
             direction = command.get("direction", 0)
@@ -650,19 +675,31 @@ class MoveRouteParamEditor:
         """Move selected command up in the sequence."""
         if self.selected_command_index is not None and self.selected_command_index > 0:
             idx = self.selected_command_index
-            self.commands[idx], self.commands[idx - 1] = self.commands[idx - 1], self.commands[idx]
+            self.commands[idx], self.commands[idx - 1] = (
+                self.commands[idx - 1],
+                self.commands[idx],
+            )
             self.selected_command_index = idx - 1
 
     def move_command_down(self):
         """Move selected command down in the sequence."""
-        if self.selected_command_index is not None and self.selected_command_index < len(self.commands) - 1:
+        if (
+            self.selected_command_index is not None
+            and self.selected_command_index < len(self.commands) - 1
+        ):
             idx = self.selected_command_index
-            self.commands[idx], self.commands[idx + 1] = self.commands[idx + 1], self.commands[idx]
+            self.commands[idx], self.commands[idx + 1] = (
+                self.commands[idx + 1],
+                self.commands[idx],
+            )
             self.selected_command_index = idx + 1
 
     def delete_command(self):
         """Delete the selected command."""
-        if self.selected_command_index is not None and 0 <= self.selected_command_index < len(self.commands):
+        if (
+            self.selected_command_index is not None
+            and 0 <= self.selected_command_index < len(self.commands)
+        ):
             del self.commands[self.selected_command_index]
             self.selected_command_index = None
 

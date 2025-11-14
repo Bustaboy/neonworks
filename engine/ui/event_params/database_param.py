@@ -109,7 +109,9 @@ class DatabaseParamEditor:
                 max_id = self._get_max_id()
                 self.selected_id = min(max_id, self.selected_id + 1)
                 if self.selected_id > self.scroll_offset + self.items_per_page:
-                    self.scroll_offset = min(max_id - self.items_per_page, self.scroll_offset + 1)
+                    self.scroll_offset = min(
+                        max_id - self.items_per_page, self.scroll_offset + 1
+                    )
             elif event.key == pygame.K_RETURN:
                 # Confirm selection
                 self._confirm_selection()
@@ -119,7 +121,9 @@ class DatabaseParamEditor:
                 self.scroll_offset = max(0, self.scroll_offset - 1)
             elif event.y < 0:  # Scroll down
                 max_id = self._get_max_id()
-                self.scroll_offset = min(max_id - self.items_per_page, self.scroll_offset + 1)
+                self.scroll_offset = min(
+                    max_id - self.items_per_page, self.scroll_offset + 1
+                )
 
         return True
 
@@ -235,7 +239,9 @@ class DatabaseParamEditor:
 
             # Tab text
             tab_text = self.small_font.render(db_type.title(), True, (255, 255, 255))
-            text_rect = tab_text.get_rect(center=(tab_x + tab_width // 2, y + tab_height // 2))
+            text_rect = tab_text.get_rect(
+                center=(tab_x + tab_width // 2, y + tab_height // 2)
+            )
             self.screen.blit(tab_text, text_rect)
 
             # Handle click
@@ -354,7 +360,9 @@ class DatabaseParamEditor:
 
         if not obj_data:
             # No data - show placeholder
-            placeholder = self.small_font.render("No data available", True, (150, 150, 150))
+            placeholder = self.small_font.render(
+                "No data available", True, (150, 150, 150)
+            )
             self.screen.blit(placeholder, (x + 15, y + 50))
             return
 
@@ -465,7 +473,9 @@ class DatabaseParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
+        ok_rect = ok_text.get_rect(
+            center=(x + button_width // 2, y + button_height // 2)
+        )
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:
@@ -487,7 +497,9 @@ class DatabaseParamEditor:
         )
 
         cancel_text = self.font.render("Cancel", True, (255, 255, 255))
-        cancel_rect = cancel_text.get_rect(center=(cancel_x + button_width // 2, y + button_height // 2))
+        cancel_rect = cancel_text.get_rect(
+            center=(cancel_x + button_width // 2, y + button_height // 2)
+        )
         self.screen.blit(cancel_text, cancel_rect)
 
         if cancel_hover and mouse_clicked:

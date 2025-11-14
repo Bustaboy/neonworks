@@ -92,18 +92,25 @@ class TextParamEditor:
                 self.visible = False
                 self.result = None
                 return False
-            elif event.key == pygame.K_RETURN and pygame.key.get_mods() & pygame.KMOD_CTRL:
+            elif (
+                event.key == pygame.K_RETURN
+                and pygame.key.get_mods() & pygame.KMOD_CTRL
+            ):
                 # Confirm with Ctrl+Enter
                 self.visible = False
                 self.result = self.text
                 return False
             elif event.key == pygame.K_BACKSPACE:
                 if self.cursor_pos > 0:
-                    self.text = self.text[:self.cursor_pos - 1] + self.text[self.cursor_pos:]
+                    self.text = (
+                        self.text[: self.cursor_pos - 1] + self.text[self.cursor_pos :]
+                    )
                     self.cursor_pos -= 1
             elif event.key == pygame.K_DELETE:
                 if self.cursor_pos < len(self.text):
-                    self.text = self.text[:self.cursor_pos] + self.text[self.cursor_pos + 1:]
+                    self.text = (
+                        self.text[: self.cursor_pos] + self.text[self.cursor_pos + 1 :]
+                    )
             elif event.key == pygame.K_LEFT:
                 self.cursor_pos = max(0, self.cursor_pos - 1)
             elif event.key == pygame.K_RIGHT:
@@ -114,11 +121,17 @@ class TextParamEditor:
                 self.cursor_pos = len(self.text)
             elif event.key == pygame.K_RETURN:
                 # Insert newline
-                self.text = self.text[:self.cursor_pos] + "\n" + self.text[self.cursor_pos:]
+                self.text = (
+                    self.text[: self.cursor_pos] + "\n" + self.text[self.cursor_pos :]
+                )
                 self.cursor_pos += 1
             elif event.unicode and event.unicode.isprintable():
                 # Insert character
-                self.text = self.text[:self.cursor_pos] + event.unicode + self.text[self.cursor_pos:]
+                self.text = (
+                    self.text[: self.cursor_pos]
+                    + event.unicode
+                    + self.text[self.cursor_pos :]
+                )
                 self.cursor_pos += 1
 
         return True
@@ -175,7 +188,9 @@ class TextParamEditor:
 
         # Help text
         help_font = pygame.font.Font(None, 18)
-        help_text = help_font.render("Ctrl+Enter to confirm, Esc to cancel", True, (150, 150, 150))
+        help_text = help_font.render(
+            "Ctrl+Enter to confirm, Esc to cancel", True, (150, 150, 150)
+        )
         self.screen.blit(help_text, (dialog_x + dialog_width - 280, dialog_y + 18))
 
         # Text input area
@@ -246,8 +261,12 @@ class TextParamEditor:
                 # Truncate if too wide
                 if text_surface.get_width() > width:
                     # Simple truncation - could be improved with horizontal scrolling
-                    truncated_line = line[:int(len(line) * width / text_surface.get_width())]
-                    text_surface = self.font.render(truncated_line + "...", True, (255, 255, 255))
+                    truncated_line = line[
+                        : int(len(line) * width / text_surface.get_width())
+                    ]
+                    text_surface = self.font.render(
+                        truncated_line + "...", True, (255, 255, 255)
+                    )
                 self.screen.blit(text_surface, (x, current_y))
 
             # Render cursor on the current line
@@ -302,7 +321,9 @@ class TextParamEditor:
             # Button text
             btn_font = pygame.font.Font(None, 18)
             btn_text = btn_font.render(label, True, (255, 255, 255))
-            text_rect = btn_text.get_rect(center=(btn_x + button_width // 2, btn_y + button_height // 2))
+            text_rect = btn_text.get_rect(
+                center=(btn_x + button_width // 2, btn_y + button_height // 2)
+            )
             self.screen.blit(btn_text, text_rect)
 
             # Handle click
@@ -333,7 +354,9 @@ class TextParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
+        ok_rect = ok_text.get_rect(
+            center=(x + button_width // 2, y + button_height // 2)
+        )
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:
@@ -356,7 +379,9 @@ class TextParamEditor:
         )
 
         cancel_text = self.font.render("Cancel", True, (255, 255, 255))
-        cancel_rect = cancel_text.get_rect(center=(cancel_x + button_width // 2, y + button_height // 2))
+        cancel_rect = cancel_text.get_rect(
+            center=(cancel_x + button_width // 2, y + button_height // 2)
+        )
         self.screen.blit(cancel_text, cancel_rect)
 
         if cancel_hover and mouse_clicked:
@@ -365,7 +390,7 @@ class TextParamEditor:
 
     def insert_code(self, code: str):
         """Insert an escape code at the cursor position."""
-        self.text = self.text[:self.cursor_pos] + code + self.text[self.cursor_pos:]
+        self.text = self.text[: self.cursor_pos] + code + self.text[self.cursor_pos :]
         self.cursor_pos += len(code)
 
     def get_result(self) -> Optional[str]:
