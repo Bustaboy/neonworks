@@ -42,6 +42,11 @@ class AnimationInterpreter:
             model_type: 'local' for local LLM, 'api' for cloud API, 'hybrid'
         """
         self.model_type = model_type
+        self.llm = None
+
+        # Try to initialize LLM if local or hybrid mode
+        if model_type in ["local", "hybrid"]:
+            self._init_llm()
 
         # Animation keyword mappings
         self.animation_keywords = {
@@ -101,11 +106,65 @@ class AnimationInterpreter:
             "jerky": {"style": "snappy", "intensity": 0.8},
         }
 
-        # TODO: Initialize LLM model
-        # Options:
-        # 1. Local: GPT4All, Llama.cpp, ONNX models
-        # 2. API: OpenAI, Anthropic, Cohere
-        # 3. Hybrid: Simple queries local, complex queries API
+    def _init_llm(self):
+        """Initialize local LLM using llama-cpp-python"""
+        import os
+        from pathlib import Path
+
+        try:
+            from llama_cpp import Llama
+        except ImportError:
+            print("[LLM] llama-cpp-python not installed. Using rule-based fallback.")
+            print("      Install with: pip install llama-cpp-python")
+            self.model_type = "fallback"
+            return
+
+        # Auto-detect available model
+        models_dir = Path("models")
+        model_path = None
+        model_name = None
+
+        # Priority order: phi-3-mini, llama-3.2-3b, llama-3.2-1b, tinyllama
+        model_candidates = [
+            ("phi-3-mini-q4.gguf", "Phi-3 Mini"),
+            ("llama-3.2-3b-q4.gguf", "Llama 3.2 3B"),
+            ("llama-3.2-1b-q4.gguf", "Llama 3.2 1B"),
+            ("tinyllama-1.1b-q4.gguf", "TinyLlama"),
+        ]
+
+        for filename, name in model_candidates:
+            candidate = models_dir / filename
+            if candidate.exists():
+                model_path = candidate
+                model_name = name
+                break
+
+        if model_path is None:
+            print("[LLM] No LLM model found in models/ directory")
+            print("      Download with: python scripts/download_models.py --recommended")
+            print("      Using rule-based fallback for now.")
+            self.model_type = "fallback"
+            return
+
+        print(f"[LLM] Loading {model_name} from {model_path}...")
+
+        try:
+            # Initialize llama.cpp
+            self.llm = Llama(
+                model_path=str(model_path),
+                n_ctx=2048,  # Context window
+                n_threads=4,  # CPU threads (adjust based on your CPU)
+                n_gpu_layers=0,  # 0 for CPU, 35 for full GPU offload
+                verbose=False,
+            )
+
+            print(f"[LLM] {model_name} loaded successfully!")
+
+        except Exception as e:
+            print(f"[LLM] Failed to load model: {e}")
+            print("      Using rule-based fallback.")
+            self.llm = None
+            self.model_type = "fallback"
 
     def interpret_request(
         self, user_request: str, context: Optional[Dict] = None
@@ -183,22 +242,49 @@ class AnimationInterpreter:
         self, user_request: str, context: Optional[Dict] = None
     ) -> AnimationIntent:
         """
-        Interpret using LLM API (OpenAI, Anthropic, etc.).
+        Interpret using local LLM (llama-cpp).
 
-        TODO: Implement LLM API integration
-        - Send request to LLM with structured prompt
-        - Parse JSON response into AnimationIntent
-        - Handle API errors gracefully
+        Uses the loaded LLM model to parse animation requests.
+        Falls back to rule-based if LLM is not available.
         """
-        # Construct LLM prompt
-        prompt = self._build_llm_prompt(user_request, context)
+        # Check if LLM is available
+        if self.llm is None:
+            print("[LLM] No model loaded, using rule-based fallback")
+            return self._interpret_local(user_request, context)
 
-        # TODO: Call LLM API
-        # response = call_llm_api(prompt)
-        # intent = self._parse_llm_response(response)
+        # Build optimized prompt
+        prompt = self._build_llm_prompt_v2(user_request, context)
 
-        # For now, fallback to local interpretation
-        return self._interpret_local(user_request, context)
+        try:
+            # Generate response from LLM
+            response = self.llm(
+                prompt,
+                max_tokens=300,
+                temperature=0.3,  # Low temp for consistent output
+                top_p=0.9,
+                repeat_penalty=1.1,
+                stop=["</s>", "\n\n\n", "User:"],  # Stop tokens
+                echo=False,
+            )
+
+            # Extract generated text
+            text = response["choices"][0]["text"].strip()
+
+            # Parse JSON from response
+            intent = self._parse_llm_json(text)
+
+            if intent:
+                intent.confidence = 0.95  # High confidence for LLM
+                print(f"[LLM] Interpreted: {intent.animation_type} with modifiers {intent.style_modifiers}")
+                return intent
+            else:
+                # JSON parsing failed, fallback
+                print("[LLM] JSON parse failed, using fallback")
+                return self._interpret_local(user_request, context)
+
+        except Exception as e:
+            print(f"[LLM] Error: {e}")
+            return self._interpret_local(user_request, context)
 
     def _interpret_hybrid(
         self, user_request: str, context: Optional[Dict] = None
@@ -354,6 +440,96 @@ Consider the mood, energy level, and style implied by the user's words.
                 special_effects=[],
                 confidence=0.3,
             )
+
+    def _build_llm_prompt_v2(
+        self, user_request: str, context: Optional[Dict] = None
+    ) -> str:
+        """
+        Build optimized prompt for local LLMs (Phi-3, Llama).
+
+        Uses chat template format for better results.
+        """
+        prompt = f"""<|system|>
+You are an animation parameter generator. Parse user animation requests into JSON format.
+
+Available animation types: idle, walk, run, attack, cast_spell, hurt, death, jump
+
+Available style modifiers:
+- Speed: slow, fast, quick, sluggish
+- Energy: tired, energetic, weak, powerful
+- Emotion: happy, sad, angry, calm, scared
+- Style: smooth, snappy, bouncy, sneaky
+
+<|user|>
+Parse this animation request into JSON:
+
+"{user_request}"
+
+Return ONLY valid JSON in this exact format:
+{{
+  "animation_type": "walk",
+  "style_modifiers": ["slow", "tired"],
+  "intensity": 0.5,
+  "speed_multiplier": 0.7,
+  "special_effects": [],
+  "frame_count": null
+}}
+
+<|assistant|>
+{{"""
+        return prompt
+
+    def _parse_llm_json(self, text: str) -> Optional[AnimationIntent]:
+        """
+        Parse JSON from LLM response.
+
+        Handles various LLM output formats and extracts valid JSON.
+        """
+        # Try to find JSON object in response
+        json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+
+        if not json_match:
+            # Try to find JSON with nested objects
+            json_match = re.search(r'\{(?:[^{}]|\{[^{}]*\})*\}', text, re.DOTALL)
+
+        if not json_match:
+            return None
+
+        json_str = json_match.group(0)
+
+        # Add closing brace if missing
+        open_count = json_str.count('{')
+        close_count = json_str.count('}')
+        if open_count > close_count:
+            json_str += '}' * (open_count - close_count)
+
+        try:
+            data = json.loads(json_str)
+
+            # Validate required fields
+            if "animation_type" not in data:
+                return None
+
+            # Set defaults for missing fields
+            data.setdefault("style_modifiers", [])
+            data.setdefault("intensity", 0.7)
+            data.setdefault("speed_multiplier", 1.0)
+            data.setdefault("special_effects", [])
+            data.setdefault("frame_count", None)
+            data.setdefault("confidence", 0.9)
+
+            # Ensure lists are actually lists
+            if not isinstance(data["style_modifiers"], list):
+                data["style_modifiers"] = []
+            if not isinstance(data["special_effects"], list):
+                data["special_effects"] = []
+
+            return AnimationIntent(**data)
+
+        except (json.JSONDecodeError, TypeError, ValueError) as e:
+            print(f"[LLM] JSON parse error: {e}")
+            print(f"[LLM] Attempted to parse: {json_str[:100]}...")
+            return None
 
     def suggest_animations(self, sprite_info: Dict) -> List[Tuple[str, str]]:
         """
