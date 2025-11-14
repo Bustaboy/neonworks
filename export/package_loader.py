@@ -48,9 +48,7 @@ class PackageLoader:
                     raise ValueError("Password required for encrypted package")
 
                 if not CRYPTO_AVAILABLE:
-                    raise RuntimeError(
-                        "Cryptography library not available for decryption"
-                    )
+                    raise RuntimeError("Cryptography library not available for decryption")
 
                 salt = f.read(32)
                 self._prepare_decryption(salt)

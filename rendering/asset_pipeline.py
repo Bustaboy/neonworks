@@ -183,12 +183,8 @@ class ImageOptimizer:
             img.save(output_path, "PNG", optimize=True)
         else:
             # No transparency - can use JPEG
-            if output_path.lower().endswith(".jpg") or output_path.lower().endswith(
-                ".jpeg"
-            ):
-                img.convert("RGB").save(
-                    output_path, "JPEG", quality=quality, optimize=True
-                )
+            if output_path.lower().endswith(".jpg") or output_path.lower().endswith(".jpeg"):
+                img.convert("RGB").save(output_path, "JPEG", quality=quality, optimize=True)
             else:
                 img.save(output_path, "PNG", optimize=True)
 
@@ -374,9 +370,7 @@ class SpriteSheetExtractor:
         return sprites
 
     @staticmethod
-    def save_sprites(
-        sprites: List[Image.Image], output_dir: str, prefix: str = "sprite"
-    ):
+    def save_sprites(sprites: List[Image.Image], output_dir: str, prefix: str = "sprite"):
         """
         Save extracted sprites to individual files.
 

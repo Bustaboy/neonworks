@@ -108,9 +108,7 @@ class DebugConsoleUI:
             self.toggle()
 
         # Toggle inspector button
-        if self.ui.button(
-            "Inspector", x + width - 140, y + 5, 90, 30, color=(0, 100, 150)
-        ):
+        if self.ui.button("Inspector", x + width - 140, y + 5, 90, 30, color=(0, 100, 150)):
             self.toggle_inspector()
 
         # Output log area
@@ -142,9 +140,7 @@ class DebugConsoleUI:
 
         # Command text
         command_text = self.current_command if self.current_command else "_"
-        self.ui.label(
-            command_text, x + 30, input_y + 10, size=16, color=(255, 255, 255)
-        )
+        self.ui.label(command_text, x + 30, input_y + 10, size=16, color=(255, 255, 255))
 
     def _render_inspector_panel(self, x: int, y: int, width: int, height: int):
         """Render the entity inspector panel."""
@@ -155,10 +151,7 @@ class DebugConsoleUI:
 
         current_y = y + 40
 
-        if (
-            self.selected_entity is None
-            or self.selected_entity not in self.world.entities
-        ):
+        if self.selected_entity is None or self.selected_entity not in self.world.entities:
             self.ui.label(
                 "No entity selected",
                 x + 80,
@@ -196,9 +189,7 @@ class DebugConsoleUI:
         tags = self.world.get_entity_tags(self.selected_entity)
         if tags:
             tags_text = ", ".join(tags)
-            self.ui.label(
-                f"Tags: {tags_text}", x + 10, current_y, size=12, color=(200, 200, 255)
-            )
+            self.ui.label(f"Tags: {tags_text}", x + 10, current_y, size=12, color=(200, 200, 255))
             current_y += 25
 
         # Components
@@ -208,9 +199,7 @@ class DebugConsoleUI:
         # Transform
         transform = self.world.get_component(self.selected_entity, Transform)
         if transform:
-            self.ui.label(
-                f"Transform:", x + 15, current_y, size=13, color=(255, 200, 100)
-            )
+            self.ui.label(f"Transform:", x + 15, current_y, size=13, color=(255, 200, 100))
             current_y += 20
             self.ui.label(
                 f"  Position: ({transform.x:.1f}, {transform.y:.1f})",
@@ -219,9 +208,7 @@ class DebugConsoleUI:
                 size=11,
             )
             current_y += 18
-            self.ui.label(
-                f"  Rotation: {transform.rotation:.1f}°", x + 20, current_y, size=11
-            )
+            self.ui.label(f"  Rotation: {transform.rotation:.1f}°", x + 20, current_y, size=11)
             current_y += 18
             self.ui.label(
                 f"  Scale: ({transform.scale_x:.2f}, {transform.scale_y:.2f})",
@@ -271,9 +258,7 @@ class DebugConsoleUI:
         # Survival
         survival = self.world.get_component(self.selected_entity, Survival)
         if survival:
-            self.ui.label(
-                f"Survival:", x + 15, current_y, size=13, color=(255, 200, 100)
-            )
+            self.ui.label(f"Survival:", x + 15, current_y, size=13, color=(255, 200, 100))
             current_y += 20
             self.ui.label(
                 f"  Hunger: {survival.hunger:.0f}/{survival.max_hunger:.0f}",
@@ -300,16 +285,12 @@ class DebugConsoleUI:
         # Action buttons
         button_y = y + height - 100
 
-        if self.ui.button(
-            "Destroy Entity", x + 10, button_y, width - 20, 30, color=(150, 0, 0)
-        ):
+        if self.ui.button("Destroy Entity", x + 10, button_y, width - 20, 30, color=(150, 0, 0)):
             self.world.remove_entity(self.selected_entity)
             self.add_log(f"Destroyed entity {self.selected_entity}", (255, 100, 100))
             self.selected_entity = None
 
-        if self.ui.button(
-            "Heal to Full", x + 10, button_y + 35, width - 20, 30, color=(0, 150, 0)
-        ):
+        if self.ui.button("Heal to Full", x + 10, button_y + 35, width - 20, 30, color=(0, 150, 0)):
             health = self.world.get_component(self.selected_entity, Health)
             if health:
                 health.current = health.maximum
@@ -331,17 +312,13 @@ class DebugConsoleUI:
             if current_fps >= 55
             else (255, 200, 0) if current_fps >= 30 else (255, 0, 0)
         )
-        self.ui.label(
-            f"FPS: {current_fps:.1f}", x + 10, current_y, size=14, color=fps_color
-        )
+        self.ui.label(f"FPS: {current_fps:.1f}", x + 10, current_y, size=14, color=fps_color)
         current_y += 20
 
         # Average FPS
         if self.fps_history:
             avg_fps = sum(self.fps_history) / len(self.fps_history)
-            self.ui.label(
-                f"Avg: {avg_fps:.1f}", x + 10, current_y, size=12, color=(200, 200, 200)
-            )
+            self.ui.label(f"Avg: {avg_fps:.1f}", x + 10, current_y, size=12, color=(200, 200, 200))
             current_y += 18
 
         # Entity count
@@ -407,10 +384,7 @@ class DebugConsoleUI:
             self.current_command = self.current_command[:-1]
         elif key == pygame.K_UP:
             # Navigate command history up
-            if (
-                self.command_history
-                and self.history_index < len(self.command_history) - 1
-            ):
+            if self.command_history and self.history_index < len(self.command_history) - 1:
                 self.history_index += 1
                 self.current_command = self.command_history[-(self.history_index + 1)]
         elif key == pygame.K_DOWN:
@@ -442,9 +416,7 @@ class DebugConsoleUI:
             tag_str = f" [{', '.join(tags)}]" if tags else ""
             self.add_log(f"  {entity_id}{tag_str}", (200, 200, 200))
         if len(self.world.entities) > 20:
-            self.add_log(
-                f"  ... and {len(self.world.entities) - 20} more", (150, 150, 150)
-            )
+            self.add_log(f"  ... and {len(self.world.entities) - 20} more", (150, 150, 150))
 
     def _cmd_inspect(self, args: List[str]):
         """Inspect an entity by ID."""
@@ -499,9 +471,7 @@ class DebugConsoleUI:
             if transform:
                 transform.x = x
                 transform.y = y
-                self.add_log(
-                    f"Teleported entity {entity_id} to ({x}, {y})", (0, 255, 100)
-                )
+                self.add_log(f"Teleported entity {entity_id} to ({x}, {y})", (0, 255, 100))
             else:
                 self.add_log(f"Entity {entity_id} has no Transform", (255, 100, 100))
         except (ValueError, IndexError):
@@ -522,16 +492,10 @@ class DebugConsoleUI:
 
             storage = self.world.get_component(entity_id, ResourceStorage)
             if storage:
-                storage.resources[resource] = (
-                    storage.resources.get(resource, 0) + amount
-                )
-                self.add_log(
-                    f"Gave {amount} {resource} to entity {entity_id}", (0, 255, 100)
-                )
+                storage.resources[resource] = storage.resources.get(resource, 0) + amount
+                self.add_log(f"Gave {amount} {resource} to entity {entity_id}", (0, 255, 100))
             else:
-                self.add_log(
-                    f"Entity {entity_id} has no ResourceStorage", (255, 100, 100)
-                )
+                self.add_log(f"Entity {entity_id} has no ResourceStorage", (255, 100, 100))
         except (ValueError, IndexError):
             self.add_log("Invalid arguments", (255, 0, 0))
 
@@ -563,17 +527,13 @@ class DebugConsoleUI:
         option = args[0].lower()
         if option == "colliders":
             self.show_colliders = not self.show_colliders
-            self.add_log(
-                f"Colliders: {'ON' if self.show_colliders else 'OFF'}", (200, 200, 200)
-            )
+            self.add_log(f"Colliders: {'ON' if self.show_colliders else 'OFF'}", (200, 200, 200))
         elif option == "grid":
             self.show_grid = not self.show_grid
             self.add_log(f"Grid: {'ON' if self.show_grid else 'OFF'}", (200, 200, 200))
         elif option == "navmesh":
             self.show_navmesh = not self.show_navmesh
-            self.add_log(
-                f"Navmesh: {'ON' if self.show_navmesh else 'OFF'}", (200, 200, 200)
-            )
+            self.add_log(f"Navmesh: {'ON' if self.show_navmesh else 'OFF'}", (200, 200, 200))
         elif option == "ids":
             self.show_entity_ids = not self.show_entity_ids
             self.add_log(

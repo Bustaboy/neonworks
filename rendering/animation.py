@@ -98,9 +98,7 @@ class AnimationSystem:
         if not anim_component.playing or not anim_component.current_animation:
             # Return first frame of current animation or None
             if anim_component.current_animation:
-                animation = anim_component.animations.get(
-                    anim_component.current_animation
-                )
+                animation = anim_component.animations.get(anim_component.current_animation)
                 if animation and animation.frames:
                     return animation.frames[0].sprite
             return None
@@ -180,8 +178,7 @@ class AnimationSystem:
             return False
 
         return (
-            anim_component.current_frame >= len(animation.frames) - 1
-            and not anim_component.playing
+            anim_component.current_frame >= len(animation.frames) - 1 and not anim_component.playing
         )
 
 
@@ -193,9 +190,7 @@ class AnimationBuilder:
         self.loop = loop
         self.frames: List[AnimationFrame] = []
 
-    def add_frame(
-        self, sprite: pygame.Surface, duration: float = 0.1
-    ) -> "AnimationBuilder":
+    def add_frame(self, sprite: pygame.Surface, duration: float = 0.1) -> "AnimationBuilder":
         """Add a frame to the animation"""
         self.frames.append(AnimationFrame(sprite, duration))
         return self
@@ -461,9 +456,7 @@ class AnimationStateMachine(Component):
         for transition in self.transitions:
             if transition.from_state == self.current_state:
                 if transition.can_transition(self):
-                    self._transition_to_state(
-                        transition.to_state, transition.transition_duration
-                    )
+                    self._transition_to_state(transition.to_state, transition.transition_duration)
                     # Reset triggers after transition
                     self.reset_all_triggers()
                     break
@@ -552,9 +545,7 @@ class AnimationStateMachineBuilder:
         self.state_machine.add_transition(transition)
         return self
 
-    def add_parameter(
-        self, name: str, default_value: Any
-    ) -> "AnimationStateMachineBuilder":
+    def add_parameter(self, name: str, default_value: Any) -> "AnimationStateMachineBuilder":
         """Add a parameter with default value"""
         self.state_machine.set_parameter(name, default_value)
         return self

@@ -137,9 +137,7 @@ class BuildingUI:
 
         # Main panel
         self.ui.panel(panel_x, 0, panel_width, panel_height, (0, 0, 0, 200))
-        self.ui.title(
-            "Building Catalog", panel_x + 70, 10, size=22, color=(255, 200, 0)
-        )
+        self.ui.title("Building Catalog", panel_x + 70, 10, size=22, color=(255, 200, 0))
 
         # Close button
         if self.ui.button("X", panel_x + panel_width - 40, 10, 30, 30):
@@ -168,23 +166,17 @@ class BuildingUI:
 
         # Building list
         building_y = resources_y + 20
-        self.ui.label(
-            "Buildings:", panel_x + 10, building_y, size=18, color=(255, 255, 100)
-        )
+        self.ui.label("Buildings:", panel_x + 10, building_y, size=18, color=(255, 255, 100))
         building_y += 30
 
         for building_type, definition in self.building_definitions.items():
             # Building button
             button_height = 100
             button_color = (
-                (40, 40, 60)
-                if building_type != self.selected_building_type
-                else (60, 60, 100)
+                (40, 40, 60) if building_type != self.selected_building_type else (60, 60, 100)
             )
 
-            self.ui.panel(
-                panel_x + 10, building_y, panel_width - 20, button_height, button_color
-            )
+            self.ui.panel(panel_x + 10, building_y, panel_width - 20, button_height, button_color)
 
             # Building name and color swatch
             pygame.draw.rect(
@@ -208,14 +200,10 @@ class BuildingUI:
             )
 
             # Cost
-            cost_text = "Cost: " + ", ".join(
-                [f"{k}: {v}" for k, v in definition["cost"].items()]
-            )
+            cost_text = "Cost: " + ", ".join([f"{k}: {v}" for k, v in definition["cost"].items()])
             can_afford = self._can_afford_building(building_type)
             cost_color = (0, 255, 0) if can_afford else (255, 100, 100)
-            self.ui.label(
-                cost_text, panel_x + 15, building_y + 50, size=12, color=cost_color
-            )
+            self.ui.label(cost_text, panel_x + 15, building_y + 50, size=12, color=cost_color)
 
             # Production/Consumption
             if definition["production"]:
@@ -256,14 +244,10 @@ class BuildingUI:
         # Place button (if building selected)
         if self.selected_building_type:
             place_y = panel_height - 100
-            if self.ui.button(
-                "Place Building", panel_x + 10, place_y, panel_width - 20, 40
-            ):
+            if self.ui.button("Place Building", panel_x + 10, place_y, panel_width - 20, 40):
                 self.start_placement()
 
-            if self.ui.button(
-                "Cancel", panel_x + 10, place_y + 50, panel_width - 20, 35
-            ):
+            if self.ui.button("Cancel", panel_x + 10, place_y + 50, panel_width - 20, 35):
                 self.cancel_placement()
 
     def _render_placement_preview(self, camera_offset: Tuple[int, int]):
@@ -302,9 +286,7 @@ class BuildingUI:
         # Draw building name
         font = pygame.font.Font(None, 24)
         text = font.render(definition["name"], True, (255, 255, 255))
-        text_rect = text.get_rect(
-            center=(screen_x + size_w * self.tile_size // 2, screen_y - 15)
-        )
+        text_rect = text.get_rect(center=(screen_x + size_w * self.tile_size // 2, screen_y - 15))
         self.screen.blit(text, text_rect)
 
     def select_building(self, building_type: str):
@@ -432,9 +414,7 @@ class BuildingUI:
                         storage.resources[resource] -= deduct_amount
                         cost[resource] -= deduct_amount
 
-    def _is_valid_placement(
-        self, grid_x: int, grid_y: int, size_w: int, size_h: int
-    ) -> bool:
+    def _is_valid_placement(self, grid_x: int, grid_y: int, size_w: int, size_h: int) -> bool:
         """Check if building can be placed at the given position."""
         # Check bounds
         if (
@@ -453,9 +433,7 @@ class BuildingUI:
                 building = self.world.get_component(entity_id, Building)
                 existing_size = (1, 1)
                 if building and building.building_type in self.building_definitions:
-                    existing_size = self.building_definitions[building.building_type][
-                        "size"
-                    ]
+                    existing_size = self.building_definitions[building.building_type]["size"]
 
                 # Check overlap
                 if (

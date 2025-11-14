@@ -207,9 +207,7 @@ class BuildingSystem(System):
     ):
         """Update building construction"""
         # Progress construction (simplified - assumes one turn = 1.0 progress units)
-        progress_per_second = 1.0 / (
-            template.construction_time * 60
-        )  # Assuming 60s per turn
+        progress_per_second = 1.0 / (template.construction_time * 60)  # Assuming 60s per turn
         building.construction_progress += progress_per_second * delta_time
 
         if building.construction_progress >= 1.0:
@@ -234,9 +232,7 @@ class BuildingSystem(System):
                 for resource, capacity in template.provides_storage.items():
                     storage.capacity[resource] = capacity * building.level
 
-    def _update_production(
-        self, entity: Entity, building: Building, template: BuildingTemplate
-    ):
+    def _update_production(self, entity: Entity, building: Building, template: BuildingTemplate):
         """Update resource production/consumption"""
         storage = entity.get_component(ResourceStorage)
         if not storage:
@@ -307,9 +303,7 @@ class BuildingSystem(System):
 
         return entity
 
-    def upgrade_building(
-        self, entity: Entity, player_resources: ResourceStorage
-    ) -> bool:
+    def upgrade_building(self, entity: Entity, player_resources: ResourceStorage) -> bool:
         """Upgrade a building"""
         building = entity.get_component(Building)
         if not building or not building.is_constructed:

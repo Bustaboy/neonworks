@@ -248,9 +248,7 @@ class TestSpatialAudio:
         audio_manager.set_listener_position(0, 0)
 
         # Sound at 1000, 1000 with max_distance 500 should not play
-        channel_id = audio_manager.play_sound_at(
-            "test.wav", 1000, 1000, max_distance=500
-        )
+        channel_id = audio_manager.play_sound_at("test.wav", 1000, 1000, max_distance=500)
 
         assert channel_id is None
 
@@ -418,9 +416,7 @@ class TestSoundPools:
 
         with patch("pygame.mixer.Sound", return_value=mock_sound):
             with patch.object(Path, "exists", return_value=True):
-                audio_manager.create_sound_pool(
-                    "gunshot", "gunshot.wav", max_instances=3
-                )
+                audio_manager.create_sound_pool("gunshot", "gunshot.wav", max_instances=3)
 
                 assert "gunshot" in audio_manager._sound_pools
                 assert len(audio_manager._sound_pools["gunshot"].sounds) == 3
@@ -437,9 +433,7 @@ class TestSoundPools:
                     with patch("pygame.mixer.Channel", return_value=mock_channel):
                         with patch.object(Path, "exists", return_value=True):
                             # Create pool
-                            audio_manager.create_sound_pool(
-                                "test", "test.wav", max_instances=2
-                            )
+                            audio_manager.create_sound_pool("test", "test.wav", max_instances=2)
 
                             # Play from pool
                             channel_id = audio_manager.play_pooled_sound("test")
@@ -518,9 +512,7 @@ class TestMusicCrossfade:
         def on_complete():
             callback_called.append(True)
 
-        audio_manager.crossfade_to_music(
-            "new_music.mp3", duration=1.0, on_complete=on_complete
-        )
+        audio_manager.crossfade_to_music("new_music.mp3", duration=1.0, on_complete=on_complete)
 
         with patch.object(audio_manager, "play_music"):
             with patch("pygame.mixer.music.set_volume"):

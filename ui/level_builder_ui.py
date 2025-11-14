@@ -367,9 +367,7 @@ class LevelBuilderUI:
             self.ui.panel(x + 10, item_y, item_width, item_height, bg_color)
 
             # Color swatch
-            pygame.draw.rect(
-                self.screen, tile_data["color"], (x + 15, item_y + 5, 30, 30)
-            )
+            pygame.draw.rect(self.screen, tile_data["color"], (x + 15, item_y + 5, 30, 30))
 
             # Name
             self.ui.label(tile_data["name"], x + 50, item_y + 10, size=16)
@@ -377,9 +375,7 @@ class LevelBuilderUI:
             # Walkable indicator
             walkable_text = "Walkable" if tile_data["walkable"] else "Blocked"
             walkable_color = (0, 255, 0) if tile_data["walkable"] else (255, 100, 100)
-            self.ui.label(
-                walkable_text, x + 50, item_y + 28, size=12, color=walkable_color
-            )
+            self.ui.label(walkable_text, x + 50, item_y + 28, size=12, color=walkable_color)
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
@@ -402,18 +398,12 @@ class LevelBuilderUI:
 
         for entity_id, entity_data in self.entity_templates.items():
             # Highlight selected entity
-            bg_color = (
-                (120, 80, 120)
-                if entity_id == self.selected_entity_type
-                else (60, 40, 60)
-            )
+            bg_color = (120, 80, 120) if entity_id == self.selected_entity_type else (60, 40, 60)
 
             self.ui.panel(x + 10, item_y, item_width, item_height, bg_color)
 
             # Color swatch
-            pygame.draw.rect(
-                self.screen, entity_data["color"], (x + 15, item_y + 5, 30, 30)
-            )
+            pygame.draw.rect(self.screen, entity_data["color"], (x + 15, item_y + 5, 30, 30))
 
             # Name
             self.ui.label(entity_data["name"], x + 50, item_y + 5, size=16)
@@ -422,9 +412,7 @@ class LevelBuilderUI:
             comp_text = ", ".join(entity_data["components"][:2])
             if len(entity_data["components"]) > 2:
                 comp_text += "..."
-            self.ui.label(
-                comp_text, x + 50, item_y + 25, size=10, color=(200, 200, 200)
-            )
+            self.ui.label(comp_text, x + 50, item_y + 25, size=10, color=(200, 200, 200))
 
             # Tags
             tag_text = f"Tags: {', '.join(entity_data['tags'])}"
@@ -593,9 +581,7 @@ class LevelBuilderUI:
         # Add sprite
         self.world.add_component(
             entity_id,
-            Sprite(
-                asset_id=f"entity_{self.selected_entity_type}", color=template["color"]
-            ),
+            Sprite(asset_id=f"entity_{self.selected_entity_type}", color=template["color"]),
         )
 
         # Add other components based on template

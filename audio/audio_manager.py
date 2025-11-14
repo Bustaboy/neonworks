@@ -112,9 +112,7 @@ class AudioManager:
         self._sound_pools: Dict[str, SoundPool] = {}
 
         # Playing sounds tracking
-        self._playing_sounds: Dict[int, SoundInstance] = (
-            {}
-        )  # channel_id -> SoundInstance
+        self._playing_sounds: Dict[int, SoundInstance] = {}  # channel_id -> SoundInstance
 
         # Volume settings (0.0 to 1.0)
         self._volumes: Dict[AudioCategory, float] = {
@@ -250,9 +248,7 @@ class AudioManager:
             return None
 
         # Calculate final volume
-        final_volume = (
-            volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
-        )
+        final_volume = volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
         sound.set_volume(final_volume)
 
         # Play sound
@@ -301,9 +297,7 @@ class AudioManager:
             return None
 
         # Calculate final volume
-        final_volume = (
-            volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
-        )
+        final_volume = volume * self._volumes[category] * self._volumes[AudioCategory.MASTER]
         sound.set_volume(final_volume)
 
         # Play sound
@@ -382,9 +376,7 @@ class AudioManager:
 
     # ========== Music Playback ==========
 
-    def play_music(
-        self, path: str, volume: float = 1.0, loop: bool = True, fade_in_ms: int = 0
-    ):
+    def play_music(self, path: str, volume: float = 1.0, loop: bool = True, fade_in_ms: int = 0):
         """
         Play background music.
 
@@ -410,9 +402,7 @@ class AudioManager:
             # Set volume
             self._music_volume = volume
             final_volume = (
-                volume
-                * self._volumes[AudioCategory.MUSIC]
-                * self._volumes[AudioCategory.MASTER]
+                volume * self._volumes[AudioCategory.MUSIC] * self._volumes[AudioCategory.MASTER]
             )
             pygame.mixer.music.set_volume(final_volume)
 
@@ -545,9 +535,7 @@ class AudioManager:
 
     def _update_sound_volume(self, instance: SoundInstance):
         """Update volume for a playing sound instance"""
-        final_volume = (
-            self._volumes[instance.category] * self._volumes[AudioCategory.MASTER]
-        )
+        final_volume = self._volumes[instance.category] * self._volumes[AudioCategory.MASTER]
         instance.sound.set_volume(final_volume)
 
     # ========== Audio Ducking ==========
@@ -733,9 +721,7 @@ class AudioManager:
 _global_audio_manager: Optional[AudioManager] = None
 
 
-def get_audio_manager(
-    base_path: Optional[Path] = None, channels: int = 8
-) -> AudioManager:
+def get_audio_manager(base_path: Optional[Path] = None, channels: int = 8) -> AudioManager:
     """Get or create the global audio manager"""
     global _global_audio_manager
     if _global_audio_manager is None:

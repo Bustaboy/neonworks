@@ -44,9 +44,7 @@ class GameState(Enum):
 class Stats(Component):
     """Character statistics"""
 
-    def __init__(
-        self, hp: int = 100, attack: int = 10, defense: int = 5, speed: int = 10
-    ):
+    def __init__(self, hp: int = 100, attack: int = 10, defense: int = 5, speed: int = 10):
         self.max_hp = hp
         self.current_hp = hp
         self.attack = attack
@@ -128,9 +126,7 @@ class BattleSystem(System):
         # Log the action
         attacker_name = attacker_display.name if attacker_display else "Unknown"
         target_name = target_display.name if target_display else "Unknown"
-        self.battle_log.append(
-            f"{attacker_name} attacks {target_name} for {damage} damage!"
-        )
+        self.battle_log.append(f"{attacker_name} attacks {target_name} for {damage} damage!")
 
         if target_stats.current_hp <= 0:
             self.battle_log.append(f"{target_name} has been defeated!")
@@ -172,9 +168,7 @@ class TurnOrderSystem(System):
     def update(self, world: World, delta_time: float):
         """Update turn order (remove defeated entities)"""
         self.turn_order = [
-            entity
-            for entity in self.turn_order
-            if entity.get_component(Stats).current_hp > 0
+            entity for entity in self.turn_order if entity.get_component(Stats).current_hp > 0
         ]
 
 
@@ -303,12 +297,8 @@ class RPGGame:
 
     def check_battle_end(self) -> bool:
         """Check if battle has ended"""
-        player_stats = (
-            self.player_entity.get_component(Stats) if self.player_entity else None
-        )
-        enemy_stats = (
-            self.enemy_entity.get_component(Stats) if self.enemy_entity else None
-        )
+        player_stats = self.player_entity.get_component(Stats) if self.player_entity else None
+        enemy_stats = self.enemy_entity.get_component(Stats) if self.enemy_entity else None
 
         if player_stats and player_stats.current_hp <= 0:
             self.state = GameState.DEFEAT
@@ -340,9 +330,7 @@ class RPGGame:
         title = self.font.render("Turn-Based RPG", True, (255, 255, 255))
         self.screen.blit(title, (self.WINDOW_WIDTH // 2 - 150, 200))
 
-        instruction = self.small_font.render(
-            "Press SPACE to Start Battle", True, (200, 200, 200)
-        )
+        instruction = self.small_font.render("Press SPACE to Start Battle", True, (200, 200, 200))
         self.screen.blit(instruction, (self.WINDOW_WIDTH // 2 - 150, 300))
 
         esc_text = self.small_font.render("Press ESC to Quit", True, (150, 150, 150))
@@ -360,9 +348,7 @@ class RPGGame:
             display = self.player_entity.get_component(DisplayInfo)
 
             y_pos = 100
-            self.screen.blit(
-                self.font.render(display.name, True, display.color), (50, y_pos)
-            )
+            self.screen.blit(self.font.render(display.name, True, display.color), (50, y_pos))
             self.screen.blit(
                 self.small_font.render(
                     f"HP: {stats.current_hp}/{stats.max_hp}", True, (255, 255, 255)
@@ -384,9 +370,7 @@ class RPGGame:
             y_pos = 100
             x_pos = self.WINDOW_WIDTH - 300
 
-            self.screen.blit(
-                self.font.render(display.name, True, display.color), (x_pos, y_pos)
-            )
+            self.screen.blit(self.font.render(display.name, True, display.color), (x_pos, y_pos))
             self.screen.blit(
                 self.small_font.render(
                     f"HP: {stats.current_hp}/{stats.max_hp}", True, (255, 255, 255)
@@ -414,9 +398,7 @@ class RPGGame:
 
         # Battle log
         log_y = 450
-        self.screen.blit(
-            self.font.render("Battle Log:", True, (200, 200, 200)), (50, log_y)
-        )
+        self.screen.blit(self.font.render("Battle Log:", True, (200, 200, 200)), (50, log_y))
 
         for i, log_entry in enumerate(self.battle_system.battle_log[-5:]):
             self.screen.blit(
@@ -429,9 +411,7 @@ class RPGGame:
         title = self.font.render("VICTORY!", True, (100, 255, 100))
         self.screen.blit(title, (self.WINDOW_WIDTH // 2 - 80, 250))
 
-        instruction = self.small_font.render(
-            "Press SPACE for next battle", True, (200, 200, 200)
-        )
+        instruction = self.small_font.render("Press SPACE for next battle", True, (200, 200, 200))
         self.screen.blit(instruction, (self.WINDOW_WIDTH // 2 - 150, 350))
 
     def render_defeat(self):
@@ -439,9 +419,7 @@ class RPGGame:
         title = self.font.render("DEFEAT...", True, (255, 100, 100))
         self.screen.blit(title, (self.WINDOW_WIDTH // 2 - 80, 250))
 
-        instruction = self.small_font.render(
-            "Press SPACE to try again", True, (200, 200, 200)
-        )
+        instruction = self.small_font.render("Press SPACE to try again", True, (200, 200, 200))
         self.screen.blit(instruction, (self.WINDOW_WIDTH // 2 - 150, 350))
 
     def run(self):

@@ -2,6 +2,8 @@
 
 This directory contains pre-configured event templates that can be used as starting points for common game events in NeonWorks.
 
+> **Note:** These templates use the new NeonWorks Event Command format, designed specifically for the Event Editor (F5). This format is different from legacy templates and provides better integration with the visual event editing system.
+
 ## Available Templates
 
 ### 1. door_template.json

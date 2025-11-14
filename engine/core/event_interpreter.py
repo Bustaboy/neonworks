@@ -138,9 +138,7 @@ class EventInterpreter:
     - Error handling and recovery
     """
 
-    def __init__(
-        self, game_state: GameState, event_manager: Optional[EventManager] = None
-    ):
+    def __init__(self, game_state: GameState, event_manager: Optional[EventManager] = None):
         """
         Initialize the event interpreter.
 
@@ -162,9 +160,7 @@ class EventInterpreter:
         # Callbacks
         self.on_event_start: Optional[Callable[[GameEvent, EventPage], None]] = None
         self.on_event_end: Optional[Callable[[GameEvent], None]] = None
-        self.on_command_execute: Optional[
-            Callable[[EventCommand, EventContext], None]
-        ] = None
+        self.on_command_execute: Optional[Callable[[EventCommand, EventContext], None]] = None
         self.on_error: Optional[Callable[[InterpreterInstance, str], None]] = None
 
     def start_event(
@@ -191,9 +187,7 @@ class EventInterpreter:
         else:
             self.running_interpreters[event.id] = instance
 
-        logger.info(
-            f"Started event {event.name} (ID: {event.id}, Parallel: {is_parallel})"
-        )
+        logger.info(f"Started event {event.name} (ID: {event.id}, Parallel: {is_parallel})")
 
         if self.on_event_start:
             self.on_event_start(event, page)
@@ -243,9 +237,7 @@ class EventInterpreter:
             self.parallel_interpreters.pop(i)
             self.total_events_completed += 1
 
-    def _update_instance(
-        self, instance: InterpreterInstance, delta_time: float
-    ) -> bool:
+    def _update_instance(self, instance: InterpreterInstance, delta_time: float) -> bool:
         """
         Update a single interpreter instance.
 
@@ -269,11 +261,7 @@ class EventInterpreter:
         if instance.is_finished():
             return True
 
-        if (
-            instance.wait_for_message
-            or instance.wait_for_choice
-            or instance.wait_for_movement
-        ):
+        if instance.wait_for_message or instance.wait_for_choice or instance.wait_for_movement:
             # Waiting for external input/completion
             return False
 
@@ -354,9 +342,7 @@ class EventInterpreter:
             if instance.context.command_index > current_frame.loop_end:
                 instance.context.command_index = current_frame.loop_start + 1
 
-    def _should_skip_command(
-        self, instance: InterpreterInstance, command: EventCommand
-    ) -> bool:
+    def _should_skip_command(self, instance: InterpreterInstance, command: EventCommand) -> bool:
         """
         Determine if a command should be skipped based on branching logic.
 
@@ -381,10 +367,7 @@ class EventInterpreter:
                 # Skip if we're in the wrong branch
                 if not current_frame.branch_result and current_frame.else_index is None:
                     return True
-                if (
-                    not current_frame.branch_result
-                    and current_frame.else_index is not None
-                ):
+                if not current_frame.branch_result and current_frame.else_index is not None:
                     # Skip if before else
                     if current_index < current_frame.else_index:
                         return True
@@ -462,9 +445,7 @@ class EventInterpreter:
 
     # ========== Flow Control Implementation ==========
 
-    def _execute_conditional_branch(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_conditional_branch(self, instance: InterpreterInstance, command: EventCommand):
         """Execute conditional branch command"""
         condition_type = command.parameters.get("condition_type")
         result = self._evaluate_condition(instance, command.parameters)
@@ -499,9 +480,7 @@ class EventInterpreter:
             # No else, skip to next command at same or lower indent
             instance.context.advance()
 
-    def _evaluate_condition(
-        self, instance: InterpreterInstance, params: Dict[str, Any]
-    ) -> bool:
+    def _evaluate_condition(self, instance: InterpreterInstance, params: Dict[str, Any]) -> bool:
         """
         Evaluate a condition from a conditional branch.
 
@@ -653,9 +632,7 @@ class EventInterpreter:
         """Execute label command (just advance)"""
         instance.context.advance()
 
-    def _execute_jump_to_label(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_jump_to_label(self, instance: InterpreterInstance, command: EventCommand):
         """Execute jump to label command"""
         label_name = command.parameters.get("label", "")
         if label_name in instance.label_map:
@@ -695,9 +672,7 @@ class EventInterpreter:
                 )
             )
 
-    def _execute_show_choices(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_show_choices(self, instance: InterpreterInstance, command: EventCommand):
         """Execute show choices command"""
         choices = command.parameters.get("choices", [])
         default = command.parameters.get("default_choice", 0)
@@ -712,9 +687,7 @@ class EventInterpreter:
 
     # ========== Game State Commands ==========
 
-    def _execute_control_switches(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_control_switches(self, instance: InterpreterInstance, command: EventCommand):
         """Execute control switches command"""
         switch_id = command.parameters.get("switch_id", 1)
         value = command.parameters.get("value", True)
@@ -728,9 +701,7 @@ class EventInterpreter:
 
         instance.context.advance()
 
-    def _execute_control_variables(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_control_variables(self, instance: InterpreterInstance, command: EventCommand):
         """Execute control variables command"""
         var_id = command.parameters.get("variable_id", 1)
         operation = command.parameters.get("operation", "set")
@@ -771,9 +742,7 @@ class EventInterpreter:
 
         instance.context.advance()
 
-    def _execute_control_self_switch(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_control_self_switch(self, instance: InterpreterInstance, command: EventCommand):
         """Execute control self switch command"""
         # Self switches would be stored per-event
         # Implementation depends on game state structure
@@ -797,9 +766,7 @@ class EventInterpreter:
             )
         instance.context.advance()
 
-    def _execute_fadeout_bgm(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_fadeout_bgm(self, instance: InterpreterInstance, command: EventCommand):
         """Execute fadeout BGM command"""
         if self.event_manager:
             self.event_manager.emit(
@@ -809,9 +776,7 @@ class EventInterpreter:
 
     # ========== Transfer Commands ==========
 
-    def _execute_transfer_player(
-        self, instance: InterpreterInstance, command: EventCommand
-    ):
+    def _execute_transfer_player(self, instance: InterpreterInstance, command: EventCommand):
         """Execute transfer player command"""
         if self.event_manager:
             self.event_manager.emit(

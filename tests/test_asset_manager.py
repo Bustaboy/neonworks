@@ -87,9 +87,7 @@ class TestAssetLoading:
         assert sprite1 == sprite2
 
     @patch("pygame.image.load")
-    def test_color_key_transparency(
-        self, mock_load, asset_manager, mock_sprite, tmp_path
-    ):
+    def test_color_key_transparency(self, mock_load, asset_manager, mock_sprite, tmp_path):
         """Test color key transparency"""
         image_path = tmp_path / "test.png"
         image_path.touch()
@@ -157,9 +155,7 @@ class TestSpriteSheets:
         surface = pygame.Surface((64, 64))
         mock_load.return_value = surface
 
-        sheet = asset_manager.load_sprite_sheet(
-            "sheet.png", tile_width=32, tile_height=32
-        )
+        sheet = asset_manager.load_sprite_sheet("sheet.png", tile_width=32, tile_height=32)
 
         assert isinstance(sheet, SpriteSheet)
         assert sheet.tile_width == 32

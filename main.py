@@ -118,9 +118,7 @@ class GameApplication:
             # Load building definitions from project if available
             if settings.building_definitions:
                 building_config_path = self.project.get_config_path(
-                    settings.building_definitions.replace("config/", "").replace(
-                        ".json", ""
-                    )
+                    settings.building_definitions.replace("config/", "").replace(".json", "")
                 )
                 # TODO: Load building definitions from file
                 print(f"   Building definitions: {building_config_path}")

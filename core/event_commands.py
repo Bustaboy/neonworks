@@ -219,9 +219,7 @@ class ShowTextCommand(EventCommand):
 class ShowChoicesCommand(EventCommand):
     """Display choice selection to the player"""
 
-    def __init__(
-        self, choices: List[str], cancel_type: int = -1, default_choice: int = 0
-    ):
+    def __init__(self, choices: List[str], cancel_type: int = -1, default_choice: int = 0):
         super().__init__(
             command_type=CommandType.SHOW_CHOICES,
             parameters={
@@ -334,9 +332,7 @@ class ControlVariablesCommand(EventCommand):
 class TransferPlayerCommand(EventCommand):
     """Transfer player to different location"""
 
-    def __init__(
-        self, map_id: int, x: int, y: int, direction: int = 0, fade_type: int = 0
-    ):
+    def __init__(self, map_id: int, x: int, y: int, direction: int = 0, fade_type: int = 0):
         """
         Transfer player to a new location.
 
@@ -374,9 +370,7 @@ class WaitCommand(EventCommand):
         Args:
             duration: Wait duration in frames (60 = 1 second at 60fps)
         """
-        super().__init__(
-            command_type=CommandType.WAIT, parameters={"duration": duration}
-        )
+        super().__init__(command_type=CommandType.WAIT, parameters={"duration": duration})
 
     def execute(self, context: "EventContext") -> bool:
         # Implementation would wait for duration
@@ -502,10 +496,7 @@ class EventPage:
 
         # Check variable
         if self.condition_variable_valid:
-            if (
-                game_state.get_variable(self.condition_variable_id)
-                < self.condition_variable_value
-            ):
+            if game_state.get_variable(self.condition_variable_id) < self.condition_variable_value:
                 return False
 
         # Check self switch
@@ -720,10 +711,7 @@ class EventContext:
             True if label found, False otherwise
         """
         for i, cmd in enumerate(self.page.commands):
-            if (
-                cmd.command_type == CommandType.LABEL
-                and cmd.parameters.get("name") == label
-            ):
+            if cmd.command_type == CommandType.LABEL and cmd.parameters.get("name") == label:
                 self.command_index = i
                 return True
         return False

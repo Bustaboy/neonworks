@@ -272,9 +272,7 @@ class TestDashMechanics:
 
         # Try to dash (should fail due to cooldown)
         with patch.object(input_manager, "is_action_pressed", return_value=True):
-            with patch.object(
-                input_manager, "is_action_just_pressed", return_value=True
-            ):
+            with patch.object(input_manager, "is_action_just_pressed", return_value=True):
                 controller_system.update(world, 0.016)
 
         assert not controller.is_dashing
@@ -345,9 +343,7 @@ class TestAIController:
         entity.add_component(Transform(x=0, y=0))
         controller = CharacterController()
         entity.add_component(controller)
-        ai = AIController(
-            behavior="patrol", patrol_points=[(100, 0), (100, 100), (0, 100)]
-        )
+        ai = AIController(behavior="patrol", patrol_points=[(100, 0), (100, 100), (0, 100)])
         entity.add_component(ai)
 
         ai_system.update(world, 0.016)
@@ -405,9 +401,7 @@ class TestAIController:
 class TestAnimationIntegration:
     """Test animation integration with controller"""
 
-    def test_animation_updates_with_state(
-        self, world, controller_system, input_manager
-    ):
+    def test_animation_updates_with_state(self, world, controller_system, input_manager):
         """Test animation changes with movement state"""
         entity = world.create_entity()
         entity.add_component(Transform(x=0, y=0))

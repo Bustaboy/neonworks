@@ -324,8 +324,7 @@ class ParticleSystem:
                     if emitter.end_size is not None:
                         progress = particle.get_life_progress()
                         particle.size = (
-                            emitter.start_size
-                            + (emitter.end_size - emitter.start_size) * progress
+                            emitter.start_size + (emitter.end_size - emitter.start_size) * progress
                         )
 
                     # Remove dead particles
@@ -334,10 +333,7 @@ class ParticleSystem:
 
             # Remove emitter if it's done and has no particles
             if emitter.emitter_lifetime is not None:
-                if (
-                    emitter.emitter_age >= emitter.emitter_lifetime
-                    and len(emitter.particles) == 0
-                ):
+                if emitter.emitter_age >= emitter.emitter_lifetime and len(emitter.particles) == 0:
                     self.remove_emitter(emitter)
 
     def _update_particles_vectorized(self, emitter: ParticleEmitter, delta_time: float):
@@ -361,9 +357,7 @@ class ParticleSystem:
         gy = np.array([p.gravity_y for p in emitter.particles], dtype=np.float32)
         drags = np.array([p.drag for p in emitter.particles], dtype=np.float32)
         rotations = np.array([p.rotation for p in emitter.particles], dtype=np.float32)
-        rot_speeds = np.array(
-            [p.rotation_speed for p in emitter.particles], dtype=np.float32
-        )
+        rot_speeds = np.array([p.rotation_speed for p in emitter.particles], dtype=np.float32)
 
         # Update ages
         ages += delta_time
@@ -410,9 +404,7 @@ class ParticleSystem:
                 # Apply size interpolation
                 if emitter.end_size is not None:
                     t = float(progress[i])
-                    particle.size = (
-                        emitter.start_size + (emitter.end_size - emitter.start_size) * t
-                    )
+                    particle.size = emitter.start_size + (emitter.end_size - emitter.start_size) * t
 
                 alive_particles.append(particle)
             else:
@@ -476,9 +468,7 @@ class ParticleRenderer:
 
             self.draw_count += 1
 
-    def _render_circle_particle(
-        self, screen: pygame.Surface, particle: Particle, x: int, y: int
-    ):
+    def _render_circle_particle(self, screen: pygame.Surface, particle: Particle, x: int, y: int):
         """Render particle as colored circle"""
         size = int(particle.size)
         if size < 1:

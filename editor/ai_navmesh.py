@@ -136,9 +136,7 @@ class AINavmeshGenerator:
 
         return blocked_cells
 
-    def _analyze_terrain(
-        self, world: World, navmesh: Navmesh, grid_width: int, grid_height: int
-    ):
+    def _analyze_terrain(self, world: World, navmesh: Navmesh, grid_width: int, grid_height: int):
         """AI-assisted terrain analysis for movement costs"""
         # In a real implementation, this would analyze tile types
         # For now, we'll use a simple pattern-based approach
@@ -310,9 +308,7 @@ class AINavmeshGenerator:
                 if h_corridor or v_corridor:
                     navmesh.cost_multipliers[pos] *= 0.85
 
-    def visualize_navmesh(
-        self, navmesh: Navmesh, grid_width: int, grid_height: int
-    ) -> str:
+    def visualize_navmesh(self, navmesh: Navmesh, grid_width: int, grid_height: int) -> str:
         """
         Generate ASCII visualization of navmesh for debugging.
         """
@@ -342,9 +338,7 @@ class AINavmeshGenerator:
 
         return "\n".join(lines)
 
-    def export_stats(
-        self, navmesh: Navmesh, grid_width: int, grid_height: int
-    ) -> Dict[str, any]:
+    def export_stats(self, navmesh: Navmesh, grid_width: int, grid_height: int) -> Dict[str, any]:
         """Export navmesh statistics"""
         total_cells = grid_width * grid_height
         walkable_cells = len(navmesh.walkable_cells)
@@ -352,9 +346,7 @@ class AINavmeshGenerator:
 
         # Analyze cost distribution
         low_cost = sum(1 for cost in navmesh.cost_multipliers.values() if cost < 0.9)
-        normal_cost = sum(
-            1 for cost in navmesh.cost_multipliers.values() if 0.9 <= cost <= 1.1
-        )
+        normal_cost = sum(1 for cost in navmesh.cost_multipliers.values() if 0.9 <= cost <= 1.1)
         high_cost = sum(1 for cost in navmesh.cost_multipliers.values() if cost > 1.1)
 
         return {

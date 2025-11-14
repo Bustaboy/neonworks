@@ -134,9 +134,7 @@ class PathfindingSystem(System):
                         heapq.heapify(open_set)  # Re-heapify after update
                 else:
                     # Add new node to open set
-                    neighbor_node = PathNode(
-                        neighbor_x, neighbor_y, g_cost, h_cost, current
-                    )
+                    neighbor_node = PathNode(neighbor_x, neighbor_y, g_cost, h_cost, current)
                     heapq.heappush(open_set, neighbor_node)
                     open_dict[neighbor_pos] = neighbor_node
 
@@ -179,9 +177,7 @@ class PathfindingSystem(System):
 
         return total_cost
 
-    def is_line_of_sight(
-        self, x1: int, y1: int, x2: int, y2: int, navmesh: Navmesh
-    ) -> bool:
+    def is_line_of_sight(self, x1: int, y1: int, x2: int, y2: int, navmesh: Navmesh) -> bool:
         """Check if there's a clear line of sight between two points"""
         # Bresenham's line algorithm
         dx = abs(x2 - x1)
@@ -209,9 +205,7 @@ class PathfindingSystem(System):
 
         return True
 
-    def smooth_path(
-        self, path: List[Tuple[int, int]], navmesh: Navmesh
-    ) -> List[Tuple[int, int]]:
+    def smooth_path(self, path: List[Tuple[int, int]], navmesh: Navmesh) -> List[Tuple[int, int]]:
         """Smooth path by removing unnecessary waypoints"""
         if len(path) <= 2:
             return path

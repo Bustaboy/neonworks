@@ -110,9 +110,7 @@ class SettingsUI:
         )
 
         # Close button
-        if self.ui.button(
-            "X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)):
             if self.has_unsaved_changes:
                 # In a real implementation, show a confirmation dialog
                 pass
@@ -128,15 +126,11 @@ class SettingsUI:
         if self.current_tab == "audio":
             self._render_audio_settings(panel_x, content_y, panel_width, content_height)
         elif self.current_tab == "graphics":
-            self._render_graphics_settings(
-                panel_x, content_y, panel_width, content_height
-            )
+            self._render_graphics_settings(panel_x, content_y, panel_width, content_height)
         elif self.current_tab == "input":
             self._render_input_settings(panel_x, content_y, panel_width, content_height)
         elif self.current_tab == "gameplay":
-            self._render_gameplay_settings(
-                panel_x, content_y, panel_width, content_height
-            )
+            self._render_gameplay_settings(panel_x, content_y, panel_width, content_height)
 
         # Bottom buttons
         self._render_bottom_buttons(panel_x, panel_y + panel_height - 60, panel_width)
@@ -151,9 +145,7 @@ class SettingsUI:
             is_active = tab == self.current_tab
             tab_color = (50, 100, 200) if is_active else (30, 30, 50)
 
-            if self.ui.button(
-                tab.capitalize(), tab_x + 5, y, tab_width - 10, 40, color=tab_color
-            ):
+            if self.ui.button(tab.capitalize(), tab_x + 5, y, tab_width - 10, 40, color=tab_color):
                 self.current_tab = tab
 
     def _render_audio_settings(self, x: int, y: int, width: int, height: int):
@@ -172,15 +164,11 @@ class SettingsUI:
             # Update master volume
             mouse_x = pygame.mouse.get_pos()[0]
             slider_x = mouse_x - x - 20
-            self.settings["audio"]["master_volume"] = max(
-                0, min(1, slider_x / (width - 40))
-            )
+            self.settings["audio"]["master_volume"] = max(0, min(1, slider_x / (width - 40)))
             self.has_unsaved_changes = True
 
             if self.audio_manager:
-                self.audio_manager.set_master_volume(
-                    self.settings["audio"]["master_volume"]
-                )
+                self.audio_manager.set_master_volume(self.settings["audio"]["master_volume"])
 
         self.ui.label(
             f"{int(self.settings['audio']['master_volume'] * 100)}%",
@@ -199,15 +187,11 @@ class SettingsUI:
         ):
             mouse_x = pygame.mouse.get_pos()[0]
             slider_x = mouse_x - x - 20
-            self.settings["audio"]["music_volume"] = max(
-                0, min(1, slider_x / (width - 40))
-            )
+            self.settings["audio"]["music_volume"] = max(0, min(1, slider_x / (width - 40)))
             self.has_unsaved_changes = True
 
             if self.audio_manager:
-                self.audio_manager.set_music_volume(
-                    self.settings["audio"]["music_volume"]
-                )
+                self.audio_manager.set_music_volume(self.settings["audio"]["music_volume"])
 
         self.ui.label(
             f"{int(self.settings['audio']['music_volume'] * 100)}%",
@@ -221,14 +205,10 @@ class SettingsUI:
         self.ui.label("SFX Volume:", x + 20, current_y, size=16)
         current_y += 25
 
-        if self.ui.slider(
-            x + 20, current_y, width - 40, 30, self.settings["audio"]["sfx_volume"]
-        ):
+        if self.ui.slider(x + 20, current_y, width - 40, 30, self.settings["audio"]["sfx_volume"]):
             mouse_x = pygame.mouse.get_pos()[0]
             slider_x = mouse_x - x - 20
-            self.settings["audio"]["sfx_volume"] = max(
-                0, min(1, slider_x / (width - 40))
-            )
+            self.settings["audio"]["sfx_volume"] = max(0, min(1, slider_x / (width - 40)))
             self.has_unsaved_changes = True
 
         self.ui.label(
@@ -255,20 +235,12 @@ class SettingsUI:
 
         # Fullscreen toggle
         fullscreen_text = (
-            "Fullscreen: ON"
-            if self.settings["graphics"]["fullscreen"]
-            else "Fullscreen: OFF"
+            "Fullscreen: ON" if self.settings["graphics"]["fullscreen"] else "Fullscreen: OFF"
         )
-        fullscreen_color = (
-            (0, 150, 0) if self.settings["graphics"]["fullscreen"] else (150, 0, 0)
-        )
+        fullscreen_color = (0, 150, 0) if self.settings["graphics"]["fullscreen"] else (150, 0, 0)
 
-        if self.ui.button(
-            fullscreen_text, x + 20, current_y, 300, 40, color=fullscreen_color
-        ):
-            self.settings["graphics"]["fullscreen"] = not self.settings["graphics"][
-                "fullscreen"
-            ]
+        if self.ui.button(fullscreen_text, x + 20, current_y, 300, 40, color=fullscreen_color):
+            self.settings["graphics"]["fullscreen"] = not self.settings["graphics"]["fullscreen"]
             self.has_unsaved_changes = True
             # Toggle fullscreen
             if self.settings["graphics"]["fullscreen"]:
@@ -289,17 +261,11 @@ class SettingsUI:
         current_y += 50
 
         # Show FPS toggle
-        fps_text = (
-            "Show FPS: ON" if self.settings["graphics"]["show_fps"] else "Show FPS: OFF"
-        )
-        fps_color = (
-            (0, 150, 0) if self.settings["graphics"]["show_fps"] else (150, 0, 0)
-        )
+        fps_text = "Show FPS: ON" if self.settings["graphics"]["show_fps"] else "Show FPS: OFF"
+        fps_color = (0, 150, 0) if self.settings["graphics"]["show_fps"] else (150, 0, 0)
 
         if self.ui.button(fps_text, x + 20, current_y, 300, 40, color=fps_color):
-            self.settings["graphics"]["show_fps"] = not self.settings["graphics"][
-                "show_fps"
-            ]
+            self.settings["graphics"]["show_fps"] = not self.settings["graphics"]["show_fps"]
             self.has_unsaved_changes = True
 
         current_y += 50
@@ -317,9 +283,7 @@ class SettingsUI:
         ):
             mouse_x = pygame.mouse.get_pos()[0]
             slider_x = mouse_x - x - 20
-            self.settings["graphics"]["particle_density"] = max(
-                0, min(1, slider_x / (width - 40))
-            )
+            self.settings["graphics"]["particle_density"] = max(0, min(1, slider_x / (width - 40)))
             self.has_unsaved_changes = True
 
         density_pct = int(self.settings["graphics"]["particle_density"] * 100)
@@ -328,13 +292,9 @@ class SettingsUI:
 
         # Screen Shake toggle
         shake_text = (
-            "Screen Shake: ON"
-            if self.settings["graphics"]["screen_shake"]
-            else "Screen Shake: OFF"
+            "Screen Shake: ON" if self.settings["graphics"]["screen_shake"] else "Screen Shake: OFF"
         )
-        shake_color = (
-            (0, 150, 0) if self.settings["graphics"]["screen_shake"] else (150, 0, 0)
-        )
+        shake_color = (0, 150, 0) if self.settings["graphics"]["screen_shake"] else (150, 0, 0)
 
         if self.ui.button(shake_text, x + 20, current_y, 300, 40, color=shake_color):
             self.settings["graphics"]["screen_shake"] = not self.settings["graphics"][
@@ -375,13 +335,9 @@ class SettingsUI:
 
         # Invert Y axis
         invert_text = (
-            "Invert Y-Axis: ON"
-            if self.settings["input"]["invert_y"]
-            else "Invert Y-Axis: OFF"
+            "Invert Y-Axis: ON" if self.settings["input"]["invert_y"] else "Invert Y-Axis: OFF"
         )
-        invert_color = (
-            (0, 150, 0) if self.settings["input"]["invert_y"] else (150, 0, 0)
-        )
+        invert_color = (0, 150, 0) if self.settings["input"]["invert_y"] else (150, 0, 0)
 
         if self.ui.button(invert_text, x + 20, current_y, 300, 40, color=invert_color):
             self.settings["input"]["invert_y"] = not self.settings["input"]["invert_y"]
@@ -390,9 +346,7 @@ class SettingsUI:
         current_y += 60
 
         # Key Bindings
-        self.ui.label(
-            "Key Bindings:", x + 20, current_y, size=18, color=(200, 200, 255)
-        )
+        self.ui.label("Key Bindings:", x + 20, current_y, size=18, color=(200, 200, 255))
         current_y += 30
 
         for action, key in self.key_bindings.items():
@@ -406,9 +360,7 @@ class SettingsUI:
             button_color = (255, 200, 0) if is_waiting else (50, 50, 80)
             button_text = "Press Key..." if is_waiting else key_name
 
-            if self.ui.button(
-                button_text, x + 250, current_y - 5, 150, 30, color=button_color
-            ):
+            if self.ui.button(button_text, x + 250, current_y - 5, 150, 30, color=button_color):
                 self.waiting_for_key = action
 
             current_y += 35
@@ -440,42 +392,28 @@ class SettingsUI:
 
         # Auto-save
         auto_save_text = (
-            "Auto-Save: ON"
-            if self.settings["gameplay"]["auto_save"]
-            else "Auto-Save: OFF"
+            "Auto-Save: ON" if self.settings["gameplay"]["auto_save"] else "Auto-Save: OFF"
         )
-        auto_save_color = (
-            (0, 150, 0) if self.settings["gameplay"]["auto_save"] else (150, 0, 0)
-        )
+        auto_save_color = (0, 150, 0) if self.settings["gameplay"]["auto_save"] else (150, 0, 0)
 
-        if self.ui.button(
-            auto_save_text, x + 20, current_y, 300, 40, color=auto_save_color
-        ):
-            self.settings["gameplay"]["auto_save"] = not self.settings["gameplay"][
-                "auto_save"
-            ]
+        if self.ui.button(auto_save_text, x + 20, current_y, 300, 40, color=auto_save_color):
+            self.settings["gameplay"]["auto_save"] = not self.settings["gameplay"]["auto_save"]
             self.has_unsaved_changes = True
 
         current_y += 50
 
         # Tutorial
         tutorial_text = (
-            "Tutorial: ON"
-            if self.settings["gameplay"]["tutorial_enabled"]
-            else "Tutorial: OFF"
+            "Tutorial: ON" if self.settings["gameplay"]["tutorial_enabled"] else "Tutorial: OFF"
         )
         tutorial_color = (
-            (0, 150, 0)
-            if self.settings["gameplay"]["tutorial_enabled"]
-            else (150, 0, 0)
+            (0, 150, 0) if self.settings["gameplay"]["tutorial_enabled"] else (150, 0, 0)
         )
 
-        if self.ui.button(
-            tutorial_text, x + 20, current_y, 300, 40, color=tutorial_color
-        ):
-            self.settings["gameplay"]["tutorial_enabled"] = not self.settings[
-                "gameplay"
-            ]["tutorial_enabled"]
+        if self.ui.button(tutorial_text, x + 20, current_y, 300, 40, color=tutorial_color):
+            self.settings["gameplay"]["tutorial_enabled"] = not self.settings["gameplay"][
+                "tutorial_enabled"
+            ]
             self.has_unsaved_changes = True
 
     def _render_bottom_buttons(self, x: int, y: int, width: int):
@@ -484,9 +422,7 @@ class SettingsUI:
         button_spacing = 20
 
         # Save button
-        if self.ui.button(
-            "Save & Close", x + 20, y, button_width, 40, color=(0, 150, 0)
-        ):
+        if self.ui.button("Save & Close", x + 20, y, button_width, 40, color=(0, 150, 0)):
             self.save_settings()
             self.toggle()
 
@@ -564,9 +500,7 @@ class SettingsUI:
         """Apply settings without saving."""
         # Apply audio settings
         if self.audio_manager:
-            self.audio_manager.set_master_volume(
-                self.settings["audio"]["master_volume"]
-            )
+            self.audio_manager.set_master_volume(self.settings["audio"]["master_volume"])
             self.audio_manager.set_music_volume(self.settings["audio"]["music_volume"])
 
         # Apply graphics settings

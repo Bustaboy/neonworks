@@ -228,9 +228,7 @@ class LicenseKeyGenerator:
         signature = combined[-16:]
 
         # Verify signature
-        expected_signature = hmac.new(
-            self.secret_key, data_bytes, hashlib.sha256
-        ).digest()[:16]
+        expected_signature = hmac.new(self.secret_key, data_bytes, hashlib.sha256).digest()[:16]
 
         if not hmac.compare_digest(signature, expected_signature):
             raise ValueError("Invalid license key signature")

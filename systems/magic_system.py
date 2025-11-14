@@ -356,9 +356,7 @@ class MagicSystem(System):
                 # Check for absorption
                 if target_resist.absorbs(spell.element):
                     # Heal instead of damage
-                    target_health.hp = min(
-                        target_health.max_hp, target_health.hp + abs(damage)
-                    )
+                    target_health.hp = min(target_health.max_hp, target_health.hp + abs(damage))
                     self.event_manager.emit(
                         Event(
                             EventType.CUSTOM,

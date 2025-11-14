@@ -73,9 +73,7 @@ class NavmeshEditorUI:
             screen_y = grid_y * self.tile_size + camera_offset[1]
 
             # Create semi-transparent surface
-            tile_surface = pygame.Surface(
-                (self.tile_size, self.tile_size), pygame.SRCALPHA
-            )
+            tile_surface = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
             tile_surface.fill((0, 255, 0, 100))  # Green for walkable
             self.screen.blit(tile_surface, (screen_x, screen_y))
 
@@ -85,9 +83,7 @@ class NavmeshEditorUI:
             screen_y = grid_y * self.tile_size + camera_offset[1]
 
             # Create semi-transparent surface
-            tile_surface = pygame.Surface(
-                (self.tile_size, self.tile_size), pygame.SRCALPHA
-            )
+            tile_surface = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
             tile_surface.fill((255, 0, 0, 100))  # Red for unwalkable
             self.screen.blit(tile_surface, (screen_x, screen_y))
 
@@ -133,9 +129,7 @@ class NavmeshEditorUI:
         current_y = panel_y + 45
 
         # Paint mode selection
-        self.ui.label(
-            "Paint Mode:", panel_x + 10, current_y, size=16, color=(200, 200, 255)
-        )
+        self.ui.label("Paint Mode:", panel_x + 10, current_y, size=16, color=(200, 200, 255))
         current_y += 25
 
         button_width = panel_width - 20
@@ -155,9 +149,7 @@ class NavmeshEditorUI:
         current_y += button_height + 5
 
         # Unwalkable mode
-        unwalkable_color = (
-            (200, 0, 0) if self.paint_mode == "unwalkable" else (100, 0, 0)
-        )
+        unwalkable_color = (200, 0, 0) if self.paint_mode == "unwalkable" else (100, 0, 0)
         if self.ui.button(
             "Paint Unwalkable",
             panel_x + 10,
@@ -203,9 +195,7 @@ class NavmeshEditorUI:
         current_y += 45
 
         # Visualization options
-        self.ui.label(
-            "Display Options:", panel_x + 10, current_y, size=16, color=(200, 200, 255)
-        )
+        self.ui.label("Display Options:", panel_x + 10, current_y, size=16, color=(200, 200, 255))
         current_y += 25
 
         # Toggle grid
@@ -221,15 +211,11 @@ class NavmeshEditorUI:
         current_y += 45
 
         # Actions
-        self.ui.label(
-            "Actions:", panel_x + 10, current_y, size=16, color=(200, 200, 255)
-        )
+        self.ui.label("Actions:", panel_x + 10, current_y, size=16, color=(200, 200, 255))
         current_y += 25
 
         # Auto-generate from buildings
-        if self.ui.button(
-            "Auto-Generate from Map", panel_x + 10, current_y, button_width, 35
-        ):
+        if self.ui.button("Auto-Generate from Map", panel_x + 10, current_y, button_width, 35):
             self.auto_generate_from_map()
         current_y += 40
 
@@ -265,13 +251,9 @@ class NavmeshEditorUI:
 
         # Statistics
         current_y += 45
-        self.ui.label(
-            "Statistics:", panel_x + 10, current_y, size=14, color=(200, 200, 200)
-        )
+        self.ui.label("Statistics:", panel_x + 10, current_y, size=14, color=(200, 200, 200))
         current_y += 20
-        self.ui.label(
-            f"Walkable: {len(self.walkable_tiles)}", panel_x + 15, current_y, size=12
-        )
+        self.ui.label(f"Walkable: {len(self.walkable_tiles)}", panel_x + 15, current_y, size=12)
         current_y += 18
         self.ui.label(
             f"Unwalkable: {len(self.unwalkable_tiles)}",
@@ -292,9 +274,7 @@ class NavmeshEditorUI:
                 tile_y = grid_y + dy
 
                 # Check bounds
-                if not (
-                    0 <= tile_x < self.grid_width and 0 <= tile_y < self.grid_height
-                ):
+                if not (0 <= tile_x < self.grid_width and 0 <= tile_y < self.grid_height):
                     continue
 
                 tile_pos = (tile_x, tile_y)
@@ -322,9 +302,7 @@ class NavmeshEditorUI:
 
         # Interpolate between last position and current
         if self.last_paint_pos:
-            self._paint_line(
-                self.last_paint_pos[0], self.last_paint_pos[1], grid_x, grid_y
-            )
+            self._paint_line(self.last_paint_pos[0], self.last_paint_pos[1], grid_x, grid_y)
 
         self.last_paint_pos = (grid_x, grid_y)
 
@@ -405,9 +383,7 @@ class NavmeshEditorUI:
             self.world.tag_entity(navmesh_entity, "navmesh")
 
         # Create navmesh component
-        navmesh = Navmesh(
-            width=self.grid_width, height=self.grid_height, tile_size=self.tile_size
-        )
+        navmesh = Navmesh(width=self.grid_width, height=self.grid_height, tile_size=self.tile_size)
 
         # Set walkable data
         for x in range(self.grid_width):

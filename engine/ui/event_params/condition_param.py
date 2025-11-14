@@ -164,16 +164,12 @@ class ConditionParamEditor:
 
         # Left panel: Condition types
         type_panel_width = 180
-        self._render_type_panel(
-            dialog_x + 10, content_y, type_panel_width, content_height
-        )
+        self._render_type_panel(dialog_x + 10, content_y, type_panel_width, content_height)
 
         # Right panel: Condition parameters
         param_panel_x = dialog_x + type_panel_width + 20
         param_panel_width = dialog_width - type_panel_width - 30
-        self._render_parameter_panel(
-            param_panel_x, content_y, param_panel_width, content_height
-        )
+        self._render_parameter_panel(param_panel_x, content_y, param_panel_width, content_height)
 
         # Bottom buttons
         self._render_bottom_buttons(
@@ -308,9 +304,7 @@ class ConditionParamEditor:
         self.screen.blit(label, (x, y))
 
         switch_value = self.parameters.get("switch_value", True)
-        self._render_toggle_button(
-            x + 150, y, 100, 35, switch_value, "switch_value", "ON", "OFF"
-        )
+        self._render_toggle_button(x + 150, y, 100, 35, switch_value, "switch_value", "ON", "OFF")
 
     def _render_variable_params(self, x: int, y: int, width: int):
         """Render parameters for Variable condition."""
@@ -327,9 +321,7 @@ class ConditionParamEditor:
         self.screen.blit(label, (x, y))
 
         operator = self.parameters.get("operator", "==")
-        self._render_dropdown(
-            x + 150, y, 80, operator, self.COMPARISON_OPERATORS, "operator"
-        )
+        self._render_dropdown(x + 150, y, 80, operator, self.COMPARISON_OPERATORS, "operator")
 
         # Value
         y += 50
@@ -346,9 +338,7 @@ class ConditionParamEditor:
         self.screen.blit(label, (x, y))
 
         switch_ch = self.parameters.get("self_switch_ch", "A")
-        self._render_dropdown(
-            x + 150, y, 80, switch_ch, ["A", "B", "C", "D"], "self_switch_ch"
-        )
+        self._render_dropdown(x + 150, y, 80, switch_ch, ["A", "B", "C", "D"], "self_switch_ch")
 
         # Value
         y += 50
@@ -400,9 +390,7 @@ class ConditionParamEditor:
         self.screen.blit(label, (x, y))
 
         operator = self.parameters.get("operator", ">=")
-        self._render_dropdown(
-            x + 150, y, 80, operator, self.COMPARISON_OPERATORS, "operator"
-        )
+        self._render_dropdown(x + 150, y, 80, operator, self.COMPARISON_OPERATORS, "operator")
 
         # Amount
         y += 50
@@ -453,14 +441,10 @@ class ConditionParamEditor:
         y += 30
         script = self.parameters.get("script", "")
         # Simple text display - could be expanded to full text editor
-        script_text = self.small_font.render(
-            script or "(click to edit)", True, (180, 180, 200)
-        )
+        script_text = self.small_font.render(script or "(click to edit)", True, (180, 180, 200))
         self.screen.blit(script_text, (x, y))
 
-    def _render_number_input(
-        self, x: int, y: int, width: int, value: int, param_name: str
-    ):
+    def _render_number_input(self, x: int, y: int, width: int, value: int, param_name: str):
         """Render a simple number input field."""
         height = 35
         mouse_pos = pygame.mouse.get_pos()
@@ -468,9 +452,7 @@ class ConditionParamEditor:
 
         color = (50, 50, 80) if is_hover else (35, 35, 55)
         pygame.draw.rect(self.screen, color, (x, y, width, height), border_radius=4)
-        pygame.draw.rect(
-            self.screen, (80, 80, 100), (x, y, width, height), 2, border_radius=4
-        )
+        pygame.draw.rect(self.screen, (80, 80, 100), (x, y, width, height), 2, border_radius=4)
 
         value_text = self.font.render(str(value), True, (255, 255, 255))
         text_rect = value_text.get_rect(center=(x + width // 2, y + height // 2))
@@ -561,9 +543,7 @@ class ConditionParamEditor:
 
         color = (50, 70, 110) if is_hover else (40, 50, 80)
         pygame.draw.rect(self.screen, color, (x, y, width, height), border_radius=4)
-        pygame.draw.rect(
-            self.screen, (80, 80, 100), (x, y, width, height), 2, border_radius=4
-        )
+        pygame.draw.rect(self.screen, (80, 80, 100), (x, y, width, height), 2, border_radius=4)
 
         text = self.font.render(str(value), True, (255, 255, 255))
         text_rect = text.get_rect(center=(x + width // 2, y + height // 2))
@@ -589,10 +569,7 @@ class ConditionParamEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -603,9 +580,7 @@ class ConditionParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(
-            center=(x + button_width // 2, y + button_height // 2)
-        )
+        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:

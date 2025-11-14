@@ -216,9 +216,7 @@ class TestParticleEmitter:
 
     def test_emitter_shape_box(self):
         """Test box emitter spawns within box"""
-        emitter = ParticleEmitter(
-            shape=EmitterShape.BOX, shape_width=100, shape_height=100
-        )
+        emitter = ParticleEmitter(shape=EmitterShape.BOX, shape_width=100, shape_height=100)
 
         spawn_x, spawn_y = emitter._get_spawn_position()
 
@@ -563,12 +561,8 @@ class TestParticleIntegration:
         """Test multiple emitters in one system"""
         system = ParticleSystem()
 
-        emitter1 = ParticleEmitter(
-            x=100, y=100, auto_emit=False, particle_lifetime=10.0
-        )
-        emitter2 = ParticleEmitter(
-            x=200, y=200, auto_emit=False, particle_lifetime=10.0
-        )
+        emitter1 = ParticleEmitter(x=100, y=100, auto_emit=False, particle_lifetime=10.0)
+        emitter2 = ParticleEmitter(x=200, y=200, auto_emit=False, particle_lifetime=10.0)
 
         system.add_emitter(emitter1)
         system.add_emitter(emitter2)

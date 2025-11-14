@@ -117,14 +117,10 @@ def create_sample_events():
         condition_switch1_id=5,
     )
     page5.commands = [
-        EventCommand(
-            command_type=CommandType.FADEOUT_SCREEN, parameters={"duration": 60}
-        ),
+        EventCommand(command_type=CommandType.FADEOUT_SCREEN, parameters={"duration": 60}),
         WaitCommand(60),
         ShowTextCommand("A cutscene begins..."),
-        EventCommand(
-            command_type=CommandType.FADEIN_SCREEN, parameters={"duration": 60}
-        ),
+        EventCommand(command_type=CommandType.FADEIN_SCREEN, parameters={"duration": 60}),
         EventCommand(
             command_type=CommandType.CONTROL_SWITCHES,
             parameters={"switch_id": 5, "value": False},
@@ -200,9 +196,7 @@ def main():
                 True,
                 (120, 120, 120),
             )
-            count_rect = count_text.get_rect(
-                center=(screen_width // 2, screen_height // 2 + 60)
-            )
+            count_rect = count_text.get_rect(center=(screen_width // 2, screen_height // 2 + 60))
             screen.blit(count_text, count_rect)
 
         # Render event editor

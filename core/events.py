@@ -100,9 +100,7 @@ class EventManager:
         self._handlers[event_type].append(handler)
         return self
 
-    def unsubscribe(
-        self, event_type: EventType, handler: EventHandler
-    ) -> "EventManager":
+    def unsubscribe(self, event_type: EventType, handler: EventHandler) -> "EventManager":
         """Unsubscribe from an event type"""
         if event_type in self._handlers:
             try:

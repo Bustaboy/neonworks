@@ -287,9 +287,7 @@ class TestSettingsValidation:
 
         errors = validate_project_config(config_small)
         assert any("settings.window_width: Value 100 is too small" in e for e in errors)
-        assert any(
-            "settings.window_height: Value 100 is too small" in e for e in errors
-        )
+        assert any("settings.window_height: Value 100 is too small" in e for e in errors)
 
         # Test too large
         config_large = {
@@ -304,12 +302,8 @@ class TestSettingsValidation:
         }
 
         errors = validate_project_config(config_large)
-        assert any(
-            "settings.window_width: Value 10000 is too large" in e for e in errors
-        )
-        assert any(
-            "settings.window_height: Value 10000 is too large" in e for e in errors
-        )
+        assert any("settings.window_width: Value 10000 is too large" in e for e in errors)
+        assert any("settings.window_height: Value 10000 is too large" in e for e in errors)
 
     def test_empty_window_title(self):
         """Test detection of empty window title"""
@@ -411,13 +405,9 @@ class TestSettingsValidation:
 
         errors = validate_project_config(config)
 
-        assert any(
-            "settings.building_definitions: Expected string" in e for e in errors
-        )
+        assert any("settings.building_definitions: Expected string" in e for e in errors)
         assert any("settings.item_definitions: Expected string" in e for e in errors)
-        assert any(
-            "settings.character_definitions: Expected string" in e for e in errors
-        )
+        assert any("settings.character_definitions: Expected string" in e for e in errors)
         assert any("settings.quest_definitions: Expected string" in e for e in errors)
 
     def test_export_settings_types(self):
@@ -499,12 +489,8 @@ class TestBuildingDefinitionsValidation:
 
         errors = validate_building_definitions(buildings)
 
-        assert any(
-            "Building 'farm': Missing required field 'cost'" in e for e in errors
-        )
-        assert any(
-            "Building 'farm': Missing required field 'build_time'" in e for e in errors
-        )
+        assert any("Building 'farm': Missing required field 'cost'" in e for e in errors)
+        assert any("Building 'farm': Missing required field 'build_time'" in e for e in errors)
 
     def test_invalid_cost_type(self):
         """Test detection of invalid cost types"""
@@ -551,12 +537,8 @@ class TestBuildingDefinitionsValidation:
 
         errors = validate_building_definitions(buildings)
 
-        assert any(
-            "Building 'farm': 'build_time' must be non-negative" in e for e in errors
-        )
-        assert any(
-            "Building 'house': 'build_time' must be non-negative" in e for e in errors
-        )
+        assert any("Building 'farm': 'build_time' must be non-negative" in e for e in errors)
+        assert any("Building 'house': 'build_time' must be non-negative" in e for e in errors)
 
 
 # ===========================
@@ -640,9 +622,7 @@ class TestItemDefinitionsValidation:
 
         assert any("Item 'sword': 'value' must be non-negative" in e for e in errors)
         assert any("Item 'sword': 'weight' must be non-negative" in e for e in errors)
-        assert any(
-            "Item 'sword': 'stack_size' must be non-negative" in e for e in errors
-        )
+        assert any("Item 'sword': 'stack_size' must be non-negative" in e for e in errors)
         assert any("Item 'sword': 'damage' must be non-negative" in e for e in errors)
         assert any("Item 'sword': 'defense' must be non-negative" in e for e in errors)
 
@@ -683,9 +663,7 @@ class TestCharacterDefinitionsValidation:
         characters = {"hero": {"name": "Hero"}}  # Missing class
 
         errors = validate_character_definitions(characters)
-        assert any(
-            "Character 'hero': Missing required field 'class'" in e for e in errors
-        )
+        assert any("Character 'hero': Missing required field 'class'" in e for e in errors)
 
     def test_invalid_stats_type(self):
         """Test detection of invalid stats types"""
@@ -698,9 +676,7 @@ class TestCharacterDefinitionsValidation:
         }
 
         errors = validate_character_definitions(characters)
-        assert any(
-            "Character 'hero': 'stats' must be a dictionary" in e for e in errors
-        )
+        assert any("Character 'hero': 'stats' must be a dictionary" in e for e in errors)
 
     def test_invalid_stat_values(self):
         """Test detection of invalid stat values"""

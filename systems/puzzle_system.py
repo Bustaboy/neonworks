@@ -98,9 +98,7 @@ class PuzzleSystem(System):
         elif not switch.is_active and switch.on_deactivate:
             switch.on_deactivate()
 
-    def push_block(
-        self, world: World, block_entity: Entity, direction: Direction
-    ) -> bool:
+    def push_block(self, world: World, block_entity: Entity, direction: Direction) -> bool:
         """
         Push a block in a direction.
 
@@ -316,10 +314,7 @@ class PuzzleSystem(System):
             for entity in entities_here:
                 if entity.has_tag("player") and plate.can_activate_by_player:
                     valid_entities.append(entity)
-                elif (
-                    entity.has_component(PushableBlock)
-                    and plate.can_activate_by_objects
-                ):
+                elif entity.has_component(PushableBlock) and plate.can_activate_by_objects:
                     valid_entities.append(entity)
                 elif entity.has_tag("enemy") and plate.can_activate_by_enemies:
                     valid_entities.append(entity)
@@ -458,9 +453,7 @@ class PuzzleSystem(System):
 
         return entities_here
 
-    def _check_pressure_plate_at_position(
-        self, world: World, x: int, y: int, entity: Entity
-    ):
+    def _check_pressure_plate_at_position(self, world: World, x: int, y: int, entity: Entity):
         """Check if there's a pressure plate at position"""
         plates = world.get_entities_with_components(PressurePlate, GridPosition)
 

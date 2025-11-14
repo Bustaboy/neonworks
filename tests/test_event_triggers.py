@@ -63,9 +63,7 @@ class TestTriggerCondition:
 
     def test_condition_creation(self):
         """Test creating trigger condition"""
-        condition = TriggerCondition(
-            condition_type="proximity", parameters={"max_distance": 2}
-        )
+        condition = TriggerCondition(condition_type="proximity", parameters={"max_distance": 2})
 
         assert condition.condition_type == "proximity"
         assert condition.parameters["max_distance"] == 2
@@ -111,9 +109,7 @@ class TestTriggerCondition:
         game_state = MockGameState()
         game_state.set_switch(5, True)
 
-        context = TriggerContext(
-            game_state=game_state, player_position=(0, 0), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(0, 0), player_direction=2)
 
         assert condition.evaluate(context) is True
 
@@ -126,9 +122,7 @@ class TestTriggerCondition:
         game_state = MockGameState()
         game_state.set_switch(5, False)
 
-        context = TriggerContext(
-            game_state=game_state, player_position=(0, 0), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(0, 0), player_direction=2)
 
         assert condition.evaluate(context) is False
 
@@ -137,51 +131,35 @@ class TestTriggerCondition:
         game_state = MockGameState()
         game_state.set_variable(10, 50)
 
-        context = TriggerContext(
-            game_state=game_state, player_position=(0, 0), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(0, 0), player_direction=2)
 
         # Test ==
-        cond = TriggerCondition(
-            "variable", {"variable_id": 10, "operator": "==", "value": 50}
-        )
+        cond = TriggerCondition("variable", {"variable_id": 10, "operator": "==", "value": 50})
         assert cond.evaluate(context) is True
 
         # Test !=
-        cond = TriggerCondition(
-            "variable", {"variable_id": 10, "operator": "!=", "value": 30}
-        )
+        cond = TriggerCondition("variable", {"variable_id": 10, "operator": "!=", "value": 30})
         assert cond.evaluate(context) is True
 
         # Test >
-        cond = TriggerCondition(
-            "variable", {"variable_id": 10, "operator": ">", "value": 40}
-        )
+        cond = TriggerCondition("variable", {"variable_id": 10, "operator": ">", "value": 40})
         assert cond.evaluate(context) is True
 
         # Test >=
-        cond = TriggerCondition(
-            "variable", {"variable_id": 10, "operator": ">=", "value": 50}
-        )
+        cond = TriggerCondition("variable", {"variable_id": 10, "operator": ">=", "value": 50})
         assert cond.evaluate(context) is True
 
         # Test <
-        cond = TriggerCondition(
-            "variable", {"variable_id": 10, "operator": "<", "value": 60}
-        )
+        cond = TriggerCondition("variable", {"variable_id": 10, "operator": "<", "value": 60})
         assert cond.evaluate(context) is True
 
         # Test <=
-        cond = TriggerCondition(
-            "variable", {"variable_id": 10, "operator": "<=", "value": 50}
-        )
+        cond = TriggerCondition("variable", {"variable_id": 10, "operator": "<=", "value": 50})
         assert cond.evaluate(context) is True
 
     def test_condition_serialization(self):
         """Test condition to_dict/from_dict"""
-        condition = TriggerCondition(
-            condition_type="proximity", parameters={"max_distance": 3}
-        )
+        condition = TriggerCondition(condition_type="proximity", parameters={"max_distance": 3})
 
         data = condition.to_dict()
         assert data["condition_type"] == "proximity"
@@ -198,9 +176,7 @@ class TestTriggerContext:
     def test_context_creation(self):
         """Test creating trigger context"""
         game_state = MockGameState()
-        context = TriggerContext(
-            game_state=game_state, player_position=(5, 10), player_direction=4
-        )
+        context = TriggerContext(game_state=game_state, player_position=(5, 10), player_direction=4)
 
         assert context.player_position == (5, 10)
         assert context.player_direction == 4
@@ -209,9 +185,7 @@ class TestTriggerContext:
     def test_event_position_cache(self):
         """Test event position caching"""
         game_state = MockGameState()
-        context = TriggerContext(
-            game_state=game_state, player_position=(0, 0), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(0, 0), player_direction=2)
 
         # Set and get event position
         context.set_event_position(1, (10, 15))
@@ -222,9 +196,7 @@ class TestTriggerContext:
     def test_distance_to_event(self):
         """Test distance calculation"""
         game_state = MockGameState()
-        context = TriggerContext(
-            game_state=game_state, player_position=(0, 0), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(0, 0), player_direction=2)
 
         # Test distance to (3, 4) - should be 5
         distance = context.distance_to_event((3, 4))
@@ -237,9 +209,7 @@ class TestTriggerContext:
     def test_is_adjacent_to(self):
         """Test adjacency check"""
         game_state = MockGameState()
-        context = TriggerContext(
-            game_state=game_state, player_position=(5, 5), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(5, 5), player_direction=2)
 
         # Adjacent positions (including diagonal)
         assert context.is_adjacent_to((5, 6)) is True  # Below
@@ -258,9 +228,7 @@ class TestTriggerContext:
         game_state = MockGameState()
 
         # Player at (5, 5) facing down (direction 2)
-        context = TriggerContext(
-            game_state=game_state, player_position=(5, 5), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(5, 5), player_direction=2)
         assert context.is_in_front_of((5, 6)) is True
         assert context.is_in_front_of((5, 4)) is False
 
@@ -358,9 +326,7 @@ class TestEventTriggerHandler:
         game_state = MockGameState()
 
         # Player not on tile
-        context = TriggerContext(
-            game_state=game_state, player_position=(5, 4), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(5, 4), player_direction=2)
         result = handler.check_trigger(context)
         assert result == TriggerResult.NOT_TRIGGERED
 
@@ -377,9 +343,7 @@ class TestEventTriggerHandler:
         handler = EventTriggerHandler(event=event, page=page)
 
         game_state = MockGameState()
-        context = TriggerContext(
-            game_state=game_state, player_position=(0, 0), player_direction=2
-        )
+        context = TriggerContext(game_state=game_state, player_position=(0, 0), player_direction=2)
 
         # Autorun always triggers if not active
         result = handler.check_trigger(context)

@@ -76,9 +76,7 @@ class TestEventCommand:
 
     def test_command_serialization(self):
         """Test command to_dict/from_dict"""
-        cmd = EventCommand(
-            command_type=CommandType.WAIT, parameters={"duration": 60}, indent=1
-        )
+        cmd = EventCommand(command_type=CommandType.WAIT, parameters={"duration": 60}, indent=1)
 
         data = cmd.to_dict()
         assert data["command_type"] == "WAIT"
@@ -125,9 +123,7 @@ class TestShowChoicesCommand:
 
     def test_creation(self):
         """Test creating show choices command"""
-        cmd = ShowChoicesCommand(
-            choices=["Yes", "No", "Maybe"], cancel_type=2, default_choice=0
-        )
+        cmd = ShowChoicesCommand(choices=["Yes", "No", "Maybe"], cancel_type=2, default_choice=0)
 
         assert cmd.command_type == CommandType.SHOW_CHOICES
         assert cmd.parameters["choices"] == ["Yes", "No", "Maybe"]

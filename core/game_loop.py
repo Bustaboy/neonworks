@@ -104,9 +104,7 @@ class GameEngine:
             # Update stats
             self.stats["frame_time"] = time.time() - frame_start
             self.stats["entity_count"] = len(self.world.get_entities())
-            self.stats["audio_playing"] = self.audio_manager.get_cache_info()[
-                "playing_sounds"
-            ]
+            self.stats["audio_playing"] = self.audio_manager.get_cache_info()["playing_sounds"]
 
             # Frame limiting
             frame_duration = time.time() - frame_start

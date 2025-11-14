@@ -98,9 +98,7 @@ class GameSerializer:
                 }
             )
         elif isinstance(component, ResourceStorage):
-            data.update(
-                {"resources": component.resources, "capacity": component.capacity}
-            )
+            data.update({"resources": component.resources, "capacity": component.capacity})
         elif isinstance(component, TurnActor):
             data.update(
                 {
@@ -115,8 +113,7 @@ class GameSerializer:
                 {
                     "walkable_cells": list(component.walkable_cells),
                     "cost_multipliers": {
-                        f"{x},{y}": cost
-                        for (x, y), cost in component.cost_multipliers.items()
+                        f"{x},{y}": cost for (x, y), cost in component.cost_multipliers.items()
                     },
                 }
             )

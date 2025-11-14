@@ -519,13 +519,13 @@ def update(delta_time):
         magic_menu.update(delta_time)
     else:
         exploration_hud.update(delta_time)
-    
+
     transition_manager.update(delta_time)
 
 def render(screen):
     # Render game world
     render_world(screen)
-    
+
     # Render appropriate UI
     if in_battle:
         battle_ui.render(screen)
@@ -533,7 +533,7 @@ def render(screen):
             magic_menu.render(screen)
     else:
         exploration_hud.render(screen)
-    
+
     # Render transitions on top
     transition_manager.render(screen)
 

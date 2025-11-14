@@ -20,9 +20,7 @@ class ProjectManagerUI:
     Visual project manager for creating, loading, and managing NeonWorks projects.
     """
 
-    def __init__(
-        self, screen: pygame.Surface, state_manager: Optional[StateManager] = None
-    ):
+    def __init__(self, screen: pygame.Surface, state_manager: Optional[StateManager] = None):
         self.screen = screen
         self.ui = UI(screen)
         self.state_manager = state_manager
@@ -94,9 +92,7 @@ class ProjectManagerUI:
         )
 
         # Close button
-        if self.ui.button(
-            "X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)):
             self.toggle()
 
         # View tabs
@@ -126,9 +122,7 @@ class ProjectManagerUI:
             is_active = tab == self.current_view
             tab_color = (50, 100, 200) if is_active else (25, 25, 40)
 
-            if self.ui.button(
-                tab.capitalize(), tab_x + 5, y, tab_width - 10, 40, color=tab_color
-            ):
+            if self.ui.button(tab.capitalize(), tab_x + 5, y, tab_width - 10, 40, color=tab_color):
                 self.current_view = tab
                 if tab == "scenes" or tab == "saves":
                     if not self.selected_project:
@@ -141,9 +135,7 @@ class ProjectManagerUI:
         self.ui.label("Your Projects", x + 20, y + 10, size=20, color=(200, 200, 255))
 
         # New project button
-        if self.ui.button(
-            "+ New Project", x + width - 180, y + 5, 160, 35, color=(0, 150, 0)
-        ):
+        if self.ui.button("+ New Project", x + width - 180, y + 5, 160, 35, color=(0, 150, 0)):
             self.creating_new_project = True
 
         list_y = y + 50
@@ -184,9 +176,7 @@ class ProjectManagerUI:
             pygame.draw.rect(self.screen, icon_color, (x + 30, current_y + 10, 50, 50))
 
             # Project name
-            self.ui.label(
-                project_name, x + 90, current_y + 10, size=20, color=(255, 255, 255)
-            )
+            self.ui.label(project_name, x + 90, current_y + 10, size=20, color=(255, 255, 255))
 
             # Project info
             project_path = project_data.get("path", "Unknown")
@@ -210,20 +200,14 @@ class ProjectManagerUI:
             # Action buttons
             button_x = x + width - 350
 
-            if self.ui.button(
-                "Open", button_x, current_y + 20, 80, 35, color=(0, 120, 0)
-            ):
+            if self.ui.button("Open", button_x, current_y + 20, 80, 35, color=(0, 120, 0)):
                 self.open_project(project_name)
 
-            if self.ui.button(
-                "Scenes", button_x + 90, current_y + 20, 80, 35, color=(0, 80, 150)
-            ):
+            if self.ui.button("Scenes", button_x + 90, current_y + 20, 80, 35, color=(0, 80, 150)):
                 self.selected_project = project_name
                 self.current_view = "scenes"
 
-            if self.ui.button(
-                "Delete", button_x + 180, current_y + 20, 80, 35, color=(150, 0, 0)
-            ):
+            if self.ui.button("Delete", button_x + 180, current_y + 20, 80, 35, color=(150, 0, 0)):
                 self.delete_project(project_name)
 
             # Click to select
@@ -297,9 +281,7 @@ class ProjectManagerUI:
         # Create and Cancel buttons
         button_y = dialog_y + dialog_height - 70
 
-        if self.ui.button(
-            "Create Project", dialog_x + 30, button_y, 200, 40, color=(0, 150, 0)
-        ):
+        if self.ui.button("Create Project", dialog_x + 30, button_y, 200, 40, color=(0, 150, 0)):
             self.create_project(self.new_project_name, self.new_project_template)
             self.creating_new_project = False
             self.new_project_name = ""
@@ -336,9 +318,7 @@ class ProjectManagerUI:
         )
 
         # New scene button
-        if self.ui.button(
-            "+ New Scene", x + width - 180, y + 5, 160, 35, color=(0, 150, 0)
-        ):
+        if self.ui.button("+ New Scene", x + width - 180, y + 5, 160, 35, color=(0, 150, 0)):
             self.create_scene()
 
         list_y = y + 50
@@ -367,9 +347,7 @@ class ProjectManagerUI:
             self.ui.panel(x + 20, current_y, width - 40, item_height, item_color)
 
             # Scene name
-            self.ui.label(
-                scene_name, x + 30, current_y + 20, size=18, color=(255, 255, 255)
-            )
+            self.ui.label(scene_name, x + 30, current_y + 20, size=18, color=(255, 255, 255))
 
             # Load button
             if self.ui.button(
@@ -432,9 +410,7 @@ class ProjectManagerUI:
             self.ui.panel(x + 20, current_y, width - 40, item_height, item_color)
 
             # Save name
-            self.ui.label(
-                save_name, x + 30, current_y + 10, size=18, color=(255, 255, 255)
-            )
+            self.ui.label(save_name, x + 30, current_y + 10, size=18, color=(255, 255, 255))
 
             # Save info
             timestamp = save_data.get("timestamp", "Unknown")
@@ -447,9 +423,7 @@ class ProjectManagerUI:
             )
 
             # Action buttons
-            if self.ui.button(
-                "Load", x + width - 250, current_y + 17, 100, 35, color=(0, 120, 0)
-            ):
+            if self.ui.button("Load", x + width - 250, current_y + 17, 100, 35, color=(0, 120, 0)):
                 self.load_save(save_name)
 
             if self.ui.button(
@@ -486,9 +460,7 @@ class ProjectManagerUI:
                                 {
                                     "name": project_data.get("name", project_dir.name),
                                     "path": str(project_dir),
-                                    "color": tuple(
-                                        project_data.get("color", [100, 150, 255])
-                                    ),
+                                    "color": tuple(project_data.get("color", [100, 150, 255])),
                                     "last_modified": project_dir.stat().st_mtime,
                                 }
                             )

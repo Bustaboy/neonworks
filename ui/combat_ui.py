@@ -106,9 +106,7 @@ class CombatUI:
         panel_x = center_x - panel_width // 2
 
         self.ui.panel(panel_x, y, panel_width, panel_height, (0, 0, 0, 200))
-        self.ui.title(
-            "Initiative Order", panel_x + panel_width // 2 - 70, y + 5, size=18
-        )
+        self.ui.title("Initiative Order", panel_x + panel_width // 2 - 70, y + 5, size=18)
 
         # Display turn order
         slot_y = y + 35
@@ -139,9 +137,7 @@ class CombatUI:
             health = self.world.get_component(entity_id, Health)
 
             # Entity ID
-            self.ui.label(
-                f"#{entity_id}", slot_x + 5, slot_y + 5, size=14, color=(255, 255, 255)
-            )
+            self.ui.label(f"#{entity_id}", slot_x + 5, slot_y + 5, size=14, color=(255, 255, 255))
 
             # Initiative
             if turn_actor:
@@ -162,9 +158,7 @@ class CombatUI:
                 bar_y = slot_y + slot_height - bar_height - 5
 
                 # Background
-                pygame.draw.rect(
-                    self.screen, (60, 0, 0), (bar_x, bar_y, bar_width, bar_height)
-                )
+                pygame.draw.rect(self.screen, (60, 0, 0), (bar_x, bar_y, bar_width, bar_height))
                 # Health
                 pygame.draw.rect(
                     self.screen,
@@ -254,9 +248,7 @@ class CombatUI:
                     self.select_ability(ability_id)
 
             # Cost
-            cost_text = (
-                f"{ability_data['cost']} AP" if ability_data["cost"] > 0 else "Free"
-            )
+            cost_text = f"{ability_data['cost']} AP" if ability_data["cost"] > 0 else "Free"
             self.ui.label(
                 cost_text,
                 button_x + 5,
@@ -267,9 +259,7 @@ class CombatUI:
 
         # End turn button
         end_turn_x = panel_x + panel_width - 100
-        if self.ui.button(
-            "End Turn", end_turn_x, button_y, 90, button_height, color=(200, 50, 50)
-        ):
+        if self.ui.button("End Turn", end_turn_x, button_y, 90, button_height, color=(200, 50, 50)):
             self.end_turn()
 
     def _render_combat_log(self, x: int, y: int):

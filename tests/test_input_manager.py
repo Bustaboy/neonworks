@@ -138,9 +138,7 @@ class TestMouseInput:
                 input_manager.update(0.016)
 
                 assert input_manager.is_mouse_button_pressed(MouseButton.LEFT.value)
-                assert not input_manager.is_mouse_button_pressed(
-                    MouseButton.RIGHT.value
-                )
+                assert not input_manager.is_mouse_button_pressed(MouseButton.RIGHT.value)
 
     def test_mouse_button_just_pressed(self, input_manager):
         """Test detecting mouse button just pressed"""
@@ -153,9 +151,7 @@ class TestMouseInput:
             with patch("pygame.mouse.get_pressed", return_value=(True, False, False)):
                 input_manager.update(0.016)
 
-                assert input_manager.is_mouse_button_just_pressed(
-                    MouseButton.LEFT.value
-                )
+                assert input_manager.is_mouse_button_just_pressed(MouseButton.LEFT.value)
 
     def test_mouse_wheel(self, input_manager):
         """Test mouse wheel input"""
@@ -387,9 +383,7 @@ class TestTextInput:
         assert input_manager.get_text_input() == "test"
 
         # Press backspace
-        event = Mock(
-            type=pygame.KEYDOWN, key=pygame.K_BACKSPACE, scancode=0, unicode=""
-        )
+        event = Mock(type=pygame.KEYDOWN, key=pygame.K_BACKSPACE, scancode=0, unicode="")
         input_manager.process_event(event)
 
         assert input_manager.get_text_input() == "tes"

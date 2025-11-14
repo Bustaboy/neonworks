@@ -11,11 +11,11 @@ pytest-xdist==3.5.0  # For parallel test execution
 pytest-timeout==2.2.0
 
 # Code Quality
-flake8==6.1.0
-black==23.12.1
+flake8==7.3.0
+black==25.11.0
 mypy==1.7.1
-pylint==3.0.3
-isort==5.13.2
+pylint==4.0.3
+isort==7.0.0
 
 # Test Coverage
 coverage==7.3.4

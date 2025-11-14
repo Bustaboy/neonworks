@@ -214,9 +214,7 @@ class SpellList(Component):
     learned_spells: List[str] = field(default_factory=list)  # List of spell IDs
 
     # Spell cooldowns (for abilities with cooldowns)
-    cooldowns: Dict[str, int] = field(
-        default_factory=dict
-    )  # spell_id -> turns remaining
+    cooldowns: Dict[str, int] = field(default_factory=dict)  # spell_id -> turns remaining
 
     def knows_spell(self, spell_id: str) -> bool:
         """Check if spell is learned"""
@@ -334,9 +332,7 @@ class BattleRewards(Component):
 
     experience: int = 10
     gold: int = 5
-    items: List[Dict[str, Any]] = field(
-        default_factory=list
-    )  # item_id, chance, quantity
+    items: List[Dict[str, Any]] = field(default_factory=list)  # item_id, chance, quantity
 
     # Special drops
     steal_items: List[Dict[str, Any]] = field(default_factory=list)
@@ -362,9 +358,7 @@ class BossPhase(Component):
     phase_triggers: List[float] = field(default_factory=list)  # HP percentages
 
     # Callbacks
-    on_phase_change: Optional[Callable[[int, int], None]] = (
-        None  # (old_phase, new_phase)
-    )
+    on_phase_change: Optional[Callable[[int, int], None]] = None  # (old_phase, new_phase)
 
     def should_advance_phase(self, hp_percentage: float) -> bool:
         """Check if should advance to next phase"""

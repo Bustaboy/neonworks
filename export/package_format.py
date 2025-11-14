@@ -114,9 +114,7 @@ class PackageHeader(NamedTuple):
     def unpack(cls, data: bytes) -> "PackageHeader":
         """Unpack header from bytes"""
         if len(data) < HEADER_SIZE:
-            raise ValueError(
-                f"Invalid header size: {len(data)} (expected {HEADER_SIZE})"
-            )
+            raise ValueError(f"Invalid header size: {len(data)} (expected {HEADER_SIZE})")
 
         values = struct.unpack("<4sHHIQQBB34x", data[:HEADER_SIZE])
 

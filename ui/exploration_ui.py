@@ -144,9 +144,7 @@ class DialogueBox(UIWidget):
         # Draw portrait (if available)
         portrait_x = self.x + 10
         if self.portrait_surface:
-            portrait_rect = self.portrait_surface.get_rect(
-                topleft=(portrait_x, self.y + 10)
-            )
+            portrait_rect = self.portrait_surface.get_rect(topleft=(portrait_x, self.y + 10))
             screen.blit(self.portrait_surface, portrait_rect)
             text_x = portrait_x + self.portrait_size + 20
         else:
@@ -178,9 +176,7 @@ class DialogueBox(UIWidget):
         if self.is_text_complete:
             indicator_text = "▼"
             indicator_font = pygame.font.Font(None, 28)
-            indicator_surface = indicator_font.render(
-                indicator_text, True, self.text_color
-            )
+            indicator_surface = indicator_font.render(indicator_text, True, self.text_color)
             indicator_rect = indicator_surface.get_rect(
                 bottomright=(self.x + self.width - 20, self.y + self.height - 10)
             )
@@ -295,9 +291,7 @@ class ExplorationHUD(UIWidget):
         super().__init__(0, 0, screen_width, screen_height)
 
         # Components
-        self.dialogue_box = DialogueBox(
-            50, screen_height - 180, screen_width - 100, 150
-        )
+        self.dialogue_box = DialogueBox(50, screen_height - 180, screen_width - 100, 150)
 
         self.interaction_prompt = InteractionPrompt(
             screen_width // 2 - 100, screen_height // 2 + 50
