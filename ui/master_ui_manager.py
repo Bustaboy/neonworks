@@ -13,6 +13,7 @@ from ..core.state import StateManager
 from ..engine.ui.event_editor_ui import EventEditorUI
 from ..input.input_manager import InputManager
 from .asset_browser_ui import AssetBrowserUI
+from .autotile_editor_ui import AutotileEditorUI
 from .building_ui import BuildingUI
 from .combat_ui import CombatUI
 from .debug_console_ui import DebugConsoleUI
@@ -56,6 +57,7 @@ class MasterUIManager:
         self.debug_console = DebugConsoleUI(screen, world)
         self.quest_editor = QuestEditorUI(screen)
         self.asset_browser = AssetBrowserUI(screen)
+        self.autotile_editor = AutotileEditorUI(screen)
 
         # Connect level builder to event editor for event management
         self.level_builder.event_editor = self.event_editor
@@ -75,7 +77,8 @@ class MasterUIManager:
             pygame.K_F8: self.toggle_project_manager,
             pygame.K_F9: self.toggle_combat_ui,
             pygame.K_F10: self.toggle_game_hud,
-            pygame.K_F11: self.toggle_navmesh_editor,
+            pygame.K_F11: self.toggle_autotile_editor,
+            pygame.K_F12: self.toggle_navmesh_editor,
         }
 
     def render(self, fps: float = 60.0, camera_offset: tuple = (0, 0)):
@@ -122,6 +125,10 @@ class MasterUIManager:
         if self.settings_ui.visible:
             self.settings_ui.render()
 
+        # Render autotile editor if visible
+        if self.autotile_editor.visible:
+            self.autotile_editor.render(self.screen)
+
         # Always render debug console last (on top of everything)
         if self.debug_console.visible:
             self.debug_console.render(fps)
@@ -157,6 +164,11 @@ class MasterUIManager:
             if self.asset_browser.visible:
                 self.asset_browser.handle_text_input(event.text)
                 return True
+
+        # Route events to autotile editor if visible
+        if self.autotile_editor.visible:
+            self.autotile_editor.handle_event(event)
+            return True
 
         # Handle mouse clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -201,6 +213,10 @@ class MasterUIManager:
             grid_y = (mouse_pos[1] - camera_offset[1]) // self.navmesh_editor.tile_size
             self.navmesh_editor.continue_painting(grid_x, grid_y)
 
+        # Update autotile editor
+        if self.autotile_editor.visible:
+            self.autotile_editor.update(dt)
+
     # Toggle methods for each UI system
 
     def toggle_game_hud(self):
@@ -222,6 +238,10 @@ class MasterUIManager:
     def toggle_navmesh_editor(self):
         """Toggle navmesh editor."""
         self.navmesh_editor.toggle()
+
+    def toggle_autotile_editor(self):
+        """Toggle autotile editor."""
+        self.autotile_editor.toggle()
 
     def toggle_quest_editor(self):
         """Toggle quest editor."""
@@ -302,7 +322,8 @@ class MasterUIManager:
         help_text += "F8 - Project Manager\n"
         help_text += "F9 - Combat UI\n"
         help_text += "F10 - Toggle HUD\n"
-        help_text += "F11 - Navmesh Editor\n"
+        help_text += "F11 - Autotile Editor\n"
+        help_text += "F12 - Navmesh Editor\n"
         return help_text
 
     def save_ui_state(self) -> Dict[str, Any]:

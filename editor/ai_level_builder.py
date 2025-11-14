@@ -3,6 +3,11 @@ AI-Assisted Level Building
 
 Intelligent level design assistance with smart placement suggestions,
 balance analysis, and automated layout generation.
+
+The AI can now leverage autotile systems for intelligent terrain generation:
+- Automatically generate seamless water bodies
+- Create natural-looking terrain transitions
+- Paint walls and cliffs with proper corner matching
 """
 
 import random
@@ -342,6 +347,95 @@ class AILevelBuilder:
         print(f"   Map Density: {occupied_percentage:.1f}%")
 
         return analysis
+
+    def generate_autotile_terrain(
+        self,
+        autotile_manager,
+        autotile_set,
+        layer,
+        terrain_type: str = "water",
+        coverage: float = 0.2,
+    ):
+        """
+        Generate natural terrain using autotiles.
+
+        This AI-assisted method creates organic-looking terrain features
+        using the autotile system for seamless transitions.
+
+        Args:
+            autotile_manager: AutotileManager instance
+            autotile_set: AutotileSet to use for terrain
+            layer: TileLayer to paint on
+            terrain_type: Type of terrain ("water", "cliff", "wall")
+            coverage: Percentage of map to cover (0.0 to 1.0)
+
+        Example:
+            >>> from neonworks.rendering.autotiles import get_autotile_manager
+            >>> manager = get_autotile_manager()
+            >>> water_set = manager.get_autotile_set("Water")
+            >>> ai.generate_autotile_terrain(manager, water_set, layer, "water", 0.15)
+        """
+        print(f"🤖 AI: Generating {terrain_type} terrain with {coverage*100:.0f}% coverage...")
+
+        target_tiles = int(self.grid_width * self.grid_height * coverage)
+
+        if terrain_type == "water":
+            # Generate organic water bodies
+            num_bodies = random.randint(1, 3)
+            tiles_per_body = target_tiles // num_bodies
+
+            for _ in range(num_bodies):
+                # Random center point
+                center_x = random.randint(5, self.grid_width - 5)
+                center_y = random.randint(5, self.grid_height - 5)
+
+                # Expand from center using flood fill-like pattern
+                painted = 0
+                queue = [(center_x, center_y)]
+                visited = set()
+
+                while queue and painted < tiles_per_body:
+                    x, y = queue.pop(0)
+                    if (x, y) in visited:
+                        continue
+                    visited.add((x, y))
+
+                    if not (0 <= x < self.grid_width and 0 <= y < self.grid_height):
+                        continue
+
+                    # Paint with autotile
+                    autotile_manager.paint_autotile(layer, x, y, autotile_set)
+                    painted += 1
+
+                    # Randomly expand to neighbors
+                    for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
+                        if random.random() < 0.6:  # 60% chance to expand
+                            queue.append((x + dx, y + dy))
+
+        elif terrain_type in ["wall", "cliff"]:
+            # Generate perimeter or scattered walls/cliffs
+            for _ in range(target_tiles):
+                # Prefer edges for walls
+                if random.random() < 0.7:
+                    # Edge placement
+                    edge = random.choice(["top", "bottom", "left", "right"])
+                    if edge == "top":
+                        x, y = random.randint(0, self.grid_width - 1), 0
+                    elif edge == "bottom":
+                        x, y = random.randint(0, self.grid_width - 1), self.grid_height - 1
+                    elif edge == "left":
+                        x, y = 0, random.randint(0, self.grid_height - 1)
+                    else:  # right
+                        x, y = self.grid_width - 1, random.randint(0, self.grid_height - 1)
+                else:
+                    # Random interior placement
+                    x = random.randint(0, self.grid_width - 1)
+                    y = random.randint(0, self.grid_height - 1)
+
+                autotile_manager.paint_autotile(layer, x, y, autotile_set)
+
+        print(f"   ✅ Generated {terrain_type} terrain with autotiles!")
+        print(f"   💡 Tiles auto-matched for seamless appearance")
 
     def _divide_into_regions(self, num_regions: int) -> List[Tuple[int, int, int, int]]:
         """Divide map into regions (x1, y1, x2, y2)"""
