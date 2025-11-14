@@ -18,8 +18,8 @@ class MasterUIManager:
 
     Keyboard Shortcuts:
     - F5: Open/Close Event Editor
-    - F6: Open/Close Level Builder
-    - F7: Open/Close Database Editor
+    - F6: Open/Close Database Editor
+    - F7: Open/Close Level Builder
     - ESC: Close active UI
     """
 
@@ -29,7 +29,7 @@ class MasterUIManager:
         # UI Components
         self.event_editor: Optional[EventEditorUI] = None
         self.level_builder = None  # Will be created later
-        self.database_editor = None  # Future feature
+        self.database_editor = None  # Will be lazy-loaded
 
         # Active UI tracking
         self.active_ui: Optional[str] = None
@@ -42,6 +42,7 @@ class MasterUIManager:
         # Event Editor
         self.event_editor = EventEditorUI(self.screen)
 
+        # Database Editor will be lazy-loaded when needed
         # Level Builder will be created when needed
         # self.level_builder = LevelBuilderUI(self.screen)
 
@@ -61,10 +62,10 @@ class MasterUIManager:
                 self.toggle_event_editor()
                 return True
             elif event.key == pygame.K_F6:
-                self.toggle_level_builder()
+                self.toggle_database_editor()
                 return True
             elif event.key == pygame.K_F7:
-                self.toggle_database_editor()
+                self.toggle_level_builder()
                 return True
             elif event.key == pygame.K_ESCAPE:
                 if self.active_ui:
@@ -180,11 +181,24 @@ class MasterUIManager:
 
     def open_database_editor(self):
         """Open the database editor."""
-        # Future feature
-        print("⚠ Database Editor not yet implemented (coming soon!)")
+        # Lazy load database editor
+        if not self.database_editor:
+            try:
+                from neonworks.engine.ui.database_editor_ui import DatabaseEditorUI
+
+                self.database_editor = DatabaseEditorUI(self.screen)
+            except ImportError as e:
+                print(f"⚠ Database Editor failed to load: {e}")
+                return
+
+        self.database_editor.visible = True
+        self.active_ui = "database_editor"
+        print("🗄 Database Editor opened (F6 to close)")
 
     def close_database_editor(self):
         """Close the database editor."""
+        if self.database_editor:
+            self.database_editor.visible = False
         self.active_ui = None
         print("✓ Database Editor closed")
 
@@ -216,8 +230,8 @@ class MasterUIManager:
 ║          NEONWORKS EDITOR - KEYBOARD SHORTCUTS    ║
 ╠═══════════════════════════════════════════════════╣
 ║  F5  - Event Editor (Create/Edit game events)    ║
-║  F6  - Level Builder (Create/Edit maps)          ║
-║  F7  - Database Editor (Manage game data)        ║
+║  F6  - Database Editor (Manage game data)        ║
+║  F7  - Level Builder (Create/Edit maps)          ║
 ║  ESC - Close active editor                       ║
 ╚═══════════════════════════════════════════════════╝
         """

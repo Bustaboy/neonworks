@@ -10,7 +10,7 @@ Run with: python engine/data/example_database.py
 
 from pathlib import Path
 
-from engine.data.database_schema import (
+from neonworks.engine.data.database_schema import (
     Actor,
     Animation,
     Armor,

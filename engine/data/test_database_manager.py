@@ -11,14 +11,14 @@ or: python engine/data/test_database_manager.py
 import tempfile
 from pathlib import Path
 
-from engine.data.database_manager import (
+from neonworks.engine.data.database_manager import (
     DatabaseError,
     DatabaseManager,
     DuplicateIDError,
     EntryNotFoundError,
     ValidationError,
 )
-from engine.data.database_schema import (
+from neonworks.engine.data.database_schema import (
     Effect,
     EffectType,
     Item,

@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from engine.data.database_schema import (
+from neonworks.engine.data.database_schema import (
     Actor,
     Animation,
     Armor,
