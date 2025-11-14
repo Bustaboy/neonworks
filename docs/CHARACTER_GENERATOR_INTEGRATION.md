@@ -188,25 +188,56 @@ The bio generator analyzes character appearance and creates contextually appropr
 3. Save changes (marked as manual override)
 4. Original still preserved in history
 
-**Importance Change Protection:**
+**Data Loss Prevention System:**
 
-When you attempt to change a character's importance level after a bio has been generated, a confirmation dialog appears:
+The character generator includes comprehensive protections against accidental data loss:
 
+**1. Bio Regeneration Protection:**
+When changing a character's importance level after a bio exists:
 ```
 Bio Regeneration Required
-
-Changing importance from NPC to MAIN
-will require regenerating the bio to match the new role.
-
+Changing importance from NPC to MAIN will require regenerating the bio.
 This will overwrite your current bio.
-Do you want to proceed?
-
 [Yes, Regenerate]  [No, Keep Bio]
 ```
 
-- **Yes, Regenerate**: Changes importance and generates new bio
-- **No, Keep Bio**: Cancels importance change, preserves current bio
-- This prevents accidental data loss from user edits
+**2. Load Preset Protection:**
+When loading a preset while you have unsaved work:
+```
+Load Preset Warning
+You have unsaved changes.
+Loading 'Warrior.json' will replace your current character.
+[Load Anyway]  [Cancel]
+```
+
+**3. Randomize Protection:**
+When randomizing with existing character data:
+```
+Randomize Warning
+You have unsaved changes.
+Randomizing will replace your current character.
+[Randomize]  [Cancel]
+```
+
+**4. Clear All Protection:**
+When clearing character with existing layers:
+```
+Clear All Warning
+This will remove all layers and data.
+This action cannot be undone.
+[Clear All]  [Cancel]
+```
+
+**5. Component Replacement Warning:**
+When adding a component to a layer that already has one:
+```
+Replace Component?
+Layer TORSO already has: 'leather_vest'
+Replace with 'plate_armor'?
+[Replace]  [Cancel]
+```
+
+All destructive operations require explicit confirmation, preventing accidental data loss.
 
 **Manual Bio Regeneration:**
 

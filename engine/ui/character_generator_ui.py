@@ -121,6 +121,18 @@ class CharacterGeneratorUI:
         self.show_regen_confirmation = False
         self.pending_importance_change = None
 
+        # Unsaved changes tracking
+        self.has_unsaved_changes = False
+        self.last_saved_state = None  # Snapshot of character when last saved
+
+        # Confirmation dialogs for destructive operations
+        self.show_load_preset_confirmation = False
+        self.pending_preset_load = None
+        self.show_randomize_confirmation = False
+        self.show_clear_confirmation = False
+        self.show_component_replace_confirmation = False
+        self.pending_component_add = None
+
         # Fonts
         pygame.font.init()
         self.font = pygame.font.Font(None, 20)
@@ -300,6 +312,67 @@ class CharacterGeneratorUI:
         # Color picker overlay (if active)
         if self.show_color_picker:
             self._render_color_picker(screen_width // 2 - 200, screen_height // 2 - 250, 400, 500)
+
+        # Confirmation dialogs (rendered on top of everything)
+        if self.show_load_preset_confirmation:
+            self._render_confirmation_dialog(
+                "Load Preset Warning",
+                [
+                    "You have unsaved changes.",
+                    f"Loading '{self.pending_preset_load.name if self.pending_preset_load else 'preset'}' will replace your current character.",
+                    "",
+                    "Do you want to proceed?"
+                ],
+                "Load Anyway",
+                "Cancel",
+                "_btn_confirm_load_yes",
+                "_btn_confirm_load_no",
+            )
+
+        if self.show_randomize_confirmation:
+            self._render_confirmation_dialog(
+                "Randomize Warning",
+                [
+                    "You have unsaved changes.",
+                    "Randomizing will replace your current character.",
+                    "",
+                    "Do you want to proceed?"
+                ],
+                "Randomize",
+                "Cancel",
+                "_btn_confirm_randomize_yes",
+                "_btn_confirm_randomize_no",
+            )
+
+        if self.show_clear_confirmation:
+            self._render_confirmation_dialog(
+                "Clear All Warning",
+                [
+                    "This will remove all layers and data.",
+                    "This action cannot be undone.",
+                    "",
+                    "Do you want to proceed?"
+                ],
+                "Clear All",
+                "Cancel",
+                "_btn_confirm_clear_yes",
+                "_btn_confirm_clear_no",
+            )
+
+        if self.show_component_replace_confirmation and self.pending_component_add:
+            self._render_confirmation_dialog(
+                "Replace Component?",
+                [
+                    f"Layer {self.pending_component_add['layer_type'].name} already has:",
+                    f"'{self.pending_component_add['existing_id']}'",
+                    "",
+                    f"Replace with '{self.pending_component_add['component_id']}'?"
+                ],
+                "Replace",
+                "Cancel",
+                "_btn_confirm_replace_yes",
+                "_btn_confirm_replace_no",
+            )
 
     def _render_category_tabs(self, x: int, y: int, width: int, height: int):
         """Render left panel with component category tabs."""
@@ -959,6 +1032,69 @@ class CharacterGeneratorUI:
                     print("✓ Importance change cancelled - bio preserved")
                     return True
 
+        # Load Preset confirmation
+        if self.show_load_preset_confirmation:
+            if hasattr(self, '_btn_confirm_load_yes'):
+                rect = getattr(self, '_btn_confirm_load_yes')
+                if rect.collidepoint(mouse_pos):
+                    self._do_load_preset(self.pending_preset_load)
+                    return True
+
+            if hasattr(self, '_btn_confirm_load_no'):
+                rect = getattr(self, '_btn_confirm_load_no')
+                if rect.collidepoint(mouse_pos):
+                    self.show_load_preset_confirmation = False
+                    self.pending_preset_load = None
+                    print("✓ Load cancelled - current character preserved")
+                    return True
+
+        # Randomize confirmation
+        if self.show_randomize_confirmation:
+            if hasattr(self, '_btn_confirm_randomize_yes'):
+                rect = getattr(self, '_btn_confirm_randomize_yes')
+                if rect.collidepoint(mouse_pos):
+                    self._do_randomize()
+                    self.show_randomize_confirmation = False
+                    return True
+
+            if hasattr(self, '_btn_confirm_randomize_no'):
+                rect = getattr(self, '_btn_confirm_randomize_no')
+                if rect.collidepoint(mouse_pos):
+                    self.show_randomize_confirmation = False
+                    print("✓ Randomize cancelled - current character preserved")
+                    return True
+
+        # Clear All confirmation
+        if self.show_clear_confirmation:
+            if hasattr(self, '_btn_confirm_clear_yes'):
+                rect = getattr(self, '_btn_confirm_clear_yes')
+                if rect.collidepoint(mouse_pos):
+                    self._do_clear_all()
+                    return True
+
+            if hasattr(self, '_btn_confirm_clear_no'):
+                rect = getattr(self, '_btn_confirm_clear_no')
+                if rect.collidepoint(mouse_pos):
+                    self.show_clear_confirmation = False
+                    print("✓ Clear cancelled - current character preserved")
+                    return True
+
+        # Component Replace confirmation
+        if self.show_component_replace_confirmation:
+            if hasattr(self, '_btn_confirm_replace_yes'):
+                rect = getattr(self, '_btn_confirm_replace_yes')
+                if rect.collidepoint(mouse_pos):
+                    self._replace_component()
+                    return True
+
+            if hasattr(self, '_btn_confirm_replace_no'):
+                rect = getattr(self, '_btn_confirm_replace_no')
+                if rect.collidepoint(mouse_pos):
+                    self.show_component_replace_confirmation = False
+                    self.pending_component_add = None
+                    print("✓ Component replacement cancelled")
+                    return True
+
         # Bottom control buttons
         if hasattr(self, '_btn_add_component'):
             if getattr(self, '_btn_add_component').collidepoint(mouse_pos):
@@ -977,8 +1113,7 @@ class CharacterGeneratorUI:
 
         if hasattr(self, '_btn_clear_all'):
             if getattr(self, '_btn_clear_all').collidepoint(mouse_pos):
-                self.current_preset = CharacterPreset(name="New Character")
-                self._regenerate_preview()
+                self._clear_all()
                 return True
 
         if hasattr(self, '_btn_save_preset'):
@@ -1040,6 +1175,7 @@ class CharacterGeneratorUI:
                 rect = getattr(self, delete_attr)
                 if rect.collidepoint(mouse_pos):
                     self.current_preset.layers.pop(i)
+                    self._mark_unsaved_changes()
                     self._regenerate_preview()
                     return True
 
@@ -1089,6 +1225,32 @@ class CharacterGeneratorUI:
             print("⚠ No component selected")
             return
 
+        # Check if layer already has a component (replacement warning)
+        existing_layer = next(
+            (l for l in self.current_preset.layers if l.layer_type == self.selected_category),
+            None
+        )
+
+        if existing_layer:
+            # Show confirmation for component replacement
+            self.show_component_replace_confirmation = True
+            self.pending_component_add = {
+                "component_id": self.selected_component_id,
+                "layer_type": self.selected_category,
+                "existing_id": existing_layer.component_id,
+            }
+            print(f"⚠ Layer {self.selected_category.name} already has {existing_layer.component_id}")
+            print("  Confirm replacement in UI")
+            return
+
+        # No existing component, safe to add
+        self._do_add_component()
+
+    def _do_add_component(self):
+        """Actually add the component (after confirmation if needed)."""
+        if not self.selected_component_id:
+            return
+
         # Create layer
         layer = ComponentLayer(
             layer_type=self.selected_category,
@@ -1098,13 +1260,54 @@ class CharacterGeneratorUI:
 
         self.current_preset.add_layer(layer)
         self._regenerate_preview()
+        self._mark_unsaved_changes()
         print(f"✓ Added {self.selected_component_id} to character")
 
+    def _replace_component(self):
+        """Replace existing component with pending one."""
+        if not self.pending_component_add:
+            return
+
+        # Remove existing layer
+        self.current_preset.layers = [
+            l for l in self.current_preset.layers
+            if l.layer_type != self.pending_component_add["layer_type"]
+        ]
+
+        # Add new layer
+        layer = ComponentLayer(
+            layer_type=self.pending_component_add["layer_type"],
+            component_id=self.pending_component_add["component_id"],
+            enabled=True,
+        )
+
+        self.current_preset.add_layer(layer)
+        self._regenerate_preview()
+        self._mark_unsaved_changes()
+        print(f"✓ Replaced {self.pending_component_add['existing_id']} with {self.pending_component_add['component_id']}")
+
+        # Clean up
+        self.pending_component_add = None
+        self.show_component_replace_confirmation = False
+
     def _randomize_character(self):
-        """Generate a random character."""
+        """Generate a random character (with confirmation if needed)."""
+        # Check for unsaved changes
+        if self._has_content():
+            self.show_randomize_confirmation = True
+            print("⚠ Character has content - confirm randomization in UI")
+            return
+
+        # No content, safe to randomize
+        self._do_randomize()
+
+    def _do_randomize(self):
+        """Actually randomize the character."""
         try:
             self.current_preset = self.generator.randomize_character()
             self._regenerate_preview()
+            self.has_unsaved_changes = False  # Fresh start
+            self.generated_bio = None  # Clear bio
             print("✓ Generated random character")
         except Exception as e:
             print(f"⚠ Failed to randomize: {e}")
@@ -1178,27 +1381,73 @@ class CharacterGeneratorUI:
 
             preset_path = preset_dir / f"{self.current_preset.name}.json"
             self.generator.save_preset(self.current_preset, str(preset_path))
+
+            # Mark as saved
+            self.has_unsaved_changes = False
+            self.last_saved_state = len(self.current_preset.layers)  # Simple snapshot
+
             print(f"✓ Saved preset to {preset_path}")
         except Exception as e:
             print(f"⚠ Failed to save preset: {e}")
 
     def _load_preset(self):
-        """Load preset from file (simplified - loads first found)."""
+        """Load preset from file (with confirmation if needed)."""
+        # Check for unsaved changes
+        if self._has_content():
+            # Store the preset path for after confirmation
+            try:
+                preset_dir = Path("presets/characters")
+                if not preset_dir.exists():
+                    print("⚠ No presets directory found")
+                    return
+
+                presets = list(preset_dir.glob("*.json"))
+                if not presets:
+                    print("⚠ No presets found")
+                    return
+
+                # For now, load first preset (can be enhanced with file picker)
+                self.pending_preset_load = presets[0]
+                self.show_load_preset_confirmation = True
+                print(f"⚠ Loading {presets[0].name} will replace current character")
+                print("  Confirm in UI")
+                return
+            except Exception as e:
+                print(f"⚠ Failed to check presets: {e}")
+                return
+
+        # No content, safe to load
+        self._do_load_preset()
+
+    def _do_load_preset(self, preset_path: Optional[Path] = None):
+        """Actually load the preset."""
         try:
-            preset_dir = Path("presets/characters")
-            if not preset_dir.exists():
-                print("⚠ No presets directory found")
-                return
+            if preset_path is None:
+                preset_dir = Path("presets/characters")
+                if not preset_dir.exists():
+                    print("⚠ No presets directory found")
+                    return
 
-            presets = list(preset_dir.glob("*.json"))
-            if not presets:
-                print("⚠ No presets found")
-                return
+                presets = list(preset_dir.glob("*.json"))
+                if not presets:
+                    print("⚠ No presets found")
+                    return
 
-            # Load first preset (could be enhanced with file picker)
-            preset_path = presets[0]
+                preset_path = presets[0]
+
+            # Load preset
             self.current_preset = self.generator.load_preset(str(preset_path))
             self._regenerate_preview()
+
+            # Mark as saved and clear bio
+            self.has_unsaved_changes = False
+            self.last_saved_state = len(self.current_preset.layers)
+            self.generated_bio = None
+
+            # Clean up confirmation state
+            self.pending_preset_load = None
+            self.show_load_preset_confirmation = False
+
             print(f"✓ Loaded preset from {preset_path}")
         except Exception as e:
             print(f"⚠ Failed to load preset: {e}")
@@ -1634,3 +1883,101 @@ class CharacterGeneratorUI:
         no_text_rect = no_text.get_rect(center=no_rect.center)
         self.screen.blit(no_text, no_text_rect)
         self._btn_confirm_regen_no = no_rect
+
+    # === Data Loss Prevention Methods ===
+
+    def _has_content(self) -> bool:
+        """Check if character has any content that would be lost."""
+        return len(self.current_preset.layers) > 0 or self.generated_bio is not None
+
+    def _mark_unsaved_changes(self):
+        """Mark that the character has unsaved changes."""
+        self.has_unsaved_changes = True
+
+    def _clear_all(self):
+        """Clear all character data (with confirmation)."""
+        if self._has_content():
+            self.show_clear_confirmation = True
+            print("⚠ Character has content - confirm clear in UI")
+            return
+
+        # No content, safe to clear
+        self._do_clear_all()
+
+    def _do_clear_all(self):
+        """Actually clear the character."""
+        self.current_preset = CharacterPreset(name="New Character")
+        self.generated_bio = None
+        self.has_unsaved_changes = False
+        self.last_saved_state = None
+        self._regenerate_preview()
+        self.show_clear_confirmation = False
+        print("✓ Character cleared")
+
+    # === Confirmation Dialog Renderers ===
+
+    def _render_confirmation_dialog(
+        self,
+        title: str,
+        messages: List[str],
+        yes_text: str = "Yes",
+        no_text: str = "No",
+        yes_attr: str = "_btn_confirm_yes",
+        no_attr: str = "_btn_confirm_no",
+    ):
+        """Render a generic confirmation dialog."""
+        # Semi-transparent overlay
+        overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.screen.blit(overlay, (0, 0))
+
+        # Dialog box
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+        dialog_width = 500
+        dialog_height = 200 + (len(messages) * 20)
+        dialog_x = (screen_width - dialog_width) // 2
+        dialog_y = (screen_height - dialog_height) // 2
+
+        # Background
+        pygame.draw.rect(self.screen, (40, 40, 50), (dialog_x, dialog_y, dialog_width, dialog_height), border_radius=8)
+        pygame.draw.rect(self.screen, (100, 100, 120), (dialog_x, dialog_y, dialog_width, dialog_height), 2, border_radius=8)
+
+        # Title
+        title_text = self.title_font.render(title, True, (255, 200, 100))
+        title_rect = title_text.get_rect(center=(dialog_x + dialog_width // 2, dialog_y + 30))
+        self.screen.blit(title_text, title_rect)
+
+        # Messages
+        message_y = dialog_y + 65
+        for message in messages:
+            text = self.small_font.render(message, True, (220, 220, 220))
+            text_rect = text.get_rect(center=(dialog_x + dialog_width // 2, message_y))
+            self.screen.blit(text, text_rect)
+            message_y += 22
+
+        # Buttons
+        button_y = dialog_y + dialog_height - 50
+        button_width = 120
+        button_height = 35
+        button_spacing = 20
+
+        # Yes button
+        yes_x = dialog_x + (dialog_width // 2) - button_width - (button_spacing // 2)
+        yes_rect = pygame.Rect(yes_x, button_y, button_width, button_height)
+        pygame.draw.rect(self.screen, (180, 100, 100), yes_rect, border_radius=5)
+        pygame.draw.rect(self.screen, (220, 150, 150), yes_rect, 2, border_radius=5)
+        yes_btn_text = self.font.render(yes_text, True, (255, 255, 255))
+        yes_text_rect = yes_btn_text.get_rect(center=yes_rect.center)
+        self.screen.blit(yes_btn_text, yes_text_rect)
+        setattr(self, yes_attr, yes_rect)
+
+        # No button
+        no_x = dialog_x + (dialog_width // 2) + (button_spacing // 2)
+        no_rect = pygame.Rect(no_x, button_y, button_width, button_height)
+        pygame.draw.rect(self.screen, (100, 180, 100), no_rect, border_radius=5)
+        pygame.draw.rect(self.screen, (150, 220, 150), no_rect, 2, border_radius=5)
+        no_btn_text = self.font.render(no_text, True, (255, 255, 255))
+        no_text_rect = no_btn_text.get_rect(center=no_rect.center)
+        self.screen.blit(no_btn_text, no_text_rect)
+        setattr(self, no_attr, no_rect)
