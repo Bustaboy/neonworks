@@ -1,0 +1,627 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "name": "Potion",
+      "icon_index": 1,
+      "description": "Restores 50 HP",
+      "note": "",
+      "item_type": "regular",
+      "price": 50,
+      "consumable": true,
+      "occasion": 0,
+      "scope": 3,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 0,
+      "animation_id": 0,
+      "effects": [
+        {
+          "effect_type": "recover_hp",
+          "value1": 50.0,
+          "value2": 0.0,
+          "timing": "immediate",
+          "target_param": 0,
+          "rate": 1.0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Hi-Potion",
+      "icon_index": 2,
+      "description": "Restores 200 HP",
+      "note": "",
+      "item_type": "regular",
+      "price": 200,
+      "consumable": true,
+      "occasion": 0,
+      "scope": 3,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 0,
+      "animation_id": 0,
+      "effects": [
+        {
+          "effect_type": "recover_hp",
+          "value1": 200.0,
+          "value2": 0.0,
+          "timing": "immediate",
+          "target_param": 0,
+          "rate": 1.0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Elixir",
+      "icon_index": 3,
+      "description": "Fully restores HP and MP",
+      "note": "",
+      "item_type": "regular",
+      "price": 500,
+      "consumable": true,
+      "occasion": 0,
+      "scope": 3,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 0,
+      "animation_id": 0,
+      "effects": [
+        {
+          "effect_type": "recover_hp",
+          "value1": 999.0,
+          "value2": 0.0,
+          "timing": "immediate",
+          "target_param": 0,
+          "rate": 1.0
+        },
+        {
+          "effect_type": "recover_mp",
+          "value1": 999.0,
+          "value2": 0.0,
+          "timing": "immediate",
+          "target_param": 0,
+          "rate": 1.0
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Antidote",
+      "icon_index": 4,
+      "description": "Cures poison",
+      "note": "",
+      "item_type": "regular",
+      "price": 30,
+      "consumable": true,
+      "occasion": 0,
+      "scope": 3,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 0,
+      "animation_id": 0,
+      "effects": [
+        {
+          "effect_type": "remove_state",
+          "value1": 0.0,
+          "value2": 0.0,
+          "timing": "immediate",
+          "target_param": 1,
+          "rate": 1.0
+        }
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": 1,
+      "name": "Attack",
+      "icon_index": 76,
+      "description": "Basic physical attack",
+      "note": "",
+      "skill_type": "physical",
+      "mp_cost": 0,
+      "tp_cost": 0,
+      "occasion": 1,
+      "scope": 1,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 1,
+      "damage_type": "hp_damage",
+      "element_type": "normal",
+      "animation_id": 1,
+      "message1": "",
+      "message2": "",
+      "required_weapon_type1": null,
+      "required_weapon_type2": null,
+      "effects": []
+    },
+    {
+      "id": 2,
+      "name": "Heal",
+      "icon_index": 64,
+      "description": "Restores ally HP",
+      "note": "",
+      "skill_type": "magic",
+      "mp_cost": 10,
+      "tp_cost": 0,
+      "occasion": 1,
+      "scope": 3,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 0,
+      "damage_type": "hp_recover",
+      "element_type": "normal",
+      "animation_id": 2,
+      "message1": "",
+      "message2": "",
+      "required_weapon_type1": null,
+      "required_weapon_type2": null,
+      "effects": [
+        {
+          "effect_type": "recover_hp",
+          "value1": 100.0,
+          "value2": 0.0,
+          "timing": "immediate",
+          "target_param": 0,
+          "rate": 1.0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Fireball",
+      "icon_index": 65,
+      "description": "Fire magic attack",
+      "note": "",
+      "skill_type": "magic",
+      "mp_cost": 15,
+      "tp_cost": 0,
+      "occasion": 1,
+      "scope": 1,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 2,
+      "damage_type": "hp_damage",
+      "element_type": "fire",
+      "animation_id": 3,
+      "message1": "",
+      "message2": "",
+      "required_weapon_type1": null,
+      "required_weapon_type2": null,
+      "effects": []
+    },
+    {
+      "id": 4,
+      "name": "Ice Storm",
+      "icon_index": 66,
+      "description": "Ice attack on all enemies",
+      "note": "",
+      "skill_type": "magic",
+      "mp_cost": 30,
+      "tp_cost": 0,
+      "occasion": 1,
+      "scope": 2,
+      "speed": 0,
+      "success_rate": 100,
+      "tp_gain": 0,
+      "hit_type": 2,
+      "damage_type": "hp_damage",
+      "element_type": "ice",
+      "animation_id": 4,
+      "message1": "",
+      "message2": "",
+      "required_weapon_type1": null,
+      "required_weapon_type2": null,
+      "effects": []
+    }
+  ],
+  "weapons": [
+    {
+      "id": 1,
+      "name": "Wooden Sword",
+      "icon_index": 96,
+      "description": "Basic wooden sword",
+      "note": "",
+      "weapon_type": "sword",
+      "price": 100,
+      "animation_id": 1,
+      "params": [
+        5,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "traits": []
+    },
+    {
+      "id": 2,
+      "name": "Iron Sword",
+      "icon_index": 97,
+      "description": "Standard iron sword",
+      "note": "",
+      "weapon_type": "sword",
+      "price": 500,
+      "animation_id": 1,
+      "params": [
+        15,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "traits": []
+    },
+    {
+      "id": 3,
+      "name": "Steel Axe",
+      "icon_index": 98,
+      "description": "Heavy steel axe",
+      "note": "",
+      "weapon_type": "axe",
+      "price": 800,
+      "animation_id": 5,
+      "params": [
+        25,
+        0,
+        0,
+        0,
+        -5,
+        0
+      ],
+      "traits": []
+    }
+  ],
+  "armors": [
+    {
+      "id": 1,
+      "name": "Leather Armor",
+      "icon_index": 128,
+      "description": "Basic leather protection",
+      "note": "",
+      "armor_type": "body",
+      "equip_type": "body",
+      "price": 200,
+      "params": [
+        0,
+        10,
+        0,
+        5,
+        0,
+        0
+      ],
+      "traits": []
+    },
+    {
+      "id": 2,
+      "name": "Iron Shield",
+      "icon_index": 129,
+      "description": "Standard iron shield",
+      "note": "",
+      "armor_type": "shield",
+      "equip_type": "shield",
+      "price": 300,
+      "params": [
+        0,
+        15,
+        0,
+        5,
+        0,
+        0
+      ],
+      "traits": []
+    }
+  ],
+  "enemies": [
+    {
+      "id": 1,
+      "name": "Slime",
+      "icon_index": 0,
+      "description": "Weak gelatinous monster",
+      "note": "",
+      "battler_name": "Slime",
+      "battler_hue": 0,
+      "params": [
+        30,
+        0,
+        8,
+        5,
+        5,
+        5,
+        8,
+        5
+      ],
+      "exp": 10,
+      "gold": 20,
+      "drop_items": [
+        {
+          "kind": 1,
+          "item_id": 1,
+          "drop_rate": 0.3
+        }
+      ],
+      "actions": [],
+      "traits": []
+    },
+    {
+      "id": 2,
+      "name": "Goblin",
+      "icon_index": 1,
+      "description": "Small but fierce creature",
+      "note": "",
+      "battler_name": "Goblin",
+      "battler_hue": 0,
+      "params": [
+        50,
+        0,
+        12,
+        8,
+        5,
+        5,
+        10,
+        5
+      ],
+      "exp": 25,
+      "gold": 50,
+      "drop_items": [
+        {
+          "kind": 1,
+          "item_id": 1,
+          "drop_rate": 0.5
+        },
+        {
+          "kind": 2,
+          "item_id": 1,
+          "drop_rate": 0.1
+        }
+      ],
+      "actions": [],
+      "traits": []
+    },
+    {
+      "id": 3,
+      "name": "Dragon",
+      "icon_index": 2,
+      "description": "Mighty fire-breathing dragon",
+      "note": "",
+      "battler_name": "Dragon",
+      "battler_hue": 0,
+      "params": [
+        500,
+        100,
+        50,
+        40,
+        40,
+        30,
+        20,
+        15
+      ],
+      "exp": 500,
+      "gold": 1000,
+      "drop_items": [
+        {
+          "kind": 1,
+          "item_id": 3,
+          "drop_rate": 1.0
+        },
+        {
+          "kind": 2,
+          "item_id": 3,
+          "drop_rate": 0.25
+        }
+      ],
+      "actions": [],
+      "traits": []
+    }
+  ],
+  "states": [
+    {
+      "id": 1,
+      "name": "Poison",
+      "icon_index": 16,
+      "description": "Lose HP each turn",
+      "note": "",
+      "restriction": "none",
+      "priority": 50,
+      "remove_at_battle_end": true,
+      "remove_by_restriction": false,
+      "remove_by_damage": false,
+      "remove_by_walking": false,
+      "duration_steps": 100,
+      "min_turns": 3,
+      "max_turns": 5,
+      "auto_removal_timing": 0,
+      "chance_by_damage": 100,
+      "message1": "%1 was poisoned!",
+      "message2": "%1 is no longer poisoned.",
+      "message3": "",
+      "message4": "",
+      "traits": []
+    },
+    {
+      "id": 2,
+      "name": "Sleep",
+      "icon_index": 17,
+      "description": "Cannot take action",
+      "note": "",
+      "restriction": "cannot_move",
+      "priority": 60,
+      "remove_at_battle_end": true,
+      "remove_by_restriction": false,
+      "remove_by_damage": true,
+      "remove_by_walking": false,
+      "duration_steps": 100,
+      "min_turns": 2,
+      "max_turns": 3,
+      "auto_removal_timing": 0,
+      "chance_by_damage": 100,
+      "message1": "%1 fell asleep!",
+      "message2": "%1 woke up!",
+      "message3": "",
+      "message4": "",
+      "traits": []
+    }
+  ],
+  "actors": [
+    {
+      "id": 1,
+      "name": "Hero",
+      "icon_index": 0,
+      "description": "",
+      "note": "",
+      "nickname": "The Brave",
+      "class_id": 1,
+      "initial_level": 1,
+      "max_level": 99,
+      "character_name": "Actor1",
+      "character_index": 0,
+      "face_name": "Actor1",
+      "face_index": 0,
+      "equips": [
+        1,
+        2,
+        0,
+        1,
+        0
+      ],
+      "traits": []
+    },
+    {
+      "id": 2,
+      "name": "Mage",
+      "icon_index": 0,
+      "description": "",
+      "note": "",
+      "nickname": "The Wise",
+      "class_id": 2,
+      "initial_level": 1,
+      "max_level": 99,
+      "character_name": "Actor2",
+      "character_index": 1,
+      "face_name": "Actor2",
+      "face_index": 1,
+      "equips": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "traits": []
+    }
+  ],
+  "classes": [
+    {
+      "id": 1,
+      "name": "Warrior",
+      "icon_index": 0,
+      "description": "Strong physical fighter",
+      "note": "",
+      "exp_params": [
+        30,
+        20,
+        30,
+        30
+      ],
+      "params": [],
+      "learnings": [
+        {
+          "level": 1,
+          "skill_id": 1
+        }
+      ],
+      "traits": []
+    },
+    {
+      "id": 2,
+      "name": "Mage",
+      "icon_index": 1,
+      "description": "Master of magic",
+      "note": "",
+      "exp_params": [
+        30,
+        20,
+        25,
+        35
+      ],
+      "params": [],
+      "learnings": [
+        {
+          "level": 1,
+          "skill_id": 1
+        },
+        {
+          "level": 1,
+          "skill_id": 2
+        },
+        {
+          "level": 3,
+          "skill_id": 3
+        },
+        {
+          "level": 10,
+          "skill_id": 4
+        }
+      ],
+      "traits": []
+    }
+  ],
+  "animations": [
+    {
+      "id": 1,
+      "name": "Physical Attack",
+      "icon_index": 0,
+      "description": "Basic physical attack animation",
+      "note": "",
+      "animation1_name": "Attack",
+      "animation1_hue": 0,
+      "animation2_name": "",
+      "animation2_hue": 0,
+      "position": 1,
+      "frame_max": 16,
+      "frames": [],
+      "timings": []
+    },
+    {
+      "id": 2,
+      "name": "Heal",
+      "icon_index": 1,
+      "description": "Healing magic animation",
+      "note": "",
+      "animation1_name": "Heal",
+      "animation1_hue": 0,
+      "animation2_name": "",
+      "animation2_hue": 0,
+      "position": 1,
+      "frame_max": 20,
+      "frames": [],
+      "timings": []
+    },
+    {
+      "id": 3,
+      "name": "Fire",
+      "icon_index": 2,
+      "description": "Fire magic animation",
+      "note": "",
+      "animation1_name": "Fire",
+      "animation1_hue": 0,
+      "animation2_name": "",
+      "animation2_hue": 0,
+      "position": 1,
+      "frame_max": 24,
+      "frames": [],
+      "timings": []
+    }
+  ]
+}
