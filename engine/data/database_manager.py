@@ -24,7 +24,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
-from engine.data.database_schema import (
+from neonworks.engine.data.database_schema import (
     Actor,
     Animation,
     Armor,
