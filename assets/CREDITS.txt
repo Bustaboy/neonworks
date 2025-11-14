@@ -1,0 +1,241 @@
+================================================================================
+                    NEONWORKS JRPG ENGINE - ASSET CREDITS
+================================================================================
+
+This file contains attribution information for all third-party assets used in
+the NeonWorks JRPG Engine. Please ensure all required attributions are included
+when using these assets.
+
+Last Updated: 2025-11-14
+
+================================================================================
+                              HOW TO USE THIS FILE
+================================================================================
+
+When adding new assets to the project, please add attribution information in
+the appropriate section below using the following format:
+
+Asset Name: [Name of the asset]
+Author: [Creator's name or username]
+Source: [URL where asset was obtained]
+License: [License type - e.g., CC0, CC-BY-4.0, MIT, GPL, etc.]
+Files: [List of files using this asset]
+Attribution Required: [Yes/No]
+Modifications: [Describe any modifications made to the original asset]
+Notes: [Any additional information]
+
+================================================================================
+                                   CHARACTERS
+================================================================================
+
+[Add character asset attributions here]
+
+Example:
+---
+Asset Name: Hero Sprite Set
+Author: John Doe
+Source: https://opengameart.org/example
+License: CC-BY-4.0
+Files: characters/hero_spritesheet.png
+Attribution Required: Yes
+Modifications: Recolored to match game palette
+Notes: Used for main protagonist character
+---
+
+
+================================================================================
+                                    ENEMIES
+================================================================================
+
+[Add enemy asset attributions here]
+
+
+================================================================================
+                                  ANIMATIONS
+================================================================================
+
+[Add animation asset attributions here]
+
+
+================================================================================
+                                     MUSIC
+================================================================================
+
+[Add music asset attributions here]
+
+Example:
+---
+Asset Name: Town Theme
+Author: Jane Smith
+Source: https://freemusicarchive.org/example
+License: CC-BY-SA-4.0
+Files: music/bgm_town_peaceful_01.ogg
+Attribution Required: Yes
+Modifications: Trimmed and set loop points
+Notes: Main town background music
+---
+
+
+================================================================================
+                                 SOUND EFFECTS
+================================================================================
+
+[Add sound effect asset attributions here]
+
+
+================================================================================
+                                   TILESETS
+================================================================================
+
+[Add tileset asset attributions here]
+
+
+================================================================================
+                                     ICONS
+================================================================================
+
+[Add icon asset attributions here]
+
+
+================================================================================
+                                  UI ELEMENTS
+================================================================================
+
+[Add UI element asset attributions here]
+
+
+================================================================================
+                                FACE GRAPHICS
+================================================================================
+
+[Add face graphic asset attributions here]
+
+
+================================================================================
+                                  BACKGROUNDS
+================================================================================
+
+[Add background asset attributions here]
+
+
+================================================================================
+                                ASSET PACKS
+================================================================================
+
+If you're using complete asset packs, list them here with their comprehensive
+attribution information:
+
+[Add asset pack attributions here]
+
+Example:
+---
+Pack Name: Fantasy RPG Asset Collection
+Author: Asset Studio XYZ
+Source: https://example.com/asset-pack
+License: CC-BY-4.0
+Files Used: Multiple files across characters/, enemies/, and tilesets/
+Attribution Required: Yes
+Attribution Text: "Fantasy RPG Assets by Asset Studio XYZ (CC-BY-4.0)"
+Notes: Using character sprites and tileset only, not audio assets from pack
+---
+
+
+================================================================================
+                                PUBLIC DOMAIN
+================================================================================
+
+Assets released under CC0 or public domain (attribution not required but
+appreciated):
+
+[Add public domain asset information here]
+
+
+================================================================================
+                           COMMERCIAL/PROPRIETARY
+================================================================================
+
+Commercially licensed assets or proprietary assets created for this project:
+
+[Add commercial/proprietary asset information here]
+
+
+================================================================================
+                                 LICENSE LINKS
+================================================================================
+
+For your convenience, here are links to common licenses:
+
+Creative Commons Zero (CC0):
+  https://creativecommons.org/publicdomain/zero/1.0/
+
+Creative Commons Attribution 4.0 (CC-BY-4.0):
+  https://creativecommons.org/licenses/by/4.0/
+
+Creative Commons Attribution-ShareAlike 4.0 (CC-BY-SA-4.0):
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+Creative Commons Attribution-NonCommercial 4.0 (CC-BY-NC-4.0):
+  https://creativecommons.org/licenses/by-nc/4.0/
+
+MIT License:
+  https://opensource.org/licenses/MIT
+
+GNU General Public License v3.0 (GPL-3.0):
+  https://www.gnu.org/licenses/gpl-3.0.en.html
+
+Open Game License (OGL):
+  https://en.wikipedia.org/wiki/Open_Game_License
+
+
+================================================================================
+                              ATTRIBUTION EXAMPLES
+================================================================================
+
+Depending on the license, you may need to include attribution in your game.
+Here are some examples of how to format attributions:
+
+In-Game Credits Screen:
+  "Character sprites by [Author Name], licensed under CC-BY-4.0"
+  "Music by [Composer Name], available at [URL]"
+
+README or About Dialog:
+  This game uses assets created by various artists. See CREDITS.txt for
+  complete attribution information.
+
+Loading Screen Notice:
+  "Some assets © [Year] [Author Name], used under [License]"
+
+
+================================================================================
+                              VERIFICATION CHECKLIST
+================================================================================
+
+Before releasing your game, verify:
+
+[ ] All third-party assets are listed in this file
+[ ] License information is accurate and complete
+[ ] Required attributions are included in the game (credits screen, etc.)
+[ ] You have the right to use all assets for your intended purpose
+    (commercial vs. non-commercial, derivative works, etc.)
+[ ] Any modified assets are clearly marked as such
+[ ] ShareAlike requirements are met (if applicable)
+[ ] Source files or attribution requirements are included in distributions
+    (if required by license)
+
+
+================================================================================
+                                 NEED HELP?
+================================================================================
+
+Resources for understanding licenses:
+- Creative Commons License Chooser: https://creativecommons.org/choose/
+- OpenGameArt.org License FAQ: https://opengameart.org/content/faq
+- Game Asset License Guide: https://itch.io/docs/legal/licensing
+
+If you're unsure about a license or attribution requirement, contact the
+original creator or seek legal advice.
+
+
+================================================================================
+                                 END OF FILE
+================================================================================

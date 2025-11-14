@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "description": "Asset manifest for NeonWorks JRPG Engine",
+  "last_updated": "2025-11-14",
+  "assets": {
+    "characters": [],
+    "enemies": [],
+    "animations": [],
+    "music": [],
+    "sfx": [],
+    "tilesets": [],
+    "icons": [],
+    "ui": [],
+    "faces": [],
+    "backgrounds": []
+  },
+  "metadata_schema": {
+    "character": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, gif, etc.)",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "sprite_sheet": {
+        "enabled": "boolean",
+        "frame_width": "integer",
+        "frame_height": "integer",
+        "frames": "integer"
+      },
+      "animations": {
+        "idle": "string (animation reference)",
+        "walk": "string (animation reference)",
+        "run": "string (animation reference)",
+        "attack": "string (animation reference)"
+      },
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "enemy": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, gif, etc.)",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "sprite_sheet": {
+        "enabled": "boolean",
+        "frame_width": "integer",
+        "frame_height": "integer",
+        "frames": "integer"
+      },
+      "battle_sprite": "boolean",
+      "animations": {
+        "idle": "string (animation reference)",
+        "attack": "string (animation reference)",
+        "hurt": "string (animation reference)",
+        "death": "string (animation reference)"
+      },
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "animation": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, gif, sprite sheet, etc.)",
+      "frame_count": "integer",
+      "frame_rate": "integer (fps)",
+      "loop": "boolean",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "music": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (ogg, mp3, wav, etc.)",
+      "duration": "number (seconds)",
+      "loop": "boolean",
+      "loop_start": "number (seconds, optional)",
+      "loop_end": "number (seconds, optional)",
+      "bpm": "integer (optional)",
+      "mood": "string (battle, town, dungeon, etc.)",
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "sfx": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (ogg, wav, etc.)",
+      "duration": "number (seconds)",
+      "category": "string (ui, combat, environment, etc.)",
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "tileset": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, etc.)",
+      "tile_width": "integer",
+      "tile_height": "integer",
+      "tiles_per_row": "integer",
+      "total_tiles": "integer",
+      "autotile": "boolean",
+      "terrain_type": "string (indoor, outdoor, dungeon, etc.)",
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "icon": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, svg, etc.)",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "category": "string (item, skill, status, etc.)",
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "ui": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, etc.)",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "ui_type": "string (window, button, panel, cursor, etc.)",
+      "nine_patch": {
+        "enabled": "boolean",
+        "left": "integer",
+        "right": "integer",
+        "top": "integer",
+        "bottom": "integer"
+      },
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "face": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, etc.)",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "character_reference": "string (character id)",
+      "expression": "string (normal, happy, sad, angry, etc.)",
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    },
+    "background": {
+      "id": "string (unique identifier)",
+      "name": "string (display name)",
+      "file_path": "string (relative path from assets/)",
+      "format": "string (png, jpg, etc.)",
+      "dimensions": {
+        "width": "integer",
+        "height": "integer"
+      },
+      "parallax": "boolean",
+      "layers": "integer (if parallax)",
+      "scene_type": "string (battle, title, menu, etc.)",
+      "tags": ["array of strings"],
+      "license": "string (license identifier)",
+      "author": "string (creator name)",
+      "attribution_required": "boolean",
+      "notes": "string (additional info)"
+    }
+  },
+  "example_entries": {
+    "character_example": {
+      "id": "hero_001",
+      "name": "Hero Sprite",
+      "file_path": "characters/hero_spritesheet.png",
+      "format": "png",
+      "dimensions": {
+        "width": 192,
+        "height": 256
+      },
+      "sprite_sheet": {
+        "enabled": true,
+        "frame_width": 32,
+        "frame_height": 32,
+        "frames": 48
+      },
+      "animations": {
+        "idle": "anim_hero_idle",
+        "walk": "anim_hero_walk",
+        "run": "anim_hero_run",
+        "attack": "anim_hero_attack"
+      },
+      "tags": ["player", "protagonist", "human"],
+      "license": "CC-BY-4.0",
+      "author": "Artist Name",
+      "attribution_required": true,
+      "notes": "Main character sprite with 4-directional movement"
+    },
+    "music_example": {
+      "id": "bgm_town_01",
+      "name": "Peaceful Village Theme",
+      "file_path": "music/town_theme.ogg",
+      "format": "ogg",
+      "duration": 120.5,
+      "loop": true,
+      "loop_start": 5.2,
+      "loop_end": 115.8,
+      "bpm": 90,
+      "mood": "peaceful",
+      "tags": ["town", "daytime", "peaceful"],
+      "license": "CC0",
+      "author": "Composer Name",
+      "attribution_required": false,
+      "notes": "Loop point set after intro"
+    }
+  }
+}
