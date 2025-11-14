@@ -408,17 +408,173 @@ See `tests/test_tileset_manager.py` for comprehensive usage examples.
 - Limit number of loaded tilesets
 - Use appropriate tile sizes for your game
 
+## AI-Powered Features
+
+### AI Tileset Generator
+
+The AI Tileset Generator provides intelligent tileset creation and management:
+
+```python
+from neonworks.editor.ai_tileset_generator import AITilesetGenerator
+
+# Create AI generator
+ai_gen = AITilesetGenerator(tileset_manager)
+
+# Generate a procedural tileset
+tileset_surface, metadata = ai_gen.generate_procedural_tileset(
+    terrain_types=["grass", "dirt", "stone", "water"],
+    tiles_per_type=4,
+    tile_size=32,
+    include_variations=True
+)
+
+# Save the generated tileset
+import pygame
+pygame.image.save(tileset_surface, "generated_tileset.png")
+```
+
+### Auto-Tag Existing Tilesets
+
+Automatically analyze and tag tiles using AI:
+
+```python
+# Analyze tileset and generate metadata
+metadata = ai_gen.auto_tag_tileset(
+    tileset_id="my_tileset",
+    analyze_colors=True,
+    analyze_patterns=True
+)
+
+# Apply generated metadata
+for tile_id, tile_meta in metadata.items():
+    manager.set_tile_metadata(
+        tileset_id="my_tileset",
+        tile_id=tile_id,
+        passable=tile_meta.passable,
+        terrain_tags=tile_meta.terrain_tags,
+        name=tile_meta.name
+    )
+```
+
+### AI Tileset Panel UI
+
+The AI Tileset Panel provides a visual interface for AI features:
+
+```python
+from neonworks.ui.ai_tileset_ui import AITilesetPanel
+
+# Create AI panel
+ai_panel = AITilesetPanel(
+    x=500,
+    y=400,
+    width=300,
+    height=370,
+    tileset_manager=manager,
+    on_tileset_generated=lambda ts_id: print(f"Generated: {ts_id}")
+)
+
+# In your game loop
+ai_panel.update(dt)
+ai_panel.render(screen)
+ai_panel.handle_event(event)
+```
+
+### Features:
+- **Generate Tileset**: Create new tilesets with selected terrain types
+- **Auto-Tag**: Automatically analyze and tag active tileset
+- **Create Variations**: Generate variations of selected tiles
+- **Terrain Selection**: Choose which terrain types to include
+
+### Supported Terrain Types:
+- Grass (green, passable)
+- Dirt (brown, passable)
+- Stone (gray, passable)
+- Water (blue, non-passable)
+- Sand (yellow, passable)
+- Lava (red/orange, non-passable)
+- Ice (light blue, passable, slippery)
+- Wall (dark gray, non-passable)
+- Floor (light gray, passable)
+- Wood (brown, non-passable)
+
+### Tile Variations
+
+Generate variations of existing tiles:
+
+```python
+# Generate 3 variations of a tile
+variations = ai_gen.suggest_tile_variations(
+    tileset_id="my_tileset",
+    tile_id=5,
+    count=3
+)
+
+# Each variation is a pygame Surface
+for i, variation in enumerate(variations):
+    pygame.image.save(variation, f"tile_5_variant_{i}.png")
+```
+
+### Autotiling Rules
+
+Create autotiling rules for seamless terrain blending:
+
+```python
+# Create autotiling rules for grass terrain
+rules = ai_gen.create_autotiling_rules(
+    tileset_id="terrain_tileset",
+    terrain_tag="grass"
+)
+
+# Rules dictionary contains pattern-based tile selection
+# Useful for implementing Wang tiles or blob autotiling
+```
+
+## Integration Example
+
+Complete example using AI features with Level Builder:
+
+```python
+from neonworks.ui.level_builder_ui import LevelBuilderUI
+from neonworks.editor.ai_tileset_generator import get_ai_tileset_generator
+
+# Create level builder
+level_builder = LevelBuilderUI(screen, world, project_path="my_game")
+
+# Get AI generator
+ai_gen = get_ai_tileset_generator(level_builder.tileset_manager)
+
+# Generate a tileset with AI
+tileset_surface, metadata = ai_gen.generate_procedural_tileset(
+    terrain_types=["grass", "dirt", "water"],
+    tiles_per_type=4,
+    tile_size=32
+)
+
+# Save and add to project
+pygame.image.save(tileset_surface, "my_game/assets/ai_terrain.png")
+level_builder.add_tileset(
+    tileset_id="ai_terrain",
+    name="AI Generated Terrain",
+    image_path="assets/ai_terrain.png"
+)
+
+# Apply AI-generated metadata
+tileset = level_builder.tileset_manager.get_tileset("ai_terrain")
+tileset.metadata = metadata
+```
+
 ## Future Enhancements
 
 Planned features for future versions:
-- Animated tiles support
-- Autotiling/terrain blending
-- Tile variants/randomization
-- Export tileset metadata
+- Enhanced AI terrain generation with neural networks
+- Advanced autotiling with Wang tiles and Blob patterns
 - Import from Tiled/LDtk formats
+- Export tileset metadata to standard formats
+- AI-powered tile animation generation
+- Style transfer for tileset generation
 
 ---
 
-**Version**: 0.1.0
+**Version**: 0.2.0
 **Last Updated**: 2025-11-14
 **Maintainer**: NeonWorks Team
