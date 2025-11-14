@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "ms-python.flake8",
+    "visualstudioexptteam.vscodeintellicode",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "ms-vsliveshare.vsliveshare",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

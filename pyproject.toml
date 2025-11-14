@@ -1,14 +1,62 @@
 [tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
-exclude = '''
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
 /(
-    \.git
-  | __pycache__
-  | \.pytest_cache
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
   | \.venv
   | venv
   | build
   | dist
+  | __pycache__
+  | \.pytest_cache
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_gitignore = true
+known_first_party = ["neonworks", "core", "gameplay", "rendering", "systems", "export", "data", "ui", "tests", "engine", "examples"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["neonworks", "core", "gameplay", "rendering", "systems", "ui"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
