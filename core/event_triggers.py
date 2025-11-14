@@ -10,13 +10,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, Dict, List, Optional, Set, Tuple
 
-from .event_commands import (
-    EventContext,
-    EventPage,
-    GameEvent,
-    GameState,
-    TriggerType,
-)
+from .event_commands import EventContext, EventPage, GameEvent, GameState, TriggerType
 
 
 class TriggerResult(Enum):

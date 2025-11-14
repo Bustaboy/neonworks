@@ -216,7 +216,10 @@ class GameEvent:
         )
 
     def get_active_page(
-        self, switches: Dict[int, bool], variables: Dict[int, int], self_switches: Dict[str, bool]
+        self,
+        switches: Dict[int, bool],
+        variables: Dict[int, int],
+        self_switches: Dict[str, bool],
     ) -> Optional[EventPage]:
         """
         Get the currently active page based on conditions.
@@ -323,7 +326,9 @@ class EventManager:
 # Convenience functions for creating common event types
 
 
-def create_door_event(x: int, y: int, target_map: str, target_x: int, target_y: int) -> GameEvent:
+def create_door_event(
+    x: int, y: int, target_map: str, target_x: int, target_y: int
+) -> GameEvent:
     """
     Create a door/transfer event.
 
@@ -358,7 +363,9 @@ def create_door_event(x: int, y: int, target_map: str, target_x: int, target_y: 
     return event
 
 
-def create_chest_event(x: int, y: int, item_id: int, item_name: str = "Item") -> GameEvent:
+def create_chest_event(
+    x: int, y: int, item_id: int, item_name: str = "Item"
+) -> GameEvent:
     """
     Create a treasure chest event.
 
@@ -402,7 +409,9 @@ def create_chest_event(x: int, y: int, item_id: int, item_name: str = "Item") ->
     return event
 
 
-def create_npc_event(x: int, y: int, name: str, dialogue: str, sprite: str = "") -> GameEvent:
+def create_npc_event(
+    x: int, y: int, name: str, dialogue: str, sprite: str = ""
+) -> GameEvent:
     """
     Create an NPC event.
 

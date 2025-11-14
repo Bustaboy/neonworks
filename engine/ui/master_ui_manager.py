@@ -157,6 +157,7 @@ class MasterUIManager:
         if not self.level_builder:
             try:
                 from engine.ui.level_builder_ui import LevelBuilderUI
+
                 self.level_builder = LevelBuilderUI(self.screen)
             except ImportError:
                 print("⚠ Level Builder not yet implemented")

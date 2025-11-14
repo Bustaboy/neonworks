@@ -13,14 +13,14 @@ Event interpreters and other core engine subsystems.
 # )
 
 from engine.core.event_data import (
+    EventGraphic,
     EventManager,
     EventPage,
-    EventTrigger,
     EventPriority,
-    EventGraphic,
+    EventTrigger,
     GameEvent,
-    create_door_event,
     create_chest_event,
+    create_door_event,
     create_npc_event,
 )
 

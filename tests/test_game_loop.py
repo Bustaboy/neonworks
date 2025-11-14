@@ -70,7 +70,6 @@ class TestGameEngine:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine(target_fps=60)
 
             assert engine.target_fps == 60
@@ -86,7 +85,6 @@ class TestGameEngine:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine(target_fps=120, fixed_timestep=1.0 / 120.0)
 
             assert engine.target_fps == 120
@@ -101,7 +99,6 @@ class TestGameEngine:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
             stats = engine.get_stats()
 
@@ -120,7 +117,6 @@ class TestGameEngine:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
             fps = engine.get_fps()
 
@@ -137,7 +133,6 @@ class TestGameEngine:
         ) as mock_input, patch(
             "neonworks.core.game_loop.AudioManager"
         ) as mock_audio:
-
             # Setup mocks
             mock_event_mgr.return_value = Mock()
             mock_state_mgr.return_value = Mock()
@@ -167,7 +162,6 @@ class TestGameEngine:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
             engine.running = True
 
@@ -184,7 +178,6 @@ class TestGameEngine:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
 
             # Simulate multiple frames over 1 second
@@ -205,7 +198,6 @@ class TestGameEngine:
         ) as mock_input, patch(
             "neonworks.core.game_loop.AudioManager"
         ) as mock_audio:
-
             # Setup mocks
             mock_event_mgr.return_value = Mock()
             mock_state_mgr.return_value = Mock()
@@ -248,7 +240,6 @@ class TestFixedTimestep:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
 
             # Initially accumulator is 0
@@ -271,7 +262,6 @@ class TestFixedTimestep:
         ) as mock_input, patch(
             "neonworks.core.game_loop.AudioManager"
         ) as mock_audio:
-
             # Setup mocks
             mock_event_mgr.return_value = Mock()
             mock_state_mgr.return_value = Mock()
@@ -335,7 +325,6 @@ class TestPerformanceStats:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
 
             assert "fps" in engine.stats
@@ -353,7 +342,6 @@ class TestPerformanceStats:
         ), patch(
             "neonworks.core.game_loop.AudioManager"
         ):
-
             engine = GameEngine()
             stats = engine.get_stats()
 
