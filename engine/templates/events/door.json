@@ -1,0 +1,92 @@
+{
+  "name": "Door",
+  "description": "A simple door that can be opened with a key",
+  "template_type": "door",
+  "color": [139, 69, 19],
+  "icon": "🚪",
+  "pages": [
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_switch1_valid": false,
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The door is locked.",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CONDITIONAL_BRANCH",
+          "parameters": {
+            "condition_type": "item",
+            "item_id": 1
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You used the key to unlock the door!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "PLAY_SE",
+          "parameters": {
+            "name": "door_unlock",
+            "volume": 90,
+            "pitch": 100,
+            "pan": 0
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "CONTROL_SELF_SWITCH",
+          "parameters": {
+            "switch": "A",
+            "value": true
+          },
+          "indent": 1
+        }
+      ]
+    },
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_self_switch_valid": true,
+      "condition_self_switch_ch": "A",
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The door is open.",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "TRANSFER_PLAYER",
+          "parameters": {
+            "map_id": 2,
+            "x": 5,
+            "y": 5,
+            "direction": 0,
+            "fade_type": 1
+          },
+          "indent": 0
+        }
+      ]
+    }
+  ]
+}

@@ -7,14 +7,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pygame
 
-from ...core.event_commands import (
+from core.event_commands import (
     CommandType,
     EventCommand,
     EventPage,
     GameEvent,
     TriggerType,
 )
-from ...rendering.ui import UI
+from rendering.ui import UI
 
 
 class EventEditorUI:

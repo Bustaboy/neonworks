@@ -1,0 +1,109 @@
+{
+  "name": "Treasure Chest",
+  "description": "A treasure chest containing valuable items",
+  "template_type": "chest",
+  "color": [255, 215, 0],
+  "icon": "📦",
+  "pages": [
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_self_switch_valid": false,
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You found a treasure chest!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "PLAY_SE",
+          "parameters": {
+            "name": "chest_open",
+            "volume": 90,
+            "pitch": 100,
+            "pan": 0
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "WAIT",
+          "parameters": {
+            "duration": 30
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CHANGE_GOLD",
+          "parameters": {
+            "operation": "add",
+            "operand_type": "constant",
+            "operand_value": 100
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You obtained 100 gold!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CHANGE_ITEMS",
+          "parameters": {
+            "item_id": 5,
+            "operation": "add",
+            "operand": 1
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You obtained a Potion!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CONTROL_SELF_SWITCH",
+          "parameters": {
+            "switch": "A",
+            "value": true
+          },
+          "indent": 0
+        }
+      ]
+    },
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_self_switch_valid": true,
+      "condition_self_switch_ch": "A",
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The chest is empty.",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        }
+      ]
+    }
+  ]
+}

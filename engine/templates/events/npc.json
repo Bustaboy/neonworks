@@ -1,0 +1,238 @@
+{
+  "name": "Village Elder NPC",
+  "description": "A wise elder who provides information and quests",
+  "template_type": "npc",
+  "color": [100, 150, 255],
+  "icon": "👤",
+  "pages": [
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_switch1_valid": false,
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "Welcome, traveler! I am the village elder.",
+            "face_name": "elder",
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "Our village has been troubled by monsters lately...",
+            "face_name": "elder",
+            "face_index": 1,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_CHOICES",
+          "parameters": {
+            "choices": [
+              "I'll help you!",
+              "Tell me more",
+              "Maybe later"
+            ],
+            "cancel_type": 2,
+            "default_choice": 0
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CONDITIONAL_BRANCH",
+          "parameters": {
+            "condition_type": "choice",
+            "choice_value": 0
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "Thank you, brave adventurer! Please defeat 5 slimes in the forest.",
+            "face_name": "elder",
+            "face_index": 2,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "CONTROL_SWITCHES",
+          "parameters": {
+            "switch_id": 1,
+            "value": true,
+            "end_id": null
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "CONTROL_VARIABLES",
+          "parameters": {
+            "variable_id": 1,
+            "operation": "set",
+            "operand_type": "constant",
+            "operand_value": 0,
+            "end_id": null
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "CONDITIONAL_BRANCH",
+          "parameters": {
+            "condition_type": "choice",
+            "choice_value": 1
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The monsters appeared after a strange earthquake last week.",
+            "face_name": "elder",
+            "face_index": 1,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "Some say it came from the old ruins to the north...",
+            "face_name": "elder",
+            "face_index": 1,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "CONDITIONAL_BRANCH",
+          "parameters": {
+            "condition_type": "choice",
+            "choice_value": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "I understand. Come back when you're ready.",
+            "face_name": "elder",
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 1
+        }
+      ]
+    },
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_switch1_valid": true,
+      "condition_switch1_id": 1,
+      "condition_variable_valid": true,
+      "condition_variable_id": 1,
+      "condition_variable_value": 5,
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You've done it! You defeated all the slimes!",
+            "face_name": "elder",
+            "face_index": 2,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "Please accept this reward for your bravery.",
+            "face_name": "elder",
+            "face_index": 2,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CHANGE_GOLD",
+          "parameters": {
+            "operation": "add",
+            "operand_type": "constant",
+            "operand_value": 500
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CHANGE_EXP",
+          "parameters": {
+            "actor_id": 1,
+            "operation": "add",
+            "operand_type": "constant",
+            "operand_value": 100
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You received 500 gold and 100 EXP!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CONTROL_SWITCHES",
+          "parameters": {
+            "switch_id": 2,
+            "value": true,
+            "end_id": null
+          },
+          "indent": 0
+        }
+      ]
+    },
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_switch1_valid": true,
+      "condition_switch1_id": 2,
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "Thank you again for your help, hero!",
+            "face_name": "elder",
+            "face_index": 2,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The village is much safer now.",
+            "face_name": "elder",
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        }
+      ]
+    }
+  ]
+}
