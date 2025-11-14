@@ -4,8 +4,8 @@ Tests without requiring full pygame initialization
 """
 
 import json
-import sys
 import os
+import sys
 from dataclasses import dataclass
 
 # Add parent directory to path for imports
