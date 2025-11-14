@@ -1,0 +1,717 @@
+{
+  "$schema": "character_parts_schema_v1.0",
+  "version": "1.0.0",
+  "description": "Character Generator Component System - Defines all available character parts and their properties",
+
+  "metadata": {
+    "tile_size": 32,
+    "default_character_size": {
+      "width": 32,
+      "height": 64
+    },
+    "sprite_sheet_layout": "individual_files",
+    "color_format": "RGBA",
+    "export_formats": ["png", "spritesheet"]
+  },
+
+  "layer_definitions": {
+    "description": "Defines rendering order and z-index for character parts. Lower values render first (background), higher values render last (foreground).",
+    "layers": [
+      {
+        "id": "base_body",
+        "name": "Base Body",
+        "z_order": 0,
+        "description": "Foundation layer - body shape and skin tone",
+        "required": true
+      },
+      {
+        "id": "body_markings",
+        "name": "Body Markings",
+        "z_order": 10,
+        "description": "Tattoos, scars, or other body decorations",
+        "required": false
+      },
+      {
+        "id": "underwear",
+        "name": "Underwear",
+        "z_order": 20,
+        "description": "Base undergarments",
+        "required": false
+      },
+      {
+        "id": "clothing_base",
+        "name": "Base Clothing",
+        "z_order": 30,
+        "description": "Primary clothing layer (shirts, pants, dresses)",
+        "required": false
+      },
+      {
+        "id": "clothing_accessories",
+        "name": "Clothing Accessories",
+        "z_order": 40,
+        "description": "Belts, pouches, straps",
+        "required": false
+      },
+      {
+        "id": "armor",
+        "name": "Armor",
+        "z_order": 50,
+        "description": "Protective gear worn over clothing",
+        "required": false
+      },
+      {
+        "id": "back_accessory",
+        "name": "Back Accessory",
+        "z_order": 60,
+        "description": "Capes, wings, backpacks (renders behind character)",
+        "required": false
+      },
+      {
+        "id": "hair_back",
+        "name": "Hair (Back)",
+        "z_order": 70,
+        "description": "Hair that renders behind the head",
+        "required": false
+      },
+      {
+        "id": "face_base",
+        "name": "Face Base",
+        "z_order": 80,
+        "description": "Facial features foundation",
+        "required": true
+      },
+      {
+        "id": "eyes",
+        "name": "Eyes",
+        "z_order": 90,
+        "description": "Eye sprites with multiple expressions",
+        "required": true
+      },
+      {
+        "id": "facial_features",
+        "name": "Facial Features",
+        "z_order": 100,
+        "description": "Nose, mouth, eyebrows",
+        "required": false
+      },
+      {
+        "id": "facial_hair",
+        "name": "Facial Hair",
+        "z_order": 110,
+        "description": "Beards, mustaches",
+        "required": false
+      },
+      {
+        "id": "hair_front",
+        "name": "Hair (Front)",
+        "z_order": 120,
+        "description": "Hair that renders in front of the head",
+        "required": false
+      },
+      {
+        "id": "head_accessory",
+        "name": "Head Accessory",
+        "z_order": 130,
+        "description": "Hats, helmets, crowns, glasses",
+        "required": false
+      },
+      {
+        "id": "neck_accessory",
+        "name": "Neck Accessory",
+        "z_order": 140,
+        "description": "Necklaces, scarves, amulets",
+        "required": false
+      },
+      {
+        "id": "hand_accessory_left",
+        "name": "Left Hand Item",
+        "z_order": 150,
+        "description": "Shield, off-hand weapon, or item",
+        "required": false
+      },
+      {
+        "id": "hand_accessory_right",
+        "name": "Right Hand Item",
+        "z_order": 160,
+        "description": "Primary weapon or held item",
+        "required": false
+      },
+      {
+        "id": "effects",
+        "name": "Visual Effects",
+        "z_order": 170,
+        "description": "Auras, glows, particles",
+        "required": false
+      }
+    ]
+  },
+
+  "color_customization": {
+    "description": "Defines color zones that can be customized on character parts",
+    "zones": {
+      "primary": {
+        "name": "Primary Color",
+        "description": "Main color of the item (e.g., shirt color, armor base)",
+        "default": "#FFFFFF"
+      },
+      "secondary": {
+        "name": "Secondary Color",
+        "description": "Accent color (e.g., trim, details)",
+        "default": "#CCCCCC"
+      },
+      "tertiary": {
+        "name": "Tertiary Color",
+        "description": "Additional accent color for complex items",
+        "default": "#999999"
+      },
+      "metal": {
+        "name": "Metal Color",
+        "description": "For armor, weapons, and metal accessories",
+        "presets": ["#C0C0C0", "#FFD700", "#B87333", "#2C3539"],
+        "preset_names": ["Silver", "Gold", "Bronze", "Dark Steel"]
+      },
+      "skin": {
+        "name": "Skin Tone",
+        "description": "Skin color for body parts",
+        "presets": ["#FFDFC4", "#F0D5BE", "#EECEB3", "#E1B899", "#E5A073", "#C68642", "#8D5524", "#754C29", "#613D24"],
+        "preset_names": ["Fair", "Light", "Light Medium", "Medium", "Tan", "Brown", "Dark Brown", "Deep Brown", "Very Deep"]
+      },
+      "hair": {
+        "name": "Hair Color",
+        "description": "Hair and facial hair color",
+        "presets": ["#090806", "#2C222B", "#71635A", "#B7A69E", "#CABFB1", "#FFF5E1", "#E6C28A", "#CB9E6E", "#FFD700", "#FF6347", "#8B00FF"],
+        "preset_names": ["Black", "Dark Brown", "Brown", "Light Brown", "Blonde", "Platinum", "Dirty Blonde", "Auburn", "Golden", "Red", "Fantasy Purple"]
+      }
+    }
+  },
+
+  "animation_support": {
+    "description": "Defines how parts support animations",
+    "standard_animations": [
+      "idle",
+      "walk",
+      "run",
+      "attack",
+      "cast_spell",
+      "hurt",
+      "death",
+      "jump"
+    ],
+    "frame_naming_convention": "{component_id}_{animation}_{frame_number}.png",
+    "example": "knight_body_walk_01.png"
+  },
+
+  "components": {
+    "bodies": {
+      "knight_body_male": {
+        "id": "knight_body_male",
+        "name": "Knight Body (Male)",
+        "category": "bodies",
+        "description": "Athletic male body type suited for combat classes",
+        "layer": "base_body",
+        "z_order": 0,
+        "asset_path": "assets/character_generator/bodies/knight_body_male.png",
+        "size": {
+          "width": 32,
+          "height": 64
+        },
+        "anchor_points": {
+          "head": {"x": 16, "y": 8},
+          "torso": {"x": 16, "y": 24},
+          "left_hand": {"x": 8, "y": 32},
+          "right_hand": {"x": 24, "y": 32},
+          "feet": {"x": 16, "y": 60}
+        },
+        "color_zones": ["skin"],
+        "customizable_colors": {
+          "skin": {
+            "mask_path": "assets/character_generator/bodies/knight_body_male_skin_mask.png",
+            "default_color": "#FFDFC4"
+          }
+        },
+        "tags": ["male", "athletic", "warrior"],
+        "gender": "male",
+        "animations": ["idle", "walk", "run", "attack", "hurt", "death"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      },
+
+      "mage_body_female": {
+        "id": "mage_body_female",
+        "name": "Mage Body (Female)",
+        "category": "bodies",
+        "description": "Slender female body type suited for magic users",
+        "layer": "base_body",
+        "z_order": 0,
+        "asset_path": "assets/character_generator/bodies/mage_body_female.png",
+        "size": {
+          "width": 32,
+          "height": 64
+        },
+        "anchor_points": {
+          "head": {"x": 16, "y": 8},
+          "torso": {"x": 16, "y": 24},
+          "left_hand": {"x": 8, "y": 32},
+          "right_hand": {"x": 24, "y": 32},
+          "feet": {"x": 16, "y": 60}
+        },
+        "color_zones": ["skin"],
+        "customizable_colors": {
+          "skin": {
+            "mask_path": "assets/character_generator/bodies/mage_body_female_skin_mask.png",
+            "default_color": "#F0D5BE"
+          }
+        },
+        "tags": ["female", "slender", "mage"],
+        "gender": "female",
+        "animations": ["idle", "walk", "cast_spell", "hurt", "death"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      }
+    },
+
+    "hair": {
+      "warrior_hair_short": {
+        "id": "warrior_hair_short",
+        "name": "Short Warrior Hair",
+        "category": "hair",
+        "description": "Practical short hairstyle for combat",
+        "layer": "hair_front",
+        "z_order": 120,
+        "asset_path": "assets/character_generator/hair/warrior_hair_short.png",
+        "size": {
+          "width": 32,
+          "height": 32
+        },
+        "attachment_point": "head",
+        "offset": {"x": 0, "y": -4},
+        "color_zones": ["hair"],
+        "customizable_colors": {
+          "hair": {
+            "mask_path": "assets/character_generator/hair/warrior_hair_short_mask.png",
+            "default_color": "#2C222B"
+          }
+        },
+        "tags": ["short", "male", "warrior"],
+        "compatible_genders": ["male", "unisex"],
+        "animations": ["idle", "walk", "run"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      },
+
+      "long_flowing_hair": {
+        "id": "long_flowing_hair",
+        "name": "Long Flowing Hair",
+        "category": "hair",
+        "description": "Long elegant hair with front and back layers",
+        "has_back_layer": true,
+        "back_layer": {
+          "layer": "hair_back",
+          "z_order": 70,
+          "asset_path": "assets/character_generator/hair/long_flowing_hair_back.png"
+        },
+        "layer": "hair_front",
+        "z_order": 120,
+        "asset_path": "assets/character_generator/hair/long_flowing_hair_front.png",
+        "size": {
+          "width": 40,
+          "height": 48
+        },
+        "attachment_point": "head",
+        "offset": {"x": 0, "y": -4},
+        "color_zones": ["hair"],
+        "customizable_colors": {
+          "hair": {
+            "mask_path": "assets/character_generator/hair/long_flowing_hair_mask.png",
+            "default_color": "#CB9E6E"
+          }
+        },
+        "tags": ["long", "female", "elegant"],
+        "compatible_genders": ["female", "unisex"],
+        "animations": ["idle", "walk"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      }
+    },
+
+    "clothing": {
+      "leather_tunic": {
+        "id": "leather_tunic",
+        "name": "Leather Tunic",
+        "category": "clothing",
+        "description": "Basic leather armor for light protection",
+        "layer": "clothing_base",
+        "z_order": 30,
+        "asset_path": "assets/character_generator/clothing/leather_tunic.png",
+        "size": {
+          "width": 32,
+          "height": 40
+        },
+        "attachment_point": "torso",
+        "offset": {"x": 0, "y": 0},
+        "color_zones": ["primary", "secondary"],
+        "customizable_colors": {
+          "primary": {
+            "mask_path": "assets/character_generator/clothing/leather_tunic_primary_mask.png",
+            "default_color": "#8B4513",
+            "description": "Main leather color"
+          },
+          "secondary": {
+            "mask_path": "assets/character_generator/clothing/leather_tunic_secondary_mask.png",
+            "default_color": "#654321",
+            "description": "Trim and stitching color"
+          }
+        },
+        "tags": ["light_armor", "leather", "basic"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "stats": {
+          "defense": 5,
+          "weight": "light"
+        },
+        "animations": ["idle", "walk", "run", "attack"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      },
+
+      "wizard_robe": {
+        "id": "wizard_robe",
+        "name": "Wizard Robe",
+        "category": "clothing",
+        "description": "Flowing magical robes with mystical trim",
+        "layer": "clothing_base",
+        "z_order": 30,
+        "asset_path": "assets/character_generator/clothing/wizard_robe.png",
+        "size": {
+          "width": 36,
+          "height": 56
+        },
+        "attachment_point": "torso",
+        "offset": {"x": 0, "y": 0},
+        "color_zones": ["primary", "secondary", "tertiary"],
+        "customizable_colors": {
+          "primary": {
+            "mask_path": "assets/character_generator/clothing/wizard_robe_primary_mask.png",
+            "default_color": "#4B0082",
+            "description": "Main robe color"
+          },
+          "secondary": {
+            "mask_path": "assets/character_generator/clothing/wizard_robe_secondary_mask.png",
+            "default_color": "#FFD700",
+            "description": "Trim and decoration color"
+          },
+          "tertiary": {
+            "mask_path": "assets/character_generator/clothing/wizard_robe_tertiary_mask.png",
+            "default_color": "#8B00FF",
+            "description": "Magical rune color"
+          }
+        },
+        "tags": ["mage", "robe", "magical"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "stats": {
+          "defense": 2,
+          "magic_power": 10,
+          "weight": "light"
+        },
+        "animations": ["idle", "walk", "cast_spell"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      }
+    },
+
+    "accessories": {
+      "steel_helmet": {
+        "id": "steel_helmet",
+        "name": "Steel Helmet",
+        "category": "accessories",
+        "description": "Protective metal helmet",
+        "layer": "head_accessory",
+        "z_order": 130,
+        "asset_path": "assets/character_generator/accessories/steel_helmet.png",
+        "size": {
+          "width": 32,
+          "height": 24
+        },
+        "attachment_point": "head",
+        "offset": {"x": 0, "y": -2},
+        "color_zones": ["metal", "secondary"],
+        "customizable_colors": {
+          "metal": {
+            "mask_path": "assets/character_generator/accessories/steel_helmet_metal_mask.png",
+            "default_color": "#C0C0C0",
+            "description": "Metal color"
+          },
+          "secondary": {
+            "mask_path": "assets/character_generator/accessories/steel_helmet_plume_mask.png",
+            "default_color": "#DC143C",
+            "description": "Plume color"
+          }
+        },
+        "tags": ["helmet", "armor", "warrior"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "stats": {
+          "defense": 8,
+          "weight": "medium"
+        },
+        "occludes_hair": true,
+        "animations": ["idle", "walk", "run", "attack"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      },
+
+      "magic_amulet": {
+        "id": "magic_amulet",
+        "name": "Magic Amulet",
+        "category": "accessories",
+        "description": "Mystical amulet with glowing gem",
+        "layer": "neck_accessory",
+        "z_order": 140,
+        "asset_path": "assets/character_generator/accessories/magic_amulet.png",
+        "size": {
+          "width": 16,
+          "height": 16
+        },
+        "attachment_point": "torso",
+        "offset": {"x": 0, "y": -8},
+        "color_zones": ["metal", "tertiary"],
+        "customizable_colors": {
+          "metal": {
+            "mask_path": "assets/character_generator/accessories/magic_amulet_chain_mask.png",
+            "default_color": "#FFD700",
+            "description": "Chain color"
+          },
+          "tertiary": {
+            "mask_path": "assets/character_generator/accessories/magic_amulet_gem_mask.png",
+            "default_color": "#00FFFF",
+            "description": "Gem glow color"
+          }
+        },
+        "tags": ["jewelry", "magical", "accessory"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "stats": {
+          "magic_power": 5,
+          "mana_regen": 2
+        },
+        "has_glow_effect": true,
+        "animations": ["idle", "walk", "cast_spell"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      }
+    },
+
+    "weapons": {
+      "iron_sword": {
+        "id": "iron_sword",
+        "name": "Iron Sword",
+        "category": "weapons",
+        "description": "Standard iron longsword",
+        "layer": "hand_accessory_right",
+        "z_order": 160,
+        "asset_path": "assets/character_generator/weapons/iron_sword.png",
+        "size": {
+          "width": 24,
+          "height": 40
+        },
+        "attachment_point": "right_hand",
+        "offset": {"x": 2, "y": 0},
+        "grip_point": {"x": 12, "y": 32},
+        "color_zones": ["metal", "secondary"],
+        "customizable_colors": {
+          "metal": {
+            "mask_path": "assets/character_generator/weapons/iron_sword_blade_mask.png",
+            "default_color": "#C0C0C0",
+            "description": "Blade color"
+          },
+          "secondary": {
+            "mask_path": "assets/character_generator/weapons/iron_sword_grip_mask.png",
+            "default_color": "#8B4513",
+            "description": "Grip color"
+          }
+        },
+        "tags": ["sword", "melee", "warrior"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "weapon_stats": {
+          "damage": 15,
+          "attack_speed": 1.0,
+          "range": "melee",
+          "durability": 100
+        },
+        "animations": ["idle", "attack"],
+        "animation_overrides": {
+          "attack": {
+            "sprite_path": "assets/character_generator/weapons/iron_sword_attack.png",
+            "frames": 3
+          }
+        },
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      },
+
+      "wooden_staff": {
+        "id": "wooden_staff",
+        "name": "Wooden Staff",
+        "category": "weapons",
+        "description": "Magical staff for spellcasting",
+        "layer": "hand_accessory_right",
+        "z_order": 160,
+        "asset_path": "assets/character_generator/weapons/wooden_staff.png",
+        "size": {
+          "width": 16,
+          "height": 64
+        },
+        "attachment_point": "right_hand",
+        "offset": {"x": 0, "y": -8},
+        "grip_point": {"x": 8, "y": 40},
+        "color_zones": ["primary", "tertiary"],
+        "customizable_colors": {
+          "primary": {
+            "mask_path": "assets/character_generator/weapons/wooden_staff_wood_mask.png",
+            "default_color": "#8B4513",
+            "description": "Wood color"
+          },
+          "tertiary": {
+            "mask_path": "assets/character_generator/weapons/wooden_staff_crystal_mask.png",
+            "default_color": "#9370DB",
+            "description": "Crystal glow color"
+          }
+        },
+        "tags": ["staff", "magic", "mage"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "weapon_stats": {
+          "damage": 5,
+          "magic_power": 15,
+          "attack_speed": 0.8,
+          "range": "ranged",
+          "durability": 80
+        },
+        "has_glow_effect": true,
+        "animations": ["idle", "cast_spell"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      }
+    },
+
+    "faces": {
+      "human_face_01": {
+        "id": "human_face_01",
+        "name": "Human Face (Friendly)",
+        "category": "faces",
+        "description": "Basic human facial features with friendly expression",
+        "layer": "face_base",
+        "z_order": 80,
+        "asset_path": "assets/character_generator/faces/human_face_01.png",
+        "size": {
+          "width": 24,
+          "height": 24
+        },
+        "attachment_point": "head",
+        "offset": {"x": 0, "y": 2},
+        "color_zones": ["skin"],
+        "customizable_colors": {
+          "skin": {
+            "mask_path": "assets/character_generator/faces/human_face_01_skin_mask.png",
+            "default_color": "#FFDFC4"
+          }
+        },
+        "facial_features": {
+          "eyes": {
+            "asset_path": "assets/character_generator/faces/eyes_01.png",
+            "expressions": ["neutral", "happy", "angry", "surprised", "sad"]
+          },
+          "mouth": {
+            "asset_path": "assets/character_generator/faces/mouth_01.png",
+            "expressions": ["neutral", "smile", "frown", "open"]
+          }
+        },
+        "tags": ["human", "friendly", "basic"],
+        "compatible_genders": ["male", "female", "unisex"],
+        "animations": ["idle"],
+        "metadata": {
+          "artist": "NeonWorks Team",
+          "created": "2025-11-14",
+          "version": "1.0"
+        }
+      }
+    }
+  },
+
+  "presets": {
+    "description": "Pre-configured character combinations for quick generation",
+    "warrior_knight": {
+      "name": "Warrior Knight",
+      "description": "Heavily armored warrior with sword and shield",
+      "components": {
+        "body": "knight_body_male",
+        "hair": "warrior_hair_short",
+        "clothing": "leather_tunic",
+        "head_accessory": "steel_helmet",
+        "weapon_right": "iron_sword"
+      },
+      "colors": {
+        "skin": "#EECEB3",
+        "hair": "#2C222B",
+        "clothing_primary": "#8B4513",
+        "clothing_secondary": "#654321",
+        "metal": "#C0C0C0"
+      }
+    },
+    "arcane_mage": {
+      "name": "Arcane Mage",
+      "description": "Mystical spellcaster with staff and robes",
+      "components": {
+        "body": "mage_body_female",
+        "hair": "long_flowing_hair",
+        "clothing": "wizard_robe",
+        "neck_accessory": "magic_amulet",
+        "weapon_right": "wooden_staff"
+      },
+      "colors": {
+        "skin": "#F0D5BE",
+        "hair": "#8B00FF",
+        "clothing_primary": "#4B0082",
+        "clothing_secondary": "#FFD700",
+        "clothing_tertiary": "#8B00FF"
+      }
+    }
+  },
+
+  "tags_index": {
+    "description": "Searchable tag index for filtering components",
+    "tags": {
+      "gender": ["male", "female", "unisex"],
+      "class": ["warrior", "mage", "rogue", "cleric"],
+      "style": ["fantasy", "medieval", "modern", "sci-fi"],
+      "material": ["leather", "metal", "cloth", "magical"],
+      "rarity": ["common", "uncommon", "rare", "epic", "legendary"]
+    }
+  }
+}
