@@ -984,12 +984,13 @@ class DatabaseEditorUI:
             current_value = getattr(self.current_entry, field_name)
 
             # Convert input to appropriate type
-            if isinstance(current_value, int):
+            # Check bool before int (bool is subclass of int in Python)
+            if isinstance(current_value, bool):
+                value = value.lower() in ("true", "1", "yes")
+            elif isinstance(current_value, int):
                 value = int(value) if value else 0
             elif isinstance(current_value, float):
                 value = float(value) if value else 0.0
-            elif isinstance(current_value, bool):
-                value = value.lower() in ("true", "1", "yes")
 
             # Update the entry
             setattr(self.current_entry, field_name, value)
