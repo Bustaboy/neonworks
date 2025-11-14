@@ -26,18 +26,34 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
-from engine.data.database_schema import (
-    Actor,
-    Animation,
-    Armor,
-    Class,
-    DatabaseEntry,
-    Enemy,
-    Item,
-    Skill,
-    State,
-    Weapon,
-)
+try:
+    # Try package import first (when installed as package)
+    from neonworks.engine.data.database_schema import (
+        Actor,
+        Animation,
+        Armor,
+        Class,
+        DatabaseEntry,
+        Enemy,
+        Item,
+        Skill,
+        State,
+        Weapon,
+    )
+except ModuleNotFoundError:
+    # Fall back to relative import (when run as script)
+    from engine.data.database_schema import (
+        Actor,
+        Animation,
+        Armor,
+        Class,
+        DatabaseEntry,
+        Enemy,
+        Item,
+        Skill,
+        State,
+        Weapon,
+    )
 
 
 # =============================================================================
