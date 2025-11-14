@@ -182,9 +182,7 @@ class AIWritingAssistant:
             },
         }
 
-        self.vocab = self.theme_vocabulary.get(
-            game_theme, self.theme_vocabulary["cyberpunk"]
-        )
+        self.vocab = self.theme_vocabulary.get(game_theme, self.theme_vocabulary["cyberpunk"])
 
     def generate_quest(
         self, quest_type: QuestType, difficulty: str = "Medium", player_level: int = 1
@@ -211,9 +209,7 @@ class AIWritingAssistant:
         else:
             return self._generate_generic_quest(quest_type, difficulty, player_level)
 
-    def _generate_fetch_quest(
-        self, difficulty: str, player_level: int
-    ) -> QuestTemplate:
+    def _generate_fetch_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
         """Generate a fetch quest"""
         items = [
             "data chip",
@@ -234,9 +230,7 @@ class AIWritingAssistant:
             f"The area is dangerous, but the pay is good. Exercise caution."
         )
 
-        num_objectives = (
-            2 if difficulty == "Easy" else 3 if difficulty == "Medium" else 4
-        )
+        num_objectives = 2 if difficulty == "Easy" else 3 if difficulty == "Medium" else 4
 
         objectives = [
             f"Travel to the {location}",
@@ -273,9 +267,7 @@ class AIWritingAssistant:
             difficulty=difficulty,
         )
 
-    def _generate_combat_quest(
-        self, difficulty: str, player_level: int
-    ) -> QuestTemplate:
+    def _generate_combat_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
         """Generate a combat quest"""
         enemies = [
             "raiders",
@@ -297,9 +289,7 @@ class AIWritingAssistant:
             f"Eliminate the threat and restore order."
         )
 
-        num_enemies = (
-            5 if difficulty == "Easy" else 10 if difficulty == "Medium" else 15
-        )
+        num_enemies = 5 if difficulty == "Easy" else 10 if difficulty == "Medium" else 15
 
         objectives = [
             f"Locate the {enemy} at the {location}",
@@ -334,9 +324,7 @@ class AIWritingAssistant:
             difficulty=difficulty,
         )
 
-    def _generate_exploration_quest(
-        self, difficulty: str, player_level: int
-    ) -> QuestTemplate:
+    def _generate_exploration_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
         """Generate an exploration quest"""
         discoveries = [
             "ancient facility",
@@ -393,9 +381,7 @@ class AIWritingAssistant:
             difficulty=difficulty,
         )
 
-    def _generate_story_quest(
-        self, difficulty: str, player_level: int
-    ) -> QuestTemplate:
+    def _generate_story_quest(self, difficulty: str, player_level: int) -> QuestTemplate:
         """Generate a main story quest"""
         events = ["conspiracy", "power play", "invasion", "revolution", "awakening"]
         event = random.choice(events)
@@ -501,9 +487,7 @@ class AIWritingAssistant:
             ],
         }
 
-        opening = random.choice(
-            opening_lines.get(tone, opening_lines[DialogTone.NEUTRAL])
-        )
+        opening = random.choice(opening_lines.get(tone, opening_lines[DialogTone.NEUTRAL]))
 
         # Generate player choices
         choices = [
@@ -530,9 +514,7 @@ class AIWritingAssistant:
                 )
             )
 
-        dialog_tree = [
-            DialogLine(speaker=npc_name, text=opening, tone=tone, choices=choices)
-        ]
+        dialog_tree = [DialogLine(speaker=npc_name, text=opening, tone=tone, choices=choices)]
 
         return dialog_tree
 
@@ -556,9 +538,7 @@ class AIWritingAssistant:
 
         # Check for questions (player agency)
         if "?" not in dialog_text:
-            suggestions.append(
-                "💡 Add a question or choice to increase player engagement."
-            )
+            suggestions.append("💡 Add a question or choice to increase player engagement.")
 
         # Check for theme words
         theme_words_found = sum(
@@ -583,14 +563,10 @@ class AIWritingAssistant:
             "terrified",
         ]
         if not any(word in dialog_text.lower() for word in emotional_words):
-            suggestions.append(
-                "💡 Add emotional depth to make the character more relatable."
-            )
+            suggestions.append("💡 Add emotional depth to make the character more relatable.")
 
         if not suggestions:
-            suggestions.append(
-                "✅ Dialog looks great! Good pacing and character voice."
-            )
+            suggestions.append("✅ Dialog looks great! Good pacing and character voice.")
 
         return suggestions
 

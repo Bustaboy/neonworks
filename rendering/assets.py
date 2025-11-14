@@ -170,9 +170,7 @@ class AssetManager:
 
             # Cache it
             self._sprite_sheets[cache_key] = sheet
-            self._asset_sizes[cache_key] = (
-                surface.get_width() * surface.get_height() * 4
-            )
+            self._asset_sizes[cache_key] = surface.get_width() * surface.get_height() * 4
 
             print(f"✓ Loaded sprite sheet: {path} ({tile_width}x{tile_height})")
             return sheet

@@ -279,9 +279,7 @@ class TestTransitions:
 
     def test_transition_with_conditions(self):
         """Test transition with conditions"""
-        condition = TransitionCondition(
-            TransitionConditionType.GREATER_THAN, "speed", 0.5
-        )
+        condition = TransitionCondition(TransitionConditionType.GREATER_THAN, "speed", 0.5)
         transition = StateTransition("idle", "walk", [condition])
 
         assert len(transition.conditions) == 1
@@ -325,9 +323,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("idle", "idle"))
         state_machine.add_state(AnimationState("walk", "walk"))
 
-        condition = TransitionCondition(
-            TransitionConditionType.EQUALS, "state", "walking"
-        )
+        condition = TransitionCondition(TransitionConditionType.EQUALS, "state", "walking")
         transition = StateTransition("idle", "walk", [condition])
         state_machine.add_transition(transition)
 
@@ -347,9 +343,7 @@ class TestTransitions:
         state_machine.add_state(AnimationState("idle", "idle"))
         state_machine.add_state(AnimationState("run", "walk"))
 
-        condition = TransitionCondition(
-            TransitionConditionType.GREATER_THAN, "speed", 5.0
-        )
+        condition = TransitionCondition(TransitionConditionType.GREATER_THAN, "speed", 5.0)
         transition = StateTransition("idle", "run", [condition])
         state_machine.add_transition(transition)
 
@@ -547,11 +541,7 @@ class TestStateMachineIntegration:
             .add_transition(
                 "idle",
                 "walk",
-                [
-                    TransitionCondition(
-                        TransitionConditionType.GREATER_THAN, "speed", 0.1
-                    )
-                ],
+                [TransitionCondition(TransitionConditionType.GREATER_THAN, "speed", 0.1)],
             )
             .add_transition(
                 "walk",
@@ -562,12 +552,8 @@ class TestStateMachineIntegration:
                 "idle",
                 "jump",
                 [
-                    TransitionCondition(
-                        TransitionConditionType.TRIGGER, "jump_trigger"
-                    ),
-                    TransitionCondition(
-                        TransitionConditionType.EQUALS, "grounded", True
-                    ),
+                    TransitionCondition(TransitionConditionType.TRIGGER, "jump_trigger"),
+                    TransitionCondition(TransitionConditionType.EQUALS, "grounded", True),
                 ],
             )
             .add_transition(

@@ -96,9 +96,7 @@ class GameHUD:
 
         # Current turn info
         current_y = y + 40
-        self.ui.label(
-            f"Round: {turn_system.current_round}", panel_x + 10, current_y, size=16
-        )
+        self.ui.label(f"Round: {turn_system.current_round}", panel_x + 10, current_y, size=16)
 
         # Current actor
         if turn_system.current_turn_index < len(turn_system.turn_order):
@@ -136,9 +134,7 @@ class GameHUD:
             storage = world.get_component(entity_id, ResourceStorage)
             if storage:
                 for resource, amount in storage.resources.items():
-                    total_resources[resource] = (
-                        total_resources.get(resource, 0) + amount
-                    )
+                    total_resources[resource] = total_resources.get(resource, 0) + amount
 
         if not total_resources:
             return
@@ -374,9 +370,7 @@ class GameHUD:
         # Turn Actor
         turn_actor = world.get_component(self.selected_entity, TurnActor)
         if turn_actor:
-            self.ui.label(
-                f"Initiative: {turn_actor.initiative}", x + 15, info_y, size=14
-            )
+            self.ui.label(f"Initiative: {turn_actor.initiative}", x + 15, info_y, size=14)
             info_y += line_height
             self.ui.label(
                 f"AP: {turn_actor.action_points}/{turn_actor.max_action_points}",
@@ -389,14 +383,10 @@ class GameHUD:
         # Building
         building = world.get_component(self.selected_entity, Building)
         if building:
-            self.ui.label(
-                f"Building: {building.building_type}", x + 15, info_y, size=14
-            )
+            self.ui.label(f"Building: {building.building_type}", x + 15, info_y, size=14)
             info_y += line_height
             if building.under_construction:
-                progress = (
-                    building.construction_progress / building.construction_time
-                ) * 100
+                progress = (building.construction_progress / building.construction_time) * 100
                 self.ui.label(f"Construction: {progress:.0f}%", x + 15, info_y, size=14)
                 info_y += line_height
 

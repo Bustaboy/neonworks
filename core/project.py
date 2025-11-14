@@ -190,9 +190,7 @@ class Project:
             self._ensure_directories()
 
             self._loaded = True
-            print(
-                f"✅ Loaded project: {self.config.metadata.name} v{self.config.metadata.version}"
-            )
+            print(f"✅ Loaded project: {self.config.metadata.name} v{self.config.metadata.version}")
             return True
 
         except KeyError as e:
@@ -329,9 +327,7 @@ class ProjectManager:
             project_dir.mkdir(parents=True, exist_ok=True)
 
             # Create config
-            config = ProjectConfig(
-                metadata=metadata, settings=settings or ProjectSettings()
-            )
+            config = ProjectConfig(metadata=metadata, settings=settings or ProjectSettings())
 
             # Create project
             project = Project(project_dir)

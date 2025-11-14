@@ -263,9 +263,7 @@ class EventManager:
         self.events: Dict[int, GameEvent] = {}
         self._next_id = 1
 
-    def create_event(
-        self, name: str = "New Event", x: int = 0, y: int = 0
-    ) -> GameEvent:
+    def create_event(self, name: str = "New Event", x: int = 0, y: int = 0) -> GameEvent:
         """Create a new event."""
         event = GameEvent(id=self._next_id, name=name, x=x, y=y)
         self.events[self._next_id] = event
@@ -326,9 +324,7 @@ class EventManager:
 # Convenience functions for creating common event types
 
 
-def create_door_event(
-    x: int, y: int, target_map: str, target_x: int, target_y: int
-) -> GameEvent:
+def create_door_event(x: int, y: int, target_map: str, target_x: int, target_y: int) -> GameEvent:
     """
     Create a door/transfer event.
 
@@ -363,9 +359,7 @@ def create_door_event(
     return event
 
 
-def create_chest_event(
-    x: int, y: int, item_id: int, item_name: str = "Item"
-) -> GameEvent:
+def create_chest_event(x: int, y: int, item_id: int, item_name: str = "Item") -> GameEvent:
     """
     Create a treasure chest event.
 
@@ -409,9 +403,7 @@ def create_chest_event(
     return event
 
 
-def create_npc_event(
-    x: int, y: int, name: str, dialogue: str, sprite: str = ""
-) -> GameEvent:
+def create_npc_event(x: int, y: int, name: str, dialogue: str, sprite: str = "") -> GameEvent:
     """
     Create an NPC event.
 

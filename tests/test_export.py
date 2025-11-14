@@ -112,9 +112,7 @@ class TestPackageBuilder:
 
     def test_build_encrypted_package(self, test_project, temp_dir):
         """Test building an encrypted package"""
-        config = PackageConfig(
-            compress=True, encrypt=True, password="test_password_123"
-        )
+        config = PackageConfig(compress=True, encrypt=True, password="test_password_123")
 
         builder = PackageBuilder(config)
         builder.add_directory(test_project)

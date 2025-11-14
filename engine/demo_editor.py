@@ -102,9 +102,7 @@ class EditorDemo:
         # Draw centered text
         font = pygame.font.Font(None, 48)
         title = font.render("NeonWorks Event Editor", True, (100, 150, 255))
-        title_rect = title.get_rect(
-            center=(self.screen_width // 2, self.screen_height // 2 - 50)
-        )
+        title_rect = title.get_rect(center=(self.screen_width // 2, self.screen_height // 2 - 50))
         self.screen.blit(title, title_rect)
 
         # Instructions

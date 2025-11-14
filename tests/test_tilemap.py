@@ -217,9 +217,7 @@ class TestTileLayer:
 
     def test_layer_parallax(self):
         """Test layer parallax settings"""
-        layer = TileLayer(
-            name="background", width=10, height=10, parallax_x=0.5, parallax_y=0.5
-        )
+        layer = TileLayer(name="background", width=10, height=10, parallax_x=0.5, parallax_y=0.5)
 
         assert layer.parallax_x == 0.5
         assert layer.parallax_y == 0.5

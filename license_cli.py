@@ -143,9 +143,7 @@ def cmd_generate(args):
     """Generate a test license key (for development/testing)"""
     if not args.confirm:
         print("WARNING: This generates test licenses with a default secret key.")
-        print(
-            "For production use, implement proper license server with secure key storage."
-        )
+        print("For production use, implement proper license server with secure key storage.")
         print("\nAdd --confirm to generate test license.")
         return 1
 
@@ -242,20 +240,14 @@ Examples:
     status_parser = subparsers.add_parser("status", help="Show license status")
 
     # Deactivate command
-    deactivate_parser = subparsers.add_parser(
-        "deactivate", help="Deactivate current license"
-    )
+    deactivate_parser = subparsers.add_parser("deactivate", help="Deactivate current license")
 
     # Hardware ID command
     hwid_parser = subparsers.add_parser("hardware-id", help="Show hardware ID")
-    hwid_parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Show detailed info"
-    )
+    hwid_parser.add_argument("-v", "--verbose", action="store_true", help="Show detailed info")
 
     # Generate command (for testing)
-    generate_parser = subparsers.add_parser(
-        "generate", help="Generate test license (dev only)"
-    )
+    generate_parser = subparsers.add_parser("generate", help="Generate test license (dev only)")
     generate_parser.add_argument(
         "--tier",
         required=True,

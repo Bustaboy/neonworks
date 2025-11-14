@@ -66,9 +66,7 @@ class ProceduralGenerator:
     - Balanced competitive maps
     """
 
-    def __init__(
-        self, config: Optional[GenerationConfig] = None, seed: Optional[int] = None
-    ):
+    def __init__(self, config: Optional[GenerationConfig] = None, seed: Optional[int] = None):
         self.config = config or GenerationConfig()
 
         if seed is not None:
@@ -86,8 +84,7 @@ class ProceduralGenerator:
 
         # Initialize grid with walls
         self.terrain_grid = [
-            [TerrainType.WALL for _ in range(self.config.width)]
-            for _ in range(self.config.height)
+            [TerrainType.WALL for _ in range(self.config.width)] for _ in range(self.config.height)
         ]
 
         # Generate rooms
@@ -135,8 +132,7 @@ class ProceduralGenerator:
 
         # Initialize grid with floor
         self.terrain_grid = [
-            [TerrainType.FLOOR for _ in range(self.config.width)]
-            for _ in range(self.config.height)
+            [TerrainType.FLOOR for _ in range(self.config.width)] for _ in range(self.config.height)
         ]
 
         # Generate terrain using noise-like algorithm
@@ -176,18 +172,12 @@ class ProceduralGenerator:
 
         Ensures fairness for all players through mirrored layout.
         """
-        print(
-            f"🤖 Procedural Gen: Creating balanced competitive map for {num_players} players..."
-        )
+        print(f"🤖 Procedural Gen: Creating balanced competitive map for {num_players} players...")
 
         # Generate one half/quadrant
-        self.config.width = (
-            self.config.width // 2 if self.config.symmetrical else self.config.width
-        )
+        self.config.width = self.config.width // 2 if self.config.symmetrical else self.config.width
         self.config.height = (
-            self.config.height // 2
-            if self.config.symmetry_type == "radial"
-            else self.config.height
+            self.config.height // 2 if self.config.symmetry_type == "radial" else self.config.height
         )
 
         # Generate base map
@@ -334,9 +324,7 @@ class ProceduralGenerator:
 
         return count
 
-    def _add_cover_objects(
-        self, rooms: List[Tuple[int, int, int, int]]
-    ) -> List[Tuple[int, int]]:
+    def _add_cover_objects(self, rooms: List[Tuple[int, int, int, int]]) -> List[Tuple[int, int]]:
         """Add cover objects to interior map"""
         cover_positions = []
 
@@ -366,9 +354,7 @@ class ProceduralGenerator:
                         count += 1
         return count
 
-    def _add_resources(
-        self, rooms: List[Tuple[int, int, int, int]]
-    ) -> List[Tuple[int, int]]:
+    def _add_resources(self, rooms: List[Tuple[int, int, int, int]]) -> List[Tuple[int, int]]:
         """Add resources to rooms"""
         resource_positions = []
 
@@ -395,9 +381,7 @@ class ProceduralGenerator:
 
         return resource_positions
 
-    def _find_spawn_points(
-        self, rooms: List[Tuple[int, int, int, int]]
-    ) -> List[Tuple[int, int]]:
+    def _find_spawn_points(self, rooms: List[Tuple[int, int, int, int]]) -> List[Tuple[int, int]]:
         """Find spawn points in rooms"""
         if len(rooms) < 2:
             return []
@@ -474,9 +458,7 @@ class ProceduralGenerator:
         """Generate ASCII visualization of the generated map"""
         lines = []
         lines.append("=" * (map_data["width"] + 2))
-        lines.append(
-            f"Procedurally Generated Map ({map_data['width']}x{map_data['height']})"
-        )
+        lines.append(f"Procedurally Generated Map ({map_data['width']}x{map_data['height']})")
         lines.append("=" * (map_data["width"] + 2))
 
         terrain = map_data["terrain"]

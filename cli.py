@@ -172,10 +172,7 @@ class NeonWorksCLI:
         """Create a new project from a template"""
 
         # Validate project name
-        if (
-            not project_name
-            or not project_name.replace("_", "").replace("-", "").isalnum()
-        ):
+        if not project_name or not project_name.replace("_", "").replace("-", "").isalnum():
             print("❌ Error: Invalid project name!")
             print(
                 "   Project names should contain only letters, numbers, hyphens, and underscores."
@@ -220,9 +217,7 @@ class NeonWorksCLI:
             settings.window_title = project_name.replace("_", " ").title()
 
             # Create project
-            project = self.project_manager.create_project(
-                project_name, metadata, settings
-            )
+            project = self.project_manager.create_project(project_name, metadata, settings)
 
             if not project:
                 print("❌ Error: Failed to create project")
@@ -234,9 +229,7 @@ class NeonWorksCLI:
                 print(f"   📋 Copying template files...")
                 self._copy_template_files(template_dir, project_dir)
             else:
-                print(
-                    f"   ⚠️  Warning: Template directory not found, creating minimal structure"
-                )
+                print(f"   ⚠️  Warning: Template directory not found, creating minimal structure")
                 self._create_minimal_structure(project, template)
 
             print(f"\n✅ Project created successfully!")
@@ -458,13 +451,8 @@ See the NeonWorks documentation for more information:
 
             # Check for missing initial scene script
             if project.config.settings.initial_scene:
-                scene_script = (
-                    project.scripts_dir / f"{project.config.settings.initial_scene}.py"
-                )
-                if (
-                    not scene_script.exists()
-                    and not (project.scripts_dir / "main.py").exists()
-                ):
+                scene_script = project.scripts_dir / f"{project.config.settings.initial_scene}.py"
+                if not scene_script.exists() and not (project.scripts_dir / "main.py").exists():
                     warnings.append(f"Initial scene script not found: {scene_script}")
 
             if warnings:
@@ -581,9 +569,7 @@ For more information, see the documentation at docs/cli_tools.md
     create_parser.add_argument(
         "--author", "-a", default="Developer", help="Author name (default: Developer)"
     )
-    create_parser.add_argument(
-        "--description", "-d", default="", help="Project description"
-    )
+    create_parser.add_argument("--description", "-d", default="", help="Project description")
 
     # Run command
     run_parser = subparsers.add_parser(

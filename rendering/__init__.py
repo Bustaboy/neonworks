@@ -56,9 +56,7 @@ def __getattr__(name):
     if name in ["Animation", "AnimationStateMachine"]:
         from neonworks.rendering.animation import Animation, AnimationStateMachine
 
-        globals().update(
-            {"Animation": Animation, "AnimationStateMachine": AnimationStateMachine}
-        )
+        globals().update({"Animation": Animation, "AnimationStateMachine": AnimationStateMachine})
     elif name == "AssetManager":
         from neonworks.rendering.assets import AssetManager
 
@@ -145,8 +143,6 @@ def __getattr__(name):
                 }
             )
         except ImportError:
-            raise AttributeError(
-                f"Asset pipeline not available. Install Pillow to use {name}"
-            )
+            raise AttributeError(f"Asset pipeline not available. Install Pillow to use {name}")
 
     return globals()[name]

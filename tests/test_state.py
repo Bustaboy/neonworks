@@ -526,9 +526,7 @@ class TestStateManager:
         manager.register_state(gameplay)
 
         # Change state with data
-        manager.change_state(
-            "gameplay", StateTransition.PUSH, {"level": "test_level.json"}
-        )
+        manager.change_state("gameplay", StateTransition.PUSH, {"level": "test_level.json"})
         manager._execute_transition()
 
         captured = capsys.readouterr()

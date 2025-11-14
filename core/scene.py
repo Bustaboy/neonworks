@@ -105,9 +105,7 @@ class Scene(ABC):
         if self.manager:
             self.manager.push_scene(scene_name, transition, duration, data)
 
-    def pop_scene(
-        self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5
-    ):
+    def pop_scene(self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5):
         """Pop current scene from stack"""
         if self.manager:
             self.manager.pop_scene(transition, duration)
@@ -238,9 +236,7 @@ class SceneTransition:
         temp.set_alpha(alpha)
         screen.blit(temp, (0, 0))
 
-    def _apply_zoom(
-        self, screen: pygame.Surface, new_surface: pygame.Surface, zoom_in: bool
-    ):
+    def _apply_zoom(self, screen: pygame.Surface, new_surface: pygame.Surface, zoom_in: bool):
         """Apply zoom transition"""
         if zoom_in:
             scale = self.progress
@@ -338,9 +334,7 @@ class SceneManager:
 
             # Cache old scene render
             if self.current_scene and self.render_cache_enabled:
-                self.old_surface = pygame.Surface(
-                    (self.screen_width, self.screen_height)
-                )
+                self.old_surface = pygame.Surface((self.screen_width, self.screen_height))
                 self.current_scene.render(self.old_surface)
 
             if self.current_scene:
@@ -376,9 +370,7 @@ class SceneManager:
         # Change to new scene
         self.change_scene(scene_name, transition, duration, data)
 
-    def pop_scene(
-        self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5
-    ):
+    def pop_scene(self, transition: TransitionType = TransitionType.FADE, duration: float = 0.5):
         """
         Pop current scene and return to previous scene.
 
@@ -404,9 +396,7 @@ class SceneManager:
 
             # Cache old scene render
             if self.current_scene and self.render_cache_enabled:
-                self.old_surface = pygame.Surface(
-                    (self.screen_width, self.screen_height)
-                )
+                self.old_surface = pygame.Surface((self.screen_width, self.screen_height))
                 self.current_scene.render(self.old_surface)
 
             if self.current_scene:
@@ -470,14 +460,10 @@ class SceneManager:
         if self.transition:
             # Render new scene to buffer
             if self.next_scene:
-                self.new_surface = pygame.Surface(
-                    (self.screen_width, self.screen_height)
-                )
+                self.new_surface = pygame.Surface((self.screen_width, self.screen_height))
                 self.next_scene.render(self.new_surface)
             else:
-                self.new_surface = pygame.Surface(
-                    (self.screen_width, self.screen_height)
-                )
+                self.new_surface = pygame.Surface((self.screen_width, self.screen_height))
                 self.new_surface.fill((0, 0, 0))
 
             # Apply transition

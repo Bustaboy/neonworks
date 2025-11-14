@@ -98,8 +98,7 @@ def _validate_paths(paths: Dict[str, Any]) -> List[str]:
         if path_name in paths:
             if not isinstance(paths[path_name], str):
                 errors.append(
-                    f"paths.{path_name}: Expected string, "
-                    f"got {type(paths[path_name]).__name__}"
+                    f"paths.{path_name}: Expected string, " f"got {type(paths[path_name]).__name__}"
                 )
             elif not paths[path_name].strip():
                 errors.append(f"paths.{path_name}: Cannot be empty")
@@ -135,13 +134,11 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
             if expected_type == int and min_val is not None:
                 if value < min_val:
                     errors.append(
-                        f"settings.{setting}: Value {value} is too small "
-                        f"(minimum: {min_val})"
+                        f"settings.{setting}: Value {value} is too small " f"(minimum: {min_val})"
                     )
                 if value > max_val:
                     errors.append(
-                        f"settings.{setting}: Value {value} is too large "
-                        f"(maximum: {max_val})"
+                        f"settings.{setting}: Value {value} is too large " f"(maximum: {max_val})"
                     )
 
             if expected_type == str and not value.strip():
@@ -167,8 +164,7 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
 
             if value < min_val or value > max_val:
                 errors.append(
-                    f"settings.{setting}: Value {value} out of range "
-                    f"({min_val}-{max_val})"
+                    f"settings.{setting}: Value {value} out of range " f"({min_val}-{max_val})"
                 )
 
     # Feature flags
@@ -183,8 +179,7 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
         if flag in settings:
             if not isinstance(settings[flag], bool):
                 errors.append(
-                    f"settings.{flag}: Expected bool, "
-                    f"got {type(settings[flag]).__name__}"
+                    f"settings.{flag}: Expected bool, " f"got {type(settings[flag]).__name__}"
                 )
 
     # Scene settings
@@ -205,8 +200,7 @@ def _validate_settings(settings: Dict[str, Any]) -> List[str]:
             value = settings[file_setting]
             if not isinstance(value, str):
                 errors.append(
-                    f"settings.{file_setting}: Expected string, "
-                    f"got {type(value).__name__}"
+                    f"settings.{file_setting}: Expected string, " f"got {type(value).__name__}"
                 )
 
     # Export settings
@@ -268,9 +262,7 @@ def validate_building_definitions(buildings: Dict[str, Any]) -> List[str]:
         required = ["name", "cost", "build_time"]
         for field in required:
             if field not in building_data:
-                errors.append(
-                    f"Building '{building_id}': Missing required field '{field}'"
-                )
+                errors.append(f"Building '{building_id}': Missing required field '{field}'")
 
         # Validate cost
         if "cost" in building_data:
@@ -289,9 +281,7 @@ def validate_building_definitions(buildings: Dict[str, Any]) -> List[str]:
         if "build_time" in building_data:
             build_time = building_data["build_time"]
             if not isinstance(build_time, (int, float)) or build_time < 0:
-                errors.append(
-                    f"Building '{building_id}': 'build_time' must be non-negative number"
-                )
+                errors.append(f"Building '{building_id}': 'build_time' must be non-negative number")
 
     return errors
 
@@ -337,9 +327,7 @@ def validate_item_definitions(items: Dict[str, Any]) -> List[str]:
             if field in item_data:
                 value = item_data[field]
                 if not isinstance(value, (int, float)) or value < 0:
-                    errors.append(
-                        f"Item '{item_id}': '{field}' must be non-negative number"
-                    )
+                    errors.append(f"Item '{item_id}': '{field}' must be non-negative number")
 
     return errors
 
@@ -368,9 +356,7 @@ def validate_character_definitions(characters: Dict[str, Any]) -> List[str]:
         required = ["name", "class"]
         for field in required:
             if field not in char_data:
-                errors.append(
-                    f"Character '{char_id}': Missing required field '{field}'"
-                )
+                errors.append(f"Character '{char_id}': Missing required field '{field}'")
 
         # Validate stats
         if "stats" in char_data:

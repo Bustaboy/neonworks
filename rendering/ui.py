@@ -67,9 +67,7 @@ class UI:
         self.hot_item = None  # Item under mouse
         self.active_item = None  # Item being interacted with
 
-    def update_input(
-        self, mouse_pos: Tuple[int, int], mouse_down: bool, mouse_clicked: bool
-    ):
+    def update_input(self, mouse_pos: Tuple[int, int], mouse_down: bool, mouse_clicked: bool):
         """Update input state"""
         self.mouse_x, self.mouse_y = mouse_pos
         self.mouse_down = mouse_down
@@ -88,9 +86,7 @@ class UI:
         """Check if mouse is inside rectangle"""
         return x <= self.mouse_x <= x + width and y <= self.mouse_y <= y + height
 
-    def button(
-        self, x: int, y: int, width: int, height: int, text: str, id_: str
-    ) -> bool:
+    def button(self, x: int, y: int, width: int, height: int, text: str, id_: str) -> bool:
         """Render a button and return True if clicked"""
         is_inside = self._is_inside(x, y, width, height)
 
@@ -141,25 +137,19 @@ class UI:
 
         return clicked
 
-    def label(
-        self, x: int, y: int, text: str, color: Optional[Tuple[int, int, int]] = None
-    ):
+    def label(self, x: int, y: int, text: str, color: Optional[Tuple[int, int, int]] = None):
         """Render a text label"""
         color = color or self.style.text_color
         text_surface = self.font.render(text, True, color)
         self.screen.blit(text_surface, (x, y))
 
-    def title(
-        self, x: int, y: int, text: str, color: Optional[Tuple[int, int, int]] = None
-    ):
+    def title(self, x: int, y: int, text: str, color: Optional[Tuple[int, int, int]] = None):
         """Render a title"""
         color = color or self.style.text_color
         text_surface = self.title_font.render(text, True, color)
         self.screen.blit(text_surface, (x, y))
 
-    def panel(
-        self, x: int, y: int, width: int, height: int, title: Optional[str] = None
-    ):
+    def panel(self, x: int, y: int, width: int, height: int, title: Optional[str] = None):
         """Render a panel with optional title"""
         # Draw panel background
         pygame.draw.rect(
@@ -226,19 +216,13 @@ class UI:
         normalized = (value - min_val) / (max_val - min_val)
         thumb_x = x + int(normalized * width)
         thumb_color = (
-            self.style.active_color
-            if self.active_item == id_
-            else self.style.primary_color
+            self.style.active_color if self.active_item == id_ else self.style.primary_color
         )
-        pygame.draw.circle(
-            self.screen, thumb_color, (thumb_x, y + height // 2), height // 2
-        )
+        pygame.draw.circle(self.screen, thumb_color, (thumb_x, y + height // 2), height // 2)
 
         return value
 
-    def checkbox(
-        self, x: int, y: int, size: int, checked: bool, label: str, id_: str
-    ) -> bool:
+    def checkbox(self, x: int, y: int, size: int, checked: bool, label: str, id_: str) -> bool:
         """Render a checkbox and return new state"""
         is_inside = self._is_inside(x, y, size, size)
 
@@ -246,9 +230,7 @@ class UI:
             self.hot_item = id_
 
         # Determine color
-        color = (
-            self.style.hover_color if self.hot_item == id_ else self.style.primary_color
-        )
+        color = self.style.hover_color if self.hot_item == id_ else self.style.primary_color
 
         # Draw checkbox
         pygame.draw.rect(
@@ -328,9 +310,7 @@ class UI:
             text_rect = text_surface.get_rect(center=(x + width // 2, y + height // 2))
             self.screen.blit(text_surface, text_rect)
 
-    def text_input(
-        self, x: int, y: int, width: int, height: int, text: str, id_: str
-    ) -> str:
+    def text_input(self, x: int, y: int, width: int, height: int, text: str, id_: str) -> str:
         """Render a text input field (simplified)"""
         is_inside = self._is_inside(x, y, width, height)
 
@@ -338,11 +318,7 @@ class UI:
             self.hot_item = id_
 
         # Determine color
-        color = (
-            self.style.hover_color
-            if self.hot_item == id_
-            else self.style.secondary_color
-        )
+        color = self.style.hover_color if self.hot_item == id_ else self.style.secondary_color
 
         # Draw input box
         pygame.draw.rect(
@@ -362,9 +338,7 @@ class UI:
         # Draw text
         if text:
             text_surface = self.font.render(text, True, self.style.text_color)
-            self.screen.blit(
-                text_surface, (x + self.style.padding, y + height // 2 - 8)
-            )
+            self.screen.blit(text_surface, (x + self.style.padding, y + height // 2 - 8))
 
         # Note: Actual text input handling would require keyboard events
         return text

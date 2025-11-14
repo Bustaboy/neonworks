@@ -105,9 +105,7 @@ class NavigationGrid:
         """Check if coordinates are within grid bounds"""
         return 0 <= x < self.width and 0 <= y < self.height
 
-    def get_neighbors(
-        self, x: int, y: int, diagonal: bool = True
-    ) -> List[Tuple[int, int]]:
+    def get_neighbors(self, x: int, y: int, diagonal: bool = True) -> List[Tuple[int, int]]:
         """
         Get walkable neighbors of a cell.
 
@@ -145,9 +143,7 @@ class NavigationGrid:
             if self.is_walkable(nx, ny):
                 # For diagonals, check if both adjacent cells are walkable
                 if diagonal and abs(dx) == 1 and abs(dy) == 1:
-                    if not (
-                        self.is_walkable(x + dx, y) and self.is_walkable(x, y + dy)
-                    ):
+                    if not (self.is_walkable(x + dx, y) and self.is_walkable(x, y + dy)):
                         continue  # Skip diagonal if adjacent cells blocked
                 neighbors.append((nx, ny))
 

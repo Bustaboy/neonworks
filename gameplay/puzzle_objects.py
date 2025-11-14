@@ -291,9 +291,7 @@ class PuzzleController(Component):
     is_solved: bool = False
 
     # Rewards
-    reward_target_ids: List[str] = field(
-        default_factory=list
-    )  # What to activate when solved
+    reward_target_ids: List[str] = field(default_factory=list)  # What to activate when solved
 
     # Callbacks
     on_solve: Optional[Callable] = None
@@ -304,9 +302,7 @@ class PuzzleController(Component):
         if len(self.required_switches) != len(self.required_states):
             return False
 
-        for switch_id, required_state in zip(
-            self.required_switches, self.required_states
-        ):
+        for switch_id, required_state in zip(self.required_switches, self.required_states):
             current_state = self.current_states.get(switch_id, False)
             if current_state != required_state:
                 return False

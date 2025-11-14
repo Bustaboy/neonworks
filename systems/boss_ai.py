@@ -64,9 +64,7 @@ class BossAISystem(System):
             if boss_phase.should_advance_phase(hp_percentage):
                 self._trigger_phase_transition(world, boss, boss_phase)
 
-    def _trigger_phase_transition(
-        self, world: World, boss: Entity, boss_phase: BossPhase
-    ):
+    def _trigger_phase_transition(self, world: World, boss: Entity, boss_phase: BossPhase):
         """Trigger boss phase transition"""
         old_phase = boss_phase.current_phase
         boss_phase.advance_phase()
@@ -93,9 +91,7 @@ class BossAISystem(System):
             )
         )
 
-    def _apply_phase_changes(
-        self, world: World, boss: Entity, phase_data: Dict[str, Any]
-    ):
+    def _apply_phase_changes(self, world: World, boss: Entity, phase_data: Dict[str, Any]):
         """Apply changes when boss enters new phase"""
         stats = boss.get_component(JRPGStats)
         ai = boss.get_component(BattleAI)
@@ -148,9 +144,7 @@ class BossAISystem(System):
                 )
             )
 
-    def create_boss_template(
-        self, boss_id: str, name: str, phases: int = 2
-    ) -> Dict[str, Any]:
+    def create_boss_template(self, boss_id: str, name: str, phases: int = 2) -> Dict[str, Any]:
         """
         Create a boss template with default multi-phase setup.
 
@@ -287,9 +281,7 @@ BOSS_TEMPLATES = {
 }
 
 
-def create_boss_entity(
-    world: World, boss_template: Dict[str, Any], level: int = 10
-) -> Entity:
+def create_boss_entity(world: World, boss_template: Dict[str, Any], level: int = 10) -> Entity:
     """
     Create a boss entity from template.
 

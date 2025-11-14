@@ -17,9 +17,7 @@ class EncounterGroup:
     """Definition of an encounter group"""
 
     group_id: str
-    enemies: List[Dict[str, any]] = field(
-        default_factory=list
-    )  # enemy_id, level, position
+    enemies: List[Dict[str, any]] = field(default_factory=list)  # enemy_id, level, position
     weight: int = 10  # Spawn weight
     min_steps: int = 0  # Minimum steps before can appear
     max_steps: int = 9999  # Maximum steps before stops appearing

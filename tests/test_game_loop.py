@@ -63,12 +63,12 @@ class TestGameEngine:
 
     def test_engine_creation(self):
         """Test creating game engine"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine(target_fps=60)
 
@@ -78,12 +78,12 @@ class TestGameEngine:
 
     def test_engine_with_custom_params(self):
         """Test creating engine with custom parameters"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine(target_fps=120, fixed_timestep=1.0 / 120.0)
 
@@ -92,12 +92,12 @@ class TestGameEngine:
 
     def test_get_stats(self):
         """Test getting performance stats"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
             stats = engine.get_stats()
@@ -110,12 +110,12 @@ class TestGameEngine:
 
     def test_get_fps_initial(self):
         """Test getting FPS initially returns 0"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
             fps = engine.get_fps()
@@ -124,15 +124,13 @@ class TestGameEngine:
 
     def test_fixed_update_called(self):
         """Test that fixed update is called"""
-        with patch("neonworks.core.game_loop.World") as mock_world, patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ) as mock_event_mgr, patch(
-            "neonworks.core.game_loop.StateManager"
-        ) as mock_state_mgr, patch(
-            "neonworks.core.game_loop.InputManager"
-        ) as mock_input, patch(
-            "neonworks.core.game_loop.AudioManager"
-        ) as mock_audio:
+        with (
+            patch("neonworks.core.game_loop.World") as mock_world,
+            patch("neonworks.core.game_loop.get_event_manager") as mock_event_mgr,
+            patch("neonworks.core.game_loop.StateManager") as mock_state_mgr,
+            patch("neonworks.core.game_loop.InputManager") as mock_input,
+            patch("neonworks.core.game_loop.AudioManager") as mock_audio,
+        ):
             # Setup mocks
             mock_event_mgr.return_value = Mock()
             mock_state_mgr.return_value = Mock()
@@ -155,12 +153,12 @@ class TestGameEngine:
 
     def test_stop_engine(self):
         """Test stopping the engine"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
             engine.running = True
@@ -171,12 +169,12 @@ class TestGameEngine:
 
     def test_update_fps(self):
         """Test FPS counter update"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
 
@@ -189,15 +187,13 @@ class TestGameEngine:
 
     def test_quit_event_stops_engine(self):
         """Test that pygame QUIT event stops the engine"""
-        with patch("neonworks.core.game_loop.World") as mock_world, patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ) as mock_event_mgr, patch(
-            "neonworks.core.game_loop.StateManager"
-        ) as mock_state_mgr, patch(
-            "neonworks.core.game_loop.InputManager"
-        ) as mock_input, patch(
-            "neonworks.core.game_loop.AudioManager"
-        ) as mock_audio:
+        with (
+            patch("neonworks.core.game_loop.World") as mock_world,
+            patch("neonworks.core.game_loop.get_event_manager") as mock_event_mgr,
+            patch("neonworks.core.game_loop.StateManager") as mock_state_mgr,
+            patch("neonworks.core.game_loop.InputManager") as mock_input,
+            patch("neonworks.core.game_loop.AudioManager") as mock_audio,
+        ):
             # Setup mocks
             mock_event_mgr.return_value = Mock()
             mock_state_mgr.return_value = Mock()
@@ -233,12 +229,12 @@ class TestFixedTimestep:
 
     def test_accumulator_behavior(self):
         """Test that accumulator accumulates time correctly"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
 
@@ -253,15 +249,13 @@ class TestFixedTimestep:
 
     def test_multiple_updates_per_frame(self):
         """Test that multiple updates can occur in one frame"""
-        with patch("neonworks.core.game_loop.World") as mock_world, patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ) as mock_event_mgr, patch(
-            "neonworks.core.game_loop.StateManager"
-        ) as mock_state_mgr, patch(
-            "neonworks.core.game_loop.InputManager"
-        ) as mock_input, patch(
-            "neonworks.core.game_loop.AudioManager"
-        ) as mock_audio:
+        with (
+            patch("neonworks.core.game_loop.World") as mock_world,
+            patch("neonworks.core.game_loop.get_event_manager") as mock_event_mgr,
+            patch("neonworks.core.game_loop.StateManager") as mock_state_mgr,
+            patch("neonworks.core.game_loop.InputManager") as mock_input,
+            patch("neonworks.core.game_loop.AudioManager") as mock_audio,
+        ):
             # Setup mocks
             mock_event_mgr.return_value = Mock()
             mock_state_mgr.return_value = Mock()
@@ -291,10 +285,7 @@ class TestFixedTimestep:
                 updates = 0
                 max_updates = 5
 
-                while (
-                    engine._accumulator >= engine.fixed_timestep
-                    and updates < max_updates
-                ):
+                while engine._accumulator >= engine.fixed_timestep and updates < max_updates:
                     engine._fixed_update(engine.fixed_timestep)
                     engine._accumulator -= engine.fixed_timestep
                     updates += 1
@@ -318,12 +309,12 @@ class TestPerformanceStats:
 
     def test_stats_initialization(self):
         """Test that stats are initialized"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
 
@@ -335,12 +326,12 @@ class TestPerformanceStats:
 
     def test_stats_are_numbers(self):
         """Test that stats are numeric values"""
-        with patch("neonworks.core.game_loop.World"), patch(
-            "neonworks.core.game_loop.get_event_manager"
-        ), patch("neonworks.core.game_loop.StateManager"), patch(
-            "neonworks.core.game_loop.InputManager"
-        ), patch(
-            "neonworks.core.game_loop.AudioManager"
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
         ):
             engine = GameEngine()
             stats = engine.get_stats()

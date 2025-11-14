@@ -196,9 +196,7 @@ def test_event_conditions():
     page2 = EventPage()
     page2.self_switch_valid = True
     page2.self_switch_ch = "A"
-    page2.commands = [
-        {"code": "SHOW_TEXT", "parameters": {"text": "Self-switch A is ON"}}
-    ]
+    page2.commands = [{"code": "SHOW_TEXT", "parameters": {"text": "Self-switch A is ON"}}]
     event.pages.append(page2)
 
     # Page 3: No conditions (default)
@@ -273,10 +271,7 @@ def test_complete_workflow():
     assert loaded_event.x == event.x
     assert loaded_event.y == event.y
     assert len(loaded_event.pages[0].commands) == len(event.pages[0].commands)
-    assert (
-        loaded_event.pages[0].graphic.character_name
-        == event.pages[0].graphic.character_name
-    )
+    assert loaded_event.pages[0].graphic.character_name == event.pages[0].graphic.character_name
     print("  ✓ All data verified successfully")
 
     # Cleanup

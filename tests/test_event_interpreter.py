@@ -269,9 +269,7 @@ def test_label_jump(interpreter, game_state):
         ControlVariablesCommand(
             variable_id=1, operation="set", operand_type="constant", operand_value=999
         ),  # Should be skipped
-        EventCommand(
-            command_type=CommandType.LABEL, parameters={"name": "skip"}, indent=0
-        ),
+        EventCommand(command_type=CommandType.LABEL, parameters={"name": "skip"}, indent=0),
         ControlVariablesCommand(
             variable_id=2, operation="set", operand_type="constant", operand_value=2
         ),

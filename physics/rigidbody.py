@@ -107,18 +107,14 @@ class PhysicsSystem:
             if rigidbody and transform:
                 self._update_rigidbody(rigidbody, transform, delta_time)
 
-    def _update_rigidbody(
-        self, rigidbody: RigidBody, transform: Transform, delta_time: float
-    ):
+    def _update_rigidbody(self, rigidbody: RigidBody, transform: Transform, delta_time: float):
         """Update a single rigid body"""
         if rigidbody.is_static:
             return
 
         # Apply gravity
         if not rigidbody.is_kinematic and rigidbody.gravity_scale != 0:
-            rigidbody.acceleration_y += (
-                self.settings.gravity_y * rigidbody.gravity_scale
-            )
+            rigidbody.acceleration_y += self.settings.gravity_y * rigidbody.gravity_scale
 
         # Apply forces (F = ma, so a = F/m)
         if not rigidbody.is_kinematic and rigidbody.mass > 0:
@@ -182,12 +178,7 @@ class PhysicsSystem:
             return
 
         # If both are triggers, no physical response
-        if (
-            collider_a
-            and collider_b
-            and collider_a.is_trigger
-            and collider_b.is_trigger
-        ):
+        if collider_a and collider_b and collider_a.is_trigger and collider_b.is_trigger:
             return
 
         normal_x, normal_y = collision_info.normal
@@ -233,9 +224,7 @@ class PhysicsSystem:
 
         # Velocity correction (bounce/friction)
         if rigidbody_a and rigidbody_b:
-            self._resolve_collision_velocity(
-                rigidbody_a, rigidbody_b, normal_x, normal_y
-            )
+            self._resolve_collision_velocity(rigidbody_a, rigidbody_b, normal_x, normal_y)
         elif rigidbody_a:
             # Collision with static object
             self._resolve_static_collision_velocity(
@@ -292,9 +281,7 @@ class PhysicsSystem:
     ):
         """Resolve velocity after collision with static object"""
         # Velocity along normal (from object towards static)
-        vel_along_normal = (
-            rigidbody.velocity_x * normal_x + rigidbody.velocity_y * normal_y
-        )
+        vel_along_normal = rigidbody.velocity_x * normal_x + rigidbody.velocity_y * normal_y
 
         # Don't resolve if velocity is separating (away from static object)
         # Negative vel_along_normal means moving away from collision

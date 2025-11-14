@@ -66,9 +66,7 @@ class ExecutableBundler:
         try:
             import PyInstaller
         except ImportError:
-            raise RuntimeError(
-                "PyInstaller not available. Install with: pip install pyinstaller"
-            )
+            raise RuntimeError("PyInstaller not available. Install with: pip install pyinstaller")
 
         # Create output directory
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -230,11 +228,7 @@ class ExecutableBundler:
         hiddenimports_str = ", ".join(f"'{imp}'" for imp in self.config.hidden_imports)
 
         # Icon line
-        icon_line = (
-            f"icon='{self.config.icon_path}',"
-            if self.config.icon_path
-            else "icon=None,"
-        )
+        icon_line = f"icon='{self.config.icon_path}'," if self.config.icon_path else "icon=None,"
 
         spec_template = f"""# -*- mode: python ; coding: utf-8 -*-
 
@@ -313,9 +307,7 @@ def create_launcher_script(
     Returns:
         Launcher script content as string
     """
-    password_line = (
-        f"    password = '{password}'" if password else "    password = None"
-    )
+    password_line = f"    password = '{password}'" if password else "    password = None"
 
     launcher = f"""#!/usr/bin/env python3
 \"\"\"

@@ -109,9 +109,7 @@ class TriggerCondition:
     @classmethod
     def from_dict(cls, data: Dict[str, any]) -> "TriggerCondition":
         """Deserialize from dictionary"""
-        return cls(
-            condition_type=data["condition_type"], parameters=data.get("parameters", {})
-        )
+        return cls(condition_type=data["condition_type"], parameters=data.get("parameters", {}))
 
 
 @dataclass
@@ -327,9 +325,7 @@ class EventTriggerManager:
                 if event.id in self.active_handlers:
                     del self.active_handlers[event.id]
 
-    def check_triggers(
-        self, context: TriggerContext
-    ) -> List[Tuple[GameEvent, EventPage]]:
+    def check_triggers(self, context: TriggerContext) -> List[Tuple[GameEvent, EventPage]]:
         """
         Check all event triggers and return triggered events.
 
@@ -468,16 +464,10 @@ class EventTriggerManager:
 
     def to_dict(self) -> Dict[str, any]:
         """Serialize manager state to dictionary"""
-        return {
-            "events": {
-                event_id: event.to_dict() for event_id, event in self.events.items()
-            }
-        }
+        return {"events": {event_id: event.to_dict() for event_id, event in self.events.items()}}
 
     @classmethod
-    def from_dict(
-        cls, data: Dict[str, any], game_state: GameState
-    ) -> "EventTriggerManager":
+    def from_dict(cls, data: Dict[str, any], game_state: GameState) -> "EventTriggerManager":
         """Deserialize manager state from dictionary"""
         manager = cls(game_state=game_state)
 
@@ -500,9 +490,7 @@ class EventTriggerManager:
 
 def create_proximity_trigger(max_distance: int = 1) -> TriggerCondition:
     """Create a proximity-based trigger condition"""
-    return TriggerCondition(
-        condition_type="proximity", parameters={"max_distance": max_distance}
-    )
+    return TriggerCondition(condition_type="proximity", parameters={"max_distance": max_distance})
 
 
 def create_switch_trigger(switch_id: int, value: bool = True) -> TriggerCondition:
@@ -512,9 +500,7 @@ def create_switch_trigger(switch_id: int, value: bool = True) -> TriggerConditio
     )
 
 
-def create_variable_trigger(
-    variable_id: int, operator: str, value: int
-) -> TriggerCondition:
+def create_variable_trigger(variable_id: int, operator: str, value: int) -> TriggerCondition:
     """Create a variable comparison trigger condition"""
     return TriggerCondition(
         condition_type="variable",

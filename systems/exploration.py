@@ -223,9 +223,7 @@ class ExplorationSystem(System):
                 continue  # Static NPCs don't move
 
             elif behavior.behavior_type == "wander":
-                self._update_wander_behavior(
-                    npc, behavior, grid_pos, movement, delta_time, world
-                )
+                self._update_wander_behavior(npc, behavior, grid_pos, movement, delta_time, world)
 
             elif behavior.behavior_type == "patrol":
                 self._update_patrol_behavior(npc, behavior, grid_pos, movement, world)
@@ -285,9 +283,9 @@ class ExplorationSystem(System):
         if grid_pos.grid_x == target_x and grid_pos.grid_y == target_y:
             # Move to next patrol point
             if behavior.patrol_loop:
-                behavior.current_patrol_index = (
-                    behavior.current_patrol_index + 1
-                ) % len(behavior.patrol_points)
+                behavior.current_patrol_index = (behavior.current_patrol_index + 1) % len(
+                    behavior.patrol_points
+                )
             else:
                 # Reverse direction at ends
                 if behavior.current_patrol_index >= len(behavior.patrol_points) - 1:

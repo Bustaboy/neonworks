@@ -79,9 +79,7 @@ class ZoneSystem(System):
         # Check for zone triggers
         self._check_zone_triggers(world)
 
-    def load_zone(
-        self, world: World, zone_id: str, spawn_point: str = "default"
-    ) -> bool:
+    def load_zone(self, world: World, zone_id: str, spawn_point: str = "default") -> bool:
         """
         Load a zone and spawn player at designated point.
 
@@ -227,9 +225,7 @@ class ZoneSystem(System):
             zone.tilemap = self._load_tilemap(data.get("tilemap", {}), zone)
 
             # Load collision map
-            zone.collision_map = self._load_collision_map(
-                data.get("collision", {}), zone
-            )
+            zone.collision_map = self._load_collision_map(data.get("collision", {}), zone)
 
             # Load NPCs
             zone.npcs = data.get("npcs", [])
@@ -290,9 +286,7 @@ class ZoneSystem(System):
 
         return tilemap
 
-    def _load_collision_map(
-        self, collision_data: dict, zone: ZoneData
-    ) -> TileCollisionMap:
+    def _load_collision_map(self, collision_data: dict, zone: ZoneData) -> TileCollisionMap:
         """Load collision map from zone data"""
         collision_map = TileCollisionMap()
         collision_map.width = zone.width
@@ -310,9 +304,7 @@ class ZoneSystem(System):
                 collision_map.load_from_layer(layer_data, blocked_tiles)
         else:
             # Default: all tiles walkable
-            collision_map.collision_data = [
-                [True] * zone.width for _ in range(zone.height)
-            ]
+            collision_map.collision_data = [[True] * zone.width for _ in range(zone.height)]
 
         return collision_map
 
@@ -347,9 +339,7 @@ class ZoneSystem(System):
         y = npc_data.get("y", 0)
         npc.add_component(GridPosition(grid_x=x, grid_y=y))
         npc.add_component(
-            Transform(
-                x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size
-            )
+            Transform(x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size)
         )
 
         # Visual
@@ -378,9 +368,7 @@ class ZoneSystem(System):
         npc.add_component(behavior)
 
         # Animation
-        anim_state = AnimationState(
-            current_state="idle", current_direction=Direction.DOWN
-        )
+        anim_state = AnimationState(current_state="idle", current_direction=Direction.DOWN)
         npc.add_component(anim_state)
 
         # Interactable
@@ -403,9 +391,7 @@ class ZoneSystem(System):
         y = obj_data.get("y", 0)
         obj.add_component(GridPosition(grid_x=x, grid_y=y))
         obj.add_component(
-            Transform(
-                x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size
-            )
+            Transform(x=x * self.current_zone.tile_size, y=y * self.current_zone.tile_size)
         )
 
         # Visual
@@ -477,9 +463,7 @@ class ZoneSystem(System):
         # Get spawn point
         spawn_data = self.current_zone.spawn_points.get(spawn_point)
         if not spawn_data:
-            spawn_data = self.current_zone.spawn_points.get(
-                "default", (0, 0, Direction.DOWN)
-            )
+            spawn_data = self.current_zone.spawn_points.get("default", (0, 0, Direction.DOWN))
 
         x, y, direction = spawn_data
 

@@ -30,11 +30,7 @@ class EventSprite:
         # Color based on event type/trigger
         page = self.event.pages[0] if self.event.pages else None
         if page:
-            trigger = (
-                page.trigger.value
-                if hasattr(page.trigger, "value")
-                else "action_button"
-            )
+            trigger = page.trigger.value if hasattr(page.trigger, "value") else "action_button"
             colors = {
                 "action_button": (100, 150, 255),  # Blue
                 "player_touch": (255, 150, 100),  # Orange
@@ -54,9 +50,7 @@ class EventSprite:
         text_rect = text.get_rect(center=(16, 16))
         self.surface.blit(text, text_rect)
 
-    def render(
-        self, screen: pygame.Surface, camera_x: int, camera_y: int, tile_size: int
-    ):
+    def render(self, screen: pygame.Surface, camera_x: int, camera_y: int, tile_size: int):
         """
         Render the event sprite.
 
@@ -174,9 +168,7 @@ class LevelBuilderUI:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
                 current_time = pygame.time.get_ticks()
-                is_double_click = (
-                    current_time - self.last_click_time < self.double_click_threshold
-                )
+                is_double_click = current_time - self.last_click_time < self.double_click_threshold
                 self.last_click_time = current_time
 
                 if is_double_click:
@@ -223,32 +215,22 @@ class LevelBuilderUI:
         # Calculate visible grid range
         start_x = max(0, self.camera_x // self.tile_size)
         start_y = max(0, self.camera_y // self.tile_size)
-        end_x = min(
-            self.map_width, (self.camera_x + screen_width) // self.tile_size + 1
-        )
-        end_y = min(
-            self.map_height, (self.camera_y + screen_height) // self.tile_size + 1
-        )
+        end_x = min(self.map_width, (self.camera_x + screen_width) // self.tile_size + 1)
+        end_y = min(self.map_height, (self.camera_y + screen_height) // self.tile_size + 1)
 
         # Draw grid lines
         for x in range(start_x, end_x + 1):
             screen_x = x * self.tile_size - self.camera_x
-            pygame.draw.line(
-                self.screen, (50, 50, 50), (screen_x, 0), (screen_x, screen_height)
-            )
+            pygame.draw.line(self.screen, (50, 50, 50), (screen_x, 0), (screen_x, screen_height))
 
         for y in range(start_y, end_y + 1):
             screen_y = y * self.tile_size - self.camera_y
-            pygame.draw.line(
-                self.screen, (50, 50, 50), (0, screen_y), (screen_width, screen_y)
-            )
+            pygame.draw.line(self.screen, (50, 50, 50), (0, screen_y), (screen_width, screen_y))
 
     def _render_events(self):
         """Render all event sprites."""
         for event_sprite in self.event_sprites.values():
-            event_sprite.render(
-                self.screen, self.camera_x, self.camera_y, self.tile_size
-            )
+            event_sprite.render(self.screen, self.camera_x, self.camera_y, self.tile_size)
 
     def _render_hover(self):
         """Render hover highlight."""
@@ -350,10 +332,7 @@ class LevelBuilderUI:
 
         # Check if clicking on an event
         for event_id, event_sprite in self.event_sprites.items():
-            if (
-                event_sprite.event.x == self.hover_x
-                and event_sprite.event.y == self.hover_y
-            ):
+            if event_sprite.event.x == self.hover_x and event_sprite.event.y == self.hover_y:
                 self.selected_event_id = event_id
                 print(f"Selected event: {event_sprite.event.name}")
                 return
@@ -368,10 +347,7 @@ class LevelBuilderUI:
 
         # Find event at position
         for event_id, event_sprite in list(self.event_sprites.items()):
-            if (
-                event_sprite.event.x == self.hover_x
-                and event_sprite.event.y == self.hover_y
-            ):
+            if event_sprite.event.x == self.hover_x and event_sprite.event.y == self.hover_y:
                 self.delete_event(event_id)
                 return
 
@@ -385,9 +361,7 @@ class LevelBuilderUI:
         if self.hover_x is None or self.hover_y is None:
             return
 
-        event = self.event_manager.create_event(
-            name="New Event", x=self.hover_x, y=self.hover_y
-        )
+        event = self.event_manager.create_event(name="New Event", x=self.hover_x, y=self.hover_y)
         self.add_event_sprite(event)
         self.selected_event_id = event.id
         print(f"Created event at ({self.hover_x}, {self.hover_y})")

@@ -175,9 +175,7 @@ class RenderSystem(System):
 
                 # Draw building name
                 if building_info:
-                    text = self.font.render(
-                        building_info.name[:8], True, (255, 255, 255)
-                    )
+                    text = self.font.render(building_info.name[:8], True, (255, 255, 255))
                     self.screen.blit(text, (screen_x + 2, screen_y + 2))
 
     def _draw_grid(self):
@@ -200,9 +198,7 @@ class RenderSystem(System):
 
         # Resource display
         ui_y = 10
-        self.screen.blit(
-            self.large_font.render("Resources", True, (255, 255, 255)), (10, ui_y)
-        )
+        self.screen.blit(self.large_font.render("Resources", True, (255, 255, 255)), (10, ui_y))
 
         ui_y += 40
         resource_info = [
@@ -232,9 +228,7 @@ class RenderSystem(System):
         ]
 
         for i, building in enumerate(building_list):
-            color = (
-                (100, 255, 100) if selected_building == str(i + 1) else (200, 200, 200)
-            )
+            color = (100, 255, 100) if selected_building == str(i + 1) else (200, 200, 200)
             text = self.font.render(building, True, color)
             self.screen.blit(text, (10, ui_y))
             ui_y += 30
@@ -283,9 +277,7 @@ class BaseBuilderGame:
 
         # Systems
         self.production_system = ProductionSystem(self.resource_entity)
-        self.render_system = RenderSystem(
-            self.screen, self.camera_x, self.camera_y, self.TILE_SIZE
-        )
+        self.render_system = RenderSystem(self.screen, self.camera_x, self.camera_y, self.TILE_SIZE)
 
         self.world.add_system(self.production_system)
         self.world.add_system(self.render_system)
@@ -375,10 +367,7 @@ class BaseBuilderGame:
         building_def = buildings[building_type]
 
         # Check resources
-        if (
-            resources.wood < building_def["wood"]
-            or resources.stone < building_def["stone"]
-        ):
+        if resources.wood < building_def["wood"] or resources.stone < building_def["stone"]:
             print(
                 f"Not enough resources! Need {building_def['wood']} wood and {building_def['stone']} stone"
             )
