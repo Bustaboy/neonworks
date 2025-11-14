@@ -1,0 +1,83 @@
+{
+  "name": "Knight",
+  "description": "A noble knight with shining armor and a shield",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 215,
+        "g": 190,
+        "b": 175,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "short_hair",
+      "enabled": true,
+      "tint": {
+        "r": 100,
+        "g": 70,
+        "b": 40,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "determined_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 100,
+        "g": 120,
+        "b": 150,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "knight_armor",
+      "enabled": true,
+      "tint": {
+        "r": 200,
+        "g": 200,
+        "b": 220,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "LEGS",
+      "component_id": "knight_legs",
+      "enabled": true,
+      "tint": {
+        "r": 180,
+        "g": 180,
+        "b": 200,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "WEAPON",
+      "component_id": "sword_shield",
+      "enabled": true,
+      "tint": {
+        "r": 210,
+        "g": 210,
+        "b": 220,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "CAPE",
+      "component_id": "knight_cape",
+      "enabled": true,
+      "tint": {
+        "r": 180,
+        "g": 50,
+        "b": 50,
+        "a": 255
+      }
+    }
+  ]
+}

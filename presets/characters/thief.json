@@ -1,0 +1,83 @@
+{
+  "name": "Thief",
+  "description": "A stealthy thief with dark clothes and daggers",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 200,
+        "g": 175,
+        "b": 160,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "messy_hair",
+      "enabled": true,
+      "tint": {
+        "r": 40,
+        "g": 35,
+        "b": 30,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "sharp_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 100,
+        "g": 150,
+        "b": 100,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "leather_vest",
+      "enabled": true,
+      "tint": {
+        "r": 50,
+        "g": 45,
+        "b": 40,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "LEGS",
+      "component_id": "leather_pants",
+      "enabled": true,
+      "tint": {
+        "r": 45,
+        "g": 40,
+        "b": 35,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "WEAPON",
+      "component_id": "daggers",
+      "enabled": true,
+      "tint": {
+        "r": 180,
+        "g": 180,
+        "b": 190,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HEAD",
+      "component_id": "hood",
+      "enabled": true,
+      "tint": {
+        "r": 40,
+        "g": 35,
+        "b": 30,
+        "a": 255
+      }
+    }
+  ]
+}

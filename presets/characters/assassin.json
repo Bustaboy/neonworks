@@ -1,0 +1,94 @@
+{
+  "name": "Assassin",
+  "description": "A deadly assassin shrouded in darkness",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 195,
+        "g": 170,
+        "b": 155,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "hidden_hair",
+      "enabled": true,
+      "tint": {
+        "r": 30,
+        "g": 25,
+        "b": 25,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "cold_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 150,
+        "g": 100,
+        "b": 100,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "shadow_armor",
+      "enabled": true,
+      "tint": {
+        "r": 30,
+        "g": 25,
+        "b": 30,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "LEGS",
+      "component_id": "shadow_pants",
+      "enabled": true,
+      "tint": {
+        "r": 25,
+        "g": 20,
+        "b": 25,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "WEAPON",
+      "component_id": "twin_blades",
+      "enabled": true,
+      "tint": {
+        "r": 150,
+        "g": 150,
+        "b": 160,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HEAD",
+      "component_id": "shadow_mask",
+      "enabled": true,
+      "tint": {
+        "r": 25,
+        "g": 20,
+        "b": 25,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "CAPE",
+      "component_id": "shadow_cloak",
+      "enabled": true,
+      "tint": {
+        "r": 20,
+        "g": 15,
+        "b": 20,
+        "a": 200
+      }
+    }
+  ]
+}
