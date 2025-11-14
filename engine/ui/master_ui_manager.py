@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 
 import pygame
 
-from engine.ui.event_editor_ui import EventEditorUI
+from neonworks.engine.ui.event_editor_ui import EventEditorUI
 
 
 class MasterUIManager:
@@ -156,7 +156,7 @@ class MasterUIManager:
         # Lazy load level builder
         if not self.level_builder:
             try:
-                from engine.ui.level_builder_ui import LevelBuilderUI
+                from neonworks.engine.ui.level_builder_ui import LevelBuilderUI
 
                 self.level_builder = LevelBuilderUI(self.screen)
             except ImportError:

@@ -5,14 +5,14 @@ Event interpreters and other core engine subsystems.
 """
 
 # Note: event_interpreter imports disabled temporarily due to neonworks dependency
-# from engine.core.event_interpreter import (
+# from neonworks.engine.core.event_interpreter import (
 #     CommandExecutionError,
 #     EventInterpreter,
 #     InterpreterInstance,
 #     InterpreterState,
 # )
 
-from engine.core.event_data import (
+from neonworks.engine.core.event_data import (
     EventGraphic,
     EventManager,
     EventPage,

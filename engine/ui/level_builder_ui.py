@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pygame
 
-from engine.core.event_data import EventManager, GameEvent
+from neonworks.engine.core.event_data import EventManager, GameEvent
 
 
 class EventSprite:

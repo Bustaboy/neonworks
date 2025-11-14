@@ -12,7 +12,7 @@ Tests the complete event editor workflow:
 import json
 from pathlib import Path
 
-from engine.core.event_data import (
+from neonworks.engine.core.event_data import (
     EventManager,
     EventPage,
     EventTrigger,
