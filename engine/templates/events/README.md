@@ -1,11 +1,11 @@
 # Event Templates
 
-This directory contains sample event templates for NeonWorks game development.
+This directory contains pre-configured event templates that can be used as starting points for common game events in NeonWorks.
 
 ## Available Templates
 
-### 1. Door (door.json)
-A simple door event with unlock mechanics:
+### 1. door_template.json
+A simple door event with unlock mechanics and map transfer:
 - **Icon**: 🚪
 - **Color**: Brown (139, 69, 19)
 - **Trigger**: Action Button
@@ -14,9 +14,16 @@ A simple door event with unlock mechanics:
   - Requires key item to unlock
   - Transfers player to another map when opened
   - Uses self-switches to track open/closed state
+  - Black screen fade transition
 
-### 2. Treasure Chest (chest.json)
-A treasure chest that gives rewards:
+**Usage:**
+1. Load this template in the Level Builder (F4)
+2. Modify the target map, x, and y coordinates in the TRANSFER_PLAYER command
+3. Optionally customize the lock message and key item ID
+4. Place on your map
+
+### 2. chest_template.json
+A treasure chest that gives rewards with opened/closed states:
 - **Icon**: 📦
 - **Color**: Gold (255, 215, 0)
 - **Trigger**: Action Button
@@ -25,18 +32,34 @@ A treasure chest that gives rewards:
   - Plays sound effects
   - Shows as empty after opening
   - Uses self-switches to prevent re-opening
+  - Two-page system (closed and opened states)
 
-### 3. Village Elder NPC (npc.json)
-An interactive NPC with dialogue and quest:
+**Usage:**
+1. Load this template in the Level Builder
+2. Modify the item ID, gold amount, and messages
+3. Optionally set the correct tile IDs for your tileset
+4. Place on your map
+
+### 3. npc_template.json
+An interactive NPC with dialogue, quest system, and choices:
 - **Icon**: 👤
 - **Color**: Blue (100, 150, 255)
 - **Trigger**: Action Button
 - **Features**:
   - Multi-page dialogue system
-  - Quest offering with choices
+  - Quest offering with player choices
   - Quest tracking using variables and switches
   - Reward system with gold and experience
   - Multiple conversation states
+  - Conditional branches based on quest progress
+
+**Usage:**
+1. Load this template in the Level Builder
+2. Customize the dialogue text and choices
+3. Modify quest tracking switch/variable IDs
+4. Set rewards (gold, EXP, items)
+5. Optionally set character graphic to match your sprites
+6. Place on your map
 
 ## How to Use Templates
 
@@ -65,7 +88,7 @@ import json
 from core.event_commands import GameEvent, EventPage, EventCommand, CommandType, TriggerType
 
 # Load template
-with open('engine/templates/events/npc.json', 'r') as f:
+with open('engine/templates/events/npc_template.json', 'r') as f:
     template_data = json.load(f)
 
 # Convert to GameEvent
@@ -79,20 +102,32 @@ event.y = 5
 level_builder.events.append(event)
 ```
 
-### Creating Custom Templates:
+## Creating Your Own Templates
 
-Create a new JSON file with the following structure:
+You can create your own templates by:
+
+1. Creating an event in the Event Editor (F5)
+2. Setting it up with the desired commands and settings
+3. Saving the level using the Level Builder
+4. Extracting the event JSON from the level file
+5. Copying it to this directory with a descriptive name
+6. Adding documentation in this README
+
+### Template JSON Structure:
 
 ```json
 {
-  "name": "My Custom Event",
-  "description": "Description of what this event does",
-  "template_type": "custom",
-  "color": [255, 0, 0],
-  "icon": "⭐",
+  "id": 1,
+  "name": "Event Name",
+  "x": 5,
+  "y": 10,
+  "color": [100, 150, 255],
+  "icon": "👤",
+  "template_type": "npc",
   "pages": [
     {
       "trigger": "ACTION_BUTTON",
+      "condition_switch1_valid": false,
       "commands": [
         {
           "command_type": "SHOW_TEXT",
@@ -177,11 +212,32 @@ Available command types for events:
 
 ## Tips
 
-1. **Use Self-Switches**: Perfect for one-time events like chests and doors
-2. **Organize with Comments**: Add COMMENT commands to document complex logic
-3. **Test Incrementally**: Add commands gradually and test frequently
-4. **Use Variables for Tracking**: Track quest progress, scores, counters
-5. **Indent Nested Commands**: Properly indent conditional branches and loops
+### Using Self-Switches
+- Use self-switches (A, B, C, D) for events that change state (like chests and doors)
+- Self-switches are unique to each event instance
+- Perfect for one-time events and state tracking
+
+### Event Priority and Graphics
+- Set `priority: 0` for events that should appear behind the player (floor items)
+- Set `priority: 2` for events that should appear in front of the player (overhead signs)
+- Use `direction_fix: true` for objects that shouldn't rotate
+
+### Trigger Usage
+- Use `ACTION_BUTTON` for interactive objects (NPCs, chests, signs)
+- Use `PLAYER_TOUCH` for automatic events when player walks on them (traps, warps)
+- Use `AUTORUN` for cutscenes that run when the map loads (with conditions)
+- Use `PARALLEL` for events that run continuously in the background
+
+### Quest and Variable Management
+- Use switches for binary states (quest accepted/completed, door unlocked)
+- Use variables for counters (enemies defeated, items collected)
+- Document your switch/variable IDs to avoid conflicts
+- Use consistent naming in event names (e.g., "Quest_Elder_001")
+
+### Performance
+- Avoid too many AUTORUN or PARALLEL events on the same map
+- Use page conditions to disable events when not needed
+- Keep command lists concise for frequently triggered events
 
 ## Integration with Event Editor
 

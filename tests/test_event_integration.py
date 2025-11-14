@@ -256,7 +256,7 @@ def test_event_templates():
     print("Testing event templates...")
 
     template_dir = "engine/templates/events"
-    templates = ["door.json", "chest.json", "npc.json"]
+    templates = ["door_template.json", "chest_template.json", "npc_template.json"]
 
     for template_name in templates:
         template_path = os.path.join(template_dir, template_name)
