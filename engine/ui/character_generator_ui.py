@@ -117,6 +117,10 @@ class CharacterGeneratorUI:
         self.bio_text_input = ""
         self.bio_input_active = False
 
+        # Bio regeneration confirmation
+        self.show_regen_confirmation = False
+        self.pending_importance_change = None
+
         # Fonts
         pygame.font.init()
         self.font = pygame.font.Font(None, 20)
@@ -556,6 +560,16 @@ class CharacterGeneratorUI:
             edit_bio_color = (100, 150, 200) if not self.manual_bio_override else (200, 150, 100)
             self._render_button("Edit Bio", x + 130, bio_toggle_y - 3, 80, 25, edit_bio_color, id_="edit_bio")
 
+        # Regenerate Bio button (manual trigger)
+        regen_bio_y = bio_toggle_y + 30
+        if self.current_preset.layers:
+            regen_color = (120, 180, 120)
+            self._render_button("Regenerate Bio", x + 10, regen_bio_y, 200, 25, regen_color, id_="regen_bio")
+
+        # Confirmation dialog for bio regeneration
+        if self.show_regen_confirmation:
+            self._render_bio_regen_confirmation()
+
         # Layer list (bottom half)
         layers_y = y + preview_height + 10
         layers_height = height - preview_height - 20
@@ -895,10 +909,17 @@ class CharacterGeneratorUI:
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
-                    self.character_importance = importance
-                    # Regenerate bio with new importance level
-                    if self.current_preset.layers:
-                        self._generate_bio()
+                    # Check if bio exists and would be overwritten
+                    if self.generated_bio and importance != self.character_importance:
+                        # Show confirmation dialog
+                        self.show_regen_confirmation = True
+                        self.pending_importance_change = importance
+                        print(f"⚠ Importance change: {self.character_importance.value} → {importance.value}")
+                        print("  This will require bio regeneration. Confirm in UI to proceed.")
+                    else:
+                        # No bio exists yet, safe to change
+                        self.character_importance = importance
+                        print(f"✓ Importance set to: {importance.value.upper()}")
                     return True
 
         # Edit bio button
@@ -907,6 +928,36 @@ class CharacterGeneratorUI:
             if rect.collidepoint(mouse_pos):
                 self._open_bio_editor()
                 return True
+
+        # Regenerate bio button
+        if hasattr(self, '_btn_regen_bio'):
+            rect = getattr(self, '_btn_regen_bio')
+            if rect.collidepoint(mouse_pos):
+                self._generate_bio()
+                print("✓ Bio regenerated")
+                return True
+
+        # Bio regeneration confirmation dialog
+        if self.show_regen_confirmation:
+            if hasattr(self, '_btn_confirm_regen_yes'):
+                rect = getattr(self, '_btn_confirm_regen_yes')
+                if rect.collidepoint(mouse_pos):
+                    # User confirmed - apply importance change and regenerate
+                    self.character_importance = self.pending_importance_change
+                    self._generate_bio()
+                    self.show_regen_confirmation = False
+                    self.pending_importance_change = None
+                    print(f"✓ Importance changed to {self.character_importance.value.upper()} and bio regenerated")
+                    return True
+
+            if hasattr(self, '_btn_confirm_regen_no'):
+                rect = getattr(self, '_btn_confirm_regen_no')
+                if rect.collidepoint(mouse_pos):
+                    # User cancelled - keep current importance and bio
+                    self.show_regen_confirmation = False
+                    self.pending_importance_change = None
+                    print("✓ Importance change cancelled - bio preserved")
+                    return True
 
         # Bottom control buttons
         if hasattr(self, '_btn_add_component'):
@@ -1517,3 +1568,69 @@ class CharacterGeneratorUI:
                 "note": f"Manual Bio:\n\n{bio_text}",
             }
             print("✓ Manual bio created")
+
+    def _render_bio_regen_confirmation(self):
+        """Render confirmation dialog for bio regeneration."""
+        # Semi-transparent overlay
+        overlay = pygame.Surface(self.screen.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.screen.blit(overlay, (0, 0))
+
+        # Dialog box
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+        dialog_width = 500
+        dialog_height = 220
+        dialog_x = (screen_width - dialog_width) // 2
+        dialog_y = (screen_height - dialog_height) // 2
+
+        # Background
+        pygame.draw.rect(self.screen, (40, 40, 50), (dialog_x, dialog_y, dialog_width, dialog_height), border_radius=8)
+        pygame.draw.rect(self.screen, (100, 100, 120), (dialog_x, dialog_y, dialog_width, dialog_height), 2, border_radius=8)
+
+        # Title
+        title_text = self.title_font.render("Bio Regeneration Required", True, (255, 200, 100))
+        title_rect = title_text.get_rect(center=(dialog_x + dialog_width // 2, dialog_y + 30))
+        self.screen.blit(title_text, title_rect)
+
+        # Message
+        message_lines = [
+            f"Changing importance from {self.character_importance.value.upper()} to {self.pending_importance_change.value.upper()}",
+            "will require regenerating the bio to match the new role.",
+            "",
+            "This will overwrite your current bio.",
+            "Do you want to proceed?"
+        ]
+
+        message_y = dialog_y + 65
+        for line in message_lines:
+            text = self.small_font.render(line, True, (220, 220, 220))
+            text_rect = text.get_rect(center=(dialog_x + dialog_width // 2, message_y))
+            self.screen.blit(text, text_rect)
+            message_y += 22
+
+        # Buttons
+        button_y = dialog_y + dialog_height - 50
+        button_width = 120
+        button_height = 35
+        button_spacing = 20
+
+        # Yes button
+        yes_x = dialog_x + (dialog_width // 2) - button_width - (button_spacing // 2)
+        yes_rect = pygame.Rect(yes_x, button_y, button_width, button_height)
+        pygame.draw.rect(self.screen, (100, 180, 100), yes_rect, border_radius=5)
+        pygame.draw.rect(self.screen, (150, 220, 150), yes_rect, 2, border_radius=5)
+        yes_text = self.font.render("Yes, Regenerate", True, (255, 255, 255))
+        yes_text_rect = yes_text.get_rect(center=yes_rect.center)
+        self.screen.blit(yes_text, yes_text_rect)
+        self._btn_confirm_regen_yes = yes_rect
+
+        # No button
+        no_x = dialog_x + (dialog_width // 2) + (button_spacing // 2)
+        no_rect = pygame.Rect(no_x, button_y, button_width, button_height)
+        pygame.draw.rect(self.screen, (180, 100, 100), no_rect, border_radius=5)
+        pygame.draw.rect(self.screen, (220, 150, 150), no_rect, 2, border_radius=5)
+        no_text = self.font.render("No, Keep Bio", True, (255, 255, 255))
+        no_text_rect = no_text.get_rect(center=no_rect.center)
+        self.screen.blit(no_text, no_text_rect)
+        self._btn_confirm_regen_no = no_rect

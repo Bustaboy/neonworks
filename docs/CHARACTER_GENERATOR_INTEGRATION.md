@@ -74,11 +74,14 @@ The NeonWorks Character Generator is now fully integrated with the game engine's
 6. **Set Character Importance** (NPC/Supporting/Main):
    - Select importance level in the preview panel
    - Determines bio length and detail
-   - Can be changed at any time
-7. **Bio Generation** (automatic):
-   - Bio generated automatically based on appearance
+   - If bio already exists, changing importance requires confirmation
+   - Prevents accidental loss of custom bio text
+7. **Bio Generation**:
+   - Click "Regenerate Bio" button to create bio
    - Switch between AI and Template modes
    - Click "Edit Bio" to manually customize
+   - **User control**: Bios never regenerate automatically
+   - **Safety**: Importance changes show confirmation dialog
 
 ### Step 2: Export to Assets
 
@@ -184,6 +187,34 @@ The bio generator analyzes character appearance and creates contextually appropr
 2. Modify text in editor
 3. Save changes (marked as manual override)
 4. Original still preserved in history
+
+**Importance Change Protection:**
+
+When you attempt to change a character's importance level after a bio has been generated, a confirmation dialog appears:
+
+```
+Bio Regeneration Required
+
+Changing importance from NPC to MAIN
+will require regenerating the bio to match the new role.
+
+This will overwrite your current bio.
+Do you want to proceed?
+
+[Yes, Regenerate]  [No, Keep Bio]
+```
+
+- **Yes, Regenerate**: Changes importance and generates new bio
+- **No, Keep Bio**: Cancels importance change, preserves current bio
+- This prevents accidental data loss from user edits
+
+**Manual Bio Regeneration:**
+
+Use the "Regenerate Bio" button to manually trigger bio generation:
+- Always available when character has layers
+- Safe to use - you're explicitly requesting regeneration
+- Respects current importance level
+- Respects AI/Template mode setting
 
 ### Export History
 
