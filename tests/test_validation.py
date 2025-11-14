@@ -138,9 +138,9 @@ class TestProjectConfigValidation:
             }
 
             errors = validate_project_config(config)
-            assert any("metadata.version: Invalid version format" in e for e in errors), (
-                f"Failed to detect invalid version: {version} ({description})"
-            )
+            assert any(
+                "metadata.version: Invalid version format" in e for e in errors
+            ), f"Failed to detect invalid version: {version} ({description})"
 
     def test_valid_version_formats(self):
         """Test acceptance of valid version formats"""
@@ -287,9 +287,7 @@ class TestSettingsValidation:
         }
 
         errors = validate_project_config(config_small)
-        assert any(
-            "settings.window_width: Value 100 is too small" in e for e in errors
-        )
+        assert any("settings.window_width: Value 100 is too small" in e for e in errors)
         assert any(
             "settings.window_height: Value 100 is too small" in e for e in errors
         )
@@ -573,7 +571,12 @@ class TestItemDefinitionsValidation:
     def test_valid_item_definitions(self):
         """Test validation of valid item definitions"""
         items = {
-            "sword": {"name": "Iron Sword", "type": "weapon", "damage": 10, "value": 50},
+            "sword": {
+                "name": "Iron Sword",
+                "type": "weapon",
+                "damage": 10,
+                "value": 50,
+            },
             "potion": {
                 "name": "Health Potion",
                 "type": "consumable",
@@ -696,7 +699,9 @@ class TestCharacterDefinitionsValidation:
         }
 
         errors = validate_character_definitions(characters)
-        assert any("Character 'hero': 'stats' must be a dictionary" in e for e in errors)
+        assert any(
+            "Character 'hero': 'stats' must be a dictionary" in e for e in errors
+        )
 
     def test_invalid_stat_values(self):
         """Test detection of invalid stat values"""

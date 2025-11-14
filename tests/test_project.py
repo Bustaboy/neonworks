@@ -363,7 +363,9 @@ class TestProject:
 
         assert result is False
         captured = capsys.readouterr()
-        assert "Invalid project configuration" in captured.out or "Missing" in captured.out
+        assert (
+            "Invalid project configuration" in captured.out or "Missing" in captured.out
+        )
 
     def test_project_save(self, tmp_path):
         """Test saving project configuration"""
