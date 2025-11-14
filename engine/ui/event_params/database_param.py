@@ -4,7 +4,8 @@ Database Parameter Editor
 Modal dialog for selecting database objects (actors, items, skills, weapons, armor, enemies, etc.).
 """
 
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
 import pygame
 
 

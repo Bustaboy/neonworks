@@ -5,7 +5,8 @@ Modal dialog for creating and editing movement command sequences.
 Used for SET_MOVEMENT_ROUTE event commands.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
 import pygame
 
 

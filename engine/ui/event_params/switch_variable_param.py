@@ -4,7 +4,8 @@ Switch/Variable Parameter Editor
 Modal dialog for selecting switches and variables with custom naming support.
 """
 
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
 import pygame
 
 

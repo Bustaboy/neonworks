@@ -5,7 +5,8 @@ Visual conditional builder for creating complex conditional branches.
 Supports various condition types: switches, variables, actors, items, etc.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
+
 import pygame
 
 

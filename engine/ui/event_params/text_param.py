@@ -5,7 +5,8 @@ Modal dialog for editing text with variable syntax support.
 Supports \v[n] for variable references, \n[actor_id] for actor names, etc.
 """
 
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
+
 import pygame
 
 
