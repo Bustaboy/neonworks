@@ -287,9 +287,7 @@ def test_event_editor_integration():
     print("✓ Events successfully synced between components")
 
     # Test keybindings
-    assert (
-        pygame.K_F5 in ui_manager.keybinds
-    ), "F5 keybind not found in UI manager"
+    assert pygame.K_F5 in ui_manager.keybinds, "F5 keybind not found in UI manager"
     assert (
         ui_manager.keybinds[pygame.K_F5] == ui_manager.toggle_event_editor
     ), "F5 keybind not mapped to event editor"
@@ -351,9 +349,7 @@ def test_event_placement():
     level_builder.current_tool = "erase"
     level_builder.erase_tile(5, 5)
 
-    assert (
-        len(level_builder.events) == initial_event_count + 1
-    ), "Event not deleted"
+    assert len(level_builder.events) == initial_event_count + 1, "Event not deleted"
 
     print("✓ Event deletion working")
 

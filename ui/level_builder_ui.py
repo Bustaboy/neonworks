@@ -237,11 +237,13 @@ class LevelBuilderUI:
             screen_y = event.y * self.tile_size + camera_offset[1]
 
             # Get event color from metadata or use default
-            event_color = getattr(event, 'color', (100, 150, 255))
-            event_icon = getattr(event, 'icon', '⭐')
+            event_color = getattr(event, "color", (100, 150, 255))
+            event_icon = getattr(event, "icon", "⭐")
 
             # Draw event background
-            event_surface = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
+            event_surface = pygame.Surface(
+                (self.tile_size, self.tile_size), pygame.SRCALPHA
+            )
             pygame.draw.rect(
                 event_surface,
                 (*event_color, 180),
@@ -473,7 +475,11 @@ class LevelBuilderUI:
             # Trigger type
             trigger_text = event_data["trigger"].name.replace("_", " ").title()
             self.ui.label(
-                f"Trigger: {trigger_text[:15]}", x + 50, item_y + 25, size=10, color=(200, 200, 200)
+                f"Trigger: {trigger_text[:15]}",
+                x + 50,
+                item_y + 25,
+                size=10,
+                color=(200, 200, 200),
             )
 
             # Edit button
@@ -851,10 +857,14 @@ class LevelBuilderUI:
                 if page.condition_variable_valid:
                     page_dict["condition_variable_valid"] = True
                     page_dict["condition_variable_id"] = page.condition_variable_id
-                    page_dict["condition_variable_value"] = page.condition_variable_value
+                    page_dict["condition_variable_value"] = (
+                        page.condition_variable_value
+                    )
                 if page.condition_self_switch_valid:
                     page_dict["condition_self_switch_valid"] = True
-                    page_dict["condition_self_switch_ch"] = page.condition_self_switch_ch
+                    page_dict["condition_self_switch_ch"] = (
+                        page.condition_self_switch_ch
+                    )
 
                 # Serialize commands
                 for command in page.commands:
