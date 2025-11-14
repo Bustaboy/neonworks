@@ -200,6 +200,16 @@ class StateManager:
         state_name, transition, data = self._pending_transition
         self._pending_transition = None
 
+        # POP doesn't need a new state
+        if transition == StateTransition.POP:
+            if self._state_stack:
+                self._state_stack[-1].exit()
+                self._state_stack.pop()
+            if self._state_stack:
+                self._state_stack[-1].enter(data)
+            return
+
+        # Get the new state for other transitions
         new_state = self._states[state_name]
 
         if transition == StateTransition.PUSH:
@@ -207,13 +217,6 @@ class StateManager:
                 self._state_stack[-1].exit()
             self._state_stack.append(new_state)
             new_state.enter(data)
-
-        elif transition == StateTransition.POP:
-            if self._state_stack:
-                self._state_stack[-1].exit()
-                self._state_stack.pop()
-            if self._state_stack:
-                self._state_stack[-1].enter(data)
 
         elif transition == StateTransition.REPLACE:
             if self._state_stack:
