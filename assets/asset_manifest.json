@@ -4,16 +4,181 @@
   "description": "Asset manifest for NeonWorks JRPG Engine",
   "last_updated": "2025-11-14",
   "assets": {
-    "characters": [],
-    "enemies": [],
-    "animations": [],
+    "characters": [
+      {
+        "id": "test_hero",
+        "name": "Test Hero",
+        "file_path": "characters/test_hero.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "tags": ["test", "hero", "player"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test character sprite"
+      }
+    ],
+    "enemies": [
+      {
+        "id": "test_slime",
+        "name": "Test Slime",
+        "file_path": "enemies/test_slime.png",
+        "format": "png",
+        "dimensions": {
+          "width": 48,
+          "height": 48
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "battle_sprite": true,
+        "tags": ["test", "enemy", "slime", "monster"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test enemy sprite"
+      }
+    ],
+    "animations": [
+      {
+        "id": "test_sparkle",
+        "name": "Test Sparkle Animation",
+        "file_path": "animations/test_sparkle.png",
+        "format": "png",
+        "frame_count": 4,
+        "frame_rate": 8,
+        "loop": true,
+        "dimensions": {
+          "width": 128,
+          "height": 32
+        },
+        "tags": ["test", "animation", "effect"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test animation sprite sheet"
+      }
+    ],
     "music": [],
     "sfx": [],
-    "tilesets": [],
-    "icons": [],
-    "ui": [],
-    "faces": [],
-    "backgrounds": []
+    "tilesets": [
+      {
+        "id": "test_basic_tiles",
+        "name": "Test Basic Tileset",
+        "file_path": "tilesets/test_basic_tiles.png",
+        "format": "png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "tiles_per_row": 4,
+        "total_tiles": 8,
+        "autotile": false,
+        "terrain_type": "mixed",
+        "tags": ["test", "tileset", "basic"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test tileset with basic terrain types"
+      }
+    ],
+    "icons": [
+      {
+        "id": "test_sword_icon",
+        "name": "Test Sword Icon",
+        "file_path": "icons/test_sword_icon.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "category": "item",
+        "tags": ["test", "icon", "weapon", "sword"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test weapon icon"
+      },
+      {
+        "id": "test_potion_icon",
+        "name": "Test Potion Icon",
+        "file_path": "icons/test_potion_icon.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "category": "item",
+        "tags": ["test", "icon", "consumable", "potion"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test consumable icon"
+      }
+    ],
+    "ui": [
+      {
+        "id": "test_button",
+        "name": "Test Button",
+        "file_path": "ui/test_button.png",
+        "format": "png",
+        "dimensions": {
+          "width": 96,
+          "height": 32
+        },
+        "ui_type": "button",
+        "nine_patch": {
+          "enabled": false
+        },
+        "tags": ["test", "ui", "button"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test UI button"
+      }
+    ],
+    "faces": [
+      {
+        "id": "test_hero_face",
+        "name": "Test Hero Face",
+        "file_path": "faces/test_hero_face.png",
+        "format": "png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        },
+        "character_reference": "test_hero",
+        "expression": "normal",
+        "tags": ["test", "face", "portrait", "hero"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test character portrait"
+      }
+    ],
+    "backgrounds": [
+      {
+        "id": "test_battle_bg",
+        "name": "Test Battle Background",
+        "file_path": "backgrounds/test_battle_bg.png",
+        "format": "png",
+        "dimensions": {
+          "width": 320,
+          "height": 240
+        },
+        "parallax": false,
+        "scene_type": "battle",
+        "tags": ["test", "background", "battle"],
+        "license": "CC0",
+        "author": "NeonWorks Test Suite",
+        "attribution_required": false,
+        "notes": "Simple test battle background"
+      }
+    ]
   },
   "metadata_schema": {
     "character": {
