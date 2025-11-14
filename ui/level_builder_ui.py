@@ -19,6 +19,7 @@ from ..core.event_commands import (
 )
 from ..rendering.tilemap import Tile, Tilemap
 from ..rendering.ui import UI
+from .ai_generator_tool import AIGeneratorTool
 from .map_tools import (
     EraserTool,
     FillTool,
@@ -166,6 +167,7 @@ class LevelBuilderUI:
         self.tool_manager.register_tool("eraser", EraserTool())
         self.tool_manager.register_tool("fill", FillTool())
         self.tool_manager.register_tool("select", SelectTool())
+        self.tool_manager.register_tool("ai_gen", AIGeneratorTool())
 
     def _get_tool_context(self) -> ToolContext:
         """Create a tool context with current editor state."""
@@ -225,6 +227,9 @@ class LevelBuilderUI:
         self._render_tool_panel()
         self._render_palette_panel()
         self._render_layer_panel()
+
+        # Render AI chat if active
+        self._render_ai_chat()
 
     def _render_tilemap_preview(self, camera_offset: Tuple[int, int]):
         """Render the tilemap for editing."""
@@ -574,6 +579,12 @@ class LevelBuilderUI:
         if self.ui.button(grid_text, panel_x + 10, current_y, panel_width - 20, 25):
             self.show_grid = not self.show_grid
 
+    def _render_ai_chat(self):
+        """Render AI chat interface if AI tool is active."""
+        active_tool = self.tool_manager.get_active_tool()
+        if isinstance(active_tool, AIGeneratorTool):
+            active_tool.render_chat(self.screen)
+
     def handle_event(
         self, event: pygame.event.Event, camera_offset: Tuple[int, int] = (0, 0)
     ) -> bool:
@@ -590,8 +601,22 @@ class LevelBuilderUI:
         if not self.visible:
             return False
 
+        # Handle AI chat events first
+        active_tool = self.tool_manager.get_active_tool()
+        if isinstance(active_tool, AIGeneratorTool):
+            context = self._get_tool_context()
+            if active_tool.handle_chat_event(event, context, self.screen):
+                return True
+
         # Handle keyboard shortcuts for tool switching
         if event.type == pygame.KEYDOWN:
+            # 'C' key toggles AI chat
+            if event.key == pygame.K_c:
+                active_tool = self.tool_manager.get_active_tool()
+                if isinstance(active_tool, AIGeneratorTool):
+                    active_tool.toggle_chat()
+                    return True
+
             # Number keys 1-9 switch tools
             if pygame.K_1 <= event.key <= pygame.K_9:
                 hotkey = event.key - pygame.K_0  # Convert to 1-9
@@ -604,6 +629,9 @@ class LevelBuilderUI:
                             break
                     if tool_id:
                         self.tool_manager.set_active_tool(tool_id)
+                        # Auto-open chat when switching to AI tool
+                        if isinstance(tool, AIGeneratorTool) and not tool.chat_visible:
+                            tool.toggle_chat()
                         return True
 
         # Handle mouse events
