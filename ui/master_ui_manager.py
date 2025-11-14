@@ -10,6 +10,7 @@ import pygame
 from ..audio.audio_manager import AudioManager
 from ..core.ecs import World
 from ..core.state import StateManager
+from ..engine.ui.event_editor_ui import EventEditorUI
 from ..input.input_manager import InputManager
 from .asset_browser_ui import AssetBrowserUI
 from .building_ui import BuildingUI
@@ -49,11 +50,15 @@ class MasterUIManager:
         self.combat_ui = CombatUI(screen, world)
         self.navmesh_editor = NavmeshEditorUI(screen, world)
         self.level_builder = LevelBuilderUI(screen, world)
+        self.event_editor = EventEditorUI(screen)
         self.settings_ui = SettingsUI(screen, audio_manager, input_manager)
         self.project_manager = ProjectManagerUI(screen, state_manager)
         self.debug_console = DebugConsoleUI(screen, world)
         self.quest_editor = QuestEditorUI(screen)
         self.asset_browser = AssetBrowserUI(screen)
+
+        # Connect level builder to event editor for event management
+        self.level_builder.event_editor = self.event_editor
 
         # UI state
         self.current_mode = "game"  # 'game', 'editor', 'menu'
@@ -64,12 +69,13 @@ class MasterUIManager:
             pygame.K_F2: self.toggle_settings,
             pygame.K_F3: self.toggle_building_ui,
             pygame.K_F4: self.toggle_level_builder,
-            pygame.K_F5: self.toggle_navmesh_editor,
+            pygame.K_F5: self.toggle_event_editor,
             pygame.K_F6: self.toggle_quest_editor,
             pygame.K_F7: self.toggle_asset_browser,
             pygame.K_F8: self.toggle_project_manager,
             pygame.K_F9: self.toggle_combat_ui,
             pygame.K_F10: self.toggle_game_hud,
+            pygame.K_F11: self.toggle_navmesh_editor,
         }
 
     def render(self, fps: float = 60.0, camera_offset: tuple = (0, 0)):
@@ -99,6 +105,10 @@ class MasterUIManager:
         # Render quest editor if visible
         if self.quest_editor.visible:
             self.quest_editor.render()
+
+        # Render event editor if visible
+        if self.event_editor.visible:
+            self.event_editor.render()
 
         # Render asset browser if visible
         if self.asset_browser.visible:
@@ -217,6 +227,10 @@ class MasterUIManager:
         """Toggle quest editor."""
         self.quest_editor.toggle()
 
+    def toggle_event_editor(self):
+        """Toggle event editor."""
+        self.event_editor.toggle()
+
     def toggle_asset_browser(self):
         """Toggle asset browser."""
         self.asset_browser.toggle()
@@ -282,12 +296,13 @@ class MasterUIManager:
         help_text += "F2 - Settings\n"
         help_text += "F3 - Building UI\n"
         help_text += "F4 - Level Builder\n"
-        help_text += "F5 - Navmesh Editor\n"
+        help_text += "F5 - Event Editor\n"
         help_text += "F6 - Quest Editor\n"
         help_text += "F7 - Asset Browser\n"
         help_text += "F8 - Project Manager\n"
         help_text += "F9 - Combat UI\n"
         help_text += "F10 - Toggle HUD\n"
+        help_text += "F11 - Navmesh Editor\n"
         return help_text
 
     def save_ui_state(self) -> Dict[str, Any]:

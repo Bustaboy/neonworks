@@ -1,114 +1,109 @@
 {
-  "id": 0,
   "name": "Treasure Chest",
-  "x": 0,
-  "y": 0,
+  "description": "A treasure chest containing valuable items",
+  "template_type": "chest",
+  "color": [255, 215, 0],
+  "icon": "📦",
   "pages": [
     {
-      "conditions": {
-        "switch1_valid": false,
-        "switch1_id": 1,
-        "switch2_valid": false,
-        "switch2_id": 1,
-        "variable_valid": false,
-        "variable_id": 1,
-        "variable_value": 0,
-        "self_switch_valid": false,
-        "self_switch_ch": "A"
-      },
-      "graphic": {
-        "character_name": "",
-        "character_index": 0,
-        "direction": 2,
-        "pattern": 0,
-        "tile_id": 80,
-        "opacity": 255,
-        "blend_type": 0
-      },
-      "movement": {
-        "move_type": 0,
-        "move_speed": 3,
-        "move_frequency": 3,
-        "move_route": null,
-        "walk_anime": false,
-        "step_anime": false,
-        "direction_fix": true,
-        "through": false,
-        "always_on_top": false
-      },
-      "options": {
-        "trigger": "action_button",
-        "priority": 1
-      },
+      "trigger": "ACTION_BUTTON",
+      "condition_self_switch_valid": false,
       "commands": [
         {
-          "code": "SHOW_TEXT",
+          "command_type": "SHOW_TEXT",
           "parameters": {
-            "text": "Found a Potion!"
-          }
+            "text": "You found a treasure chest!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
         },
         {
-          "code": "CHANGE_ITEMS",
+          "command_type": "PLAY_SE",
           "parameters": {
-            "item_id": 1,
-            "operation": "increase",
-            "amount": 1
-          }
+            "name": "chest_open",
+            "volume": 90,
+            "pitch": 100,
+            "pan": 0
+          },
+          "indent": 0
         },
         {
-          "code": "PLAY_SE",
+          "command_type": "WAIT",
           "parameters": {
-            "name": "Chest_Open",
-            "volume": 80,
-            "pitch": 100
-          }
+            "duration": 30
+          },
+          "indent": 0
         },
         {
-          "code": "CONTROL_SELF_SWITCH",
+          "command_type": "CHANGE_GOLD",
           "parameters": {
-            "self_switch": "A",
+            "operation": "add",
+            "operand_type": "constant",
+            "operand_value": 100
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You obtained 100 gold!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CHANGE_ITEMS",
+          "parameters": {
+            "item_id": 5,
+            "operation": "add",
+            "operand": 1
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You obtained a Potion!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "CONTROL_SELF_SWITCH",
+          "parameters": {
+            "switch": "A",
             "value": true
-          }
+          },
+          "indent": 0
         }
       ]
     },
     {
-      "conditions": {
-        "switch1_valid": false,
-        "switch1_id": 1,
-        "switch2_valid": false,
-        "switch2_id": 1,
-        "variable_valid": false,
-        "variable_id": 1,
-        "variable_value": 0,
-        "self_switch_valid": true,
-        "self_switch_ch": "A"
-      },
-      "graphic": {
-        "character_name": "",
-        "character_index": 0,
-        "direction": 2,
-        "pattern": 0,
-        "tile_id": 81,
-        "opacity": 255,
-        "blend_type": 0
-      },
-      "movement": {
-        "move_type": 0,
-        "move_speed": 3,
-        "move_frequency": 3,
-        "move_route": null,
-        "walk_anime": false,
-        "step_anime": false,
-        "direction_fix": true,
-        "through": false,
-        "always_on_top": false
-      },
-      "options": {
-        "trigger": "action_button",
-        "priority": 1
-      },
-      "commands": []
+      "trigger": "ACTION_BUTTON",
+      "condition_self_switch_valid": true,
+      "condition_self_switch_ch": "A",
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The chest is empty.",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        }
+      ]
     }
   ]
 }

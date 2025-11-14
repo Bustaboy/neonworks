@@ -1,61 +1,90 @@
 {
-  "id": 0,
   "name": "Door",
-  "x": 0,
-  "y": 0,
+  "description": "A simple door that can be opened with a key",
+  "template_type": "door",
+  "color": [139, 69, 19],
+  "icon": "🚪",
   "pages": [
     {
-      "conditions": {
-        "switch1_valid": false,
-        "switch1_id": 1,
-        "switch2_valid": false,
-        "switch2_id": 1,
-        "variable_valid": false,
-        "variable_id": 1,
-        "variable_value": 0,
-        "self_switch_valid": false,
-        "self_switch_ch": "A"
-      },
-      "graphic": {
-        "character_name": "",
-        "character_index": 0,
-        "direction": 2,
-        "pattern": 0,
-        "tile_id": 0,
-        "opacity": 0,
-        "blend_type": 0
-      },
-      "movement": {
-        "move_type": 0,
-        "move_speed": 3,
-        "move_frequency": 3,
-        "move_route": null,
-        "walk_anime": true,
-        "step_anime": false,
-        "direction_fix": false,
-        "through": false,
-        "always_on_top": false
-      },
-      "options": {
-        "trigger": "action_button",
-        "priority": 0
-      },
+      "trigger": "ACTION_BUTTON",
+      "condition_switch1_valid": false,
       "commands": [
         {
-          "code": "SHOW_TEXT",
+          "command_type": "SHOW_TEXT",
           "parameters": {
-            "text": "Opening door..."
-          }
+            "text": "The door is locked.",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
         },
         {
-          "code": "TRANSFER_PLAYER",
+          "command_type": "CONDITIONAL_BRANCH",
           "parameters": {
-            "map": "map_002",
+            "condition_type": "item",
+            "item_id": 1
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "You used the key to unlock the door!",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "PLAY_SE",
+          "parameters": {
+            "name": "door_unlock",
+            "volume": 90,
+            "pitch": 100,
+            "pan": 0
+          },
+          "indent": 1
+        },
+        {
+          "command_type": "CONTROL_SELF_SWITCH",
+          "parameters": {
+            "switch": "A",
+            "value": true
+          },
+          "indent": 1
+        }
+      ]
+    },
+    {
+      "trigger": "ACTION_BUTTON",
+      "condition_self_switch_valid": true,
+      "condition_self_switch_ch": "A",
+      "commands": [
+        {
+          "command_type": "SHOW_TEXT",
+          "parameters": {
+            "text": "The door is open.",
+            "face_name": null,
+            "face_index": 0,
+            "background": 0,
+            "position": 2
+          },
+          "indent": 0
+        },
+        {
+          "command_type": "TRANSFER_PLAYER",
+          "parameters": {
+            "map_id": 2,
             "x": 5,
             "y": 5,
             "direction": 0,
-            "fade": "black"
-          }
+            "fade_type": 1
+          },
+          "indent": 0
         }
       ]
     }
