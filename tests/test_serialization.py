@@ -25,8 +25,8 @@ from neonworks.core.serialization import (
 
 
 @dataclass
-class TestComponent(Component):
-    """Test component for serialization"""
+class DummyComponent(Component):
+    """Helper component for serialization tests (renamed to avoid pytest collection)"""
 
     value: int = 0
     name: str = "test"
@@ -46,7 +46,7 @@ class ComplexComponent(Component):
             self.settings = {}
 
 
-class TestComponentSerializer:
+class DummyComponentSerializer:
     """Test component serialization"""
 
     def test_serializer_creation(self):
@@ -58,32 +58,32 @@ class TestComponentSerializer:
     def test_register_component_type(self):
         """Test registering component type"""
         serializer = ComponentSerializer()
-        serializer.register_component_type(TestComponent)
+        serializer.register_component_type(DummyComponent)
 
-        assert "TestComponent" in serializer._component_types
+        assert "DummyComponent" in serializer._component_types
 
     def test_serialize_simple_component(self):
         """Test serializing simple component"""
         serializer = ComponentSerializer()
-        serializer.register_component_type(TestComponent)
+        serializer.register_component_type(DummyComponent)
 
-        component = TestComponent(value=42, name="hello")
+        component = DummyComponent(value=42, name="hello")
         data = serializer.serialize_component(component)
 
-        assert data["_type"] == "TestComponent"
+        assert data["_type"] == "DummyComponent"
         assert data["_data"]["value"] == 42
         assert data["_data"]["name"] == "hello"
 
     def test_deserialize_simple_component(self):
         """Test deserializing simple component"""
         serializer = ComponentSerializer()
-        serializer.register_component_type(TestComponent)
+        serializer.register_component_type(DummyComponent)
 
-        data = {"_type": "TestComponent", "_data": {"value": 99, "name": "world"}}
+        data = {"_type": "DummyComponent", "_data": {"value": 99, "name": "world"}}
 
         component = serializer.deserialize_component(data)
 
-        assert isinstance(component, TestComponent)
+        assert isinstance(component, DummyComponent)
         assert component.value == 99
         assert component.name == "world"
 
@@ -143,7 +143,7 @@ class TestComponentSerializer:
     def test_custom_serializer(self):
         """Test custom serializer/deserializer"""
         serializer = ComponentSerializer()
-        serializer.register_component_type(TestComponent)
+        serializer.register_component_type(DummyComponent)
 
         # Custom serializer that stores as string
         def custom_ser(comp):
@@ -151,11 +151,11 @@ class TestComponentSerializer:
 
         def custom_deser(data):
             value, name = data["custom"].split(":")
-            return TestComponent(value=int(value), name=name)
+            return DummyComponent(value=int(value), name=name)
 
-        serializer.register_custom_serializer(TestComponent, custom_ser, custom_deser)
+        serializer.register_custom_serializer(DummyComponent, custom_ser, custom_deser)
 
-        component = TestComponent(value=123, name="custom")
+        component = DummyComponent(value=123, name="custom")
         data = serializer.serialize_component(component)
 
         assert data["_data"]["custom"] == "123:custom"
@@ -172,10 +172,10 @@ class TestEntitySerializer:
         """Test serializing entity"""
         world = World()
         entity = world.create_entity()
-        entity.add_component(TestComponent(value=42))
+        entity.add_component(DummyComponent(value=42))
 
         component_serializer = ComponentSerializer()
-        component_serializer.register_component_type(TestComponent)
+        component_serializer.register_component_type(DummyComponent)
         entity_serializer = EntitySerializer(component_serializer)
 
         data = entity_serializer.serialize_entity(entity)
@@ -189,13 +189,13 @@ class TestEntitySerializer:
         world = World()
 
         component_serializer = ComponentSerializer()
-        component_serializer.register_component_type(TestComponent)
+        component_serializer.register_component_type(DummyComponent)
         entity_serializer = EntitySerializer(component_serializer)
 
         data = {
             "id": 1,
             "active": True,
-            "components": [{"_type": "TestComponent", "_data": {"value": 99, "name": "test"}}],
+            "components": [{"_type": "DummyComponent", "_data": {"value": 99, "name": "test"}}],
             "tags": ["player", "active"],
         }
 
@@ -205,7 +205,7 @@ class TestEntitySerializer:
         assert entity.has_tag("player")
         assert entity.has_tag("active")
 
-        component = entity.get_component(TestComponent)
+        component = entity.get_component(DummyComponent)
         assert component is not None
         assert component.value == 99
 
@@ -213,11 +213,11 @@ class TestEntitySerializer:
         """Test serializing entity with multiple components"""
         world = World()
         entity = world.create_entity()
-        entity.add_component(TestComponent(value=10))
+        entity.add_component(DummyComponent(value=10))
         entity.add_component(Transform(x=50, y=100))
 
         component_serializer = ComponentSerializer()
-        component_serializer.register_component_type(TestComponent)
+        component_serializer.register_component_type(DummyComponent)
         component_serializer.register_component_type(Transform)
         entity_serializer = EntitySerializer(component_serializer)
 
@@ -233,13 +233,13 @@ class TestWorldSerializer:
         """Test serializing world"""
         world = World()
         entity1 = world.create_entity()
-        entity1.add_component(TestComponent(value=1))
+        entity1.add_component(DummyComponent(value=1))
 
         entity2 = world.create_entity()
-        entity2.add_component(TestComponent(value=2))
+        entity2.add_component(DummyComponent(value=2))
 
         component_serializer = ComponentSerializer()
-        component_serializer.register_component_type(TestComponent)
+        component_serializer.register_component_type(DummyComponent)
         world_serializer = WorldSerializer(component_serializer)
 
         data = world_serializer.serialize_world(world)
@@ -249,7 +249,7 @@ class TestWorldSerializer:
     def test_deserialize_world(self):
         """Test deserializing world"""
         component_serializer = ComponentSerializer()
-        component_serializer.register_component_type(TestComponent)
+        component_serializer.register_component_type(DummyComponent)
         world_serializer = WorldSerializer(component_serializer)
 
         data = {
@@ -259,7 +259,7 @@ class TestWorldSerializer:
                     "active": True,
                     "components": [
                         {
-                            "_type": "TestComponent",
+                            "_type": "DummyComponent",
                             "_data": {"value": 100, "name": "entity1"},
                         }
                     ],
@@ -270,7 +270,7 @@ class TestWorldSerializer:
                     "active": True,
                     "components": [
                         {
-                            "_type": "TestComponent",
+                            "_type": "DummyComponent",
                             "_data": {"value": 200, "name": "entity2"},
                         }
                     ],
@@ -285,10 +285,10 @@ class TestWorldSerializer:
         assert len(world._entities) == 2
         entities = list(world._entities.values())
 
-        comp1 = entities[0].get_component(TestComponent)
+        comp1 = entities[0].get_component(DummyComponent)
         assert comp1.value == 100
 
-        comp2 = entities[1].get_component(TestComponent)
+        comp2 = entities[1].get_component(DummyComponent)
         assert comp2.value == 200
         assert entities[1].has_tag("tagged")
 
@@ -296,7 +296,7 @@ class TestWorldSerializer:
         """Test serializing world with metadata"""
         world = World()
         entity = world.create_entity()
-        entity.add_component(TestComponent(value=42))
+        entity.add_component(DummyComponent(value=42))
 
         metadata = SerializationMetadata(
             version="1.0",
@@ -306,7 +306,7 @@ class TestWorldSerializer:
         )
 
         component_serializer = ComponentSerializer()
-        component_serializer.register_component_type(TestComponent)
+        component_serializer.register_component_type(DummyComponent)
         world_serializer = WorldSerializer(component_serializer)
 
         data = world_serializer.serialize_world(world, metadata)
@@ -329,26 +329,26 @@ class TestGameSerializer:
     def test_register_component(self):
         """Test registering component"""
         serializer = GameSerializer()
-        serializer.register_component(TestComponent)
+        serializer.register_component(DummyComponent)
 
-        assert "TestComponent" in serializer.component_serializer._component_types
+        assert "DummyComponent" in serializer.component_serializer._component_types
 
     def test_register_components(self):
         """Test registering multiple components"""
         serializer = GameSerializer()
-        serializer.register_components([TestComponent, Transform])
+        serializer.register_components([DummyComponent, Transform])
 
-        assert "TestComponent" in serializer.component_serializer._component_types
+        assert "DummyComponent" in serializer.component_serializer._component_types
         assert "Transform" in serializer.component_serializer._component_types
 
     def test_save_load_game_json(self):
         """Test saving and loading game to JSON"""
         serializer = GameSerializer()
-        serializer.register_component(TestComponent)
+        serializer.register_component(DummyComponent)
 
         world = World()
         entity = world.create_entity()
-        entity.add_component(TestComponent(value=777))
+        entity.add_component(DummyComponent(value=777))
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             temp_path = Path(f.name)
@@ -360,7 +360,7 @@ class TestGameSerializer:
             entities = list(loaded_world._entities.values())
             assert len(entities) == 1
 
-            component = entities[0].get_component(TestComponent)
+            component = entities[0].get_component(DummyComponent)
             assert component.value == 777
         finally:
             temp_path.unlink()
@@ -368,11 +368,11 @@ class TestGameSerializer:
     def test_save_load_game_binary(self):
         """Test saving and loading game to binary"""
         serializer = GameSerializer()
-        serializer.register_component(TestComponent)
+        serializer.register_component(DummyComponent)
 
         world = World()
         entity = world.create_entity()
-        entity.add_component(TestComponent(value=888))
+        entity.add_component(DummyComponent(value=888))
 
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".dat", delete=False) as f:
             temp_path = Path(f.name)
@@ -384,7 +384,7 @@ class TestGameSerializer:
             entities = list(loaded_world._entities.values())
             assert len(entities) == 1
 
-            component = entities[0].get_component(TestComponent)
+            component = entities[0].get_component(DummyComponent)
             assert component.value == 888
         finally:
             temp_path.unlink()
@@ -392,11 +392,11 @@ class TestGameSerializer:
     def test_save_load_game_string(self):
         """Test saving and loading game to/from string"""
         serializer = GameSerializer()
-        serializer.register_component(TestComponent)
+        serializer.register_component(DummyComponent)
 
         world = World()
         entity = world.create_entity()
-        entity.add_component(TestComponent(value=999))
+        entity.add_component(DummyComponent(value=999))
 
         json_str = serializer.save_game_to_string(world)
         loaded_world = serializer.load_game_from_string(json_str)
@@ -404,13 +404,13 @@ class TestGameSerializer:
         entities = list(loaded_world._entities.values())
         assert len(entities) == 1
 
-        component = entities[0].get_component(TestComponent)
+        component = entities[0].get_component(DummyComponent)
         assert component.value == 999
 
     def test_get_metadata(self):
         """Test getting metadata from save file"""
         serializer = GameSerializer()
-        serializer.register_component(TestComponent)
+        serializer.register_component(DummyComponent)
 
         world = World()
         metadata = SerializationMetadata(
@@ -459,7 +459,7 @@ class TestSerializationIntegration:
     def test_full_game_save_load(self):
         """Test complete game save and load"""
         serializer = GameSerializer()
-        serializer.register_components([TestComponent, Transform, GridPosition])
+        serializer.register_components([DummyComponent, Transform, GridPosition])
 
         # Create game world
         world = World()
@@ -467,12 +467,12 @@ class TestSerializationIntegration:
         player = world.create_entity()
         player.add_tag("player")
         player.add_component(Transform(x=100, y=200))
-        player.add_component(TestComponent(value=50, name="player"))
+        player.add_component(DummyComponent(value=50, name="player"))
 
         enemy = world.create_entity()
         enemy.add_tag("enemy")
         enemy.add_component(Transform(x=300, y=400))
-        enemy.add_component(TestComponent(value=30, name="enemy"))
+        enemy.add_component(DummyComponent(value=30, name="enemy"))
 
         # Save game
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -499,7 +499,7 @@ class TestSerializationIntegration:
             assert player_transform.x == 100
             assert player_transform.y == 200
 
-            player_comp = player_entity.get_component(TestComponent)
+            player_comp = player_entity.get_component(DummyComponent)
             assert player_comp.value == 50
             assert player_comp.name == "player"
 

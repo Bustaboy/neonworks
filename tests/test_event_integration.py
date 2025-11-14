@@ -52,7 +52,16 @@ def test_event_command_serialization():
 
 def test_event_creation():
     """Test creating a complete event with pages and commands."""
-    print("Testing event creation...")
+    event = create_test_event()
+    assert event is not None
+    assert event.id == 1
+    assert event.name == "Test NPC"
+    print("✓ Event creation test passed")
+
+
+def create_test_event():
+    """Helper function to create a complete event with pages and commands for testing."""
+    print("Creating test event...")
 
     # Create an event
     event = GameEvent(
@@ -101,7 +110,7 @@ def test_event_creation():
     assert len(event.pages[0].commands) == 2
     assert event.pages[0].trigger == TriggerType.ACTION_BUTTON
 
-    print("✓ Event creation passed")
+    print("✓ Event created successfully")
     return event
 
 
@@ -188,7 +197,7 @@ def test_event_serialization():
     print("Testing event serialization...")
 
     # Create event
-    event = test_event_creation()
+    event = create_test_event()
 
     # Serialize
     event_dict = serialize_event(event)
@@ -225,7 +234,7 @@ def test_event_json_roundtrip():
     print("Testing JSON roundtrip...")
 
     # Create event
-    event = test_event_creation()
+    event = create_test_event()
 
     # Serialize to dict
     event_dict = serialize_event(event)
