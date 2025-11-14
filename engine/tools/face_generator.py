@@ -693,6 +693,268 @@ class FaceGenerator:
 
         return preset
 
+    def generate_from_description(
+        self,
+        description: str,
+        name: str = "AI Generated Face"
+    ) -> FacePreset:
+        """
+        Generate a face from a text description using AI-friendly keyword matching.
+
+        This method parses natural language descriptions and selects appropriate
+        facial components and expressions based on keywords.
+
+        Args:
+            description: Natural language face description
+                        Examples:
+                        - "A happy young woman with blue eyes and rosy cheeks"
+                        - "An angry old man with a grey beard and wrinkles"
+                        - "A surprised elf with green eyes and pointed ears"
+            name: Face name
+
+        Returns:
+            Face preset with auto-selected components and expression
+
+        Note:
+            This is a rule-based implementation. For true AI-powered generation,
+            integrate with an LLM API.
+        """
+        desc_lower = description.lower()
+        components = {}
+        tints = {}
+
+        # Detect expression from description
+        detected_expression = Expression.NEUTRAL
+        expression_keywords = {
+            "happy": Expression.HAPPY,
+            "smile": Expression.HAPPY,
+            "smiling": Expression.HAPPY,
+            "joyful": Expression.HAPPY,
+            "cheerful": Expression.HAPPY,
+            "sad": Expression.SAD,
+            "crying": Expression.SAD,
+            "tearful": Expression.SAD,
+            "melancholy": Expression.SAD,
+            "depressed": Expression.SAD,
+            "angry": Expression.ANGRY,
+            "mad": Expression.ANGRY,
+            "furious": Expression.ANGRY,
+            "enraged": Expression.ANGRY,
+            "upset": Expression.ANGRY,
+            "surprised": Expression.SURPRISED,
+            "shocked": Expression.SURPRISED,
+            "astonished": Expression.SURPRISED,
+            "amazed": Expression.SURPRISED,
+            "scared": Expression.SCARED,
+            "afraid": Expression.SCARED,
+            "frightened": Expression.SCARED,
+            "terrified": Expression.SCARED,
+            "fearful": Expression.SCARED,
+            "disgusted": Expression.DISGUSTED,
+            "grossed": Expression.DISGUSTED,
+            "revolted": Expression.DISGUSTED,
+            "confused": Expression.CONFUSED,
+            "puzzled": Expression.CONFUSED,
+            "perplexed": Expression.CONFUSED,
+            "bewildered": Expression.CONFUSED,
+            "wink": Expression.WINK,
+            "winking": Expression.WINK,
+            "embarrassed": Expression.EMBARRASSED,
+            "shy": Expression.EMBARRASSED,
+            "blushing": Expression.EMBARRASSED,
+            "bashful": Expression.EMBARRASSED,
+        }
+
+        for keyword, expression in expression_keywords.items():
+            if keyword in desc_lower:
+                detected_expression = expression
+                break
+
+        # Age detection (affects wrinkles, skin texture)
+        age = "adult"  # default
+        if any(word in desc_lower for word in ["young", "youth", "kid", "child", "teen"]):
+            age = "young"
+        elif any(word in desc_lower for word in ["old", "elderly", "aged", "senior", "ancient"]):
+            age = "old"
+
+        # Gender detection (affects facial structure)
+        gender = "neutral"
+        if any(word in desc_lower for word in ["man", "male", "gentleman", "boy", "masculine"]):
+            gender = "male"
+        elif any(word in desc_lower for word in ["woman", "female", "lady", "girl", "feminine"]):
+            gender = "female"
+
+        # Skin tone detection
+        skin_tone = None
+        if any(word in desc_lower for word in ["pale", "light", "fair"]):
+            skin_tone = ColorTint(255, 230, 210)  # Pale/light skin
+        elif any(word in desc_lower for word in ["tan", "tanned", "olive"]):
+            skin_tone = ColorTint(220, 185, 155)  # Tan/olive skin
+        elif any(word in desc_lower for word in ["dark", "brown", "ebony"]):
+            skin_tone = ColorTint(140, 100, 75)  # Dark/brown skin
+        elif any(word in desc_lower for word in ["medium", "beige"]):
+            skin_tone = ColorTint(230, 195, 165)  # Medium/beige skin
+
+        # Eye color detection
+        eye_color = None
+        if "blue eyes" in desc_lower or "blue eye" in desc_lower:
+            eye_color = ColorTint(100, 150, 255)  # Blue
+        elif "green eyes" in desc_lower or "green eye" in desc_lower:
+            eye_color = ColorTint(100, 200, 120)  # Green
+        elif "brown eyes" in desc_lower or "brown eye" in desc_lower:
+            eye_color = ColorTint(120, 80, 50)  # Brown
+        elif "grey eyes" in desc_lower or "gray eyes" in desc_lower:
+            eye_color = ColorTint(160, 160, 170)  # Grey
+        elif "hazel eyes" in desc_lower:
+            eye_color = ColorTint(150, 120, 80)  # Hazel
+
+        # Facial hair detection
+        facial_hair = None
+        if any(word in desc_lower for word in ["beard", "bearded"]):
+            facial_hair = "beard"
+        if any(word in desc_lower for word in ["mustache", "moustache"]):
+            facial_hair = "mustache" if not facial_hair else "beard_and_mustache"
+        if any(word in desc_lower for word in ["stubble", "unshaven"]):
+            facial_hair = "stubble"
+        if any(word in desc_lower for word in ["goatee"]):
+            facial_hair = "goatee"
+
+        # Hair color for facial hair
+        hair_color = None
+        if any(word in desc_lower for word in ["blonde", "blond", "golden"]):
+            hair_color = ColorTint(255, 230, 150)
+        elif any(word in desc_lower for word in ["brown", "brunette"]):
+            hair_color = ColorTint(139, 90, 43)
+        elif any(word in desc_lower for word in ["black", "dark hair"]):
+            hair_color = ColorTint(40, 30, 25)
+        elif any(word in desc_lower for word in ["red", "ginger", "auburn"]):
+            hair_color = ColorTint(200, 80, 60)
+        elif any(word in desc_lower for word in ["grey", "gray", "white", "silver"]):
+            hair_color = ColorTint(200, 200, 210)
+
+        # Accessories detection
+        has_glasses = any(word in desc_lower for word in ["glasses", "spectacles", "eyeglasses"])
+        has_earrings = any(word in desc_lower for word in ["earring", "earrings"])
+
+        # Special features
+        has_scar = any(word in desc_lower for word in ["scar", "scarred"])
+        has_freckles = any(word in desc_lower for word in ["freckle", "freckles"])
+        has_tattoo = any(word in desc_lower for word in ["tattoo", "tattooed"])
+        has_makeup = any(word in desc_lower for word in ["makeup", "make-up", "lipstick"])
+
+        # Blush detection
+        has_blush = any(word in desc_lower for word in ["rosy", "blushing", "flushed", "pink cheeks"])
+
+        # Select components based on detected features
+        # Note: These component IDs are examples - actual IDs depend on your asset library
+
+        # Base/skin
+        available_bases = self.available_components.get(FaceLayerType.BASE, [])
+        if available_bases:
+            # Try to pick base that matches gender and age
+            base_id = available_bases[0]  # Default to first available
+            for comp_id in available_bases:
+                if gender in comp_id.lower() or age in comp_id.lower():
+                    base_id = comp_id
+                    break
+            components["base"] = base_id
+            if skin_tone:
+                tints["base"] = skin_tone
+
+        # Eyes
+        available_eyes = self.available_components.get(FaceLayerType.EYES, [])
+        if available_eyes:
+            eyes_id = available_eyes[0]
+            # Prefer components matching description keywords
+            for comp_id in available_eyes:
+                if any(word in comp_id.lower() for word in ["round", "almond", "wide"]):
+                    eyes_id = comp_id
+                    break
+            components["eyes"] = eyes_id
+            if eye_color:
+                tints["eyes"] = eye_color
+
+        # Eyebrows
+        available_eyebrows = self.available_components.get(FaceLayerType.EYEBROWS, [])
+        if available_eyebrows:
+            eyebrows_id = available_eyebrows[0]
+            components["eyebrows"] = eyebrows_id
+
+        # Nose
+        available_noses = self.available_components.get(FaceLayerType.NOSE, [])
+        if available_noses:
+            nose_id = available_noses[0]
+            components["nose"] = nose_id
+
+        # Mouth
+        available_mouths = self.available_components.get(FaceLayerType.MOUTH, [])
+        if available_mouths:
+            mouth_id = available_mouths[0]
+            components["mouth"] = mouth_id
+
+        # Blush
+        if has_blush:
+            available_blush = self.available_components.get(FaceLayerType.BLUSH, [])
+            if available_blush:
+                components["blush"] = available_blush[0]
+                tints["blush"] = ColorTint(255, 180, 200)  # Pink blush
+
+        # Facial hair
+        if facial_hair:
+            available_facial_hair = self.available_components.get(FaceLayerType.FACIAL_HAIR, [])
+            if available_facial_hair:
+                # Try to find matching facial hair type
+                facial_hair_id = available_facial_hair[0]
+                for comp_id in available_facial_hair:
+                    if facial_hair in comp_id.lower():
+                        facial_hair_id = comp_id
+                        break
+                components["facial_hair"] = facial_hair_id
+                if hair_color:
+                    tints["facial_hair"] = hair_color
+
+        # Glasses
+        if has_glasses:
+            available_glasses = self.available_components.get(FaceLayerType.GLASSES, [])
+            if available_glasses:
+                components["glasses"] = available_glasses[0]
+
+        # Face paint (scars, freckles, tattoos)
+        if has_scar or has_freckles or has_tattoo:
+            available_face_paint = self.available_components.get(FaceLayerType.FACE_PAINT, [])
+            if available_face_paint:
+                for comp_id in available_face_paint:
+                    if (has_scar and "scar" in comp_id.lower()) or \
+                       (has_freckles and "freckle" in comp_id.lower()) or \
+                       (has_tattoo and "tattoo" in comp_id.lower()):
+                        components["face_paint"] = comp_id
+                        break
+
+        # Accessories (earrings)
+        if has_earrings:
+            available_accessories = self.available_components.get(FaceLayerType.ACCESSORY, [])
+            if available_accessories:
+                for comp_id in available_accessories:
+                    if "earring" in comp_id.lower():
+                        components["accessory"] = comp_id
+                        break
+
+        # If no components were detected, randomize
+        if not components:
+            return self.randomize_face(name=name)
+
+        # Create face preset
+        preset = self.create_face(components, tints, name)
+        preset.description = description
+        preset.metadata["detected_expression"] = detected_expression.value
+        preset.metadata["ai_generated"] = True
+
+        print(f"✨ AI Generated: {name}")
+        print(f"   Expression: {detected_expression.value}")
+        print(f"   Components: {len(components)}")
+
+        return preset
+
     def list_components(
         self,
         layer_type: Optional[FaceLayerType] = None

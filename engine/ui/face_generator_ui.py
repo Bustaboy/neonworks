@@ -65,6 +65,12 @@ class FaceGeneratorUI:
         self.editing_color_layer: Optional[FaceLayerType] = None
         self.color_sliders = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
 
+        # AI description input state
+        self.ai_description = ""
+        self.ai_input_active = False
+        self.ai_cursor_visible = True
+        self.ai_cursor_timer = 0.0
+
         # Export size selection
         self.export_size = 128  # Default
         self.export_sizes = [96, 128, 256]
@@ -102,6 +108,13 @@ class FaceGeneratorUI:
         if not self.visible:
             return
 
+        # Update cursor blink for text input
+        if self.ai_input_active:
+            self.ai_cursor_timer += delta_time
+            if self.ai_cursor_timer >= 0.5:  # Blink every 0.5 seconds
+                self.ai_cursor_timer = 0.0
+                self.ai_cursor_visible = not self.ai_cursor_visible
+
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
         Handle pygame events.
@@ -116,8 +129,29 @@ class FaceGeneratorUI:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
+                if self.ai_input_active:
+                    self.ai_input_active = False
+                    return True
                 self.visible = False
                 return True
+
+            # Handle text input when AI input is active
+            if self.ai_input_active:
+                if event.key == pygame.K_RETURN:
+                    # Generate face from description
+                    if self.ai_description.strip():
+                        self._generate_from_ai_description()
+                    self.ai_input_active = False
+                    return True
+                elif event.key == pygame.K_BACKSPACE:
+                    self.ai_description = self.ai_description[:-1]
+                    return True
+                elif event.unicode and len(self.ai_description) < 200:  # Limit length
+                    # Only allow printable characters
+                    if event.unicode.isprintable():
+                        self.ai_description += event.unicode
+                        return True
+                return True  # Consume all key events when input is active
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
@@ -175,13 +209,17 @@ class FaceGeneratorUI:
         close_y = panel_y + 10
         self._render_button("×", close_x, close_y, 35, 35, (150, 0, 0), id_="close")
 
-        # Expression selector (top bar)
-        expr_bar_y = panel_y + 55
+        # AI Description Input (below title)
+        ai_input_y = panel_y + 50
+        self._render_ai_input(panel_x + 10, ai_input_y, panel_width - 20)
+
+        # Expression selector (below AI input)
+        expr_bar_y = panel_y + 105
         self._render_expression_selector(panel_x + 10, expr_bar_y, panel_width - 20, 50)
 
         # Content area
-        content_y = panel_y + 120
-        content_height = panel_height - 220
+        content_y = panel_y + 170
+        content_height = panel_height - 270
 
         # Layout sections
         left_panel_x = panel_x + 10
@@ -278,6 +316,71 @@ class FaceGeneratorUI:
                    pygame.Rect(button_x, y + 10, button_width, button_height))
 
             button_x += button_width + button_spacing
+
+    def _render_ai_input(self, x: int, y: int, width: int):
+        """Render AI description input field."""
+        input_height = 45
+        button_width = 180
+
+        # Input field background
+        input_bg_color = (60, 100, 140) if self.ai_input_active else (40, 40, 60)
+        pygame.draw.rect(
+            self.screen,
+            input_bg_color,
+            (x, y, width - button_width - 10, input_height),
+            border_radius=4
+        )
+        pygame.draw.rect(
+            self.screen,
+            (100, 100, 120),
+            (x, y, width - button_width - 10, input_height),
+            2,
+            border_radius=4
+        )
+
+        # Placeholder or text
+        text_x = x + 15
+        text_y = y + (input_height - 20) // 2
+
+        if self.ai_description:
+            # Display current text
+            display_text = self.ai_description
+            if len(display_text) > 80:
+                display_text = display_text[:80] + "..."
+
+            text_surface = self.font.render(display_text, True, (255, 255, 255))
+            self.screen.blit(text_surface, (text_x, text_y))
+
+            # Cursor
+            if self.ai_input_active and self.ai_cursor_visible:
+                cursor_x = text_x + text_surface.get_width() + 2
+                pygame.draw.rect(self.screen, (255, 255, 255), (cursor_x, text_y, 2, 20))
+        else:
+            # Placeholder text
+            placeholder = "🤖 Describe the face... (e.g., 'A happy young woman with blue eyes and rosy cheeks')"
+            placeholder_color = (120, 120, 140) if not self.ai_input_active else (150, 150, 170)
+            text_surface = self.small_font.render(placeholder, True, placeholder_color)
+            self.screen.blit(text_surface, (text_x, text_y + 5))
+
+            # Cursor at start
+            if self.ai_input_active and self.ai_cursor_visible:
+                pygame.draw.rect(self.screen, (255, 255, 255), (text_x, text_y, 2, 20))
+
+        # Generate button
+        button_x = x + width - button_width
+        button_color = (0, 150, 200) if self.ai_description.strip() else (60, 60, 80)
+        self._render_button(
+            "Generate from AI ✨",
+            button_x,
+            y,
+            button_width,
+            input_height,
+            button_color,
+            id_="generate_ai"
+        )
+
+        # Store input field rect for click detection
+        setattr(self, '_ai_input_rect', pygame.Rect(x, y, width - button_width - 10, input_height))
 
     def _render_category_tabs(self, x: int, y: int, width: int, height: int):
         """Render left panel with component category tabs."""
@@ -713,6 +816,20 @@ class FaceGeneratorUI:
 
     def _handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
         """Handle mouse click events."""
+        # AI input field click
+        if hasattr(self, '_ai_input_rect'):
+            rect = getattr(self, '_ai_input_rect')
+            if rect.collidepoint(mouse_pos):
+                self.ai_input_active = True
+                return True
+
+        # Generate from AI button
+        if hasattr(self, '_btn_generate_ai'):
+            rect = getattr(self, '_btn_generate_ai')
+            if rect.collidepoint(mouse_pos) and self.ai_description.strip():
+                self._generate_from_ai_description()
+                return True
+
         # Close button
         if hasattr(self, '_btn_close'):
             if getattr(self, '_btn_close').collidepoint(mouse_pos):
@@ -857,6 +974,40 @@ class FaceGeneratorUI:
             print("✓ Generated random face")
         except Exception as e:
             print(f"⚠ Failed to randomize: {e}")
+
+    def _generate_from_ai_description(self):
+        """Generate face from AI description."""
+        if not self.ai_description.strip():
+            return
+
+        try:
+            print(f"🤖 Generating face from: '{self.ai_description}'")
+
+            # Use the face generator's AI-friendly method
+            self.current_preset = self.generator.generate_from_description(
+                self.ai_description,
+                name="AI Generated Face"
+            )
+
+            # Auto-set expression if detected
+            if "detected_expression" in self.current_preset.metadata:
+                detected_expr_name = self.current_preset.metadata["detected_expression"]
+                try:
+                    self.selected_expression = Expression(detected_expr_name)
+                    print(f"✓ Auto-selected expression: {detected_expr_name}")
+                except ValueError:
+                    pass  # Keep current expression if invalid
+
+            self._regenerate_all_previews()
+            print("✓ AI face generation complete!")
+
+            # Clear the input after successful generation
+            self.ai_description = ""
+            self.ai_input_active = False
+
+        except Exception as e:
+            print(f"⚠ Failed to generate from AI: {e}")
+            print(f"   Description was: '{self.ai_description}'")
 
     def _apply_color_tint(self):
         """Apply color tint to selected layer."""
