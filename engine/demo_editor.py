@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pygame
 
-from engine.ui.master_ui_manager import MasterUIManager
+from neonworks.engine.ui.master_ui_manager import MasterUIManager
 
 
 class EditorDemo:
