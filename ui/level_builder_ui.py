@@ -19,6 +19,16 @@ from ..core.event_commands import (
 )
 from ..rendering.tilemap import Tile, Tilemap
 from ..rendering.ui import UI
+from .ai_generator_tool import AIGeneratorTool
+from .map_tools import (
+    EraserTool,
+    FillTool,
+    MapTool,
+    PencilTool,
+    SelectTool,
+    ToolContext,
+    ToolManager,
+)
 
 
 class LevelBuilderUI:
@@ -33,8 +43,11 @@ class LevelBuilderUI:
 
         self.visible = False
 
+        # Tool manager and tools
+        self.tool_manager = ToolManager()
+        self._initialize_tools()
+
         # Editor state
-        self.current_tool = "tile"  # 'tile', 'entity', 'event', 'erase', 'select'
         self.current_layer = 0
         self.selected_tile = None
         self.selected_entity_type = None
@@ -44,6 +57,11 @@ class LevelBuilderUI:
         # Event data
         self.events: List[GameEvent] = []
         self.event_editor = None  # Will be set by master UI manager
+
+        # Mouse state for drag operations
+        self.mouse_down = False
+        self.mouse_button = -1
+        self.last_grid_pos: Optional[Tuple[int, int]] = None
 
         # Tile palette
         self.tile_palette = {
@@ -143,6 +161,33 @@ class LevelBuilderUI:
         self.show_grid = True
         self.show_layer_preview = True
 
+    def _initialize_tools(self):
+        """Initialize all map editing tools."""
+        self.tool_manager.register_tool("pencil", PencilTool())
+        self.tool_manager.register_tool("eraser", EraserTool())
+        self.tool_manager.register_tool("fill", FillTool())
+        self.tool_manager.register_tool("select", SelectTool())
+        self.tool_manager.register_tool("ai_gen", AIGeneratorTool())
+
+    def _get_tool_context(self) -> ToolContext:
+        """Create a tool context with current editor state."""
+        return ToolContext(
+            tilemap=self.tilemap,
+            world=self.world,
+            events=self.events,
+            tile_palette=self.tile_palette,
+            entity_templates=self.entity_templates,
+            event_templates=self.event_templates,
+            current_layer=self.current_layer,
+            selected_tile=self.selected_tile,
+            selected_entity_type=self.selected_entity_type,
+            selected_event_template=self.selected_event_template,
+            grid_width=self.grid_width,
+            grid_height=self.grid_height,
+            tile_size=self.tile_size,
+            event_editor=self.event_editor,
+        )
+
     def initialize_tilemap(self):
         """Initialize a blank tilemap."""
         if self.tilemap is None:
@@ -175,10 +220,16 @@ class LevelBuilderUI:
         if self.show_grid:
             self._draw_grid(camera_offset)
 
+        # Render tool cursor
+        self._render_tool_cursor(camera_offset)
+
         # Render UI panels
         self._render_tool_panel()
         self._render_palette_panel()
         self._render_layer_panel()
+
+        # Render AI chat if active
+        self._render_ai_chat()
 
     def _render_tilemap_preview(self, camera_offset: Tuple[int, int]):
         """Render the tilemap for editing."""
@@ -241,9 +292,7 @@ class LevelBuilderUI:
             event_icon = getattr(event, "icon", "⭐")
 
             # Draw event background
-            event_surface = pygame.Surface(
-                (self.tile_size, self.tile_size), pygame.SRCALPHA
-            )
+            event_surface = pygame.Surface((self.tile_size, self.tile_size), pygame.SRCALPHA)
             pygame.draw.rect(
                 event_surface,
                 (*event_color, 180),
@@ -265,6 +314,19 @@ class LevelBuilderUI:
             id_text = id_font.render(f"#{event.id}", True, (255, 255, 255))
             self.screen.blit(id_text, (screen_x + 2, screen_y + 2))
 
+    def _render_tool_cursor(self, camera_offset: Tuple[int, int]):
+        """Render the cursor for the active tool."""
+        # Get mouse position and convert to grid coordinates
+        mouse_pos = pygame.mouse.get_pos()
+        grid_x = (mouse_pos[0] - camera_offset[0]) // self.tile_size
+        grid_y = (mouse_pos[1] - camera_offset[1]) // self.tile_size
+
+        # Check if cursor is within bounds
+        if 0 <= grid_x < self.grid_width and 0 <= grid_y < self.grid_height:
+            self.tool_manager.render_cursor(
+                self.screen, grid_x, grid_y, self.tile_size, camera_offset
+            )
+
     def _render_tool_panel(self):
         """Render the tool selection panel."""
         panel_width = 80
@@ -280,54 +342,36 @@ class LevelBuilderUI:
         button_x = panel_x + 10
         current_y = panel_y + 35
 
-        # Tile tool
-        tile_color = (0, 150, 0) if self.current_tool == "tile" else (0, 80, 0)
-        if self.ui.button(
-            "Tile", button_x, current_y, button_width, button_height, color=tile_color
-        ):
-            self.current_tool = "tile"
-        current_y += button_height + 5
+        active_tool = self.tool_manager.get_active_tool()
 
-        # Entity tool
-        entity_color = (150, 0, 150) if self.current_tool == "entity" else (80, 0, 80)
-        if self.ui.button(
-            "Entity",
-            button_x,
-            current_y,
-            button_width,
-            button_height,
-            color=entity_color,
-        ):
-            self.current_tool = "entity"
-        current_y += button_height + 5
+        # Render buttons for each tool
+        for tool_id in self.tool_manager.tool_order:
+            tool = self.tool_manager.tools[tool_id]
 
-        # Event tool
-        event_color = (0, 150, 150) if self.current_tool == "event" else (0, 80, 80)
-        if self.ui.button(
-            "Event", button_x, current_y, button_width, button_height, color=event_color
-        ):
-            self.current_tool = "event"
-        current_y += button_height + 5
+            # Highlight active tool
+            is_active = active_tool == tool
+            button_color = tool.color if is_active else tuple(c // 2 for c in tool.color)
 
-        # Erase tool
-        erase_color = (150, 0, 0) if self.current_tool == "erase" else (80, 0, 0)
-        if self.ui.button(
-            "Erase", button_x, current_y, button_width, button_height, color=erase_color
-        ):
-            self.current_tool = "erase"
-        current_y += button_height + 5
+            # Render button with hotkey
+            button_text = f"{tool.name}\n({tool.hotkey})"
+            if self.ui.button(
+                tool.name,
+                button_x,
+                current_y,
+                button_width,
+                button_height,
+                color=button_color,
+            ):
+                self.tool_manager.set_active_tool(tool_id)
 
-        # Select tool
-        select_color = (150, 150, 0) if self.current_tool == "select" else (80, 80, 0)
-        if self.ui.button(
-            "Select",
-            button_x,
-            current_y,
-            button_width,
-            button_height,
-            color=select_color,
-        ):
-            self.current_tool = "select"
+            # Draw hotkey number
+            hotkey_font = pygame.font.Font(None, 14)
+            hotkey_text = hotkey_font.render(str(tool.hotkey), True, (200, 200, 200))
+            self.screen.blit(
+                hotkey_text, (button_x + button_width - 12, current_y + button_height - 12)
+            )
+
+            current_y += button_height + 5
 
     def _render_palette_panel(self):
         """Render the tile/entity palette panel."""
@@ -439,18 +483,12 @@ class LevelBuilderUI:
 
         for event_id, event_data in self.event_templates.items():
             # Highlight selected event
-            bg_color = (
-                (120, 120, 160)
-                if event_id == self.selected_event_template
-                else (60, 60, 80)
-            )
+            bg_color = (120, 120, 160) if event_id == self.selected_event_template else (60, 60, 80)
 
             self.ui.panel(x + 10, item_y, item_width, item_height, bg_color)
 
             # Color swatch
-            pygame.draw.rect(
-                self.screen, event_data["color"], (x + 15, item_y + 5, 30, 30)
-            )
+            pygame.draw.rect(self.screen, event_data["color"], (x + 15, item_y + 5, 30, 30))
 
             # Icon
             icon_font = pygame.font.Font(None, 36)
@@ -541,168 +579,110 @@ class LevelBuilderUI:
         if self.ui.button(grid_text, panel_x + 10, current_y, panel_width - 20, 25):
             self.show_grid = not self.show_grid
 
-    def paint_tile(self, grid_x: int, grid_y: int):
-        """Paint a tile at the given grid position."""
-        if not self.tilemap or self.current_tool != "tile" or not self.selected_tile:
-            return
+    def _render_ai_chat(self):
+        """Render AI chat interface if AI tool is active."""
+        active_tool = self.tool_manager.get_active_tool()
+        if isinstance(active_tool, AIGeneratorTool):
+            active_tool.render_chat(self.screen)
 
-        # Check bounds
-        if not (0 <= grid_x < self.grid_width and 0 <= grid_y < self.grid_height):
-            return
+    def handle_event(
+        self, event: pygame.event.Event, camera_offset: Tuple[int, int] = (0, 0)
+    ) -> bool:
+        """
+        Handle input events for the level builder.
 
-        # Create tile
-        tile_data = self.tile_palette[self.selected_tile]
-        tile = Tile(tile_type=self.selected_tile, walkable=tile_data["walkable"])
+        Args:
+            event: Pygame event to handle
+            camera_offset: Camera offset for coordinate conversion
 
-        self.tilemap.set_tile(grid_x, grid_y, self.current_layer, tile)
-
-    def place_entity(self, grid_x: int, grid_y: int):
-        """Place an entity at the given grid position."""
-        if self.current_tool != "entity" or not self.selected_entity_type:
-            return
-
-        # Check bounds
-        if not (0 <= grid_x < self.grid_width and 0 <= grid_y < self.grid_height):
-            return
-
-        template = self.entity_templates[self.selected_entity_type]
-
-        # Create entity
-        entity_id = self.world.create_entity()
-
-        # Add transform
-        self.world.add_component(
-            entity_id, Transform(x=grid_x * self.tile_size, y=grid_y * self.tile_size)
-        )
-
-        # Add grid position
-        self.world.add_component(entity_id, GridPosition(grid_x, grid_y))
-
-        # Add sprite
-        self.world.add_component(
-            entity_id,
-            Sprite(asset_id=f"entity_{self.selected_entity_type}", color=template["color"]),
-        )
-
-        # Add other components based on template
-        from ..core.ecs import Health, ResourceStorage, Survival, TurnActor
-
-        if "Health" in template["components"]:
-            self.world.add_component(entity_id, Health(current=100, maximum=100))
-
-        if "Survival" in template["components"]:
-            self.world.add_component(entity_id, Survival())
-
-        if "TurnActor" in template["components"]:
-            self.world.add_component(entity_id, TurnActor(initiative=10))
-
-        if "ResourceStorage" in template["components"]:
-            self.world.add_component(entity_id, ResourceStorage(capacity=50))
-
-        # Add tags
-        for tag in template["tags"]:
-            self.world.tag_entity(entity_id, tag)
-
-        print(f"Placed {template['name']} at ({grid_x}, {grid_y})")
-
-    def place_event(self, grid_x: int, grid_y: int):
-        """Place an event at the given grid position."""
-        if self.current_tool != "event" or not self.selected_event_template:
-            return
-
-        # Check bounds
-        if not (0 <= grid_x < self.grid_width and 0 <= grid_y < self.grid_height):
-            return
-
-        # Check if event already exists at this position
-        for existing_event in self.events:
-            if existing_event.x == grid_x and existing_event.y == grid_y:
-                print(f"Event already exists at ({grid_x}, {grid_y})")
-                return
-
-        template = self.event_templates[self.selected_event_template]
-
-        # Generate new event ID
-        new_id = max([e.id for e in self.events], default=0) + 1
-
-        # Create event with default page
-        new_event = GameEvent(
-            id=new_id,
-            name=f"{template['name']} {new_id:03d}",
-            x=grid_x,
-            y=grid_y,
-            pages=[],
-        )
-
-        # Add metadata for rendering
-        new_event.color = template["color"]
-        new_event.icon = template["icon"]
-        new_event.template_type = self.selected_event_template
-
-        # Add a default page
-        default_page = EventPage(
-            trigger=template["trigger"],
-            commands=[],
-        )
-        new_event.pages.append(default_page)
-
-        self.events.append(new_event)
-        print(f"Placed {template['name']} at ({grid_x}, {grid_y}) with ID #{new_id}")
-
-        # Sync events to event editor if available
-        if self.event_editor:
-            self.event_editor.load_events_from_scene(self.events)
-
-    def erase_tile(self, grid_x: int, grid_y: int):
-        """Erase a tile, entity, or event at the given position."""
-        if self.current_tool != "erase":
-            return
-
-        # Erase tile from tilemap
-        if self.tilemap:
-            self.tilemap.set_tile(grid_x, grid_y, self.current_layer, None)
-
-        # Erase entities at this position
-        to_remove = []
-        for entity_id in self.world.entities:
-            grid_pos = self.world.get_component(entity_id, GridPosition)
-            if grid_pos and grid_pos.grid_x == grid_x and grid_pos.grid_y == grid_y:
-                to_remove.append(entity_id)
-
-        for entity_id in to_remove:
-            self.world.remove_entity(entity_id)
-
-        # Erase events at this position
-        events_to_remove = []
-        for event in self.events:
-            if event.x == grid_x and event.y == grid_y:
-                events_to_remove.append(event)
-
-        for event in events_to_remove:
-            self.events.remove(event)
-            print(f"Erased event #{event.id} at ({grid_x}, {grid_y})")
-
-        # Sync events to event editor if available
-        if self.event_editor and events_to_remove:
-            self.event_editor.load_events_from_scene(self.events)
-
-    def handle_click(self, grid_x: int, grid_y: int):
-        """Handle a click on the grid."""
+        Returns:
+            True if the event was handled, False otherwise
+        """
         if not self.visible:
             return False
 
-        if self.current_tool == "tile":
-            self.paint_tile(grid_x, grid_y)
-            return True
-        elif self.current_tool == "entity":
-            self.place_entity(grid_x, grid_y)
-            return True
-        elif self.current_tool == "event":
-            self.place_event(grid_x, grid_y)
-            return True
-        elif self.current_tool == "erase":
-            self.erase_tile(grid_x, grid_y)
-            return True
+        # Handle AI chat events first
+        active_tool = self.tool_manager.get_active_tool()
+        if isinstance(active_tool, AIGeneratorTool):
+            context = self._get_tool_context()
+            if active_tool.handle_chat_event(event, context, self.screen):
+                return True
+
+        # Handle keyboard shortcuts for tool switching
+        if event.type == pygame.KEYDOWN:
+            # 'C' key toggles AI chat
+            if event.key == pygame.K_c:
+                active_tool = self.tool_manager.get_active_tool()
+                if isinstance(active_tool, AIGeneratorTool):
+                    active_tool.toggle_chat()
+                    return True
+
+            # Number keys 1-9 switch tools
+            if pygame.K_1 <= event.key <= pygame.K_9:
+                hotkey = event.key - pygame.K_0  # Convert to 1-9
+                tool = self.tool_manager.get_tool_by_hotkey(hotkey)
+                if tool:
+                    tool_id = None
+                    for tid, t in self.tool_manager.tools.items():
+                        if t == tool:
+                            tool_id = tid
+                            break
+                    if tool_id:
+                        self.tool_manager.set_active_tool(tool_id)
+                        # Auto-open chat when switching to AI tool
+                        if isinstance(tool, AIGeneratorTool) and not tool.chat_visible:
+                            tool.toggle_chat()
+                        return True
+
+        # Handle mouse events
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Convert screen coordinates to grid coordinates
+            grid_x = (event.pos[0] - camera_offset[0]) // self.tile_size
+            grid_y = (event.pos[1] - camera_offset[1]) // self.tile_size
+
+            # Check if click is within grid bounds
+            if 0 <= grid_x < self.grid_width and 0 <= grid_y < self.grid_height:
+                self.mouse_down = True
+                self.mouse_button = event.button - 1  # Convert to 0-indexed
+                self.last_grid_pos = (grid_x, grid_y)
+
+                context = self._get_tool_context()
+                return self.tool_manager.handle_mouse_down(
+                    grid_x, grid_y, self.mouse_button, context
+                )
+
+        elif event.type == pygame.MOUSEMOTION:
+            if self.mouse_down:
+                # Convert screen coordinates to grid coordinates
+                grid_x = (event.pos[0] - camera_offset[0]) // self.tile_size
+                grid_y = (event.pos[1] - camera_offset[1]) // self.tile_size
+
+                # Only handle if we've moved to a different grid cell
+                if (
+                    0 <= grid_x < self.grid_width
+                    and 0 <= grid_y < self.grid_height
+                    and (grid_x, grid_y) != self.last_grid_pos
+                ):
+
+                    self.last_grid_pos = (grid_x, grid_y)
+                    context = self._get_tool_context()
+                    return self.tool_manager.handle_mouse_drag(
+                        grid_x, grid_y, self.mouse_button, context
+                    )
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if self.mouse_down:
+                # Convert screen coordinates to grid coordinates
+                grid_x = (event.pos[0] - camera_offset[0]) // self.tile_size
+                grid_y = (event.pos[1] - camera_offset[1]) // self.tile_size
+
+                self.mouse_down = False
+                context = self._get_tool_context()
+
+                if 0 <= grid_x < self.grid_width and 0 <= grid_y < self.grid_height:
+                    return self.tool_manager.handle_mouse_up(
+                        grid_x, grid_y, self.mouse_button, context
+                    )
 
         return False
 
@@ -798,12 +778,8 @@ class LevelBuilderUI:
 
         # Deserialize tiles
         for tile_data in tilemap_data.get("tiles", []):
-            tile = Tile(
-                tile_type=tile_data["tile_type"], walkable=tile_data["walkable"]
-            )
-            self.tilemap.set_tile(
-                tile_data["x"], tile_data["y"], tile_data["layer"], tile
-            )
+            tile = Tile(tile_type=tile_data["tile_type"], walkable=tile_data["walkable"])
+            self.tilemap.set_tile(tile_data["x"], tile_data["y"], tile_data["layer"], tile)
 
     def _serialize_events(self) -> List[Dict]:
         """Serialize events to a list of dictionaries."""
@@ -843,14 +819,10 @@ class LevelBuilderUI:
                 if page.condition_variable_valid:
                     page_dict["condition_variable_valid"] = True
                     page_dict["condition_variable_id"] = page.condition_variable_id
-                    page_dict["condition_variable_value"] = (
-                        page.condition_variable_value
-                    )
+                    page_dict["condition_variable_value"] = page.condition_variable_value
                 if page.condition_self_switch_valid:
                     page_dict["condition_self_switch_valid"] = True
-                    page_dict["condition_self_switch_ch"] = (
-                        page.condition_self_switch_ch
-                    )
+                    page_dict["condition_self_switch_ch"] = page.condition_self_switch_ch
 
                 # Serialize commands
                 for command in page.commands:
@@ -896,27 +868,17 @@ class LevelBuilderUI:
                 )
 
                 # Restore conditions
-                page.condition_switch1_valid = page_dict.get(
-                    "condition_switch1_valid", False
-                )
+                page.condition_switch1_valid = page_dict.get("condition_switch1_valid", False)
                 page.condition_switch1_id = page_dict.get("condition_switch1_id", 1)
-                page.condition_switch2_valid = page_dict.get(
-                    "condition_switch2_valid", False
-                )
+                page.condition_switch2_valid = page_dict.get("condition_switch2_valid", False)
                 page.condition_switch2_id = page_dict.get("condition_switch2_id", 1)
-                page.condition_variable_valid = page_dict.get(
-                    "condition_variable_valid", False
-                )
+                page.condition_variable_valid = page_dict.get("condition_variable_valid", False)
                 page.condition_variable_id = page_dict.get("condition_variable_id", 1)
-                page.condition_variable_value = page_dict.get(
-                    "condition_variable_value", 0
-                )
+                page.condition_variable_value = page_dict.get("condition_variable_value", 0)
                 page.condition_self_switch_valid = page_dict.get(
                     "condition_self_switch_valid", False
                 )
-                page.condition_self_switch_ch = page_dict.get(
-                    "condition_self_switch_ch", "A"
-                )
+                page.condition_self_switch_ch = page_dict.get("condition_self_switch_ch", "A")
 
                 # Deserialize commands
                 for command_dict in page_dict["commands"]:
