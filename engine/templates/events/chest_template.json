@@ -1,0 +1,114 @@
+{
+  "id": 0,
+  "name": "Treasure Chest",
+  "x": 0,
+  "y": 0,
+  "pages": [
+    {
+      "conditions": {
+        "switch1_valid": false,
+        "switch1_id": 1,
+        "switch2_valid": false,
+        "switch2_id": 1,
+        "variable_valid": false,
+        "variable_id": 1,
+        "variable_value": 0,
+        "self_switch_valid": false,
+        "self_switch_ch": "A"
+      },
+      "graphic": {
+        "character_name": "",
+        "character_index": 0,
+        "direction": 2,
+        "pattern": 0,
+        "tile_id": 80,
+        "opacity": 255,
+        "blend_type": 0
+      },
+      "movement": {
+        "move_type": 0,
+        "move_speed": 3,
+        "move_frequency": 3,
+        "move_route": null,
+        "walk_anime": false,
+        "step_anime": false,
+        "direction_fix": true,
+        "through": false,
+        "always_on_top": false
+      },
+      "options": {
+        "trigger": "action_button",
+        "priority": 1
+      },
+      "commands": [
+        {
+          "code": "SHOW_TEXT",
+          "parameters": {
+            "text": "Found a Potion!"
+          }
+        },
+        {
+          "code": "CHANGE_ITEMS",
+          "parameters": {
+            "item_id": 1,
+            "operation": "increase",
+            "amount": 1
+          }
+        },
+        {
+          "code": "PLAY_SE",
+          "parameters": {
+            "name": "Chest_Open",
+            "volume": 80,
+            "pitch": 100
+          }
+        },
+        {
+          "code": "CONTROL_SELF_SWITCH",
+          "parameters": {
+            "self_switch": "A",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "conditions": {
+        "switch1_valid": false,
+        "switch1_id": 1,
+        "switch2_valid": false,
+        "switch2_id": 1,
+        "variable_valid": false,
+        "variable_id": 1,
+        "variable_value": 0,
+        "self_switch_valid": true,
+        "self_switch_ch": "A"
+      },
+      "graphic": {
+        "character_name": "",
+        "character_index": 0,
+        "direction": 2,
+        "pattern": 0,
+        "tile_id": 81,
+        "opacity": 255,
+        "blend_type": 0
+      },
+      "movement": {
+        "move_type": 0,
+        "move_speed": 3,
+        "move_frequency": 3,
+        "move_route": null,
+        "walk_anime": false,
+        "step_anime": false,
+        "direction_fix": true,
+        "through": false,
+        "always_on_top": false
+      },
+      "options": {
+        "trigger": "action_button",
+        "priority": 1
+      },
+      "commands": []
+    }
+  ]
+}

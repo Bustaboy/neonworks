@@ -255,9 +255,7 @@ class AISystem(System):
             velocity.dx = 0
             velocity.dy = 0
 
-    def _chase_behavior(
-        self, entity: Entity, target_transform: Transform, delta_time: float
-    ):
+    def _chase_behavior(self, entity: Entity, target_transform: Transform, delta_time: float):
         """CHASE: Move towards player."""
         ai = entity.get_component(AIController)
         transform = entity.get_component(Transform)
@@ -281,9 +279,7 @@ class AISystem(System):
                 transform.x += dx * ai.movement_speed * delta_time
                 transform.y += dy * ai.movement_speed * delta_time
 
-    def _attack_behavior(
-        self, entity: Entity, target: Entity, delta_time: float, world: World
-    ):
+    def _attack_behavior(self, entity: Entity, target: Entity, delta_time: float, world: World):
         """ATTACK: Stop moving and attack player."""
         # Stop moving
         if entity.has_component(Velocity):

@@ -122,9 +122,7 @@ class SwirlTransition(BattleTransition):
 
     def __init__(self, screen_width: int, screen_height: int, duration: float = 1.0):
         super().__init__(screen_width, screen_height, duration)
-        self.swirl_surface = pygame.Surface(
-            (screen_width, screen_height), pygame.SRCALPHA
-        )
+        self.swirl_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
 
     def render(self, screen: pygame.Surface):
         """Render swirl effect"""
@@ -220,9 +218,7 @@ class ShatterTransition(BattleTransition):
         # Draw falling pieces (as simple rectangles)
         for piece in self.pieces:
             if progress < 0.7:  # Only show pieces early in transition
-                rect = pygame.Rect(
-                    int(piece["x"]), int(piece["y"]), piece["size"], piece["size"]
-                )
+                rect = pygame.Rect(int(piece["x"]), int(piece["y"]), piece["size"], piece["size"])
                 # Simple white rectangles for shards
                 pygame.draw.rect(screen, (255, 255, 255), rect, 2)
 
@@ -232,9 +228,7 @@ class WaveTransition(BattleTransition):
 
     def __init__(self, screen_width: int, screen_height: int, duration: float = 0.6):
         super().__init__(screen_width, screen_height, duration)
-        self.wave_surface = pygame.Surface(
-            (screen_width, screen_height), pygame.SRCALPHA
-        )
+        self.wave_surface = pygame.Surface((screen_width, screen_height), pygame.SRCALPHA)
 
     def render(self, screen: pygame.Surface):
         """Render wave effect"""
@@ -293,9 +287,7 @@ class ZoomTransition(BattleTransition):
             # Black overlay
             overlay = pygame.Surface((self.screen_width, self.screen_height))
             overlay.fill((0, 0, 0))
-            pygame.draw.rect(
-                overlay, (255, 255, 255), (zoom_x, zoom_y, zoom_width, zoom_height)
-            )
+            pygame.draw.rect(overlay, (255, 255, 255), (zoom_x, zoom_y, zoom_width, zoom_height))
             overlay.set_colorkey((255, 255, 255))
             screen.blit(overlay, (0, 0))
 
@@ -371,6 +363,4 @@ class BattleTransitionManager:
 
     def is_complete(self) -> bool:
         """Check if current transition is complete"""
-        return (
-            self.current_transition is not None and self.current_transition.is_complete
-        )
+        return self.current_transition is not None and self.current_transition.is_complete

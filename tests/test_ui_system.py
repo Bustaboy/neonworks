@@ -106,12 +106,8 @@ class TestUIButton:
         button.on_click = on_click
 
         # Simulate click
-        event_down = pygame.event.Event(
-            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (50, 25)}
-        )
-        event_up = pygame.event.Event(
-            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (50, 25)}
-        )
+        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (50, 25)})
+        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {"button": 1, "pos": (50, 25)})
 
         button.handle_event(event_down)
         button.handle_event(event_up)
@@ -142,12 +138,8 @@ class TestUIButton:
         button.on_click = lambda: clicked.append(True)
         button.enabled = False
 
-        event_down = pygame.event.Event(
-            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (50, 25)}
-        )
-        event_up = pygame.event.Event(
-            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (50, 25)}
-        )
+        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (50, 25)})
+        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {"button": 1, "pos": (50, 25)})
 
         button.handle_event(event_down)
         button.handle_event(event_up)
@@ -232,12 +224,8 @@ class TestUIContainer:
         container.add_child(button)
 
         # Click on button
-        event_down = pygame.event.Event(
-            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (75, 65)}
-        )
-        event_up = pygame.event.Event(
-            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (75, 65)}
-        )
+        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (75, 65)})
+        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {"button": 1, "pos": (75, 65)})
 
         container.handle_event(event_down)
         container.handle_event(event_up)
@@ -304,12 +292,8 @@ class TestUIManager:
 
         manager.add_widget(button)
 
-        event_down = pygame.event.Event(
-            pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (75, 65)}
-        )
-        event_up = pygame.event.Event(
-            pygame.MOUSEBUTTONUP, {"button": 1, "pos": (75, 65)}
-        )
+        event_down = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {"button": 1, "pos": (75, 65)})
+        event_up = pygame.event.Event(pygame.MOUSEBUTTONUP, {"button": 1, "pos": (75, 65)})
 
         manager.handle_event(event_down)
         manager.handle_event(event_up)

@@ -73,9 +73,7 @@ class QuestEditorUI:
         )
 
         # Close button
-        if self.ui.button(
-            "X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)):
             self.toggle()
 
         # Mode toggle
@@ -88,23 +86,17 @@ class QuestEditorUI:
         if self.current_mode == "quest":
             self._render_quest_editor(panel_x, content_y, panel_width, content_height)
         else:
-            self._render_dialogue_editor(
-                panel_x, content_y, panel_width, content_height
-            )
+            self._render_dialogue_editor(panel_x, content_y, panel_width, content_height)
 
     def _render_mode_toggle(self, x: int, y: int, width: int):
         """Render mode toggle buttons."""
         button_width = width // 2 - 10
 
         quest_color = (0, 150, 0) if self.current_mode == "quest" else (50, 50, 70)
-        if self.ui.button(
-            "Quest Editor", x + 5, y, button_width, 40, color=quest_color
-        ):
+        if self.ui.button("Quest Editor", x + 5, y, button_width, 40, color=quest_color):
             self.current_mode = "quest"
 
-        dialogue_color = (
-            (0, 100, 200) if self.current_mode == "dialogue" else (50, 50, 70)
-        )
+        dialogue_color = (0, 100, 200) if self.current_mode == "dialogue" else (50, 50, 70)
         if self.ui.button(
             "Dialogue Editor",
             x + button_width + 15,
@@ -142,9 +134,7 @@ class QuestEditorUI:
         self.ui.label("Quests", x + 10, y + 10, size=18, color=(200, 200, 255))
 
         # New quest button
-        if self.ui.button(
-            "+ New Quest", x + 10, y + 40, width - 20, 35, color=(0, 120, 0)
-        ):
+        if self.ui.button("+ New Quest", x + 10, y + 40, width - 20, 35, color=(0, 120, 0)):
             self.create_new_quest()
 
         # Quest list
@@ -163,9 +153,7 @@ class QuestEditorUI:
 
             # Quest name
             quest_name = quest.get("name", "Untitled Quest")
-            self.ui.label(
-                quest_name, x + 15, list_y + 10, size=16, color=(255, 255, 255)
-            )
+            self.ui.label(quest_name, x + 15, list_y + 10, size=16, color=(255, 255, 255))
 
             # Quest status
             status = quest.get("status", "draft")
@@ -175,9 +163,7 @@ class QuestEditorUI:
                 "complete": (255, 200, 0),
             }
             status_color = status_colors.get(status, (150, 150, 150))
-            self.ui.label(
-                status.capitalize(), x + 15, list_y + 32, size=12, color=status_color
-            )
+            self.ui.label(status.capitalize(), x + 15, list_y + 32, size=12, color=status_color)
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
@@ -236,9 +222,7 @@ class QuestEditorUI:
 
         current_y += 10
 
-        if self.ui.button(
-            "+ Add Objective", x + 10, current_y, 200, 30, color=(0, 100, 150)
-        ):
+        if self.ui.button("+ Add Objective", x + 10, current_y, 200, 30, color=(0, 100, 150)):
             if "objectives" not in self.current_quest:
                 self.current_quest["objectives"] = []
             self.current_quest["objectives"].append(
@@ -273,9 +257,7 @@ class QuestEditorUI:
         if self.ui.button("Save Quest", x + 10, button_y, 150, 35, color=(0, 150, 0)):
             self.save_quest(self.current_quest)
 
-        if self.ui.button(
-            "Delete Quest", x + 170, button_y, 150, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("Delete Quest", x + 170, button_y, 150, 35, color=(150, 0, 0)):
             self.delete_quest(self.current_quest)
 
     def _render_dialogue_editor(self, x: int, y: int, width: int, height: int):
@@ -305,9 +287,7 @@ class QuestEditorUI:
         self.ui.label("Dialogues", x + 10, y + 10, size=18, color=(200, 200, 255))
 
         # New dialogue button
-        if self.ui.button(
-            "+ New Dialogue", x + 10, y + 40, width - 20, 35, color=(0, 120, 0)
-        ):
+        if self.ui.button("+ New Dialogue", x + 10, y + 40, width - 20, 35, color=(0, 120, 0)):
             self.create_new_dialogue()
 
         # Dialogue list
@@ -326,9 +306,7 @@ class QuestEditorUI:
 
             # Dialogue name
             dialogue_name = dialogue.get("name", "Untitled Dialogue")
-            self.ui.label(
-                dialogue_name, x + 15, list_y + 10, size=16, color=(255, 255, 255)
-            )
+            self.ui.label(dialogue_name, x + 15, list_y + 10, size=16, color=(255, 255, 255))
 
             # Node count
             node_count = len(dialogue.get("nodes", []))
@@ -357,9 +335,7 @@ class QuestEditorUI:
 
         # Dialogue name
         dialogue_name = self.current_dialogue.get("name", "Untitled Dialogue")
-        self.ui.label(
-            f"Dialogue: {dialogue_name}", x + 10, y + 10, size=18, color=(255, 255, 100)
-        )
+        self.ui.label(f"Dialogue: {dialogue_name}", x + 10, y + 10, size=18, color=(255, 255, 100))
 
         # Node visualization area
         node_area_y = y + 50
@@ -387,14 +363,10 @@ class QuestEditorUI:
                 self.ui.panel(x + 10, current_y, width - 20, 60, (50, 50, 80))
 
                 # Node number
-                self.ui.label(
-                    f"#{i}", x + 15, current_y + 10, size=14, color=(255, 200, 0)
-                )
+                self.ui.label(f"#{i}", x + 15, current_y + 10, size=14, color=(255, 200, 0))
 
                 # Node text (truncated)
-                truncated_text = (
-                    node_text[:50] + "..." if len(node_text) > 50 else node_text
-                )
+                truncated_text = node_text[:50] + "..." if len(node_text) > 50 else node_text
                 self.ui.label(truncated_text, x + 50, current_y + 10, size=14)
 
                 # Node type
@@ -425,14 +397,10 @@ class QuestEditorUI:
         if self.ui.button("+ Add Node", x + 10, button_y, 140, 35, color=(0, 120, 0)):
             self.add_dialogue_node()
 
-        if self.ui.button(
-            "Save Dialogue", x + 160, button_y, 140, 35, color=(0, 150, 0)
-        ):
+        if self.ui.button("Save Dialogue", x + 160, button_y, 140, 35, color=(0, 150, 0)):
             self.save_dialogue(self.current_dialogue)
 
-        if self.ui.button(
-            "Delete Dialogue", x + 310, button_y, 140, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("Delete Dialogue", x + 310, button_y, 140, 35, color=(150, 0, 0)):
             self.delete_dialogue(self.current_dialogue)
 
     # Data management methods

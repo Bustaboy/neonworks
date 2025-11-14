@@ -115,13 +115,9 @@ class CharacterControllerSystem(System):
 
             # Apply movement
             if rigidbody:
-                self._apply_movement_with_physics(
-                    controller, rigidbody, move_direction, delta_time
-                )
+                self._apply_movement_with_physics(controller, rigidbody, move_direction, delta_time)
             else:
-                self._apply_movement_direct(
-                    controller, transform, move_direction, delta_time
-                )
+                self._apply_movement_direct(controller, transform, move_direction, delta_time)
 
             # Update movement state
             self._update_movement_state(controller, rigidbody, move_direction)
@@ -168,12 +164,8 @@ class CharacterControllerSystem(System):
             vertical += 1.0
 
         # Handle dash
-        if controller.can_dash and self.input_manager.is_action_just_pressed(
-            controller.input_dash
-        ):
-            if controller.dash_cooldown_timer <= 0 and (
-                horizontal != 0 or vertical != 0
-            ):
+        if controller.can_dash and self.input_manager.is_action_just_pressed(controller.input_dash):
+            if controller.dash_cooldown_timer <= 0 and (horizontal != 0 or vertical != 0):
                 controller.is_dashing = True
                 controller.dash_timer = controller.dash_duration
                 controller.dash_cooldown_timer = controller.dash_cooldown
@@ -199,9 +191,7 @@ class CharacterControllerSystem(System):
         # Determine target speed
         if controller.is_dashing:
             target_speed = controller.dash_speed
-        elif self.input_manager and self.input_manager.is_action_pressed(
-            controller.input_run
-        ):
+        elif self.input_manager and self.input_manager.is_action_pressed(controller.input_run):
             target_speed = controller.run_speed
         else:
             target_speed = controller.move_speed
@@ -215,13 +205,9 @@ class CharacterControllerSystem(System):
             # Accelerate
             accel = controller.acceleration * delta_time
             if rigidbody.velocity_x < target_velocity_x:
-                rigidbody.velocity_x = min(
-                    rigidbody.velocity_x + accel, target_velocity_x
-                )
+                rigidbody.velocity_x = min(rigidbody.velocity_x + accel, target_velocity_x)
             else:
-                rigidbody.velocity_x = max(
-                    rigidbody.velocity_x - accel, target_velocity_x
-                )
+                rigidbody.velocity_x = max(rigidbody.velocity_x - accel, target_velocity_x)
         else:
             # Apply friction
             friction = controller.friction * delta_time
@@ -248,13 +234,9 @@ class CharacterControllerSystem(System):
             if vertical != 0:
                 accel = controller.acceleration * delta_time
                 if rigidbody.velocity_y < target_velocity_y:
-                    rigidbody.velocity_y = min(
-                        rigidbody.velocity_y + accel, target_velocity_y
-                    )
+                    rigidbody.velocity_y = min(rigidbody.velocity_y + accel, target_velocity_y)
                 else:
-                    rigidbody.velocity_y = max(
-                        rigidbody.velocity_y - accel, target_velocity_y
-                    )
+                    rigidbody.velocity_y = max(rigidbody.velocity_y - accel, target_velocity_y)
             else:
                 friction = controller.friction * delta_time
                 if abs(rigidbody.velocity_y) < friction:
@@ -284,9 +266,7 @@ class CharacterControllerSystem(System):
         # Determine speed
         if controller.is_dashing:
             speed = controller.dash_speed
-        elif self.input_manager and self.input_manager.is_action_pressed(
-            controller.input_run
-        ):
+        elif self.input_manager and self.input_manager.is_action_pressed(controller.input_run):
             speed = controller.run_speed
         else:
             speed = controller.move_speed

@@ -207,9 +207,7 @@ class EventEditorUI:
         command_list_width = panel_width - event_list_width - command_palette_width - 40
 
         # Render three panels
-        self._render_event_list(
-            panel_x + 10, content_y, event_list_width, content_height
-        )
+        self._render_event_list(panel_x + 10, content_y, event_list_width, content_height)
         self._render_command_list(
             panel_x + event_list_width + 20,
             content_y,
@@ -226,12 +224,8 @@ class EventEditorUI:
     def _render_event_list(self, x: int, y: int, width: int, height: int):
         """Render the event list panel."""
         # Panel background
-        pygame.draw.rect(
-            self.screen, (30, 30, 45), (x, y, width, height), border_radius=6
-        )
-        pygame.draw.rect(
-            self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6
-        )
+        pygame.draw.rect(self.screen, (30, 30, 45), (x, y, width, height), border_radius=6)
+        pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6)
 
         # Panel title
         font = pygame.font.Font(None, 22)
@@ -244,8 +238,7 @@ class EventEditorUI:
         mouse_pressed = pygame.mouse.get_pressed()[0]
 
         new_btn_hover = (
-            x + 10 <= mouse_pos[0] <= x + width - 10
-            and btn_y <= mouse_pos[1] <= btn_y + 35
+            x + 10 <= mouse_pos[0] <= x + width - 10 and btn_y <= mouse_pos[1] <= btn_y + 35
         )
         new_btn_color = (0, 170, 0) if new_btn_hover else (0, 120, 0)
 
@@ -304,15 +297,11 @@ class EventEditorUI:
 
             # Position info
             pos_font = pygame.font.Font(None, 16)
-            pos_text = pos_font.render(
-                f"Pos: ({event.x}, {event.y})", True, (180, 180, 200)
-            )
+            pos_text = pos_font.render(f"Pos: ({event.x}, {event.y})", True, (180, 180, 200))
             self.screen.blit(pos_text, (x + 15, current_y + 48))
 
             # Page count
-            page_count_text = pos_font.render(
-                f"Pages: {len(event.pages)}", True, (180, 180, 200)
-            )
+            page_count_text = pos_font.render(f"Pages: {len(event.pages)}", True, (180, 180, 200))
             self.screen.blit(page_count_text, (x + width - 85, current_y + 48))
 
             # Click to select
@@ -343,12 +332,8 @@ class EventEditorUI:
     def _render_command_list(self, x: int, y: int, width: int, height: int):
         """Render the command list panel with indentation for nested commands."""
         # Panel background
-        pygame.draw.rect(
-            self.screen, (30, 30, 45), (x, y, width, height), border_radius=6
-        )
-        pygame.draw.rect(
-            self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6
-        )
+        pygame.draw.rect(self.screen, (30, 30, 45), (x, y, width, height), border_radius=6)
+        pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6)
 
         # Panel title
         font = pygame.font.Font(None, 22)
@@ -532,15 +517,10 @@ class EventEditorUI:
                     max_width = width - 30 - indent
                     param_text = param_font.render(param_preview, True, (180, 180, 200))
                     if param_text.get_width() > max_width:
-                        while (
-                            len(param_preview) > 0
-                            and param_text.get_width() > max_width
-                        ):
+                        while len(param_preview) > 0 and param_text.get_width() > max_width:
                             param_preview = param_preview[:-1]
                         param_preview += "..."
-                        param_text = param_font.render(
-                            param_preview, True, (180, 180, 200)
-                        )
+                        param_text = param_font.render(param_preview, True, (180, 180, 200))
                     self.screen.blit(param_text, (x + 15 + indent, current_y + 26))
 
                 # Click to select
@@ -572,12 +552,8 @@ class EventEditorUI:
     def _render_command_palette(self, x: int, y: int, width: int, height: int):
         """Render the command palette panel with categorized commands."""
         # Panel background
-        pygame.draw.rect(
-            self.screen, (30, 30, 45), (x, y, width, height), border_radius=6
-        )
-        pygame.draw.rect(
-            self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6
-        )
+        pygame.draw.rect(self.screen, (30, 30, 45), (x, y, width, height), border_radius=6)
+        pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6)
 
         # Panel title
         font = pygame.font.Font(None, 22)
@@ -760,9 +736,7 @@ class EventEditorUI:
             insert_index = self.selected_command_index + 1
             # Match indent level of selected command
             if self.selected_command_index < len(current_page.commands):
-                new_command.indent = current_page.commands[
-                    self.selected_command_index
-                ].indent
+                new_command.indent = current_page.commands[self.selected_command_index].indent
             current_page.commands.insert(insert_index, new_command)
             self.selected_command_index = insert_index
         else:

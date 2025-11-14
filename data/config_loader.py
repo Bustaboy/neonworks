@@ -102,9 +102,7 @@ class ConfigLoader:
             return yaml.safe_load(f)
 
     @staticmethod
-    def save(
-        data: Dict[str, Any], file_path: Union[str, Path], format: Optional[str] = None
-    ):
+    def save(data: Dict[str, Any], file_path: Union[str, Path], format: Optional[str] = None):
         """
         Save configuration data to file.
 
@@ -140,9 +138,7 @@ class ConfigLoader:
     def save_yaml(data: Dict[str, Any], file_path: Union[str, Path]):
         """Save data as YAML"""
         with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(
-                data, f, default_flow_style=False, allow_unicode=True, sort_keys=False
-            )
+            yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
     @staticmethod
     def _load_from_package(loader, file_path: Union[str, Path]) -> Dict[str, Any]:

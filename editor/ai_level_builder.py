@@ -158,9 +158,7 @@ class AILevelBuilder:
         print(f"   ✅ Placed {len(suggestions)} resource nodes strategically")
         return suggestions
 
-    def suggest_cover_positions(
-        self, density: float = 0.15
-    ) -> List[PlacementSuggestion]:
+    def suggest_cover_positions(self, density: float = 0.15) -> List[PlacementSuggestion]:
         """
         AI suggests cover object placements.
 
@@ -263,9 +261,7 @@ class AILevelBuilder:
         print(f"   ✅ Designed starting base with {len(suggestions)} buildings")
         return suggestions
 
-    def analyze_level_balance(
-        self, suggestions: List[PlacementSuggestion]
-    ) -> Dict[str, any]:
+    def analyze_level_balance(self, suggestions: List[PlacementSuggestion]) -> Dict[str, any]:
         """
         AI analyzes level balance and provides feedback.
 
@@ -297,17 +293,13 @@ class AILevelBuilder:
                     dist = abs(sp1.x - sp2.x) + abs(sp1.y - sp2.y)
                     min_distance = min(min_distance, dist)
 
-            balance_score = min(
-                1.0, min_distance / (self.grid_width + self.grid_height) * 2
-            )
+            balance_score = min(1.0, min_distance / (self.grid_width + self.grid_height) * 2)
         else:
             balance_score = 0.5
 
         # Resource fairness (check if resources are equidistant from spawns)
         resource_nodes = [s for s in suggestions if "resource" in s.object_type]
-        resource_fairness = self._calculate_resource_fairness(
-            spawn_points, resource_nodes
-        )
+        resource_fairness = self._calculate_resource_fairness(spawn_points, resource_nodes)
 
         analysis = {
             "total_objects": len(suggestions),
@@ -335,13 +327,9 @@ class AILevelBuilder:
             )
 
         if occupied_percentage < 10:
-            analysis["recommendations"].append(
-                "💡 Map feels empty - consider adding more objects"
-            )
+            analysis["recommendations"].append("💡 Map feels empty - consider adding more objects")
         elif occupied_percentage > 40:
-            analysis["recommendations"].append(
-                "⚠️ Map is very crowded - might hinder movement"
-            )
+            analysis["recommendations"].append("⚠️ Map is very crowded - might hinder movement")
 
         if object_counts.get("cover", 0) < 10:
             analysis["recommendations"].append("💡 Add more cover for tactical depth")
@@ -369,9 +357,7 @@ class AILevelBuilder:
         else:
             return [(0, 0, self.grid_width, self.grid_height)]
 
-    def _find_placement_in_region(
-        self, region: Tuple[int, int, int, int]
-    ) -> Tuple[int, int]:
+    def _find_placement_in_region(self, region: Tuple[int, int, int, int]) -> Tuple[int, int]:
         """Find a random placement within a region"""
         x1, y1, x2, y2 = region
         x = random.randint(x1, x2 - 1)
@@ -453,9 +439,7 @@ class AILevelBuilder:
 
         # Calculate variance
         mean_distance = sum(spawn_distances) / len(spawn_distances)
-        variance = sum((d - mean_distance) ** 2 for d in spawn_distances) / len(
-            spawn_distances
-        )
+        variance = sum((d - mean_distance) ** 2 for d in spawn_distances) / len(spawn_distances)
 
         # Low variance = fair, high variance = unfair
         fairness = 1.0 / (1.0 + variance / 100.0)

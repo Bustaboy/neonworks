@@ -173,9 +173,7 @@ class InputManager:
 
     def _add_to_buffer(self, input_type: str, code: int, data: any):
         """Add input to buffer"""
-        self._input_buffer.append(
-            {"type": input_type, "code": code, "data": data, "time": 0.0}
-        )
+        self._input_buffer.append({"type": input_type, "code": code, "data": data, "time": 0.0})
 
         # Limit buffer size
         if len(self._input_buffer) > self._buffer_size:
@@ -235,17 +233,11 @@ class InputManager:
 
     def is_mouse_button_just_pressed(self, button: int) -> bool:
         """Check if a mouse button was just pressed"""
-        return (
-            button in self._mouse_buttons_current
-            and button not in self._mouse_buttons_previous
-        )
+        return button in self._mouse_buttons_current and button not in self._mouse_buttons_previous
 
     def is_mouse_button_just_released(self, button: int) -> bool:
         """Check if a mouse button was just released"""
-        return (
-            button not in self._mouse_buttons_current
-            and button in self._mouse_buttons_previous
-        )
+        return button not in self._mouse_buttons_current and button in self._mouse_buttons_previous
 
     def get_mouse_wheel(self) -> int:
         """Get mouse wheel delta (-1, 0, or 1)"""

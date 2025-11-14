@@ -25,9 +25,7 @@ class PyArmorObfuscator:
     def _check_pyarmor(self) -> bool:
         """Check if PyArmor is available"""
         try:
-            result = subprocess.run(
-                ["pyarmor", "--version"], capture_output=True, text=True
-            )
+            result = subprocess.run(["pyarmor", "--version"], capture_output=True, text=True)
             return result.returncode == 0
         except FileNotFoundError:
             return False
@@ -290,9 +288,7 @@ class CodeProtector:
                 module_path = engine_dir / module
                 if module_path.exists():
                     try:
-                        self.cython.compile_module(
-                            module_path, output_dir / module_path.parent
-                        )
+                        self.cython.compile_module(module_path, output_dir / module_path.parent)
                         compiled_count += 1
                     except Exception as e:
                         print(f"⚠ Failed to compile {module}: {e}")

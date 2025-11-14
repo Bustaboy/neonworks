@@ -42,17 +42,11 @@ Examples:
         """,
     )
 
-    parser.add_argument(
-        "project", help="Path to project directory (e.g., projects/my_game)"
-    )
+    parser.add_argument("project", help="Path to project directory (e.g., projects/my_game)")
 
-    parser.add_argument(
-        "--version", "-v", default="1.0.0", help="Game version (default: 1.0.0)"
-    )
+    parser.add_argument("--version", "-v", default="1.0.0", help="Game version (default: 1.0.0)")
 
-    parser.add_argument(
-        "--output", "-o", help="Output directory (default: exports/<project_name>)"
-    )
+    parser.add_argument("--output", "-o", help="Output directory (default: exports/<project_name>)")
 
     parser.add_argument(
         "--publisher",
@@ -65,9 +59,7 @@ Examples:
 
     # Package options
     package_group = parser.add_argument_group("Package Options")
-    package_group.add_argument(
-        "--no-compress", action="store_true", help="Disable compression"
-    )
+    package_group.add_argument("--no-compress", action="store_true", help="Disable compression")
 
     package_group.add_argument(
         "--encrypt", action="store_true", help="Encrypt package for IP protection"
@@ -79,9 +71,7 @@ Examples:
 
     # Executable options
     exe_group = parser.add_argument_group("Executable Options")
-    exe_group.add_argument(
-        "--no-executable", action="store_true", help="Skip executable creation"
-    )
+    exe_group.add_argument("--no-executable", action="store_true", help="Skip executable creation")
 
     exe_group.add_argument(
         "--package-only",

@@ -94,9 +94,7 @@ class AIController(Component):
     state: AIState = AIState.IDLE
     detection_range: float = 200.0  # Distance at which enemy detects player
     movement_speed: float = 100.0  # How fast enemy moves when chasing
-    target_entity_id: Optional[str] = (
-        None  # ID of entity being targeted (usually player)
-    )
+    target_entity_id: Optional[str] = None  # ID of entity being targeted (usually player)
 
 
 # ============================================================================

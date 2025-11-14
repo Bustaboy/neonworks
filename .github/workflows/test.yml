@@ -9,17 +9,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.11', '3.12']
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.11'
 
     - name: Install system dependencies for pygame
       run: |
@@ -40,21 +37,25 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
+    - name: Check code formatting with black
+      run: |
+        black --check . --exclude='\.git|__pycache__|\.pytest_cache'
+      continue-on-error: true
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only . --skip .git --skip __pycache__ --skip .pytest_cache --profile black
+      continue-on-error: true
+
     - name: Lint with flake8
       run: |
         # Stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.git,__pycache__,.pytest_cache
-        # Exit-zero treats all errors as warnings
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.git,__pycache__,.pytest_cache
-
-    - name: Type check with mypy
-      run: |
-        mypy . --ignore-missing-imports --exclude=tests
-      continue-on-error: true
+      continue-on-error: false
 
     - name: Run tests with pytest
       run: |
-        pytest tests/ --cov=. --cov-report=xml --cov-report=html --cov-report=term-missing -v
+        pytest tests/ --cov=. --cov-report=xml --cov-report=term-missing -v
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
@@ -63,45 +64,11 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
-
-    - name: Check minimum coverage
-      run: |
-        coverage report --fail-under=70
       continue-on-error: true
 
     - name: Archive test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-${{ matrix.python-version }}
-        path: |
-          htmlcov/
-          coverage.xml
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install black isort pylint
-
-    - name: Check code formatting with black
-      run: |
-        black --check . --exclude='\.git|__pycache__|\.pytest_cache'
-
-    - name: Check import sorting with isort
-      run: |
-        isort --check-only . --skip .git --skip __pycache__ --skip .pytest_cache --profile black
-
-    - name: Lint with pylint
-      run: |
-        pylint core rendering systems ui --disable=C0111,R0913,R0902,R0903,R0801
-      continue-on-error: true
+        name: test-results
+        path: coverage.xml

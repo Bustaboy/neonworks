@@ -97,9 +97,7 @@ class SwitchVariableParamEditor:
             elif event.key == pygame.K_DOWN:
                 self.selected_id = min(999, self.selected_id + 1)
                 if self.selected_id > self.scroll_offset + self.items_per_page:
-                    self.scroll_offset = min(
-                        999 - self.items_per_page, self.scroll_offset + 1
-                    )
+                    self.scroll_offset = min(999 - self.items_per_page, self.scroll_offset + 1)
             elif event.key == pygame.K_RETURN:
                 # Confirm selection
                 self._confirm_selection()
@@ -108,9 +106,7 @@ class SwitchVariableParamEditor:
             if event.y > 0:  # Scroll up
                 self.scroll_offset = max(0, self.scroll_offset - 1)
             elif event.y < 0:  # Scroll down
-                self.scroll_offset = min(
-                    999 - self.items_per_page, self.scroll_offset + 1
-                )
+                self.scroll_offset = min(999 - self.items_per_page, self.scroll_offset + 1)
 
         return True
 
@@ -330,9 +326,7 @@ class SwitchVariableParamEditor:
             )
 
             btn_text = self.small_font.render("Clear Range", True, (255, 255, 255))
-            btn_rect = btn_text.get_rect(
-                center=(btn_x + btn_width // 2, y + 7 + btn_height // 2)
-            )
+            btn_rect = btn_text.get_rect(center=(btn_x + btn_width // 2, y + 7 + btn_height // 2))
             self.screen.blit(btn_text, btn_rect)
 
             if is_hover and mouse_clicked:
@@ -348,10 +342,7 @@ class SwitchVariableParamEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -362,9 +353,7 @@ class SwitchVariableParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(
-            center=(x + button_width // 2, y + button_height // 2)
-        )
+        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:

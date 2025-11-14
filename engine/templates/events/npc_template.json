@@ -1,0 +1,95 @@
+{
+  "id": 0,
+  "name": "NPC",
+  "x": 0,
+  "y": 0,
+  "pages": [
+    {
+      "conditions": {
+        "switch1_valid": false,
+        "switch1_id": 1,
+        "switch2_valid": false,
+        "switch2_id": 1,
+        "variable_valid": false,
+        "variable_id": 1,
+        "variable_value": 0,
+        "self_switch_valid": false,
+        "self_switch_ch": "A"
+      },
+      "graphic": {
+        "character_name": "People1",
+        "character_index": 0,
+        "direction": 2,
+        "pattern": 1,
+        "tile_id": 0,
+        "opacity": 255,
+        "blend_type": 0
+      },
+      "movement": {
+        "move_type": 1,
+        "move_speed": 3,
+        "move_frequency": 3,
+        "move_route": null,
+        "walk_anime": true,
+        "step_anime": false,
+        "direction_fix": false,
+        "through": false,
+        "always_on_top": false
+      },
+      "options": {
+        "trigger": "action_button",
+        "priority": 1
+      },
+      "commands": [
+        {
+          "code": "SHOW_TEXT",
+          "parameters": {
+            "text": "Hello! Welcome to NeonWorks!"
+          }
+        },
+        {
+          "code": "SHOW_CHOICES",
+          "parameters": {
+            "choices": [
+              "Tell me about this place",
+              "Goodbye"
+            ],
+            "cancel_type": -1
+          }
+        },
+        {
+          "code": "CONDITIONAL_BRANCH",
+          "parameters": {
+            "condition_type": "choice",
+            "choice_index": 0
+          },
+          "indent": 0,
+          "children": [
+            {
+              "code": "SHOW_TEXT",
+              "parameters": {
+                "text": "This is a game engine built with Python and Pygame.\\nIt supports events, scripting, and RPG mechanics!"
+              }
+            }
+          ]
+        },
+        {
+          "code": "CONDITIONAL_BRANCH",
+          "parameters": {
+            "condition_type": "choice",
+            "choice_index": 1
+          },
+          "indent": 0,
+          "children": [
+            {
+              "code": "SHOW_TEXT",
+              "parameters": {
+                "text": "See you later!"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -17,9 +17,7 @@ class AssetBrowserUI:
     Visual asset browser for managing sprites, sounds, music, and other assets.
     """
 
-    def __init__(
-        self, screen: pygame.Surface, asset_manager: Optional[AssetManager] = None
-    ):
+    def __init__(self, screen: pygame.Surface, asset_manager: Optional[AssetManager] = None):
         self.screen = screen
         self.ui = UI(screen)
         self.asset_manager = asset_manager
@@ -27,9 +25,7 @@ class AssetBrowserUI:
         self.visible = False
 
         # Asset categories
-        self.current_category = (
-            "sprites"  # 'sprites', 'sounds', 'music', 'fonts', 'data'
-        )
+        self.current_category = "sprites"  # 'sprites', 'sounds', 'music', 'fonts', 'data'
 
         # Asset data
         self.assets: Dict[str, List[Dict]] = {
@@ -93,9 +89,7 @@ class AssetBrowserUI:
         )
 
         # Close button
-        if self.ui.button(
-            "X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("X", panel_x + panel_width - 50, panel_y + 10, 35, 35, color=(150, 0, 0)):
             self.toggle()
 
         # Category tabs
@@ -109,14 +103,10 @@ class AssetBrowserUI:
         content_y = panel_y + 160
 
         # Asset browser
-        self._render_asset_browser(
-            panel_x + 10, content_y, browser_width, panel_height - 170
-        )
+        self._render_asset_browser(panel_x + 10, content_y, browser_width, panel_height - 170)
 
         # Asset preview and details
-        self._render_asset_preview(
-            panel_x + browser_width + 20, content_y, 330, panel_height - 170
-        )
+        self._render_asset_preview(panel_x + browser_width + 20, content_y, 330, panel_height - 170)
 
     def _render_category_tabs(self, x: int, y: int, width: int):
         """Render category selection tabs."""
@@ -175,18 +165,14 @@ class AssetBrowserUI:
 
         # Filter by search
         if self.search_query:
-            assets = [
-                a for a in assets if self.search_query.lower() in a["name"].lower()
-            ]
+            assets = [a for a in assets if self.search_query.lower() in a["name"].lower()]
 
         if self.grid_view:
             self._render_grid_view(assets, x, y, width, height)
         else:
             self._render_list_view(assets, x, y, width, height)
 
-    def _render_grid_view(
-        self, assets: List[Dict], x: int, y: int, width: int, height: int
-    ):
+    def _render_grid_view(self, assets: List[Dict], x: int, y: int, width: int, height: int):
         """Render assets in grid view."""
         item_size = 120
         padding = 10
@@ -219,9 +205,7 @@ class AssetBrowserUI:
             if len(asset_name) > 12:
                 asset_name = asset_name[:12] + "..."
 
-            self.ui.label(
-                asset_name, current_x + 10, current_y + item_size - 25, size=12
-            )
+            self.ui.label(asset_name, current_x + 10, current_y + item_size - 25, size=12)
 
             # Click to select
             mouse_pos = pygame.mouse.get_pos()
@@ -241,9 +225,7 @@ class AssetBrowserUI:
             else:
                 current_x += item_size + padding
 
-    def _render_list_view(
-        self, assets: List[Dict], x: int, y: int, width: int, height: int
-    ):
+    def _render_list_view(self, assets: List[Dict], x: int, y: int, width: int, height: int):
         """Render assets in list view."""
         item_height = 50
         current_y = y + 10
@@ -345,9 +327,7 @@ class AssetBrowserUI:
         path_display = str(asset_path)
         if len(path_display) > 30:
             path_display = "..." + path_display[-30:]
-        self.ui.label(
-            f"Path: {path_display}", x + 15, current_y, size=12, color=(180, 180, 180)
-        )
+        self.ui.label(f"Path: {path_display}", x + 15, current_y, size=12, color=(180, 180, 180))
         current_y += 22
 
         # Size
@@ -359,24 +339,18 @@ class AssetBrowserUI:
         # Dimensions (for images)
         if self.current_category == "sprites" and "dimensions" in self.selected_asset:
             dims = self.selected_asset["dimensions"]
-            self.ui.label(
-                f"Dimensions: {dims[0]}x{dims[1]}", x + 15, current_y, size=14
-            )
+            self.ui.label(f"Dimensions: {dims[0]}x{dims[1]}", x + 15, current_y, size=14)
             current_y += 22
 
         # Actions
         current_y += 20
 
-        if self.ui.button(
-            "Use Asset", x + 10, current_y, width - 20, 35, color=(0, 150, 0)
-        ):
+        if self.ui.button("Use Asset", x + 10, current_y, width - 20, 35, color=(0, 150, 0)):
             self._use_asset(self.selected_asset)
 
         current_y += 45
 
-        if self.ui.button(
-            "Delete Asset", x + 10, current_y, width - 20, 35, color=(150, 0, 0)
-        ):
+        if self.ui.button("Delete Asset", x + 10, current_y, width - 20, 35, color=(150, 0, 0)):
             self._delete_asset(self.selected_asset)
 
     def _scan_assets(self):
@@ -472,9 +446,7 @@ class AssetBrowserUI:
                 image_rect = image.get_rect()
 
                 if image_rect.width > max_size or image_rect.height > max_size:
-                    scale_factor = min(
-                        max_size / image_rect.width, max_size / image_rect.height
-                    )
+                    scale_factor = min(max_size / image_rect.width, max_size / image_rect.height)
                     new_size = (
                         int(image_rect.width * scale_factor),
                         int(image_rect.height * scale_factor),

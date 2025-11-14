@@ -162,9 +162,7 @@ class Entity:
         self._components: Dict[Type[Component], Component] = {}
         self.tags: Set[str] = set()
         self.active: bool = True
-        self._world: Optional["World"] = (
-            None  # Reference to the world this entity belongs to
-        )
+        self._world: Optional["World"] = None  # Reference to the world this entity belongs to
 
     def add_component(self, component: Component) -> "Entity":
         """Add a component to this entity"""
@@ -185,10 +183,7 @@ class Entity:
             del self._components[component_type]
 
             # Update world's component index if entity is in a world
-            if (
-                self._world is not None
-                and component_type in self._world._component_to_entities
-            ):
+            if self._world is not None and component_type in self._world._component_to_entities:
                 self._world._component_to_entities[component_type].discard(self.id)
 
         return self
@@ -318,16 +313,12 @@ class World:
         """Get all entities"""
         return list(self._entities.values())
 
-    def get_entities_with_component(
-        self, component_type: Type[Component]
-    ) -> List[Entity]:
+    def get_entities_with_component(self, component_type: Type[Component]) -> List[Entity]:
         """Get all entities that have a specific component"""
         entity_ids = self._component_to_entities.get(component_type, set())
         return [self._entities[eid] for eid in entity_ids if eid in self._entities]
 
-    def get_entities_with_components(
-        self, *component_types: Type[Component]
-    ) -> List[Entity]:
+    def get_entities_with_components(self, *component_types: Type[Component]) -> List[Entity]:
         """Get all entities that have all specified components"""
         if not component_types:
             return []

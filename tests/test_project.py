@@ -180,9 +180,7 @@ class TestProjectConfig:
 
     def test_config_creation(self):
         """Test creating ProjectConfig"""
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
         paths = ProjectPaths()
         settings = ProjectSettings()
 
@@ -195,9 +193,7 @@ class TestProjectConfig:
 
     def test_config_to_dict(self):
         """Test converting ProjectConfig to dictionary"""
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
         config = ProjectConfig(metadata=metadata)
 
         data = config.to_dict()
@@ -362,15 +358,11 @@ class TestProject:
 
         assert result is False
         captured = capsys.readouterr()
-        assert (
-            "Invalid project configuration" in captured.out or "Missing" in captured.out
-        )
+        assert "Invalid project configuration" in captured.out or "Missing" in captured.out
 
     def test_project_save(self, tmp_path):
         """Test saving project configuration"""
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
         config = ProjectConfig(metadata=metadata)
 
         project = Project(tmp_path)
@@ -601,9 +593,7 @@ class TestProjectManager:
     def test_create_project_with_settings(self, tmp_path):
         """Test creating project with custom settings"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
         settings = ProjectSettings(window_width=1920, enable_combat=True)
 
         project = manager.create_project("test_game", metadata, settings)
@@ -615,9 +605,7 @@ class TestProjectManager:
     def test_create_project_empty_name(self, tmp_path, capsys):
         """Test creating project with empty name"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         project = manager.create_project("", metadata)
 
@@ -628,9 +616,7 @@ class TestProjectManager:
     def test_create_project_invalid_name(self, tmp_path, capsys):
         """Test creating project with invalid name"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         project = manager.create_project("test game!", metadata)
 
@@ -641,9 +627,7 @@ class TestProjectManager:
     def test_create_project_valid_names(self, tmp_path):
         """Test creating projects with various valid names"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         valid_names = ["test", "test_game", "test-game", "test123", "TEST"]
 
@@ -654,9 +638,7 @@ class TestProjectManager:
     def test_create_project_already_exists(self, tmp_path, capsys):
         """Test creating project that already exists"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         # Create first time
         project1 = manager.create_project("test_game", metadata)
@@ -722,9 +704,7 @@ class TestProjectManager:
     def test_list_projects(self, tmp_path):
         """Test listing all projects"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         # Create multiple projects
         manager.create_project("game1", metadata)
@@ -757,9 +737,7 @@ class TestProjectManager:
     def test_list_projects_ignores_invalid(self, tmp_path):
         """Test listing projects ignores directories without project.json"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         # Create valid project
         manager.create_project("valid_game", metadata)
@@ -778,9 +756,7 @@ class TestProjectManager:
     def test_get_current_project(self, tmp_path):
         """Test getting current project"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
         manager.create_project("test_game", metadata)
         manager.load_project("test_game")
@@ -811,9 +787,7 @@ class TestGlobalFunctions:
         """Test load_project convenience function"""
         # Create a project using manager
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
         manager.create_project("test_game", metadata)
 
         # Update global manager to use our test directory
@@ -830,9 +804,7 @@ class TestGlobalFunctions:
     def test_get_current_project_function(self, tmp_path):
         """Test get_current_project convenience function"""
         manager = ProjectManager(tmp_path)
-        metadata = ProjectMetadata(
-            name="Test", version="1.0", description="Test", author="Test"
-        )
+        metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
         manager.create_project("test_game", metadata)
         manager.load_project("test_game")
 

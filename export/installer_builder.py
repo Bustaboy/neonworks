@@ -62,9 +62,7 @@ class WindowsInstallerBuilder:
         if additional_files is None:
             additional_files = []
 
-        script_content = self._generate_iss_content(
-            executable_path, output_dir, additional_files
-        )
+        script_content = self._generate_iss_content(executable_path, output_dir, additional_files)
 
         script_path = output_dir / f"{self.config.app_name}_setup.iss"
         with open(script_path, "w", encoding="utf-8") as f:
@@ -162,9 +160,7 @@ UninstallDisplayIcon={{app}}\\{executable_path.name}"""
         # Files section
         files_section = ""
         if is_onefile:
-            files_section = (
-                f'Source: "{executable_path}"; DestDir: "{{app}}"; Flags: ignoreversion'
-            )
+            files_section = f'Source: "{executable_path}"; DestDir: "{{app}}"; Flags: ignoreversion'
         else:
             files_section = f'Source: "{executable_path}\\*"; DestDir: "{{app}}"; Flags: ignoreversion recursesubdirs createallsubdirs'
 
@@ -270,9 +266,7 @@ class LinuxInstallerBuilder:
     def __init__(self, config: InstallerConfig):
         self.config = config
 
-    def create_appimage(
-        self, executable_path: Path, output_path: Path
-    ) -> Dict[str, Any]:
+    def create_appimage(self, executable_path: Path, output_path: Path) -> Dict[str, Any]:
         """
         Create AppImage from executable
 

@@ -277,9 +277,7 @@ class TestPhysicsSystem:
     def test_physics_velocity_threshold(self):
         """Test velocity threshold stops slow objects"""
         world = World()
-        settings = PhysicsSettings(
-            velocity_threshold=0.1, max_delta_time=10.0, gravity_y=0.0
-        )
+        settings = PhysicsSettings(velocity_threshold=0.1, max_delta_time=10.0, gravity_y=0.0)
         system = PhysicsSystem(settings)
 
         entity = world.create_entity()
@@ -342,17 +340,13 @@ class TestCollisionResponse:
         transform_a = Transform(x=0, y=0)
         entity_a.add_component(transform_a)
         entity_a.add_component(RigidBody(mass=1.0))
-        entity_a.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         entity_b = world.create_entity()
         transform_b = Transform(x=10, y=0)
         entity_b.add_component(transform_b)
         entity_b.add_component(RigidBody(mass=1.0))
-        entity_b.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         # Create collision info
         collision_info = CollisionInfo(
@@ -380,17 +374,13 @@ class TestCollisionResponse:
         transform_a = Transform(x=0, y=0)
         entity_a.add_component(transform_a)
         entity_a.add_component(RigidBody(mass=1.0, velocity_y=10.0))
-        entity_a.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         entity_b = world.create_entity()
         transform_b = Transform(x=0, y=20)
         entity_b.add_component(transform_b)
         entity_b.add_component(RigidBody(is_static=True))
-        entity_b.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         # Normal points from A to B (downward/positive y since B is below A)
         collision_info = CollisionInfo(
@@ -420,16 +410,12 @@ class TestCollisionResponse:
         entity_a.add_component(Transform(x=0, y=0))
         rb_a = RigidBody(mass=1.0, velocity_y=10.0, restitution=1.0)
         entity_a.add_component(rb_a)
-        entity_a.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=0, y=20))
         entity_b.add_component(RigidBody(is_static=True, restitution=1.0))
-        entity_b.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         # Normal points from A to B (downward/positive y)
         collision_info = CollisionInfo(
@@ -457,16 +443,12 @@ class TestCollisionResponse:
         entity_a.add_component(Transform(x=0, y=0))
         rb_a = RigidBody(mass=1.0, velocity_y=10.0, restitution=0.0)
         entity_a.add_component(rb_a)
-        entity_a.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=0, y=20))
         entity_b.add_component(RigidBody(is_static=True))
-        entity_b.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         # Normal points from A to B (downward/positive y)
         collision_info = CollisionInfo(
@@ -495,9 +477,7 @@ class TestCollisionResponse:
         entity_a.add_component(transform_a)
         entity_a.add_component(RigidBody(mass=1.0))
         entity_a.add_component(
-            Collider(
-                collider_type=ColliderType.AABB, width=20, height=20, is_trigger=True
-            )
+            Collider(collider_type=ColliderType.AABB, width=20, height=20, is_trigger=True)
         )
 
         entity_b = world.create_entity()
@@ -505,9 +485,7 @@ class TestCollisionResponse:
         entity_b.add_component(transform_b)
         entity_b.add_component(RigidBody(mass=1.0))
         entity_b.add_component(
-            Collider(
-                collider_type=ColliderType.AABB, width=20, height=20, is_trigger=True
-            )
+            Collider(collider_type=ColliderType.AABB, width=20, height=20, is_trigger=True)
         )
 
         collision_info = CollisionInfo(
@@ -546,9 +524,7 @@ class TestIntegratedPhysicsSystem:
         entity = world.create_entity()
         entity.add_component(Transform(x=0, y=0))
         entity.add_component(RigidBody(velocity_x=10.0))
-        entity.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         # Should not crash
         system.update(world, 1.0)
@@ -563,16 +539,12 @@ class TestIntegratedPhysicsSystem:
         entity_a = world.create_entity()
         entity_a.add_component(Transform(x=0, y=0))
         entity_a.add_component(RigidBody(mass=1.0, velocity_x=10.0))
-        entity_a.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_a.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         entity_b = world.create_entity()
         entity_b.add_component(Transform(x=15, y=0))
         entity_b.add_component(RigidBody(mass=1.0))
-        entity_b.add_component(
-            Collider(collider_type=ColliderType.AABB, width=20, height=20)
-        )
+        entity_b.add_component(Collider(collider_type=ColliderType.AABB, width=20, height=20))
 
         # Update system
         system.update(world, 0.1)

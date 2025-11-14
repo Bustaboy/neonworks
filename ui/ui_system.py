@@ -156,9 +156,7 @@ class UILabel(UIWidget):
 
         # Render text (with caching)
         if self._cached_surface is None or self._cached_text != self.text:
-            self._cached_surface = self.font.render(
-                self.text, True, self.style.text_color[:3]
-            )
+            self._cached_surface = self.font.render(self.text, True, self.style.text_color[:3])
             self._cached_text = self.text
 
         # Center text in widget
@@ -375,9 +373,7 @@ class UIBuilder:
         return button
 
     @staticmethod
-    def create_label(
-        text: str, x: int, y: int, width: int = 200, height: int = 30
-    ) -> UILabel:
+    def create_label(text: str, x: int, y: int, width: int = 200, height: int = 30) -> UILabel:
         """Create a label"""
         return UILabel(text=text, x=x, y=y, width=width, height=height)
 
@@ -392,9 +388,7 @@ class UIBuilder:
         return VerticalLayout(x=x, y=y, spacing=spacing)
 
     @staticmethod
-    def create_horizontal_layout(
-        x: int, y: int, spacing: int = 10
-    ) -> "HorizontalLayout":
+    def create_horizontal_layout(x: int, y: int, spacing: int = 10) -> "HorizontalLayout":
         """Create a horizontal layout container"""
         return HorizontalLayout(x=x, y=y, spacing=spacing)
 

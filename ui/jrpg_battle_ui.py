@@ -105,9 +105,7 @@ class BattlerDisplay(UIWidget):
         self.is_selected = False
         self.is_enemy = False
 
-    def set_stats(
-        self, name: str, level: int, hp: int, max_hp: int, mp: int, max_mp: int
-    ):
+    def set_stats(self, name: str, level: int, hp: int, max_hp: int, mp: int, max_mp: int):
         """Set battler stats"""
         self.name = name
         self.level = level
@@ -128,9 +126,7 @@ class BattlerDisplay(UIWidget):
 
         # Draw sprite (if available)
         if self.sprite:
-            sprite_rect = self.sprite.get_rect(
-                center=(self.x + self.width // 2, self.y + 40)
-            )
+            sprite_rect = self.sprite.get_rect(center=(self.x + self.width // 2, self.y + 40))
             screen.blit(self.sprite, sprite_rect)
 
         # Draw name and level
@@ -146,9 +142,7 @@ class BattlerDisplay(UIWidget):
 
         # Draw selection indicator
         if self.is_selected:
-            indicator_rect = pygame.Rect(
-                self.x - 5, self.y - 5, self.width + 10, self.height + 10
-            )
+            indicator_rect = pygame.Rect(self.x - 5, self.y - 5, self.width + 10, self.height + 10)
             pygame.draw.rect(screen, (255, 255, 0), indicator_rect, 3)
 
 
@@ -168,9 +162,7 @@ class BattleCommandMenu(UIWidget):
         self.selected_color = (255, 200, 0)
         self.disabled_color = (100, 100, 100)
 
-    def add_command(
-        self, name: str, enabled: bool = True, callback: Optional[Callable] = None
-    ):
+    def add_command(self, name: str, enabled: bool = True, callback: Optional[Callable] = None):
         """Add a command to the menu"""
         self.commands.append(BattleCommand(name, enabled, callback=callback))
 
@@ -237,9 +229,7 @@ class BattleCommandMenu(UIWidget):
             # Draw command text
             text_color = self.text_color if command.enabled else self.disabled_color
             text_surface = font.render(command.name, True, text_color)
-            text_rect = text_surface.get_rect(
-                midleft=(self.x + 20, item_y + item_height // 2)
-            )
+            text_rect = text_surface.get_rect(midleft=(self.x + 20, item_y + item_height // 2))
             screen.blit(text_surface, text_rect)
 
 

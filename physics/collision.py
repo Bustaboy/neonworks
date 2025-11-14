@@ -474,19 +474,14 @@ class QuadTreeNode:
         other_min_x, other_min_y, other_max_x, other_max_y = bounds
 
         return not (
-            max_x < other_min_x
-            or min_x > other_max_x
-            or max_y < other_min_y
-            or min_y > other_max_y
+            max_x < other_min_x or min_x > other_max_x or max_y < other_min_y or min_y > other_max_y
         )
 
 
 class CollisionSystem:
     """System for detecting and responding to collisions"""
 
-    def __init__(
-        self, world_bounds: Optional[Tuple[float, float, float, float]] = None
-    ):
+    def __init__(self, world_bounds: Optional[Tuple[float, float, float, float]] = None):
         """
         Initialize collision system.
 

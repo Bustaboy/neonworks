@@ -221,9 +221,7 @@ class MoveRouteParamEditor:
 
         # Left panel: Command sequence
         sequence_width = 350
-        self._render_sequence_panel(
-            dialog_x + 10, content_y, sequence_width, content_height
-        )
+        self._render_sequence_panel(dialog_x + 10, content_y, sequence_width, content_height)
 
         # Right panel: Command palette
         palette_x = dialog_x + sequence_width + 20
@@ -264,9 +262,7 @@ class MoveRouteParamEditor:
         self.screen.blit(title_text, (x + 10, y + 10))
 
         # Command count
-        count_text = self.small_font.render(
-            f"{len(self.commands)} commands", True, (150, 150, 170)
-        )
+        count_text = self.small_font.render(f"{len(self.commands)} commands", True, (150, 150, 170))
         self.screen.blit(count_text, (x + width - 100, y + 12))
 
         # Command list
@@ -279,9 +275,7 @@ class MoveRouteParamEditor:
 
         if not self.commands:
             # Empty state
-            empty_text = self.small_font.render(
-                "No commands yet", True, (120, 120, 140)
-            )
+            empty_text = self.small_font.render("No commands yet", True, (120, 120, 140))
             self.screen.blit(empty_text, (x + width // 2 - 60, y + height // 2))
             empty_text2 = self.small_font.render(
                 "Add commands from the palette →", True, (120, 120, 140)
@@ -407,9 +401,7 @@ class MoveRouteParamEditor:
 
             # Tab text
             tab_text = self.small_font.render(category, True, (255, 255, 255))
-            text_rect = tab_text.get_rect(
-                center=(current_x + tab_width // 2, y + tab_height // 2)
-            )
+            text_rect = tab_text.get_rect(center=(current_x + tab_width // 2, y + tab_height // 2))
             self.screen.blit(tab_text, text_rect)
 
             # Handle click
@@ -431,8 +423,7 @@ class MoveRouteParamEditor:
                 break
 
             is_hover = (
-                x <= mouse_pos[0] <= x + width
-                and item_y <= mouse_pos[1] <= item_y + item_height
+                x <= mouse_pos[0] <= x + width and item_y <= mouse_pos[1] <= item_y + item_height
             )
 
             # Item background
@@ -566,10 +557,7 @@ class MoveRouteParamEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -580,9 +568,7 @@ class MoveRouteParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(
-            center=(x + button_width // 2, y + button_height // 2)
-        )
+        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:
@@ -697,9 +683,8 @@ class MoveRouteParamEditor:
 
     def delete_command(self):
         """Delete the selected command."""
-        if (
-            self.selected_command_index is not None
-            and 0 <= self.selected_command_index < len(self.commands)
+        if self.selected_command_index is not None and 0 <= self.selected_command_index < len(
+            self.commands
         ):
             del self.commands[self.selected_command_index]
             self.selected_command_index = None

@@ -1,9 +1,9 @@
 # NeonWorks Game Engine - Comprehensive Architecture Overview
 
-**Version**: 0.1.0  
-**Status**: Production Ready  
-**Type**: Reusable, Project-Based 2D Game Engine  
-**Python**: 3.8+  
+**Version**: 0.1.0
+**Status**: Production Ready
+**Type**: Reusable, Project-Based 2D Game Engine
+**Python**: 3.8+
 **Framework**: Pygame
 
 ---
@@ -178,16 +178,16 @@ Methods:
 class System(ABC):
     enabled: bool = True
     priority: int = 0  # Lower numbers run first
-    
+
     @abstractmethod
     def update(self, world: World, delta_time: float):
         """Called each frame"""
         pass
-    
+
     def on_entity_added(self, entity: Entity):
         """Called when entity added to world"""
         pass
-    
+
     def on_entity_removed(self, entity: Entity):
         """Called when entity removed from world"""
         pass
@@ -237,14 +237,14 @@ Methods:
 class GameEngine:
     target_fps: int = 60
     fixed_timestep: float = 1.0/60.0
-    
+
     # Core systems
     world: World                    # ECS world
     event_manager: EventManager     # Event system
     state_manager: StateManager     # State management
     input_manager: InputManager     # Input handling
     audio_manager: AudioManager     # Audio playback
-    
+
     # Stats
     stats: dict                     # Performance metrics
 ```
@@ -255,15 +255,15 @@ while running:
     frame_start = now
     frame_time = current_time - last_time
     accumulator += frame_time
-    
+
     # Fixed update loop (can run 0+ times per frame)
     while accumulator >= fixed_timestep:
         _fixed_update(fixed_timestep)  # Physics, logic
         accumulator -= fixed_timestep
-    
+
     # Variable rendering (always once per frame)
     _render()
-    
+
     # FPS limiting
     frame_duration = now - frame_start
     if frame_duration < target_frame_time:
@@ -280,21 +280,21 @@ class EngineConfig:
     window_height: int = 720
     fullscreen: bool = False
     vsync: bool = True
-    
+
     # Performance
     target_fps: int = 60
     fixed_timestep: float = 1.0/60.0
-    
+
     # Grid settings
     tile_size: int = 32
     grid_width: int = 100
     grid_height: int = 100
-    
+
     # Features
     enable_particles: bool = True
     enable_shadows: bool = False
     render_navmesh: bool = False
-    
+
     # Debug
     show_fps: bool = True
     show_debug_info: bool = False
@@ -361,25 +361,25 @@ ProjectConfig
 class EventType(Enum):
     # Turn-based events
     TURN_START, TURN_END, ACTION_PERFORMED
-    
+
     # Combat
     COMBAT_START, COMBAT_END, DAMAGE_DEALT, UNIT_DIED
-    
+
     # Base building
     BUILDING_PLACED, BUILDING_COMPLETED, BUILDING_UPGRADED, BUILDING_DESTROYED
-    
+
     # Survival
     HUNGER_CRITICAL, THIRST_CRITICAL, ENERGY_DEPLETED
-    
+
     # Resources
     RESOURCE_COLLECTED, RESOURCE_CONSUMED, RESOURCE_DEPLETED
-    
+
     # UI
     UI_BUTTON_CLICKED, UI_TILE_SELECTED, UI_ENTITY_SELECTED
-    
+
     # Editor
     EDITOR_MODE_CHANGED, LEVEL_LOADED, LEVEL_SAVED, NAVMESH_GENERATED
-    
+
     # Game state
     GAME_PAUSED, GAME_RESUMED, GAME_SAVED, GAME_LOADED
 ```
@@ -423,7 +423,7 @@ class StateTransition(Enum):
 class GameState(ABC):
     name: str
     _state_manager: StateManager
-    
+
     @abstractmethod
     def enter(data: Dict[str, Any] = None)
     @abstractmethod
@@ -433,7 +433,7 @@ class GameState(ABC):
     @abstractmethod
     def render()
     def handle_event(event)
-    
+
     # Request scene changes through manager
     def change_state(name, transition, duration, data)
     def push_state(name, transition, duration, data)
@@ -628,7 +628,7 @@ class SpriteSheet:
     surface: pygame.Surface
     tile_width: int
     tile_height: int
-    
+
     get_sprite(x, y) → pygame.Surface          # By grid position
     get_sprite_by_index(index, columns) → pygame.Surface  # By index
 ```
@@ -718,16 +718,16 @@ class InputManager:
     _mouse_position: Tuple[int, int]
     _mouse_buttons_current: Set[int]
     _mouse_buttons_previous: Set[int]
-    
+
     # Action mapping
     _action_map: Dict[str, Set[int]]  # Action name -> key codes
     _action_callbacks: Dict[str, Callable]
-    
+
     # Input buffer (for responsive controls)
     _input_buffer: list
     _buffer_size = 10
     _buffer_time = 0.15  # 150ms buffer window
-    
+
     # Text input
     _text_input_enabled: bool
     _text_input: str
@@ -884,12 +884,12 @@ class UIStyle:
     hover_color: Tuple = (70, 70, 70, 200)
     active_color: Tuple = (90, 90, 90, 200)
     disabled_color: Tuple = (80, 80, 80, 150)
-    
+
     # Sizing
     padding: int = 10
     margin: int = 5
     border_width: int = 2
-    
+
     # Font
     font_name: Optional[str] = None
     font_size: int = 16
@@ -958,7 +958,7 @@ def deserialize_world(data: Dict[str, Any]) → World
 ```python
 class SaveGameManager:
     project: Project
-    
+
     save_game(filename) → bool     # Save current state
     load_game(filename) → bool     # Load game state
     list_saves() → List[str]
@@ -1039,7 +1039,7 @@ class GameApplication:
     def __init__(self, project_name: str)
     def run()
     def shutdown()
-    
+
     def _create_engine_config() → EngineConfig
     def _setup_systems()  # Add systems based on project config
     def _setup_states()   # Initialize game states
@@ -1203,20 +1203,20 @@ class MySystem(System):
     def __init__(self):
         super().__init__()
         self.priority = 0
-    
+
     def update(self, world: World, delta_time: float):
         # Query entities with specific components
         entities = world.get_entities_with_components(Transform, Sprite)
-        
+
         for entity in entities:
             transform = entity.get_component(Transform)
             sprite = entity.get_component(Sprite)
             # Process entity
-    
+
     def on_entity_added(self, entity: Entity):
         # React to new entities
         pass
-    
+
     def on_entity_removed(self, entity: Entity):
         # Clean up
         pass
@@ -1379,4 +1379,3 @@ Recommended documentation to create:
 8. **Performance Tuning Guide** - Optimization tips
 9. **Testing Guide** - Unit and integration testing patterns
 10. **Export Guide** - Building and packaging games
-

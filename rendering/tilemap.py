@@ -103,9 +103,7 @@ class TileLayer:
     def __post_init__(self):
         if not self.tiles:
             # Initialize empty tile grid
-            self.tiles = [
-                [Tile() for _ in range(self.width)] for _ in range(self.height)
-            ]
+            self.tiles = [[Tile() for _ in range(self.width)] for _ in range(self.height)]
 
     def get_tile(self, x: int, y: int) -> Optional[Tile]:
         """Get tile at grid position"""
@@ -313,9 +311,7 @@ class TilemapRenderer:
                     screen.blit(render_surface, (screen_x, screen_y))
                     self._stats["tiles_rendered"] += 1
 
-    def _apply_tile_transforms(
-        self, surface: pygame.Surface, tile: Tile
-    ) -> pygame.Surface:
+    def _apply_tile_transforms(self, surface: pygame.Surface, tile: Tile) -> pygame.Surface:
         """Apply flip/rotation transformations to a tile"""
         result = surface
 

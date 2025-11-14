@@ -413,9 +413,7 @@ class CombatSystem(System):
             return (10.0, False)  # Default punch
 
         # Base damage with variance
-        variance = random.uniform(
-            weapon.damage_variance_min, weapon.damage_variance_max
-        )
+        variance = random.uniform(weapon.damage_variance_min, weapon.damage_variance_max)
         base_damage = weapon.damage * variance
 
         # Stat bonus
@@ -543,9 +541,7 @@ class CombatSystem(System):
             "message": message,
         }
 
-    def check_range(
-        self, attacker: Entity, target: Entity, world: World
-    ) -> Tuple[bool, float]:
+    def check_range(self, attacker: Entity, target: Entity, world: World) -> Tuple[bool, float]:
         """
         Check if target is in range.
 

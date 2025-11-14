@@ -150,8 +150,7 @@ class ComponentSerializer:
             return {
                 "_dataclass": value.__class__.__name__,
                 "_fields": {
-                    f.name: self._serialize_value(getattr(value, f.name))
-                    for f in fields(value)
+                    f.name: self._serialize_value(getattr(value, f.name)) for f in fields(value)
                 },
             }
         else:

@@ -93,25 +93,18 @@ class TextParamEditor:
                 self.visible = False
                 self.result = None
                 return False
-            elif (
-                event.key == pygame.K_RETURN
-                and pygame.key.get_mods() & pygame.KMOD_CTRL
-            ):
+            elif event.key == pygame.K_RETURN and pygame.key.get_mods() & pygame.KMOD_CTRL:
                 # Confirm with Ctrl+Enter
                 self.visible = False
                 self.result = self.text
                 return False
             elif event.key == pygame.K_BACKSPACE:
                 if self.cursor_pos > 0:
-                    self.text = (
-                        self.text[: self.cursor_pos - 1] + self.text[self.cursor_pos :]
-                    )
+                    self.text = self.text[: self.cursor_pos - 1] + self.text[self.cursor_pos :]
                     self.cursor_pos -= 1
             elif event.key == pygame.K_DELETE:
                 if self.cursor_pos < len(self.text):
-                    self.text = (
-                        self.text[: self.cursor_pos] + self.text[self.cursor_pos + 1 :]
-                    )
+                    self.text = self.text[: self.cursor_pos] + self.text[self.cursor_pos + 1 :]
             elif event.key == pygame.K_LEFT:
                 self.cursor_pos = max(0, self.cursor_pos - 1)
             elif event.key == pygame.K_RIGHT:
@@ -122,16 +115,12 @@ class TextParamEditor:
                 self.cursor_pos = len(self.text)
             elif event.key == pygame.K_RETURN:
                 # Insert newline
-                self.text = (
-                    self.text[: self.cursor_pos] + "\n" + self.text[self.cursor_pos :]
-                )
+                self.text = self.text[: self.cursor_pos] + "\n" + self.text[self.cursor_pos :]
                 self.cursor_pos += 1
             elif event.unicode and event.unicode.isprintable():
                 # Insert character
                 self.text = (
-                    self.text[: self.cursor_pos]
-                    + event.unicode
-                    + self.text[self.cursor_pos :]
+                    self.text[: self.cursor_pos] + event.unicode + self.text[self.cursor_pos :]
                 )
                 self.cursor_pos += 1
 
@@ -189,9 +178,7 @@ class TextParamEditor:
 
         # Help text
         help_font = pygame.font.Font(None, 18)
-        help_text = help_font.render(
-            "Ctrl+Enter to confirm, Esc to cancel", True, (150, 150, 150)
-        )
+        help_text = help_font.render("Ctrl+Enter to confirm, Esc to cancel", True, (150, 150, 150))
         self.screen.blit(help_text, (dialog_x + dialog_width - 280, dialog_y + 18))
 
         # Text input area
@@ -262,12 +249,8 @@ class TextParamEditor:
                 # Truncate if too wide
                 if text_surface.get_width() > width:
                     # Simple truncation - could be improved with horizontal scrolling
-                    truncated_line = line[
-                        : int(len(line) * width / text_surface.get_width())
-                    ]
-                    text_surface = self.font.render(
-                        truncated_line + "...", True, (255, 255, 255)
-                    )
+                    truncated_line = line[: int(len(line) * width / text_surface.get_width())]
+                    text_surface = self.font.render(truncated_line + "...", True, (255, 255, 255))
                 self.screen.blit(text_surface, (x, current_y))
 
             # Render cursor on the current line
@@ -341,10 +324,7 @@ class TextParamEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -355,9 +335,7 @@ class TextParamEditor:
         )
 
         ok_text = self.font.render("OK", True, (255, 255, 255))
-        ok_rect = ok_text.get_rect(
-            center=(x + button_width // 2, y + button_height // 2)
-        )
+        ok_rect = ok_text.get_rect(center=(x + button_width // 2, y + button_height // 2))
         self.screen.blit(ok_text, ok_rect)
 
         if ok_hover and mouse_clicked:

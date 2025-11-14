@@ -93,9 +93,7 @@ class VisualUIDemo:
         # Create player entity
         player_id = self.world.create_entity()
         self.world.add_component(player_id, Transform(x=400, y=300))
-        self.world.add_component(
-            player_id, Sprite(asset_id="player", color=(0, 150, 255))
-        )
+        self.world.add_component(player_id, Sprite(asset_id="player", color=(0, 150, 255)))
         self.world.add_component(player_id, Health(current=80, maximum=100))
         self.world.add_component(
             player_id,
@@ -108,9 +106,7 @@ class VisualUIDemo:
                 max_energy=100,
             ),
         )
-        self.world.add_component(
-            player_id, TurnActor(initiative=15, max_action_points=10)
-        )
+        self.world.add_component(player_id, TurnActor(initiative=15, max_action_points=10))
         self.world.add_component(player_id, GridPosition(12, 9))
         self.world.tag_entity(player_id, "player")
 
@@ -121,13 +117,9 @@ class VisualUIDemo:
         for i in range(3):
             enemy_id = self.world.create_entity()
             self.world.add_component(enemy_id, Transform(x=600 + i * 100, y=400))
-            self.world.add_component(
-                enemy_id, Sprite(asset_id="enemy", color=(255, 0, 0))
-            )
+            self.world.add_component(enemy_id, Sprite(asset_id="enemy", color=(255, 0, 0)))
             self.world.add_component(enemy_id, Health(current=50, maximum=50))
-            self.world.add_component(
-                enemy_id, TurnActor(initiative=10 - i, max_action_points=8)
-            )
+            self.world.add_component(enemy_id, TurnActor(initiative=10 - i, max_action_points=8))
             self.world.add_component(enemy_id, GridPosition(18 + i * 3, 12))
             self.world.tag_entity(enemy_id, "enemy")
             self.turn_system.add_actor(enemy_id)
@@ -135,9 +127,7 @@ class VisualUIDemo:
         # Create resource storage entity
         storage_id = self.world.create_entity()
         self.world.add_component(storage_id, Transform(x=200, y=200))
-        self.world.add_component(
-            storage_id, Sprite(asset_id="storage", color=(150, 150, 150))
-        )
+        self.world.add_component(storage_id, Sprite(asset_id="storage", color=(150, 150, 150)))
         self.world.add_component(storage_id, GridPosition(6, 6))
 
         storage = ResourceStorage(capacity=500)
@@ -154,9 +144,7 @@ class VisualUIDemo:
         # Create a building entity
         building_id = self.world.create_entity()
         self.world.add_component(building_id, Transform(x=500, y=500))
-        self.world.add_component(
-            building_id, Sprite(asset_id="farm", color=(100, 200, 50))
-        )
+        self.world.add_component(building_id, Sprite(asset_id="farm", color=(100, 200, 50)))
         self.world.add_component(building_id, GridPosition(15, 15))
 
         building = Building(building_type="farm", construction_time=10.0)
@@ -175,14 +163,10 @@ class VisualUIDemo:
     def show_welcome_message(self):
         """Show welcome message in debug console."""
         self.ui_manager.debug_console.add_log("=" * 50, (0, 255, 255))
-        self.ui_manager.debug_console.add_log(
-            "Welcome to NeonWorks Visual UI Demo!", (255, 255, 0)
-        )
+        self.ui_manager.debug_console.add_log("Welcome to NeonWorks Visual UI Demo!", (255, 255, 0))
         self.ui_manager.debug_console.add_log("=" * 50, (0, 255, 255))
         self.ui_manager.debug_console.add_log("", (255, 255, 255))
-        self.ui_manager.debug_console.add_log(
-            "Press F1-F10 to toggle UI systems:", (200, 200, 255)
-        )
+        self.ui_manager.debug_console.add_log("Press F1-F10 to toggle UI systems:", (200, 200, 255))
         self.ui_manager.debug_console.add_log(
             "  F1 - Debug Console (you are here!)", (150, 150, 150)
         )
@@ -196,9 +180,7 @@ class VisualUIDemo:
         self.ui_manager.debug_console.add_log("  F9 - Combat UI", (150, 150, 150))
         self.ui_manager.debug_console.add_log("  F10 - Toggle HUD", (150, 150, 150))
         self.ui_manager.debug_console.add_log("", (255, 255, 255))
-        self.ui_manager.debug_console.add_log(
-            "Type 'help' for console commands", (200, 200, 200)
-        )
+        self.ui_manager.debug_console.add_log("Type 'help' for console commands", (200, 200, 200))
 
     def handle_events(self):
         """Handle pygame events."""
@@ -217,9 +199,7 @@ class VisualUIDemo:
                 elif event.key == pygame.K_SPACE:
                     # Next turn
                     self.turn_system.next_turn()
-                    self.ui_manager.show_notification(
-                        "Turn advanced", color=(255, 255, 100)
-                    )
+                    self.ui_manager.show_notification("Turn advanced", color=(255, 255, 100))
 
     def update(self, dt: float):
         """Update game logic."""

@@ -326,9 +326,7 @@ class TestHealthSystem:
         entity.add_component(health)
 
         # 50% armor pen
-        damage = DamageInstance(
-            amount=40, damage_type=DamageType.PHYSICAL, armor_penetration=0.5
-        )
+        damage = DamageInstance(amount=40, damage_type=DamageType.PHYSICAL, armor_penetration=0.5)
         dealt = health_system.apply_damage(entity, damage)
 
         # Effective armor = 50 * (1 - 0.5) = 25%
@@ -626,9 +624,7 @@ class TestCombatSystem:
         attacker = world.create_entity()
         target = world.create_entity()
 
-        weapon = Weapon(
-            damage=30, accuracy=100, damage_variance_min=1.0, damage_variance_max=1.0
-        )
+        weapon = Weapon(damage=30, accuracy=100, damage_variance_min=1.0, damage_variance_max=1.0)
         attacker.add_component(weapon)
 
         stats = CombatStats(reflexes=0, morale=50)

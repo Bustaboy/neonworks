@@ -204,9 +204,7 @@ class TestDialogLine:
 
     def test_dialog_line_creation(self):
         """Test creating dialog line"""
-        line = DialogLine(
-            speaker="Hero", text="Hello, friend!", tone=DialogTone.FRIENDLY
-        )
+        line = DialogLine(speaker="Hero", text="Hello, friend!", tone=DialogTone.FRIENDLY)
 
         assert line.speaker == "Hero"
         assert line.text == "Hello, friend!"

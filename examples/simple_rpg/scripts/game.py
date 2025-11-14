@@ -333,9 +333,7 @@ def _draw_health_bar(screen: pygame.Surface, entity, transform: Transform):
         )
 
     # Border
-    pygame.draw.rect(
-        screen, (255, 255, 255), (bar_x, bar_y, ui_bar.width, ui_bar.height), 1
-    )
+    pygame.draw.rect(screen, (255, 255, 255), (bar_x, bar_y, ui_bar.width, ui_bar.height), 1)
 
 
 def _draw_hud(screen: pygame.Surface, world: World):
@@ -356,15 +354,11 @@ def _draw_hud(screen: pygame.Surface, world: World):
     font = pygame.font.Font(None, 24)
 
     # Player HP
-    hp_text = font.render(
-        f"HP: {int(health.current)}/{int(health.maximum)}", True, (255, 255, 255)
-    )
+    hp_text = font.render(f"HP: {int(health.current)}/{int(health.maximum)}", True, (255, 255, 255))
     screen.blit(hp_text, (10, 10))
 
     # Enemies defeated
-    enemies_text = font.render(
-        f"Enemies: {stats.enemies_defeated}/5", True, (255, 255, 255)
-    )
+    enemies_text = font.render(f"Enemies: {stats.enemies_defeated}/5", True, (255, 255, 255))
     screen.blit(enemies_text, (10, 35))
 
     # Score

@@ -470,9 +470,7 @@ class JRPGBattleSystem(System):
             return
 
         # Simple AI: attack random party member
-        alive_party = [
-            m for m in self.party_members if m.get_component(Health).is_alive
-        ]
+        alive_party = [m for m in self.party_members if m.get_component(Health).is_alive]
 
         if not alive_party:
             return

@@ -179,13 +179,9 @@ class ProjectExporter:
                 )
                 self.results["installer"] = installer_result
                 if "installer_path" in installer_result:
-                    print(
-                        f"  ✓ Installer created: {installer_result['installer_path']}"
-                    )
+                    print(f"  ✓ Installer created: {installer_result['installer_path']}")
                 elif "script_path" in installer_result:
-                    print(
-                        f"  ✓ Installer script created: {installer_result['script_path']}"
-                    )
+                    print(f"  ✓ Installer script created: {installer_result['script_path']}")
                     print(f"  ℹ {installer_result.get('note', '')}")
                 elif "instructions" in installer_result:
                     print(f"  ℹ Manual steps required for this platform")
@@ -254,9 +250,7 @@ class ProjectExporter:
         bundler = ExecutableBundler(bundle_config)
 
         # Build executable
-        result = bundler.bundle(
-            launcher_path, package_path, self.config.output_dir / "bundle"
-        )
+        result = bundler.bundle(launcher_path, package_path, self.config.output_dir / "bundle")
 
         return result
 

@@ -92,9 +92,7 @@ class TestComponentSerializer:
         serializer = ComponentSerializer()
         serializer.register_component_type(ComplexComponent)
 
-        component = ComplexComponent(
-            values=[1, 2, 3], settings={"key": "value", "count": 10}
-        )
+        component = ComplexComponent(values=[1, 2, 3], settings={"key": "value", "count": 10})
         data = serializer.serialize_component(component)
 
         assert data["_data"]["values"] == [1, 2, 3]
@@ -197,9 +195,7 @@ class TestEntitySerializer:
         data = {
             "id": 1,
             "active": True,
-            "components": [
-                {"_type": "TestComponent", "_data": {"value": 99, "name": "test"}}
-            ],
+            "components": [{"_type": "TestComponent", "_data": {"value": 99, "name": "test"}}],
             "tags": ["player", "active"],
         }
 

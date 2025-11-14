@@ -111,9 +111,7 @@ class Interactable(Component):
     item_id: Optional[str] = None
 
     # Callbacks
-    on_interact: Optional[Callable[["Entity"], None]] = (
-        None  # Called when interacted with
-    )
+    on_interact: Optional[Callable[["Entity"], None]] = None  # Called when interacted with
 
     # Visual feedback
     show_prompt: bool = True  # Show interaction prompt UI?

@@ -161,18 +161,14 @@ class MagicMenuUI(UIWidget):
                 pygame.draw.rect(screen, self.selected_color, highlight_rect, 2)
 
             # Draw spell name
-            text_color = (
-                self.text_color if spell.is_available else self.unavailable_color
-            )
+            text_color = self.text_color if spell.is_available else self.unavailable_color
             name_surface = spell_font.render(spell.name, True, text_color)
             screen.blit(name_surface, (self.x + 20, item_y + 5))
 
             # Draw MP cost
             mp_cost_text = f"{spell.mp_cost} MP"
             mp_cost_surface = spell_font.render(mp_cost_text, True, self.mp_cost_color)
-            mp_cost_rect = mp_cost_surface.get_rect(
-                topright=(self.x + self.width - 20, item_y + 5)
-            )
+            mp_cost_rect = mp_cost_surface.get_rect(topright=(self.x + self.width - 20, item_y + 5))
             screen.blit(mp_cost_surface, mp_cost_rect)
 
             # Draw element
@@ -190,9 +186,7 @@ class MagicMenuUI(UIWidget):
             pygame.draw.rect(screen, self.border_color, desc_bg_rect, 1)
 
             # Description text
-            desc_surface = desc_font.render(
-                selected_spell.description, True, self.text_color
-            )
+            desc_surface = desc_font.render(selected_spell.description, True, self.text_color)
             screen.blit(desc_surface, (self.x + 20, desc_y))
 
             # Target type
@@ -202,9 +196,7 @@ class MagicMenuUI(UIWidget):
 
         # Draw scroll indicator
         if len(self.spells) > self.visible_items:
-            scroll_text = (
-                f"▲ {self.scroll_offset + 1}-{visible_end}/{len(self.spells)} ▼"
-            )
+            scroll_text = f"▲ {self.scroll_offset + 1}-{visible_end}/{len(self.spells)} ▼"
             scroll_surface = desc_font.render(scroll_text, True, (150, 150, 150))
             scroll_rect = scroll_surface.get_rect(
                 bottomright=(self.x + self.width - 20, self.y + self.height - 70)
@@ -323,7 +315,5 @@ class QuickMagicBar(UIWidget):
                 mp_text = f"{spell.mp_cost} MP"
                 mp_color = (100, 200, 255) if spell.is_available else (100, 100, 100)
                 mp_surface = font.render(mp_text, True, mp_color)
-                mp_rect = mp_surface.get_rect(
-                    center=(slot_x + self.slot_size // 2, slot_y + 35)
-                )
+                mp_rect = mp_surface.get_rect(center=(slot_x + self.slot_size // 2, slot_y + 35))
                 screen.blit(mp_surface, mp_rect)
