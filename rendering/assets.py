@@ -705,6 +705,10 @@ class AssetManager:
         category: Optional[str] = None,
         tags: Optional[List[str]] = None,
         author: Optional[str] = None,
+        genre: Optional[str] = None,
+        theme: Optional[str] = None,
+        mood: Optional[str] = None,
+        commercial_use_only: bool = False,
     ) -> List[AssetMetadata]:
         """
         Filter assets by multiple criteria.
@@ -713,6 +717,10 @@ class AssetManager:
             category: Filter by category (optional)
             tags: Filter by tags (all must match, optional)
             author: Filter by author (optional)
+            genre: Filter by genre (fantasy, scifi, etc., optional)
+            theme: Filter by theme (medieval, modern, etc., optional)
+            mood: Filter by mood (peaceful, intense, etc., optional) - for music
+            commercial_use_only: If True, only return assets with commercial-use licenses
 
         Returns:
             List of matching asset metadata
@@ -734,7 +742,83 @@ class AssetManager:
             author_lower = author.lower()
             results = [m for m in results if m.author and author_lower in m.author.lower()]
 
+        # Filter by genre (check both metadata field and tags)
+        if genre:
+            genre_lower = genre.lower()
+            results = [
+                m
+                for m in results
+                if (m.metadata.get("genre", "").lower() == genre_lower)
+                or any(genre_lower in tag.lower() for tag in m.tags)
+            ]
+
+        # Filter by theme (check both metadata field and tags)
+        if theme:
+            theme_lower = theme.lower()
+            results = [
+                m
+                for m in results
+                if (m.metadata.get("theme", "").lower() == theme_lower)
+                or any(theme_lower in tag.lower() for tag in m.tags)
+            ]
+
+        # Filter by mood (primarily for music, check both metadata field and tags)
+        if mood:
+            mood_lower = mood.lower()
+            results = [
+                m
+                for m in results
+                if (m.metadata.get("mood", "").lower() == mood_lower)
+                or any(mood_lower in tag.lower() for tag in m.tags)
+            ]
+
+        # Filter by commercial use
+        if commercial_use_only:
+            results = [m for m in results if self._is_commercial_use_allowed(m)]
+
         return results
+
+    def _is_commercial_use_allowed(self, metadata: AssetMetadata) -> bool:
+        """
+        Check if an asset's license allows commercial use.
+
+        Args:
+            metadata: Asset metadata to check
+
+        Returns:
+            True if commercial use is allowed, False otherwise
+        """
+        if not metadata.license:
+            # No license specified - assume not allowed to be safe
+            return False
+
+        license_lower = metadata.license.lower()
+
+        # Allowed licenses
+        commercial_licenses = [
+            "cc0",
+            "cc-by",
+            "cc-by 3.0",
+            "cc-by 4.0",
+            "cc-by-sa",
+            "cc-by-sa 3.0",
+            "cc-by-sa 4.0",
+            "oga-by",
+            "oga-by 3.0",
+            "mit",
+            "public domain",
+            "ofl",  # Open Font License
+        ]
+
+        # Check if license is in allowed list
+        for allowed in commercial_licenses:
+            if allowed in license_lower:
+                # Make sure it's not NC (non-commercial)
+                if "nc" in license_lower or "non-commercial" in license_lower:
+                    return False
+                return True
+
+        return False
 
     def get_all_categories(self) -> List[str]:
         """Get list of all asset categories in the manifest."""
@@ -750,6 +834,60 @@ class AssetManager:
             tags.update(metadata.tags)
         return sorted(list(tags))
 
+    def get_all_genres(self) -> List[str]:
+        """Get list of all unique genres across all assets."""
+        genres = set()
+        for metadata in self._asset_metadata.values():
+            # Check genre field in metadata
+            if "genre" in metadata.metadata:
+                genres.add(metadata.metadata["genre"])
+            # Also check tags for genre keywords
+            genre_keywords = [
+                "fantasy",
+                "scifi",
+                "medieval",
+                "modern",
+                "cyberpunk",
+                "horror",
+                "western",
+            ]
+            for tag in metadata.tags:
+                if tag.lower() in genre_keywords:
+                    genres.add(tag)
+        return sorted(list(genres))
+
+    def get_all_themes(self) -> List[str]:
+        """Get list of all unique themes across all assets."""
+        themes = set()
+        for metadata in self._asset_metadata.values():
+            # Check theme field in metadata
+            if "theme" in metadata.metadata:
+                themes.add(metadata.metadata["theme"])
+        return sorted(list(themes))
+
+    def get_all_moods(self) -> List[str]:
+        """Get list of all unique moods across all assets (primarily for music)."""
+        moods = set()
+        for metadata in self._asset_metadata.values():
+            # Check mood field in metadata
+            if "mood" in metadata.metadata:
+                moods.add(metadata.metadata["mood"])
+            # Also check tags for mood keywords
+            mood_keywords = [
+                "peaceful",
+                "intense",
+                "mysterious",
+                "heroic",
+                "sad",
+                "joyful",
+                "tense",
+                "relaxing",
+            ]
+            for tag in metadata.tags:
+                if tag.lower() in mood_keywords:
+                    moods.add(tag)
+        return sorted(list(moods))
+
     def get_asset_count(self, category: Optional[str] = None) -> int:
         """
         Get count of assets.
@@ -763,6 +901,28 @@ class AssetManager:
         if category:
             return len([m for m in self._asset_metadata.values() if m.category == category])
         return len(self._asset_metadata)
+
+    def get_commercial_use_count(self) -> int:
+        """Get count of assets that allow commercial use."""
+        return len([m for m in self._asset_metadata.values() if self._is_commercial_use_allowed(m)])
+
+    def validate_commercial_use(self) -> Dict[str, List[str]]:
+        """
+        Validate all assets for commercial use compatibility.
+
+        Returns:
+            Dictionary with 'allowed' and 'restricted' lists of asset IDs
+        """
+        allowed = []
+        restricted = []
+
+        for metadata in self._asset_metadata.values():
+            if self._is_commercial_use_allowed(metadata):
+                allowed.append(metadata.id)
+            else:
+                restricted.append(metadata.id)
+
+        return {"allowed": allowed, "restricted": restricted}
 
 
 # Global asset manager instance
