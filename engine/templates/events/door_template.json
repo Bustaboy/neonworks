@@ -1,0 +1,63 @@
+{
+  "id": 0,
+  "name": "Door",
+  "x": 0,
+  "y": 0,
+  "pages": [
+    {
+      "conditions": {
+        "switch1_valid": false,
+        "switch1_id": 1,
+        "switch2_valid": false,
+        "switch2_id": 1,
+        "variable_valid": false,
+        "variable_id": 1,
+        "variable_value": 0,
+        "self_switch_valid": false,
+        "self_switch_ch": "A"
+      },
+      "graphic": {
+        "character_name": "",
+        "character_index": 0,
+        "direction": 2,
+        "pattern": 0,
+        "tile_id": 0,
+        "opacity": 0,
+        "blend_type": 0
+      },
+      "movement": {
+        "move_type": 0,
+        "move_speed": 3,
+        "move_frequency": 3,
+        "move_route": null,
+        "walk_anime": true,
+        "step_anime": false,
+        "direction_fix": false,
+        "through": false,
+        "always_on_top": false
+      },
+      "options": {
+        "trigger": "action_button",
+        "priority": 0
+      },
+      "commands": [
+        {
+          "code": "SHOW_TEXT",
+          "parameters": {
+            "text": "Opening door..."
+          }
+        },
+        {
+          "code": "TRANSFER_PLAYER",
+          "parameters": {
+            "map": "map_002",
+            "x": 5,
+            "y": 5,
+            "direction": 0,
+            "fade": "black"
+          }
+        }
+      ]
+    }
+  ]
+}
