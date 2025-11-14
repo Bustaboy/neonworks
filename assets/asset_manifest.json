@@ -17,11 +17,96 @@
         "sprite_sheet": {
           "enabled": false
         },
-        "tags": ["test", "hero", "player"],
+        "tags": ["test", "hero", "player", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
         "notes": "Simple test character sprite"
+      },
+      {
+        "id": "hero_warrior",
+        "name": "Warrior Hero",
+        "file_path": "characters/hero_warrior.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "tags": ["character", "player", "protagonist", "warrior", "fighter", "fantasy", "medieval", "hero"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "character_class": "warrior",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Red warrior character - part of fantasy party"
+      },
+      {
+        "id": "hero_mage",
+        "name": "Mage Hero",
+        "file_path": "characters/hero_mage.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "tags": ["character", "player", "protagonist", "mage", "wizard", "magic", "fantasy", "medieval", "hero"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "character_class": "mage",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Blue mage character - part of fantasy party"
+      },
+      {
+        "id": "hero_rogue",
+        "name": "Rogue Hero",
+        "file_path": "characters/hero_rogue.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "tags": ["character", "player", "protagonist", "rogue", "thief", "assassin", "fantasy", "medieval", "hero"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "character_class": "rogue",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Green rogue character - part of fantasy party"
+      },
+      {
+        "id": "hero_cleric",
+        "name": "Cleric Hero",
+        "file_path": "characters/hero_cleric.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "tags": ["character", "player", "protagonist", "cleric", "healer", "priest", "holy", "fantasy", "medieval", "hero"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "character_class": "cleric",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Yellow cleric character - part of fantasy party"
       }
     ],
     "enemies": [
@@ -38,11 +123,82 @@
           "enabled": false
         },
         "battle_sprite": true,
-        "tags": ["test", "enemy", "slime", "monster"],
+        "tags": ["test", "enemy", "slime", "monster", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
         "notes": "Simple test enemy sprite"
+      },
+      {
+        "id": "enemy_goblin",
+        "name": "Goblin",
+        "file_path": "enemies/enemy_goblin.png",
+        "format": "png",
+        "dimensions": {
+          "width": 48,
+          "height": 48
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "battle_sprite": true,
+        "enemy_type": "common",
+        "tags": ["enemy", "monster", "goblin", "humanoid", "green", "common", "fantasy", "medieval", "battle"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "difficulty": "easy",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Common green goblin enemy"
+      },
+      {
+        "id": "enemy_skeleton",
+        "name": "Skeleton Warrior",
+        "file_path": "enemies/enemy_skeleton.png",
+        "format": "png",
+        "dimensions": {
+          "width": 48,
+          "height": 48
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "battle_sprite": true,
+        "enemy_type": "common",
+        "tags": ["enemy", "monster", "skeleton", "undead", "warrior", "common", "fantasy", "medieval", "dark", "battle"],
+        "genre": "fantasy",
+        "theme": "dark",
+        "difficulty": "medium",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Undead skeleton warrior enemy"
+      },
+      {
+        "id": "boss_dragon",
+        "name": "Fire Dragon Boss",
+        "file_path": "enemies/boss_dragon.png",
+        "format": "png",
+        "dimensions": {
+          "width": 64,
+          "height": 64
+        },
+        "sprite_sheet": {
+          "enabled": false
+        },
+        "battle_sprite": true,
+        "enemy_type": "boss",
+        "tags": ["boss", "enemy", "dragon", "fire", "flying", "large", "epic", "fantasy", "medieval", "battle", "endgame"],
+        "genre": "fantasy",
+        "theme": "epic",
+        "difficulty": "hard",
+        "element": "fire",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Red fire dragon boss enemy"
       }
     ],
     "animations": [
@@ -79,11 +235,72 @@
         "total_tiles": 8,
         "autotile": false,
         "terrain_type": "mixed",
-        "tags": ["test", "tileset", "basic"],
+        "tags": ["test", "tileset", "basic", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
         "notes": "Simple test tileset with basic terrain types"
+      },
+      {
+        "id": "tileset_dungeon",
+        "name": "Stone Dungeon Tileset",
+        "file_path": "tilesets/tileset_dungeon.png",
+        "format": "png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "tiles_per_row": 4,
+        "total_tiles": 16,
+        "autotile": false,
+        "terrain_type": "dungeon",
+        "tags": ["tileset", "dungeon", "stone", "indoor", "dark", "fantasy", "medieval", "32x32"],
+        "genre": "fantasy",
+        "theme": "dark",
+        "environment": "indoor",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Dark stone dungeon tileset"
+      },
+      {
+        "id": "tileset_grass",
+        "name": "Grass Field Tileset",
+        "file_path": "tilesets/tileset_grass.png",
+        "format": "png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "tiles_per_row": 4,
+        "total_tiles": 16,
+        "autotile": false,
+        "terrain_type": "outdoor",
+        "tags": ["tileset", "grass", "field", "outdoor", "nature", "fantasy", "overworld", "32x32"],
+        "genre": "fantasy",
+        "theme": "nature",
+        "environment": "outdoor",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Green grass field tileset for outdoor areas"
+      },
+      {
+        "id": "tileset_cave",
+        "name": "Dark Cave Tileset",
+        "file_path": "tilesets/tileset_cave.png",
+        "format": "png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "tiles_per_row": 4,
+        "total_tiles": 16,
+        "autotile": false,
+        "terrain_type": "cave",
+        "tags": ["tileset", "cave", "rock", "indoor", "dark", "underground", "fantasy", "32x32"],
+        "genre": "fantasy",
+        "theme": "dark",
+        "environment": "cave",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Dark rock cave tileset for underground areas"
       }
     ],
     "icons": [
@@ -96,8 +313,9 @@
           "width": 32,
           "height": 32
         },
-        "category": "item",
-        "tags": ["test", "icon", "weapon", "sword"],
+        "icon_category": "item",
+        "tags": ["test", "icon", "weapon", "sword", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
@@ -112,12 +330,70 @@
           "width": 32,
           "height": 32
         },
-        "category": "item",
-        "tags": ["test", "icon", "consumable", "potion"],
+        "icon_category": "item",
+        "tags": ["test", "icon", "consumable", "potion", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
         "notes": "Simple test consumable icon"
+      },
+      {
+        "id": "icon_shield",
+        "name": "Shield Icon",
+        "file_path": "icons/icon_shield.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "icon_category": "item",
+        "item_type": "armor",
+        "tags": ["icon", "item", "equipment", "armor", "shield", "defense", "fantasy", "medieval", "32x32"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Blue shield equipment icon"
+      },
+      {
+        "id": "icon_magic_book",
+        "name": "Magic Spellbook Icon",
+        "file_path": "icons/icon_magic_book.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "icon_category": "item",
+        "item_type": "magic",
+        "tags": ["icon", "item", "equipment", "book", "spellbook", "magic", "knowledge", "fantasy", "medieval", "32x32"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Purple magic spellbook icon"
+      },
+      {
+        "id": "icon_bow",
+        "name": "Bow Weapon Icon",
+        "file_path": "icons/icon_bow.png",
+        "format": "png",
+        "dimensions": {
+          "width": 32,
+          "height": 32
+        },
+        "icon_category": "item",
+        "item_type": "weapon",
+        "tags": ["icon", "item", "equipment", "weapon", "bow", "ranged", "fantasy", "medieval", "32x32"],
+        "genre": "fantasy",
+        "theme": "medieval",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Brown bow weapon icon"
       }
     ],
     "ui": [
@@ -134,11 +410,53 @@
         "nine_patch": {
           "enabled": false
         },
-        "tags": ["test", "ui", "button"],
+        "tags": ["test", "ui", "button", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
         "notes": "Simple test UI button"
+      },
+      {
+        "id": "ui_panel",
+        "name": "Dark UI Panel",
+        "file_path": "ui/ui_panel.png",
+        "format": "png",
+        "dimensions": {
+          "width": 200,
+          "height": 150
+        },
+        "ui_type": "panel",
+        "nine_patch": {
+          "enabled": false
+        },
+        "tags": ["ui", "panel", "window", "menu", "dark", "fantasy"],
+        "genre": "fantasy",
+        "theme": "dark",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Semi-transparent dark panel with border"
+      },
+      {
+        "id": "ui_button_green",
+        "name": "Green Action Button",
+        "file_path": "ui/ui_button_green.png",
+        "format": "png",
+        "dimensions": {
+          "width": 96,
+          "height": 32
+        },
+        "ui_type": "button",
+        "nine_patch": {
+          "enabled": false
+        },
+        "tags": ["ui", "button", "action", "green", "confirm", "fantasy"],
+        "genre": "fantasy",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Green button for confirm/action buttons"
       }
     ],
     "faces": [
@@ -172,11 +490,75 @@
         },
         "parallax": false,
         "scene_type": "battle",
-        "tags": ["test", "background", "battle"],
+        "tags": ["test", "background", "battle", "fantasy"],
+        "genre": "fantasy",
         "license": "CC0",
         "author": "NeonWorks Test Suite",
         "attribution_required": false,
         "notes": "Simple test battle background"
+      },
+      {
+        "id": "bg_forest",
+        "name": "Forest Battle Background",
+        "file_path": "backgrounds/bg_forest.png",
+        "format": "png",
+        "dimensions": {
+          "width": 320,
+          "height": 240
+        },
+        "parallax": false,
+        "scene_type": "battle",
+        "tags": ["background", "battle", "forest", "nature", "outdoor", "green", "fantasy"],
+        "genre": "fantasy",
+        "theme": "nature",
+        "environment": "outdoor",
+        "mood": "peaceful",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Green forest battle background"
+      },
+      {
+        "id": "bg_cave",
+        "name": "Dark Cave Background",
+        "file_path": "backgrounds/bg_cave.png",
+        "format": "png",
+        "dimensions": {
+          "width": 320,
+          "height": 240
+        },
+        "parallax": false,
+        "scene_type": "battle",
+        "tags": ["background", "battle", "cave", "underground", "dark", "mysterious", "fantasy"],
+        "genre": "fantasy",
+        "theme": "dark",
+        "environment": "cave",
+        "mood": "mysterious",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Dark cave battle background"
+      },
+      {
+        "id": "bg_sky",
+        "name": "Sky Background",
+        "file_path": "backgrounds/bg_sky.png",
+        "format": "png",
+        "dimensions": {
+          "width": 320,
+          "height": 240
+        },
+        "parallax": false,
+        "scene_type": "menu",
+        "tags": ["background", "menu", "sky", "clouds", "outdoor", "blue", "peaceful", "fantasy"],
+        "genre": "fantasy",
+        "theme": "nature",
+        "environment": "sky",
+        "mood": "peaceful",
+        "license": "CC0",
+        "author": "NeonWorks Sample Assets",
+        "attribution_required": false,
+        "notes": "Blue sky background for menus or flying battles"
       }
     ]
   },
