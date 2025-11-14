@@ -26,6 +26,11 @@ from neonworks.engine.tools.character_generator import (
     ColorTint,
     Direction,
 )
+from neonworks.engine.tools.character_bio_generator import (
+    CharacterBioGenerator,
+    CharacterImportance,
+    generate_character_bio,
+)
 
 
 class CharacterGeneratorUI:
@@ -101,6 +106,16 @@ class CharacterGeneratorUI:
         self.database_editor = None
         self.asset_browser = None
         self.level_builder = None
+
+        # Bio generation state
+        self.bio_generator = CharacterBioGenerator()
+        self.character_importance = CharacterImportance.NPC
+        self.generated_bio: Optional[Dict[str, str]] = None
+        self.manual_bio_override = False
+        self.use_bio_templates = False  # False = AI generation (default)
+        self.show_bio_editor = False
+        self.bio_text_input = ""
+        self.bio_input_active = False
 
         # Fonts
         pygame.font.init()
@@ -506,6 +521,41 @@ class CharacterGeneratorUI:
         self._render_button("Animate" if self.animate_preview else "Static",
                           x + 10, anim_y, 120, 30, anim_color, id_="toggle_anim")
 
+        # Character Importance selector
+        importance_y = anim_y + 40
+        importance_label = self.small_font.render("Importance:", True, (200, 200, 200))
+        self.screen.blit(importance_label, (x + 10, importance_y))
+
+        importance_btn_y = importance_y + 20
+        importance_options = [
+            (CharacterImportance.NPC, "NPC", (100, 100, 120)),
+            (CharacterImportance.SUPPORTING, "Support", (120, 140, 100)),
+            (CharacterImportance.MAIN, "Main", (180, 120, 100)),
+        ]
+
+        importance_btn_x = x + 10
+        for importance, label, base_color in importance_options:
+            is_selected = importance == self.character_importance
+            color = tuple(min(c + 40, 255) for c in base_color) if is_selected else base_color
+
+            self._render_button(label, importance_btn_x, importance_btn_y, 70, 25, color,
+                              id_=f"importance_{importance.value}")
+            importance_btn_x += 75
+
+        # Bio generation toggle
+        bio_toggle_y = importance_btn_y + 35
+        bio_mode_label = self.small_font.render(
+            "Bio: AI" if not self.use_bio_templates else "Bio: Template",
+            True,
+            (150, 200, 150) if not self.use_bio_templates else (200, 150, 150)
+        )
+        self.screen.blit(bio_mode_label, (x + 10, bio_toggle_y))
+
+        # Manual bio edit button
+        if self.generated_bio:
+            edit_bio_color = (100, 150, 200) if not self.manual_bio_override else (200, 150, 100)
+            self._render_button("Edit Bio", x + 130, bio_toggle_y - 3, 80, 25, edit_bio_color, id_="edit_bio")
+
         # Layer list (bottom half)
         layers_y = y + preview_height + 10
         layers_height = height - preview_height - 20
@@ -837,6 +887,25 @@ class CharacterGeneratorUI:
             rect = getattr(self, '_btn_toggle_anim')
             if rect.collidepoint(mouse_pos):
                 self.animate_preview = not self.animate_preview
+                return True
+
+        # Character importance selector
+        for importance in CharacterImportance:
+            btn_attr = f'_btn_importance_{importance.value}'
+            if hasattr(self, btn_attr):
+                rect = getattr(self, btn_attr)
+                if rect.collidepoint(mouse_pos):
+                    self.character_importance = importance
+                    # Regenerate bio with new importance level
+                    if self.current_preset.layers:
+                        self._generate_bio()
+                    return True
+
+        # Edit bio button
+        if hasattr(self, '_btn_edit_bio'):
+            rect = getattr(self, '_btn_edit_bio')
+            if rect.collidepoint(mouse_pos):
+                self._open_bio_editor()
                 return True
 
         # Bottom control buttons
@@ -1211,7 +1280,13 @@ class CharacterGeneratorUI:
             "timestamp": datetime.datetime.now().isoformat(),
             "preset_file": f"presets/characters/{self.current_preset.name}.json",
             "layers_count": len(self.current_preset.layers),
+            "importance": self.character_importance.value if self.character_importance else "npc",
+            "has_bio": self.generated_bio is not None,
         }
+
+        # Add bio if generated
+        if self.generated_bio:
+            history_entry["bio"] = self.generated_bio.copy()
 
         self.export_history.append(history_entry)
 
@@ -1237,12 +1312,25 @@ class CharacterGeneratorUI:
             print("ℹ Exporting character first...")
             self._export_character()
 
+        # Generate bio if not already generated
+        if not self.generated_bio:
+            print("ℹ Generating bio...")
+            self._generate_bio()
+
+        # Prepare bio text
+        if self.generated_bio:
+            description = self.generated_bio['description']
+            note = self.generated_bio['note']
+        else:
+            description = f"Generated character: {self.current_preset.name}"
+            note = f"Created from character generator on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+
         # Open database editor if available
         if self.database_editor:
             try:
                 from neonworks.engine.data.database_schema import Actor
 
-                # Create a new actor with default values
+                # Create a new actor with generated bio
                 new_actor = Actor(
                     id=0,  # Will be auto-assigned
                     name=self.current_preset.name,
@@ -1254,8 +1342,8 @@ class CharacterGeneratorUI:
                     face_name="",
                     face_index=0,
                     icon_index=1,
-                    description=f"Generated character: {self.current_preset.name}",
-                    note=f"Created from character generator on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                    description=description,
+                    note=note,
                 )
 
                 # Add to database
@@ -1305,13 +1393,19 @@ class CharacterGeneratorUI:
 
                 # Temporarily set as current preset
                 original_preset = self.current_preset
+                original_bio = self.generated_bio
                 self.current_preset = preset
 
-                # Export
+                # Generate bio for this character (use NPC level for batch export)
+                self.character_importance = CharacterImportance.NPC
+                self._generate_bio()
+
+                # Export (sprite + bio in history)
                 self._export_character()
 
-                # Restore original preset
+                # Restore original preset and bio
                 self.current_preset = original_preset
+                self.generated_bio = original_bio
 
                 exported_count += 1
 
@@ -1327,3 +1421,99 @@ class CharacterGeneratorUI:
         self.asset_browser = asset_browser
         self.level_builder = level_builder
         print("✓ Character generator UI references set")
+
+    def _generate_bio(self):
+        """Generate character bio using AI or templates."""
+        if not self.current_preset.layers:
+            print("⚠ Cannot generate bio for empty character")
+            return
+
+        # Detect character type from preset name or layers
+        character_type = self._detect_character_type()
+
+        # Convert layers to dict format
+        layers_data = []
+        for layer in self.current_preset.layers:
+            layers_data.append({
+                "layer_type": layer.layer_type.name,
+                "component_id": layer.component_id,
+                "tint": layer.tint.to_dict() if layer.tint else None,
+            })
+
+        try:
+            self.generated_bio = generate_character_bio(
+                character_name=self.current_preset.name,
+                character_type=character_type,
+                layers=layers_data,
+                importance=self.character_importance.value,
+                use_ai=not self.use_bio_templates,
+            )
+
+            print(f"✓ Generated {self.character_importance.value.upper()} bio for {self.current_preset.name}")
+            if self.character_importance == CharacterImportance.NPC:
+                print(f"  Short: {len(self.generated_bio['description'])} chars")
+            else:
+                print(f"  Description: {len(self.generated_bio['description'])} chars")
+                print(f"  Full Bio: {len(self.generated_bio['note'])} chars")
+
+        except Exception as e:
+            print(f"⚠ Failed to generate bio: {e}")
+            self.generated_bio = None
+
+    def _detect_character_type(self) -> str:
+        """Detect character type from preset name or appearance."""
+        name_lower = self.current_preset.name.lower()
+
+        # Check preset name for keywords
+        type_keywords = {
+            "warrior": ["warrior", "fighter", "soldier"],
+            "mage": ["mage", "wizard", "sorcerer", "witch"],
+            "thief": ["thief", "rogue", "assassin", "ninja"],
+            "cleric": ["cleric", "priest", "healer"],
+            "archer": ["archer", "ranger", "hunter"],
+            "knight": ["knight", "paladin", "crusader"],
+            "monk": ["monk", "martial artist"],
+            "bard": ["bard", "musician"],
+        }
+
+        for char_type, keywords in type_keywords.items():
+            if any(keyword in name_lower for keyword in keywords):
+                return char_type
+
+        # Default to generic based on equipment
+        has_armor = any("armor" in layer.component_id.lower() for layer in self.current_preset.layers)
+        has_robe = any("robe" in layer.component_id.lower() for layer in self.current_preset.layers)
+
+        if has_robe:
+            return "mage"
+        elif has_armor:
+            return "warrior"
+        else:
+            return "warrior"  # Default
+
+    def _open_bio_editor(self):
+        """Open bio editor for manual editing."""
+        if not self.generated_bio:
+            self._generate_bio()
+
+        if self.generated_bio:
+            self.bio_text_input = self.generated_bio['description']
+            self.show_bio_editor = True
+            self.manual_bio_override = True
+            print("✓ Bio editor opened - Press Enter to save, ESC to cancel")
+
+    def _apply_manual_bio(self, bio_text: str):
+        """Apply manually edited bio."""
+        if self.generated_bio:
+            self.generated_bio['description'] = bio_text
+            # Keep the same note or update it
+            if not self.generated_bio['note'].startswith("Manual"):
+                self.generated_bio['note'] = f"Manual Override:\n\n{bio_text}"
+            print("✓ Manual bio applied")
+        else:
+            # Create new bio entry
+            self.generated_bio = {
+                "description": bio_text,
+                "note": f"Manual Bio:\n\n{bio_text}",
+            }
+            print("✓ Manual bio created")

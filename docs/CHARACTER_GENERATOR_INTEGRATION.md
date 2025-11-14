@@ -17,17 +17,33 @@ The NeonWorks Character Generator is now fully integrated with the game engine's
 - Links the generated sprite to the actor
 - Opens database editor with the new actor selected
 
-### 3. **Export History Tracking**
+### 3. **AI-Powered Bio Generation** 🆕
+- **Automatic character biography generation** based on appearance
+- **Three importance levels** with appropriate bio length:
+  - **NPC**: 1-2 sentences (40-80 words) - Quick descriptions
+  - **Supporting**: 2-4 sentences (80-150 words) - Moderate detail
+  - **Main Character**: 4-8 sentences (150-300 words) - Rich backstory
+- **AI generation by default** for unique, contextual bios
+- **Template fallback** option for consistent style
+- **Manual editing** capability for custom touches
+- Analyzes character appearance (armor, weapons, colors)
+- Detects character type (warrior, mage, thief, etc.)
+- Bios automatically added to Actor database entries
+
+### 4. **Export History Tracking**
 - All exports are logged with timestamp
 - History saved to `exports/characters/export_history.json`
-- Tracks character name, file paths, layer count, and more
+- Tracks character name, file paths, layer count, **bios**, and more
+- Bio data preserved in export history for reference
 
-### 4. **Batch Export**
+### 5. **Batch Export**
 - Export all character presets at once
 - Processes all `.json` files in `presets/characters/`
+- **Automatically generates bios** for all characters
 - Creates sprites for all presets with one click
+- NPCs use short bios, main characters get detailed ones
 
-### 5. **Default Character Presets**
+### 6. **Default Character Presets**
 10 pre-configured character templates:
 - **Warrior** - Heavy armor and longsword
 - **Mage** - Wizard robes and staff
@@ -55,6 +71,14 @@ The NeonWorks Character Generator is now fully integrated with the game engine's
    "A brave knight with brown hair and blue armor"
    ```
 5. Preview animations with the direction controls
+6. **Set Character Importance** (NPC/Supporting/Main):
+   - Select importance level in the preview panel
+   - Determines bio length and detail
+   - Can be changed at any time
+7. **Bio Generation** (automatic):
+   - Bio generated automatically based on appearance
+   - Switch between AI and Template modes
+   - Click "Edit Bio" to manually customize
 
 ### Step 2: Export to Assets
 
@@ -115,6 +139,52 @@ To export all 10 default presets at once:
 
 This is useful for quickly populating your game with NPC sprites.
 
+### Bio Generation System
+
+The bio generator analyzes character appearance and creates contextually appropriate biographies:
+
+**Importance Levels:**
+
+1. **NPC (40-80 words)**
+   - Quick, one-line description
+   - Focus on role and appearance
+   - Example: "Marcus is a battle-hardened warrior clad in heavy plate armor, wielding a longsword with practiced ease."
+
+2. **Supporting Character (80-150 words)**
+   - 2-4 sentence description
+   - Includes personality hints
+   - Background suggestion
+   - Example: "Captain Elena is a veteran warrior whose plate armor bears the scars of countless battles. Wielding a longsword, she has proven her worth time and again. Rumors speak of a difficult past that forged her into who she is today. Those who know her speak of unwavering determination."
+
+3. **Main Character (150-300 words)**
+   - Rich, detailed backstory
+   - Personality and motivations
+   - Multiple paragraphs
+   - Character arc hints
+   - Example: Full multi-paragraph backstory with origin, development, and current state
+
+**AI vs Templates:**
+
+- **AI Mode** (Default): Generates unique bios analyzing:
+  - Armor type (heavy/light/robes)
+  - Weapon choice
+  - Color scheme
+  - Layer composition
+  - Character type detected from name
+
+- **Template Mode**: Uses consistent templates with variables:
+  - More predictable output
+  - Faster generation
+  - Good for batch operations
+  - Easier to maintain style consistency
+
+**Manual Editing:**
+
+1. Click "Edit Bio" button after generation
+2. Modify text in editor
+3. Save changes (marked as manual override)
+4. Original still preserved in history
+
 ### Export History
 
 View export history at:
@@ -130,7 +200,13 @@ Each entry contains:
   "assets_path": "assets/sprites/Warrior.png",
   "timestamp": "2025-11-14T10:30:00",
   "preset_file": "presets/characters/Warrior.json",
-  "layers_count": 6
+  "layers_count": 6,
+  "importance": "npc",
+  "has_bio": true,
+  "bio": {
+    "description": "Marcus is a battle-hardened warrior...",
+    "note": "NPC: Marcus is a battle-hardened warrior..."
+  }
 }
 ```
 
