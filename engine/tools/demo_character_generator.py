@@ -15,7 +15,7 @@ Run this demo:
 """
 
 from pathlib import Path
-from character_generator import (
+from engine.tools.character_generator import (
     CharacterGenerator,
     CharacterPreset,
     ComponentLayer,
@@ -23,6 +23,10 @@ from character_generator import (
     LayerType,
     Direction,
     quick_character
+)
+from engine.tools.ai_character_generator import (
+    AICharacterGenerator,
+    generate_ai_character
 )
 
 
@@ -287,6 +291,50 @@ def demo_list_components():
             print()
 
 
+def demo_ai_generation():
+    """Demo: AI-powered character generation."""
+    print("\n=== DEMO 8: AI-Powered Character Generation ===\n")
+
+    ai_gen = AICharacterGenerator(default_size=32)
+
+    component_path = Path("../../test_outputs/character_components")
+    if not component_path.exists():
+        print("Component library not found.")
+        return
+
+    ai_gen.load_component_library(component_path)
+
+    # Test descriptions with different archetypes
+    descriptions = [
+        "A brave knight with shining blue armor",
+        "A wise wizard with flowing purple robes and a gnarled staff",
+        "A skilled elven ranger with a longbow",
+        "A simple peasant farmer",
+        "A fierce warrior with red armor and a sword"
+    ]
+
+    print("Generating characters from natural language descriptions:\n")
+
+    for i, desc in enumerate(descriptions):
+        print(f"\n{i+1}. \"{desc}\"")
+        print("-" * 60)
+
+        character = ai_gen.generate_from_ai_description(desc)
+
+        print(f"   Name: {character.name}")
+        print(f"   Layers: {len(character.layers)}")
+        for layer in character.layers:
+            tint_str = f" (tinted)" if layer.tint else ""
+            print(f"     • {layer.layer_type.name}: {layer.component_id}{tint_str}")
+
+        # Save
+        output_path = Path(f"../../test_outputs/demo_ai_{i+1}.png")
+        ai_gen.render_character(character, output_path, num_frames=4)
+        print(f"   Saved: {output_path.name}")
+
+    print(f"\n✓ Generated {len(descriptions)} characters from AI descriptions!")
+
+
 def main():
     """Run all demos."""
     print("=" * 60)
@@ -309,11 +357,20 @@ def main():
     demo_multi_size_export()
     demo_description_based()
     demo_color_variations()
+    demo_ai_generation()  # NEW: AI-powered generation
 
     print("\n" + "=" * 60)
     print("DEMO COMPLETE!")
     print("=" * 60)
     print("\nCheck test_outputs/ directory for generated character sprites!")
+    print("\nFeatures demonstrated:")
+    print("  ✓ Manual component selection")
+    print("  ✓ Randomization")
+    print("  ✓ Preset save/load")
+    print("  ✓ Multi-size export")
+    print("  ✓ Description-based generation")
+    print("  ✓ Color variations")
+    print("  ✓ AI-powered generation (NEW!)")
 
 
 if __name__ == "__main__":
