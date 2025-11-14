@@ -11,9 +11,9 @@ from unittest.mock import MagicMock, Mock, patch
 import pygame
 import pytest
 
-from engine.data.database_manager import DatabaseManager
-from engine.data.database_schema import Actor, Enemy, Item, Skill, Weapon
-from engine.ui.database_editor_ui import DatabaseEditorUI
+from neonworks.engine.data.database_manager import DatabaseManager
+from neonworks.engine.data.database_schema import Actor, Enemy, Item, Skill, Weapon
+from neonworks.engine.ui.database_editor_ui import DatabaseEditorUI
 
 
 @pytest.fixture

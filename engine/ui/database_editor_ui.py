@@ -18,12 +18,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import pygame
 
-from engine.data.database_manager import (
+from neonworks.engine.data.database_manager import (
     CATEGORY_TYPES,
     DatabaseEntry,
     DatabaseManager,
 )
-from engine.data.database_schema import (
+from neonworks.engine.data.database_schema import (
     Actor,
     Animation,
     Armor,
