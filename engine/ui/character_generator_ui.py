@@ -12,6 +12,7 @@ Provides a complete visual interface for creating custom character sprites with:
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import json
+import re
 
 import pygame
 
@@ -71,6 +72,12 @@ class CharacterGeneratorUI:
         self.editing_color_layer: Optional[LayerType] = None
         self.color_sliders = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
 
+        # AI description input state
+        self.ai_description = ""
+        self.ai_input_active = False
+        self.ai_cursor_visible = True
+        self.ai_cursor_timer = 0.0
+
         # Drag and drop state
         self.dragging_layer_index: Optional[int] = None
         self.drag_offset_y = 0
@@ -119,6 +126,13 @@ class CharacterGeneratorUI:
                 self.preview_frame = (self.preview_frame + 1) % 4
                 self._regenerate_preview()
 
+        # Update cursor blink for text input
+        if self.ai_input_active:
+            self.ai_cursor_timer += delta_time
+            if self.ai_cursor_timer >= 0.5:  # Blink every 0.5 seconds
+                self.ai_cursor_timer = 0.0
+                self.ai_cursor_visible = not self.ai_cursor_visible
+
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
         Handle pygame events.
@@ -133,8 +147,29 @@ class CharacterGeneratorUI:
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
+                if self.ai_input_active:
+                    self.ai_input_active = False
+                    return True
                 self.visible = False
                 return True
+
+            # Handle text input when AI input is active
+            if self.ai_input_active:
+                if event.key == pygame.K_RETURN:
+                    # Generate character from description
+                    if self.ai_description.strip():
+                        self._generate_from_ai_description()
+                    self.ai_input_active = False
+                    return True
+                elif event.key == pygame.K_BACKSPACE:
+                    self.ai_description = self.ai_description[:-1]
+                    return True
+                elif event.unicode and len(self.ai_description) < 200:  # Limit length
+                    # Only allow printable characters
+                    if event.unicode.isprintable():
+                        self.ai_description += event.unicode
+                        return True
+                return True  # Consume all key events when input is active
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
@@ -201,9 +236,12 @@ class CharacterGeneratorUI:
         close_y = panel_y + 10
         self._render_button("×", close_x, close_y, 35, 35, (150, 0, 0))
 
-        # Content area (below title)
-        content_y = panel_y + 60
-        content_height = panel_height - 160  # Leave room for bottom controls
+        # AI Description Input (below title)
+        self._render_ai_input(panel_x + 10, panel_y + 50, panel_width - 20)
+
+        # Content area (below AI input)
+        content_y = panel_y + 110  # Adjusted for AI input field
+        content_height = panel_height - 210  # Leave room for AI input and bottom controls
 
         # Layout sections
         left_panel_x = panel_x + 10
@@ -594,6 +632,58 @@ class CharacterGeneratorUI:
                 rect_height = min(square_size, height - row)
                 pygame.draw.rect(self.screen, color, (x + col, y + row, rect_width, rect_height))
 
+    def _render_ai_input(self, x: int, y: int, width: int):
+        """Render AI description input field."""
+        input_height = 45
+        button_width = 180
+
+        # Input field background
+        input_bg_color = (60, 100, 140) if self.ai_input_active else (40, 40, 60)
+        pygame.draw.rect(self.screen, input_bg_color,
+                        (x, y, width - button_width - 10, input_height),
+                        border_radius=4)
+        pygame.draw.rect(self.screen, (100, 100, 120),
+                        (x, y, width - button_width - 10, input_height), 2, border_radius=4)
+
+        # Placeholder or text
+        text_x = x + 15
+        text_y = y + (input_height - 20) // 2
+
+        if self.ai_description:
+            # Display current text
+            display_text = self.ai_description
+            if len(display_text) > 80:
+                display_text = display_text[:80] + "..."
+
+            text_surface = self.font.render(display_text, True, (255, 255, 255))
+            self.screen.blit(text_surface, (text_x, text_y))
+
+            # Cursor
+            if self.ai_input_active and self.ai_cursor_visible:
+                cursor_x = text_x + text_surface.get_width() + 2
+                pygame.draw.rect(self.screen, (255, 255, 255),
+                               (cursor_x, text_y, 2, 20))
+        else:
+            # Placeholder text
+            placeholder = "🤖 Describe your character... (e.g., 'A brave knight with brown hair and blue armor')"
+            placeholder_color = (120, 120, 140) if not self.ai_input_active else (150, 150, 170)
+            text_surface = self.small_font.render(placeholder, True, placeholder_color)
+            self.screen.blit(text_surface, (text_x, text_y + 5))
+
+            # Cursor at start
+            if self.ai_input_active and self.ai_cursor_visible:
+                pygame.draw.rect(self.screen, (255, 255, 255),
+                               (text_x, text_y, 2, 20))
+
+        # Generate button
+        button_x = x + width - button_width
+        button_color = (0, 150, 200) if self.ai_description.strip() else (60, 60, 80)
+        self._render_button("Generate from AI ✨", button_x, y, button_width, input_height,
+                          button_color, id_="generate_ai")
+
+        # Store input field rect for click detection
+        setattr(self, '_ai_input_rect', pygame.Rect(x, y, width - button_width - 10, input_height))
+
     def _render_color_picker(self, x: int, y: int, width: int, height: int):
         """Render color picker overlay."""
         # Background
@@ -672,6 +762,20 @@ class CharacterGeneratorUI:
 
     def _handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
         """Handle mouse click events."""
+        # AI input field click
+        if hasattr(self, '_ai_input_rect'):
+            rect = getattr(self, '_ai_input_rect')
+            if rect.collidepoint(mouse_pos):
+                self.ai_input_active = True
+                return True
+
+        # Generate from AI button
+        if hasattr(self, '_btn_generate_ai'):
+            rect = getattr(self, '_btn_generate_ai')
+            if rect.collidepoint(mouse_pos) and self.ai_description.strip():
+                self._generate_from_ai_description()
+                return True
+
         # Close button
         if hasattr(self, '_btn_') and self._check_button_click('_btn_', mouse_pos):
             close_rect = getattr(self, '_btn_', None)
@@ -856,6 +960,48 @@ class CharacterGeneratorUI:
             print("✓ Generated random character")
         except Exception as e:
             print(f"⚠ Failed to randomize: {e}")
+
+    def _generate_from_ai_description(self):
+        """Generate character from AI description."""
+        if not self.ai_description.strip():
+            return
+
+        try:
+            print(f"🤖 Generating character from: '{self.ai_description}'")
+
+            # Use the character generator's AI-friendly method
+            self.current_preset = self.generator.generate_from_description(
+                self.ai_description,
+                name=self._extract_name_from_description() or "AI Generated Character"
+            )
+
+            self._regenerate_preview()
+            print("✓ AI character generation complete!")
+
+            # Clear the input after successful generation
+            self.ai_description = ""
+            self.ai_input_active = False
+
+        except Exception as e:
+            print(f"⚠ Failed to generate from AI: {e}")
+            print(f"   Description was: '{self.ai_description}'")
+
+    def _extract_name_from_description(self) -> Optional[str]:
+        """Try to extract a name from the description."""
+        # Simple pattern matching for names
+        # Example: "Create a knight named Arthur" -> "Arthur"
+        patterns = [
+            r'named\s+(\w+)',
+            r'called\s+(\w+)',
+            r'name\s+(\w+)',
+        ]
+
+        for pattern in patterns:
+            match = re.search(pattern, self.ai_description, re.IGNORECASE)
+            if match:
+                return match.group(1).capitalize()
+
+        return None
 
     def _apply_color_tint(self):
         """Apply color tint to selected layer."""
