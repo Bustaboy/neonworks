@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional
 import pygame
 
 from neonworks.engine.ui.event_editor_ui import EventEditorUI
+from neonworks.engine.ui.character_generator_ui import CharacterGeneratorUI
 
 
 class MasterUIManager:
@@ -20,6 +21,7 @@ class MasterUIManager:
     - F5: Open/Close Event Editor
     - F6: Open/Close Database Editor
     - F7: Open/Close Level Builder
+    - F8: Open/Close Character Generator
     - ESC: Close active UI
     """
 
@@ -30,6 +32,7 @@ class MasterUIManager:
         self.event_editor: Optional[EventEditorUI] = None
         self.level_builder = None  # Will be created later
         self.database_editor = None  # Will be lazy-loaded
+        self.character_generator: Optional[CharacterGeneratorUI] = None
 
         # Active UI tracking
         self.active_ui: Optional[str] = None
@@ -41,6 +44,9 @@ class MasterUIManager:
         """Initialize all UI components."""
         # Event Editor
         self.event_editor = EventEditorUI(self.screen)
+
+        # Character Generator
+        self.character_generator = CharacterGeneratorUI(self.screen)
 
         # Database Editor will be lazy-loaded when needed
         # Level Builder will be created when needed
@@ -67,6 +73,9 @@ class MasterUIManager:
             elif event.key == pygame.K_F7:
                 self.toggle_level_builder()
                 return True
+            elif event.key == pygame.K_F8:
+                self.toggle_character_generator()
+                return True
             elif event.key == pygame.K_ESCAPE:
                 if self.active_ui:
                     self.close_active_ui()
@@ -79,6 +88,8 @@ class MasterUIManager:
             return self.level_builder.handle_event(event)
         elif self.active_ui == "database_editor" and self.database_editor:
             return self.database_editor.handle_event(event)
+        elif self.active_ui == "character_generator" and self.character_generator:
+            return self.character_generator.handle_event(event)
 
         return False
 
@@ -95,6 +106,8 @@ class MasterUIManager:
             self.level_builder.update(delta_time)
         elif self.active_ui == "database_editor" and self.database_editor:
             self.database_editor.update(delta_time)
+        elif self.active_ui == "character_generator" and self.character_generator:
+            self.character_generator.update(delta_time)
 
     def render(self):
         """Render active UI components."""
@@ -104,6 +117,8 @@ class MasterUIManager:
             self.level_builder.render()
         elif self.active_ui == "database_editor" and self.database_editor:
             self.database_editor.render()
+        elif self.active_ui == "character_generator" and self.character_generator:
+            self.character_generator.render()
 
     # UI Toggle Methods
 
@@ -202,6 +217,29 @@ class MasterUIManager:
         self.active_ui = None
         print("✓ Database Editor closed")
 
+    def toggle_character_generator(self):
+        """Toggle the character generator on/off."""
+        if self.active_ui == "character_generator":
+            self.close_character_generator()
+        else:
+            self.open_character_generator()
+
+    def open_character_generator(self):
+        """Open the character generator."""
+        if not self.character_generator:
+            self.character_generator = CharacterGeneratorUI(self.screen)
+
+        self.character_generator.visible = True
+        self.active_ui = "character_generator"
+        print("🎨 Character Generator opened (F8 to close)")
+
+    def close_character_generator(self):
+        """Close the character generator."""
+        if self.character_generator:
+            self.character_generator.visible = False
+        self.active_ui = None
+        print("✓ Character Generator closed")
+
     def close_active_ui(self):
         """Close whatever UI is currently active."""
         if self.active_ui == "event_editor":
@@ -210,6 +248,8 @@ class MasterUIManager:
             self.close_level_builder()
         elif self.active_ui == "database_editor":
             self.close_database_editor()
+        elif self.active_ui == "character_generator":
+            self.close_character_generator()
 
     # Query Methods
 
@@ -232,6 +272,7 @@ class MasterUIManager:
 ║  F5  - Event Editor (Create/Edit game events)    ║
 ║  F6  - Database Editor (Manage game data)        ║
 ║  F7  - Level Builder (Create/Edit maps)          ║
+║  F8  - Character Generator (Create characters)   ║
 ║  ESC - Close active editor                       ║
 ╚═══════════════════════════════════════════════════╝
         """
