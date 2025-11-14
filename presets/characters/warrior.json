@@ -1,0 +1,72 @@
+{
+  "name": "Warrior",
+  "description": "A brave warrior with heavy armor and a sword",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 220,
+        "g": 190,
+        "b": 170,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "short_hair",
+      "enabled": true,
+      "tint": {
+        "r": 120,
+        "g": 80,
+        "b": 40,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "normal_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 100,
+        "g": 100,
+        "b": 150,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "plate_armor",
+      "enabled": true,
+      "tint": {
+        "r": 180,
+        "g": 180,
+        "b": 200,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "LEGS",
+      "component_id": "plate_legs",
+      "enabled": true,
+      "tint": {
+        "r": 160,
+        "g": 160,
+        "b": 180,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "WEAPON",
+      "component_id": "longsword",
+      "enabled": true,
+      "tint": {
+        "r": 200,
+        "g": 200,
+        "b": 210,
+        "a": 255
+      }
+    }
+  ]
+}

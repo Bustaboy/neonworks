@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import json
 import re
+import shutil
+import datetime
 
 import pygame
 
@@ -85,6 +87,20 @@ class CharacterGeneratorUI:
         # Preview rendering
         self.preview_surface: Optional[pygame.Surface] = None
         self._regenerate_preview()
+
+        # Export history tracking
+        self.export_history: List[Dict] = []
+        self.last_export_path: Optional[Path] = None
+        self._load_export_history()
+
+        # Batch export state
+        self.batch_export_presets: List[str] = []
+        self.show_batch_export = False
+
+        # UI component references (set by master UI manager)
+        self.database_editor = None
+        self.asset_browser = None
+        self.level_builder = None
 
         # Fonts
         pygame.font.init()
@@ -586,6 +602,8 @@ class CharacterGeneratorUI:
             ("Save Preset", (0, 150, 0), "save_preset"),
             ("Load Preset", (0, 100, 150), "load_preset"),
             ("Export PNG", (200, 100, 200), "export"),
+            ("Create Actor", (100, 200, 100), "create_actor"),
+            ("Batch Export", (150, 100, 0), "batch_export"),
         ]
 
         button_x = x + 20
@@ -858,6 +876,16 @@ class CharacterGeneratorUI:
                 self._export_character()
                 return True
 
+        if hasattr(self, '_btn_create_actor'):
+            if getattr(self, '_btn_create_actor').collidepoint(mouse_pos):
+                self._create_actor_from_character()
+                return True
+
+        if hasattr(self, '_btn_batch_export'):
+            if getattr(self, '_btn_batch_export').collidepoint(mouse_pos):
+                self._batch_export_characters()
+                return True
+
         # Color picker buttons
         if self.show_color_picker:
             if hasattr(self, '_btn_close_picker'):
@@ -1056,12 +1084,19 @@ class CharacterGeneratorUI:
             print(f"⚠ Failed to load preset: {e}")
 
     def _export_character(self):
-        """Export character to PNG sprite sheet."""
+        """Export character to PNG sprite sheet and copy to assets."""
         try:
             output_dir = Path("exports/characters")
             output_dir.mkdir(parents=True, exist_ok=True)
 
-            output_path = output_dir / f"{self.current_preset.name}.png"
+            # Generate unique filename with timestamp if needed
+            base_name = self.current_preset.name.replace(" ", "_")
+            output_path = output_dir / f"{base_name}.png"
+
+            # If file exists, add timestamp
+            if output_path.exists():
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                output_path = output_dir / f"{base_name}_{timestamp}.png"
 
             # Render sprite sheet (4 frames, 4 directions)
             sprite_sheet = self.generator.render_sprite_sheet(
@@ -1070,9 +1105,28 @@ class CharacterGeneratorUI:
                 num_directions=4,
             )
 
-            # Save
+            # Save to exports directory
             pygame.image.save(sprite_sheet, str(output_path))
             print(f"✓ Exported character to {output_path}")
+
+            # Copy to assets/sprites directory for asset browser
+            assets_dir = Path("assets/sprites")
+            assets_dir.mkdir(parents=True, exist_ok=True)
+
+            assets_path = assets_dir / output_path.name
+            shutil.copy2(output_path, assets_path)
+            print(f"✓ Copied to assets: {assets_path}")
+
+            # Add to export history
+            self._add_to_export_history(output_path, assets_path)
+
+            # Store last export path
+            self.last_export_path = output_path
+
+            # Refresh asset browser if available
+            if self.asset_browser:
+                self.asset_browser.refresh_assets()
+
         except Exception as e:
             print(f"⚠ Failed to export: {e}")
 
@@ -1133,3 +1187,143 @@ class CharacterGeneratorUI:
                 if isinstance(rect, pygame.Rect) and rect.collidepoint(mouse_pos):
                     return True
         return False
+
+    def _load_export_history(self):
+        """Load export history from file."""
+        history_file = Path("exports/characters/export_history.json")
+        if history_file.exists():
+            try:
+                with open(history_file, 'r') as f:
+                    self.export_history = json.load(f)
+                print(f"✓ Loaded {len(self.export_history)} export history entries")
+            except Exception as e:
+                print(f"⚠ Failed to load export history: {e}")
+                self.export_history = []
+        else:
+            self.export_history = []
+
+    def _add_to_export_history(self, export_path: Path, assets_path: Path):
+        """Add an export to the history and save to file."""
+        history_entry = {
+            "character_name": self.current_preset.name,
+            "export_path": str(export_path),
+            "assets_path": str(assets_path),
+            "timestamp": datetime.datetime.now().isoformat(),
+            "preset_file": f"presets/characters/{self.current_preset.name}.json",
+            "layers_count": len(self.current_preset.layers),
+        }
+
+        self.export_history.append(history_entry)
+
+        # Save history to file
+        history_file = Path("exports/characters/export_history.json")
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with open(history_file, 'w') as f:
+                json.dump(self.export_history, f, indent=2)
+            print(f"✓ Export history updated ({len(self.export_history)} entries)")
+        except Exception as e:
+            print(f"⚠ Failed to save export history: {e}")
+
+    def _create_actor_from_character(self):
+        """Create an actor in the database from the current character."""
+        if not self.current_preset.layers:
+            print("⚠ Cannot create actor from empty character")
+            return
+
+        # First, export the character if not already exported
+        if not self.last_export_path or not self.last_export_path.exists():
+            print("ℹ Exporting character first...")
+            self._export_character()
+
+        # Open database editor if available
+        if self.database_editor:
+            try:
+                from neonworks.engine.data.database_schema import Actor
+
+                # Create a new actor with default values
+                new_actor = Actor(
+                    id=0,  # Will be auto-assigned
+                    name=self.current_preset.name,
+                    nickname="",
+                    class_id=1,
+                    initial_level=1,
+                    max_level=99,
+                    character_name=self.last_export_path.stem if self.last_export_path else self.current_preset.name,
+                    face_name="",
+                    face_index=0,
+                    icon_index=1,
+                    description=f"Generated character: {self.current_preset.name}",
+                    note=f"Created from character generator on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                )
+
+                # Add to database
+                created_actor = self.database_editor.db.create("actors", new_actor, auto_id=True)
+
+                # Select the new actor in the database editor
+                self.database_editor.current_category = "actors"
+                self.database_editor.current_entry = created_actor
+                self.database_editor.has_unsaved_changes = True
+
+                # Open the database editor
+                if not self.database_editor.visible:
+                    self.database_editor.toggle()
+
+                print(f"✓ Created actor '{self.current_preset.name}' (ID: {created_actor.id}) in database")
+                print(f"  Character sprite: {self.last_export_path.name if self.last_export_path else 'N/A'}")
+
+            except Exception as e:
+                print(f"⚠ Failed to create actor: {e}")
+        else:
+            print("⚠ Database editor not available")
+            print("  Please connect the database editor to the character generator")
+
+    def _batch_export_characters(self):
+        """Batch export all presets from the presets directory."""
+        preset_dir = Path("presets/characters")
+
+        if not preset_dir.exists():
+            print("⚠ No presets directory found")
+            return
+
+        presets = list(preset_dir.glob("*.json"))
+
+        if not presets:
+            print("⚠ No presets found to export")
+            return
+
+        print(f"🔄 Starting batch export of {len(presets)} presets...")
+
+        exported_count = 0
+        failed_count = 0
+
+        for preset_path in presets:
+            try:
+                # Load preset
+                preset = self.generator.load_preset(str(preset_path))
+
+                # Temporarily set as current preset
+                original_preset = self.current_preset
+                self.current_preset = preset
+
+                # Export
+                self._export_character()
+
+                # Restore original preset
+                self.current_preset = original_preset
+
+                exported_count += 1
+
+            except Exception as e:
+                print(f"⚠ Failed to export {preset_path.name}: {e}")
+                failed_count += 1
+
+        print(f"✓ Batch export complete: {exported_count} succeeded, {failed_count} failed")
+
+    def set_ui_references(self, database_editor=None, asset_browser=None, level_builder=None):
+        """Set references to other UI components for integration."""
+        self.database_editor = database_editor
+        self.asset_browser = asset_browser
+        self.level_builder = level_builder
+        print("✓ Character generator UI references set")

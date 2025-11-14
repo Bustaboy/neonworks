@@ -1,0 +1,94 @@
+{
+  "name": "Monk",
+  "description": "A disciplined monk with simple robes",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 200,
+        "g": 175,
+        "b": 155,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "shaved_head",
+      "enabled": true,
+      "tint": {
+        "r": 80,
+        "g": 70,
+        "b": 60,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "calm_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 100,
+        "g": 120,
+        "b": 100,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "FACIAL_HAIR",
+      "component_id": "goatee",
+      "enabled": true,
+      "tint": {
+        "r": 60,
+        "g": 55,
+        "b": 50,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "monk_robes",
+      "enabled": true,
+      "tint": {
+        "r": 180,
+        "g": 140,
+        "b": 100,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "LEGS",
+      "component_id": "simple_pants",
+      "enabled": true,
+      "tint": {
+        "r": 160,
+        "g": 120,
+        "b": 80,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HANDS",
+      "component_id": "wraps",
+      "enabled": true,
+      "tint": {
+        "r": 220,
+        "g": 220,
+        "b": 230,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "BELT",
+      "component_id": "cloth_belt",
+      "enabled": true,
+      "tint": {
+        "r": 140,
+        "g": 100,
+        "b": 60,
+        "a": 255
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "name": "Paladin",
+  "description": "A holy paladin with blessed armor",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 220,
+        "g": 195,
+        "b": 180,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "short_hair",
+      "enabled": true,
+      "tint": {
+        "r": 180,
+        "g": 160,
+        "b": 100,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "righteous_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 150,
+        "g": 150,
+        "b": 200,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "holy_armor",
+      "enabled": true,
+      "tint": {
+        "r": 220,
+        "g": 220,
+        "b": 240,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "LEGS",
+      "component_id": "holy_legs",
+      "enabled": true,
+      "tint": {
+        "r": 200,
+        "g": 200,
+        "b": 220,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "WEAPON",
+      "component_id": "holy_sword",
+      "enabled": true,
+      "tint": {
+        "r": 230,
+        "g": 220,
+        "b": 100,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EFFECT",
+      "component_id": "holy_aura",
+      "enabled": true,
+      "tint": {
+        "r": 255,
+        "g": 250,
+        "b": 200,
+        "a": 180
+      }
+    }
+  ]
+}

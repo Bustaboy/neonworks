@@ -1,0 +1,72 @@
+{
+  "name": "Mage",
+  "description": "A wise mage with robes and a staff",
+  "layers": [
+    {
+      "layer_type": "BODY",
+      "component_id": "human_body",
+      "enabled": true,
+      "tint": {
+        "r": 230,
+        "g": 210,
+        "b": 195,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HAIR_FRONT",
+      "component_id": "long_hair",
+      "enabled": true,
+      "tint": {
+        "r": 200,
+        "g": 200,
+        "b": 220,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "EYES",
+      "component_id": "wise_eyes",
+      "enabled": true,
+      "tint": {
+        "r": 150,
+        "g": 100,
+        "b": 200,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "TORSO",
+      "component_id": "wizard_robe",
+      "enabled": true,
+      "tint": {
+        "r": 80,
+        "g": 100,
+        "b": 180,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "WEAPON",
+      "component_id": "staff",
+      "enabled": true,
+      "tint": {
+        "r": 150,
+        "g": 100,
+        "b": 50,
+        "a": 255
+      }
+    },
+    {
+      "layer_type": "HEAD",
+      "component_id": "wizard_hat",
+      "enabled": true,
+      "tint": {
+        "r": 60,
+        "g": 80,
+        "b": 160,
+        "a": 255
+      }
+    }
+  ]
+}

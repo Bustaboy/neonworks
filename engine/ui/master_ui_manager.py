@@ -58,6 +58,17 @@ class MasterUIManager:
         # Level Builder will be created when needed
         # self.level_builder = LevelBuilderUI(self.screen)
 
+    def _connect_ui_components(self):
+        """Connect UI components for cross-referencing (called after lazy loading)."""
+        # Set character generator UI references
+        if self.character_generator:
+            self.character_generator.set_ui_references(
+                database_editor=self.database_editor,
+                asset_browser=None,  # Will be set if asset browser is added
+                level_builder=self.level_builder
+            )
+            print("✓ Character generator UI components connected")
+
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
         Handle pygame events.
@@ -217,6 +228,8 @@ class MasterUIManager:
                 from neonworks.engine.ui.database_editor_ui import DatabaseEditorUI
 
                 self.database_editor = DatabaseEditorUI(self.screen)
+                # Connect UI components after loading
+                self._connect_ui_components()
             except ImportError as e:
                 print(f"⚠ Database Editor failed to load: {e}")
                 return
