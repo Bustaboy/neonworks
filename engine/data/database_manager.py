@@ -19,23 +19,41 @@ Features:
 
 import csv
 import json
+import shutil
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
-from neonworks.engine.data.database_schema import (
-    Actor,
-    Animation,
-    Armor,
-    Class,
-    DatabaseEntry,
-    Enemy,
-    Item,
-    Skill,
-    State,
-    Weapon,
-)
+try:
+    # Try package import first (when installed as package)
+    from neonworks.engine.data.database_schema import (
+        Actor,
+        Animation,
+        Armor,
+        Class,
+        DatabaseEntry,
+        Enemy,
+        Item,
+        Skill,
+        State,
+        Weapon,
+    )
+except ModuleNotFoundError:
+    # Fall back to relative import (when run as script)
+    from engine.data.database_schema import (
+        Actor,
+        Animation,
+        Armor,
+        Class,
+        DatabaseEntry,
+        Enemy,
+        Item,
+        Skill,
+        State,
+        Weapon,
+    )
 
 
 # =============================================================================
@@ -112,8 +130,14 @@ class DatabaseManager:
     for O(1) lookups and optimized iteration for searches.
     """
 
-    def __init__(self):
-        """Initialize the database manager with empty categories."""
+    def __init__(self, auto_backup: bool = False, backup_dir: Optional[Path] = None):
+        """
+        Initialize the database manager with empty categories.
+
+        Args:
+            auto_backup: Enable automatic backups before updates/deletes
+            backup_dir: Directory for backups (default: ./backups/database)
+        """
         self.items: Dict[int, Item] = {}
         self.skills: Dict[int, Skill] = {}
         self.weapons: Dict[int, Weapon] = {}
@@ -136,6 +160,80 @@ class DatabaseManager:
             "classes": self.classes,
             "animations": self.animations,
         }
+
+        # Auto-backup configuration
+        self.auto_backup = auto_backup
+        self.backup_dir = backup_dir or Path("./backups/database")
+        if self.auto_backup:
+            self.backup_dir.mkdir(parents=True, exist_ok=True)
+
+    # =========================================================================
+    # Auto-Backup System
+    # =========================================================================
+
+    def create_backup(self, name: str = "auto") -> Optional[Path]:
+        """
+        Create a backup of the current database state.
+
+        Args:
+            name: Backup name (default: "auto")
+
+        Returns:
+            Path to the backup file, or None if backup failed
+        """
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_file = self.backup_dir / f"{name}_backup_{timestamp}.json"
+
+            # Ensure backup directory exists
+            self.backup_dir.mkdir(parents=True, exist_ok=True)
+
+            # Save current database state
+            data = {
+                "items": [item.to_dict() for item in self.items.values()],
+                "skills": [skill.to_dict() for skill in self.skills.values()],
+                "weapons": [weapon.to_dict() for weapon in self.weapons.values()],
+                "armors": [armor.to_dict() for armor in self.armors.values()],
+                "enemies": [enemy.to_dict() for enemy in self.enemies.values()],
+                "states": [state.to_dict() for state in self.states.values()],
+                "actors": [actor.to_dict() for actor in self.actors.values()],
+                "classes": [cls.to_dict() for cls in self.classes.values()],
+                "animations": [anim.to_dict() for anim in self.animations.values()],
+            }
+
+            with open(backup_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            return backup_file
+        except Exception as e:
+            print(f"Warning: Backup failed: {e}")
+            return None
+
+    def enable_auto_backup(self, backup_dir: Optional[Path] = None):
+        """
+        Enable automatic backups before updates and deletes.
+
+        Args:
+            backup_dir: Directory for backups (default: ./backups/database)
+        """
+        self.auto_backup = True
+        if backup_dir:
+            self.backup_dir = backup_dir
+        self.backup_dir.mkdir(parents=True, exist_ok=True)
+
+    def disable_auto_backup(self):
+        """Disable automatic backups."""
+        self.auto_backup = False
+
+    def _auto_backup_if_enabled(self, operation: str = "edit"):
+        """
+        Create automatic backup if enabled.
+
+        Args:
+            operation: Name of operation for backup file
+        """
+        if self.auto_backup:
+            self.create_backup(f"auto_{operation}")
 
     # =========================================================================
     # CRUD Operations
@@ -263,6 +361,9 @@ class DatabaseManager:
                 f"{category} entry with ID {entry.id} failed validation"
             )
 
+        # Auto-backup before update
+        self._auto_backup_if_enabled(f"update_{category}_{entry.id}")
+
         storage[entry.id] = entry
         return entry
 
@@ -290,6 +391,9 @@ class DatabaseManager:
             raise EntryNotFoundError(
                 f"{category} entry with ID {entry_id} not found"
             )
+
+        # Auto-backup before delete
+        self._auto_backup_if_enabled(f"delete_{category}_{entry_id}")
 
         return storage.pop(entry_id)
 
@@ -700,18 +804,22 @@ class DatabaseManager:
     # JSON Serialization
     # =========================================================================
 
-    def save_to_file(self, filepath: Path, pretty: bool = True) -> None:
+    def save_to_file(self, filepath: Union[Path, str], pretty: bool = True) -> None:
         """
         Save all database entries to a JSON file with error handling.
 
         Args:
-            filepath: Path to save file
+            filepath: Path to save file (Path object or string)
             pretty: If True, format with indentation (default: True)
 
         Raises:
             DatabaseError: If save fails
         """
         try:
+            # Convert to Path if string
+            if isinstance(filepath, str):
+                filepath = Path(filepath)
+
             data = {
                 "items": [item.to_dict() for item in self.items.values()],
                 "skills": [skill.to_dict() for skill in self.skills.values()],
@@ -1080,6 +1188,78 @@ class DatabaseManager:
             raise DatabaseError(f"Invalid category: {category}")
 
         self._categories[category].clear()
+
+    def get_all_ids(self, category: str) -> List[int]:
+        """
+        Get all entry IDs in a category.
+
+        Args:
+            category: Category name
+
+        Returns:
+            List of all entry IDs
+
+        Raises:
+            DatabaseError: If category is invalid
+        """
+        if category not in self._categories:
+            raise DatabaseError(f"Invalid category: {category}")
+
+        return list(self._categories[category].keys())
+
+    def get_all_entries(self, category: str) -> List[DatabaseEntry]:
+        """
+        Get all entries in a category.
+
+        Args:
+            category: Category name
+
+        Returns:
+            List of all entries
+
+        Raises:
+            DatabaseError: If category is invalid
+        """
+        if category not in self._categories:
+            raise DatabaseError(f"Invalid category: {category}")
+
+        return list(self._categories[category].values())
+
+    def create_entry(self, category: str, entry: DatabaseEntry, auto_id: bool = False) -> DatabaseEntry:
+        """
+        Alias for create() method for backward compatibility.
+
+        Args:
+            category: Category name
+            entry: Entry to create
+            auto_id: Auto-assign ID if True
+
+        Returns:
+            Created entry
+
+        Raises:
+            DatabaseError: If creation fails
+        """
+        return self.create(category, entry, auto_id)
+
+    def to_dict(self) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Convert entire database to dictionary format.
+
+        Returns:
+            Dictionary with all categories and their entries
+        """
+        return {
+            "items": [item.to_dict() for item in self.items.values()],
+            "skills": [skill.to_dict() for skill in self.skills.values()],
+            "weapons": [weapon.to_dict() for weapon in self.weapons.values()],
+            "armors": [armor.to_dict() for armor in self.armors.values()],
+            "enemies": [enemy.to_dict() for enemy in self.enemies.values()],
+            "states": [state.to_dict() for state in self.states.values()],
+            "actors": [actor.to_dict() for actor in self.actors.values()],
+            "classes": [cls.to_dict() for cls in self.classes.values()],
+            "animations": [anim.to_dict() for anim in self.animations.values()],
+        }
 
     def get_count(self, category: str) -> int:
         """
