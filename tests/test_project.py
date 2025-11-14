@@ -22,7 +22,6 @@ from neonworks.core.project import (
     load_project,
 )
 
-
 # ===========================
 # ProjectMetadata Tests
 # ===========================

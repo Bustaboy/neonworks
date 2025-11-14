@@ -9,14 +9,13 @@ import pytest
 from neonworks.core.ecs import World
 from neonworks.core.state import (
     EditorState,
-    GameState,
     GameplayState,
+    GameState,
     LoadingState,
     MenuState,
     StateManager,
     StateTransition,
 )
-
 
 # ===========================
 # Mock World for Testing

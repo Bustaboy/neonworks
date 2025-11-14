@@ -17,7 +17,6 @@ from neonworks.core.validation import (
     validate_project_config,
 )
 
-
 # ===========================
 # Project Config Validation Tests
 # ===========================
