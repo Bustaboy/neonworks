@@ -9,27 +9,27 @@ Provides a complete visual interface for creating custom character sprites with:
 - Export to sprite sheets
 """
 
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import datetime
 import json
 import re
 import shutil
-import datetime
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
 import pygame
 
-from neonworks.engine.tools.character_generator import (
-    CharacterGenerator,
-    CharacterPreset,
-    ComponentLayer,
-    LayerType,
-    ColorTint,
-    Direction,
-)
 from neonworks.engine.tools.character_bio_generator import (
     CharacterBioGenerator,
     CharacterImportance,
     generate_character_bio,
+)
+from neonworks.engine.tools.character_generator import (
+    CharacterGenerator,
+    CharacterPreset,
+    ColorTint,
+    ComponentLayer,
+    Direction,
+    LayerType,
 )
 
 
@@ -77,7 +77,7 @@ class CharacterGeneratorUI:
         # Color picker state
         self.show_color_picker = False
         self.editing_color_layer: Optional[LayerType] = None
-        self.color_sliders = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
+        self.color_sliders = {"r": 255, "g": 255, "b": 255, "a": 255}
 
         # AI description input state
         self.ai_description = ""
@@ -321,7 +321,7 @@ class CharacterGeneratorUI:
                     "You have unsaved changes.",
                     f"Loading '{self.pending_preset_load.name if self.pending_preset_load else 'preset'}' will replace your current character.",
                     "",
-                    "Do you want to proceed?"
+                    "Do you want to proceed?",
                 ],
                 "Load Anyway",
                 "Cancel",
@@ -336,7 +336,7 @@ class CharacterGeneratorUI:
                     "You have unsaved changes.",
                     "Randomizing will replace your current character.",
                     "",
-                    "Do you want to proceed?"
+                    "Do you want to proceed?",
                 ],
                 "Randomize",
                 "Cancel",
@@ -351,7 +351,7 @@ class CharacterGeneratorUI:
                     "This will remove all layers and data.",
                     "This action cannot be undone.",
                     "",
-                    "Do you want to proceed?"
+                    "Do you want to proceed?",
                 ],
                 "Clear All",
                 "Cancel",
@@ -366,7 +366,7 @@ class CharacterGeneratorUI:
                     f"Layer {self.pending_component_add['layer_type'].name} already has:",
                     f"'{self.pending_component_add['existing_id']}'",
                     "",
-                    f"Replace with '{self.pending_component_add['component_id']}'?"
+                    f"Replace with '{self.pending_component_add['component_id']}'?",
                 ],
                 "Replace",
                 "Cancel",
@@ -419,21 +419,29 @@ class CharacterGeneratorUI:
             color = (50, 100, 200) if is_selected else (40, 40, 60)
 
             # Check hover
-            is_hovered = (x + 5 <= mouse_pos[0] <= x + width - 5 and
-                         button_y <= mouse_pos[1] <= button_y + button_height)
+            is_hovered = (
+                x + 5 <= mouse_pos[0] <= x + width - 5
+                and button_y <= mouse_pos[1] <= button_y + button_height
+            )
             if is_hovered and not is_selected:
                 color = (60, 60, 90)
 
             # Button
-            pygame.draw.rect(self.screen, color, (x + 5, button_y, width - 10, button_height), border_radius=3)
+            pygame.draw.rect(
+                self.screen, color, (x + 5, button_y, width - 10, button_height), border_radius=3
+            )
 
             # Label
-            category_name = category.name.replace('_', ' ').title()
+            category_name = category.name.replace("_", " ").title()
             label = self.small_font.render(category_name, True, (255, 255, 255))
             self.screen.blit(label, (x + 15, button_y + 10))
 
             # Store button rect for click detection
-            setattr(self, f'_cat_btn_{category.name}', pygame.Rect(x + 5, button_y, width - 10, button_height))
+            setattr(
+                self,
+                f"_cat_btn_{category.name}",
+                pygame.Rect(x + 5, button_y, width - 10, button_height),
+            )
 
             button_y += button_height + button_spacing
 
@@ -444,7 +452,7 @@ class CharacterGeneratorUI:
         pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 1, border_radius=4)
 
         # Title
-        category_name = self.selected_category.name.replace('_', ' ').title()
+        category_name = self.selected_category.name.replace("_", " ").title()
         label = self.font.render(f"Components: {category_name}", True, (200, 200, 200))
         self.screen.blit(label, (x + 10, y + 10))
 
@@ -481,7 +489,9 @@ class CharacterGeneratorUI:
                     col = 0
                     row += 1
                     current_x = x + 10
-                    current_y = grid_start_y + row * (thumbnail_size + padding) - self.component_scroll
+                    current_y = (
+                        grid_start_y + row * (thumbnail_size + padding) - self.component_scroll
+                    )
                 else:
                     current_x += thumbnail_size + padding
                 continue
@@ -493,15 +503,22 @@ class CharacterGeneratorUI:
             is_selected = comp_id == self.selected_component_id
 
             # Check hover
-            is_hovered = (current_x <= mouse_pos[0] <= current_x + thumbnail_size and
-                         current_y <= mouse_pos[1] <= current_y + thumbnail_size and
-                         grid_start_y <= mouse_pos[1] <= y + height)
+            is_hovered = (
+                current_x <= mouse_pos[0] <= current_x + thumbnail_size
+                and current_y <= mouse_pos[1] <= current_y + thumbnail_size
+                and grid_start_y <= mouse_pos[1] <= y + height
+            )
 
             # Thumbnail background
-            bg_color = (80, 120, 200) if is_selected else (70, 100, 150) if is_hovered else (50, 50, 70)
-            pygame.draw.rect(self.screen, bg_color,
-                           (current_x, current_y, thumbnail_size, thumbnail_size),
-                           border_radius=4)
+            bg_color = (
+                (80, 120, 200) if is_selected else (70, 100, 150) if is_hovered else (50, 50, 70)
+            )
+            pygame.draw.rect(
+                self.screen,
+                bg_color,
+                (current_x, current_y, thumbnail_size, thumbnail_size),
+                border_radius=4,
+            )
 
             # Render component preview
             try:
@@ -517,8 +534,11 @@ class CharacterGeneratorUI:
                 self.screen.blit(scaled, (thumb_x, thumb_y))
             except Exception as e:
                 # If rendering fails, show placeholder
-                pygame.draw.rect(self.screen, (100, 100, 120),
-                               (current_x + 8, current_y + 8, thumbnail_size - 16, thumbnail_size - 16))
+                pygame.draw.rect(
+                    self.screen,
+                    (100, 100, 120),
+                    (current_x + 8, current_y + 8, thumbnail_size - 16, thumbnail_size - 16),
+                )
 
             # Component ID label (truncated)
             comp_name = comp_id[:10] + "..." if len(comp_id) > 10 else comp_id
@@ -531,8 +551,11 @@ class CharacterGeneratorUI:
                 self.screen.blit(name_label, (name_x, name_y))
 
             # Store rect for click detection
-            setattr(self, f'_comp_btn_{comp_id}',
-                   pygame.Rect(current_x, current_y, thumbnail_size, thumbnail_size))
+            setattr(
+                self,
+                f"_comp_btn_{comp_id}",
+                pygame.Rect(current_x, current_y, thumbnail_size, thumbnail_size),
+            )
 
             # Next position
             col += 1
@@ -566,7 +589,9 @@ class CharacterGeneratorUI:
         if self.preview_surface:
             # Center the preview
             preview_x = x + (width - self.preview_surface.get_width()) // 2
-            preview_y = preview_area_y + (preview_area_height - self.preview_surface.get_height()) // 2
+            preview_y = (
+                preview_area_y + (preview_area_height - self.preview_surface.get_height()) // 2
+            )
             self.screen.blit(self.preview_surface, (preview_x, preview_y))
 
         # Animation controls
@@ -588,15 +613,23 @@ class CharacterGeneratorUI:
             is_selected = direction == self.preview_direction
             color = (70, 140, 220) if is_selected else (50, 50, 70)
 
-            self._render_button(symbol, dir_btn_x, controls_y - 5, 35, 30, color,
-                              id_=f"dir_{direction.name}")
+            self._render_button(
+                symbol, dir_btn_x, controls_y - 5, 35, 30, color, id_=f"dir_{direction.name}"
+            )
             dir_btn_x += 40
 
         # Animate toggle
         anim_y = controls_y + 35
         anim_color = (0, 150, 0) if self.animate_preview else (70, 70, 70)
-        self._render_button("Animate" if self.animate_preview else "Static",
-                          x + 10, anim_y, 120, 30, anim_color, id_="toggle_anim")
+        self._render_button(
+            "Animate" if self.animate_preview else "Static",
+            x + 10,
+            anim_y,
+            120,
+            30,
+            anim_color,
+            id_="toggle_anim",
+        )
 
         # Character Importance selector
         importance_y = anim_y + 40
@@ -615,8 +648,15 @@ class CharacterGeneratorUI:
             is_selected = importance == self.character_importance
             color = tuple(min(c + 40, 255) for c in base_color) if is_selected else base_color
 
-            self._render_button(label, importance_btn_x, importance_btn_y, 70, 25, color,
-                              id_=f"importance_{importance.value}")
+            self._render_button(
+                label,
+                importance_btn_x,
+                importance_btn_y,
+                70,
+                25,
+                color,
+                id_=f"importance_{importance.value}",
+            )
             importance_btn_x += 75
 
         # Bio generation toggle
@@ -624,20 +664,24 @@ class CharacterGeneratorUI:
         bio_mode_label = self.small_font.render(
             "Bio: AI" if not self.use_bio_templates else "Bio: Template",
             True,
-            (150, 200, 150) if not self.use_bio_templates else (200, 150, 150)
+            (150, 200, 150) if not self.use_bio_templates else (200, 150, 150),
         )
         self.screen.blit(bio_mode_label, (x + 10, bio_toggle_y))
 
         # Manual bio edit button
         if self.generated_bio:
             edit_bio_color = (100, 150, 200) if not self.manual_bio_override else (200, 150, 100)
-            self._render_button("Edit Bio", x + 130, bio_toggle_y - 3, 80, 25, edit_bio_color, id_="edit_bio")
+            self._render_button(
+                "Edit Bio", x + 130, bio_toggle_y - 3, 80, 25, edit_bio_color, id_="edit_bio"
+            )
 
         # Regenerate Bio button (manual trigger)
         regen_bio_y = bio_toggle_y + 30
         if self.current_preset.layers:
             regen_color = (120, 180, 120)
-            self._render_button("Regenerate Bio", x + 10, regen_bio_y, 200, 25, regen_color, id_="regen_bio")
+            self._render_button(
+                "Regenerate Bio", x + 10, regen_bio_y, 200, 25, regen_color, id_="regen_bio"
+            )
 
         # Confirmation dialog for bio regeneration
         if self.show_regen_confirmation:
@@ -677,45 +721,64 @@ class CharacterGeneratorUI:
                 item_y_adjusted = item_y
 
             # Background
-            is_hovered = (x + 5 <= mouse_pos[0] <= x + width - 5 and
-                         item_y_adjusted <= mouse_pos[1] <= item_y_adjusted + item_height)
+            is_hovered = (
+                x + 5 <= mouse_pos[0] <= x + width - 5
+                and item_y_adjusted <= mouse_pos[1] <= item_y_adjusted + item_height
+            )
 
             color = (60, 100, 140) if is_hovered else (45, 45, 65)
             if self.dragging_layer_index == i:
                 color = (80, 120, 160)
 
-            pygame.draw.rect(self.screen, color,
-                           (x + 5, item_y_adjusted, width - 10, item_height),
-                           border_radius=3)
+            pygame.draw.rect(
+                self.screen,
+                color,
+                (x + 5, item_y_adjusted, width - 10, item_height),
+                border_radius=3,
+            )
 
             # Layer type label
-            layer_name = layer.layer_type.name.replace('_', ' ').title()
+            layer_name = layer.layer_type.name.replace("_", " ").title()
             layer_label = self.small_font.render(layer_name, True, (255, 255, 255))
             self.screen.blit(layer_label, (x + 15, item_y_adjusted + 5))
 
             # Component ID (truncated)
-            comp_id_short = layer.component_id[:15] + "..." if len(layer.component_id) > 15 else layer.component_id
+            comp_id_short = (
+                layer.component_id[:15] + "..."
+                if len(layer.component_id) > 15
+                else layer.component_id
+            )
             comp_label = self.small_font.render(comp_id_short, True, (180, 180, 180))
             self.screen.blit(comp_label, (x + 15, item_y_adjusted + 22))
 
             # Color indicator (if tinted)
             if layer.tint:
                 color_rect_x = x + width - 50
-                pygame.draw.rect(self.screen,
-                               (layer.tint.r, layer.tint.g, layer.tint.b),
-                               (color_rect_x, item_y_adjusted + 10, 20, 20))
-                pygame.draw.rect(self.screen, (200, 200, 200),
-                               (color_rect_x, item_y_adjusted + 10, 20, 20), 1)
+                pygame.draw.rect(
+                    self.screen,
+                    (layer.tint.r, layer.tint.g, layer.tint.b),
+                    (color_rect_x, item_y_adjusted + 10, 20, 20),
+                )
+                pygame.draw.rect(
+                    self.screen, (200, 200, 200), (color_rect_x, item_y_adjusted + 10, 20, 20), 1
+                )
 
             # Delete button
             delete_x = x + width - 25
-            if self._render_button("×", delete_x, item_y_adjusted + 10, 20, 20, (150, 0, 0),
-                                  id_=f"delete_layer_{i}", return_hovered=True):
+            if self._render_button(
+                "×",
+                delete_x,
+                item_y_adjusted + 10,
+                20,
+                20,
+                (150, 0, 0),
+                id_=f"delete_layer_{i}",
+                return_hovered=True,
+            ):
                 pass  # Will be handled in click
 
             # Store rect for click/drag detection
-            setattr(self, f'_layer_item_{i}',
-                   pygame.Rect(x + 5, item_y, width - 10, item_height))
+            setattr(self, f"_layer_item_{i}", pygame.Rect(x + 5, item_y, width - 10, item_height))
 
             if self.dragging_layer_index != i:
                 item_y += item_height + item_spacing
@@ -723,8 +786,12 @@ class CharacterGeneratorUI:
     def _render_bottom_controls(self, x: int, y: int, width: int, height: int):
         """Render bottom control buttons."""
         # Background
-        pygame.draw.rect(self.screen, (30, 30, 45), (x + 10, y, width - 20, height), border_radius=4)
-        pygame.draw.rect(self.screen, (60, 60, 80), (x + 10, y, width - 20, height), 1, border_radius=4)
+        pygame.draw.rect(
+            self.screen, (30, 30, 45), (x + 10, y, width - 20, height), border_radius=4
+        )
+        pygame.draw.rect(
+            self.screen, (60, 60, 80), (x + 10, y, width - 20, height), 1, border_radius=4
+        )
 
         button_width = 140
         button_height = 40
@@ -745,14 +812,25 @@ class CharacterGeneratorUI:
 
         button_x = x + 20
         for label, color, btn_id in buttons:
-            self._render_button(label, button_x, button_y, button_width, button_height, color, id_=btn_id)
+            self._render_button(
+                label, button_x, button_y, button_width, button_height, color, id_=btn_id
+            )
             button_x += button_width + button_spacing
 
-    def _render_button(self, text: str, x: int, y: int, width: int, height: int,
-                      color: Tuple[int, int, int], id_: str = "", return_hovered: bool = False) -> bool:
+    def _render_button(
+        self,
+        text: str,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        color: Tuple[int, int, int],
+        id_: str = "",
+        return_hovered: bool = False,
+    ) -> bool:
         """Render a button and return True if hovered (for click detection)."""
         mouse_pos = pygame.mouse.get_pos()
-        is_hovered = (x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height)
+        is_hovered = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height
 
         # Adjust color on hover
         if is_hovered:
@@ -771,7 +849,7 @@ class CharacterGeneratorUI:
 
         # Store rect for click detection
         if id_:
-            setattr(self, f'_btn_{id_}', pygame.Rect(x, y, width, height))
+            setattr(self, f"_btn_{id_}", pygame.Rect(x, y, width, height))
 
         return is_hovered if return_hovered else False
 
@@ -794,11 +872,19 @@ class CharacterGeneratorUI:
 
         # Input field background
         input_bg_color = (60, 100, 140) if self.ai_input_active else (40, 40, 60)
-        pygame.draw.rect(self.screen, input_bg_color,
-                        (x, y, width - button_width - 10, input_height),
-                        border_radius=4)
-        pygame.draw.rect(self.screen, (100, 100, 120),
-                        (x, y, width - button_width - 10, input_height), 2, border_radius=4)
+        pygame.draw.rect(
+            self.screen,
+            input_bg_color,
+            (x, y, width - button_width - 10, input_height),
+            border_radius=4,
+        )
+        pygame.draw.rect(
+            self.screen,
+            (100, 100, 120),
+            (x, y, width - button_width - 10, input_height),
+            2,
+            border_radius=4,
+        )
 
         # Placeholder or text
         text_x = x + 15
@@ -816,8 +902,7 @@ class CharacterGeneratorUI:
             # Cursor
             if self.ai_input_active and self.ai_cursor_visible:
                 cursor_x = text_x + text_surface.get_width() + 2
-                pygame.draw.rect(self.screen, (255, 255, 255),
-                               (cursor_x, text_y, 2, 20))
+                pygame.draw.rect(self.screen, (255, 255, 255), (cursor_x, text_y, 2, 20))
         else:
             # Placeholder text
             placeholder = "🤖 Describe your character... (e.g., 'A brave knight with brown hair and blue armor')"
@@ -827,17 +912,23 @@ class CharacterGeneratorUI:
 
             # Cursor at start
             if self.ai_input_active and self.ai_cursor_visible:
-                pygame.draw.rect(self.screen, (255, 255, 255),
-                               (text_x, text_y, 2, 20))
+                pygame.draw.rect(self.screen, (255, 255, 255), (text_x, text_y, 2, 20))
 
         # Generate button
         button_x = x + width - button_width
         button_color = (0, 150, 200) if self.ai_description.strip() else (60, 60, 80)
-        self._render_button("Generate from AI ✨", button_x, y, button_width, input_height,
-                          button_color, id_="generate_ai")
+        self._render_button(
+            "Generate from AI ✨",
+            button_x,
+            y,
+            button_width,
+            input_height,
+            button_color,
+            id_="generate_ai",
+        )
 
         # Store input field rect for click detection
-        setattr(self, '_ai_input_rect', pygame.Rect(x, y, width - button_width - 10, input_height))
+        setattr(self, "_ai_input_rect", pygame.Rect(x, y, width - button_width - 10, input_height))
 
     def _render_color_picker(self, x: int, y: int, width: int, height: int):
         """Render color picker overlay."""
@@ -850,7 +941,9 @@ class CharacterGeneratorUI:
         self.screen.blit(title, (x + 20, y + 20))
 
         # Close button
-        if self._render_button("×", x + width - 50, y + 15, 35, 35, (150, 0, 0), id_="close_picker"):
+        if self._render_button(
+            "×", x + width - 50, y + 15, 35, 35, (150, 0, 0), id_="close_picker"
+        ):
             pass
 
         # Color sliders
@@ -858,12 +951,12 @@ class CharacterGeneratorUI:
         slider_height = 30
         slider_spacing = 50
 
-        for channel in ['r', 'g', 'b', 'a']:
+        for channel in ["r", "g", "b", "a"]:
             label_color = {
-                'r': (255, 100, 100),
-                'g': (100, 255, 100),
-                'b': (100, 100, 255),
-                'a': (200, 200, 200),
+                "r": (255, 100, 100),
+                "g": (100, 255, 100),
+                "b": (100, 100, 255),
+                "a": (200, 200, 200),
             }[channel]
 
             label = self.font.render(channel.upper(), True, label_color)
@@ -872,24 +965,33 @@ class CharacterGeneratorUI:
             # Slider track
             track_x = x + 60
             track_width = width - 100
-            pygame.draw.rect(self.screen, (50, 50, 70),
-                           (track_x, slider_y, track_width, slider_height),
-                           border_radius=3)
+            pygame.draw.rect(
+                self.screen,
+                (50, 50, 70),
+                (track_x, slider_y, track_width, slider_height),
+                border_radius=3,
+            )
 
             # Slider fill
             fill_width = int((self.color_sliders[channel] / 255) * track_width)
             fill_color = label_color
-            pygame.draw.rect(self.screen, fill_color,
-                           (track_x, slider_y, fill_width, slider_height),
-                           border_radius=3)
+            pygame.draw.rect(
+                self.screen,
+                fill_color,
+                (track_x, slider_y, fill_width, slider_height),
+                border_radius=3,
+            )
 
             # Value label
             value_label = self.font.render(str(self.color_sliders[channel]), True, (255, 255, 255))
             self.screen.blit(value_label, (x + width - 70, slider_y + 5))
 
             # Store rect for interaction
-            setattr(self, f'_slider_{channel}',
-                   pygame.Rect(track_x, slider_y, track_width, slider_height))
+            setattr(
+                self,
+                f"_slider_{channel}",
+                pygame.Rect(track_x, slider_y, track_width, slider_height),
+            )
 
             slider_y += slider_spacing
 
@@ -901,10 +1003,10 @@ class CharacterGeneratorUI:
         self._render_checkerboard(preview_x, preview_y, preview_size, preview_size, 10)
 
         preview_color = (
-            self.color_sliders['r'],
-            self.color_sliders['g'],
-            self.color_sliders['b'],
-            self.color_sliders['a'],
+            self.color_sliders["r"],
+            self.color_sliders["g"],
+            self.color_sliders["b"],
+            self.color_sliders["a"],
         )
         preview_surface = pygame.Surface((preview_size, preview_size), pygame.SRCALPHA)
         preview_surface.fill(preview_color)
@@ -912,35 +1014,36 @@ class CharacterGeneratorUI:
 
         # Apply button
         apply_y = preview_y + preview_size + 30
-        self._render_button("Apply", x + width // 2 - 60, apply_y, 120, 40,
-                          (0, 150, 0), id_="apply_color")
+        self._render_button(
+            "Apply", x + width // 2 - 60, apply_y, 120, 40, (0, 150, 0), id_="apply_color"
+        )
 
     def _handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
         """Handle mouse click events."""
         # AI input field click
-        if hasattr(self, '_ai_input_rect'):
-            rect = getattr(self, '_ai_input_rect')
+        if hasattr(self, "_ai_input_rect"):
+            rect = getattr(self, "_ai_input_rect")
             if rect.collidepoint(mouse_pos):
                 self.ai_input_active = True
                 return True
 
         # Generate from AI button
-        if hasattr(self, '_btn_generate_ai'):
-            rect = getattr(self, '_btn_generate_ai')
+        if hasattr(self, "_btn_generate_ai"):
+            rect = getattr(self, "_btn_generate_ai")
             if rect.collidepoint(mouse_pos) and self.ai_description.strip():
                 self._generate_from_ai_description()
                 return True
 
         # Close button
-        if hasattr(self, '_btn_') and self._check_button_click('_btn_', mouse_pos):
-            close_rect = getattr(self, '_btn_', None)
+        if hasattr(self, "_btn_") and self._check_button_click("_btn_", mouse_pos):
+            close_rect = getattr(self, "_btn_", None)
             if close_rect and close_rect.collidepoint(mouse_pos):
                 self.visible = False
                 return True
 
         # Category buttons
         for category in LayerType:
-            btn_attr = f'_cat_btn_{category.name}'
+            btn_attr = f"_cat_btn_{category.name}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -951,7 +1054,7 @@ class CharacterGeneratorUI:
         # Component thumbnails
         components = self.generator.list_components(self.selected_category)
         for comp_id in components.keys():
-            btn_attr = f'_comp_btn_{comp_id}'
+            btn_attr = f"_comp_btn_{comp_id}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -960,7 +1063,7 @@ class CharacterGeneratorUI:
 
         # Direction buttons
         for direction in [Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT]:
-            btn_attr = f'_btn_dir_{direction.name}'
+            btn_attr = f"_btn_dir_{direction.name}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -970,15 +1073,15 @@ class CharacterGeneratorUI:
                     return True
 
         # Animation toggle
-        if hasattr(self, '_btn_toggle_anim'):
-            rect = getattr(self, '_btn_toggle_anim')
+        if hasattr(self, "_btn_toggle_anim"):
+            rect = getattr(self, "_btn_toggle_anim")
             if rect.collidepoint(mouse_pos):
                 self.animate_preview = not self.animate_preview
                 return True
 
         # Character importance selector
         for importance in CharacterImportance:
-            btn_attr = f'_btn_importance_{importance.value}'
+            btn_attr = f"_btn_importance_{importance.value}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -987,7 +1090,9 @@ class CharacterGeneratorUI:
                         # Show confirmation dialog
                         self.show_regen_confirmation = True
                         self.pending_importance_change = importance
-                        print(f"⚠ Importance change: {self.character_importance.value} → {importance.value}")
+                        print(
+                            f"⚠ Importance change: {self.character_importance.value} → {importance.value}"
+                        )
                         print("  This will require bio regeneration. Confirm in UI to proceed.")
                     else:
                         # No bio exists yet, safe to change
@@ -996,15 +1101,15 @@ class CharacterGeneratorUI:
                     return True
 
         # Edit bio button
-        if hasattr(self, '_btn_edit_bio'):
-            rect = getattr(self, '_btn_edit_bio')
+        if hasattr(self, "_btn_edit_bio"):
+            rect = getattr(self, "_btn_edit_bio")
             if rect.collidepoint(mouse_pos):
                 self._open_bio_editor()
                 return True
 
         # Regenerate bio button
-        if hasattr(self, '_btn_regen_bio'):
-            rect = getattr(self, '_btn_regen_bio')
+        if hasattr(self, "_btn_regen_bio"):
+            rect = getattr(self, "_btn_regen_bio")
             if rect.collidepoint(mouse_pos):
                 self._generate_bio()
                 print("✓ Bio regenerated")
@@ -1012,19 +1117,21 @@ class CharacterGeneratorUI:
 
         # Bio regeneration confirmation dialog
         if self.show_regen_confirmation:
-            if hasattr(self, '_btn_confirm_regen_yes'):
-                rect = getattr(self, '_btn_confirm_regen_yes')
+            if hasattr(self, "_btn_confirm_regen_yes"):
+                rect = getattr(self, "_btn_confirm_regen_yes")
                 if rect.collidepoint(mouse_pos):
                     # User confirmed - apply importance change and regenerate
                     self.character_importance = self.pending_importance_change
                     self._generate_bio()
                     self.show_regen_confirmation = False
                     self.pending_importance_change = None
-                    print(f"✓ Importance changed to {self.character_importance.value.upper()} and bio regenerated")
+                    print(
+                        f"✓ Importance changed to {self.character_importance.value.upper()} and bio regenerated"
+                    )
                     return True
 
-            if hasattr(self, '_btn_confirm_regen_no'):
-                rect = getattr(self, '_btn_confirm_regen_no')
+            if hasattr(self, "_btn_confirm_regen_no"):
+                rect = getattr(self, "_btn_confirm_regen_no")
                 if rect.collidepoint(mouse_pos):
                     # User cancelled - keep current importance and bio
                     self.show_regen_confirmation = False
@@ -1034,14 +1141,14 @@ class CharacterGeneratorUI:
 
         # Load Preset confirmation
         if self.show_load_preset_confirmation:
-            if hasattr(self, '_btn_confirm_load_yes'):
-                rect = getattr(self, '_btn_confirm_load_yes')
+            if hasattr(self, "_btn_confirm_load_yes"):
+                rect = getattr(self, "_btn_confirm_load_yes")
                 if rect.collidepoint(mouse_pos):
                     self._do_load_preset(self.pending_preset_load)
                     return True
 
-            if hasattr(self, '_btn_confirm_load_no'):
-                rect = getattr(self, '_btn_confirm_load_no')
+            if hasattr(self, "_btn_confirm_load_no"):
+                rect = getattr(self, "_btn_confirm_load_no")
                 if rect.collidepoint(mouse_pos):
                     self.show_load_preset_confirmation = False
                     self.pending_preset_load = None
@@ -1050,15 +1157,15 @@ class CharacterGeneratorUI:
 
         # Randomize confirmation
         if self.show_randomize_confirmation:
-            if hasattr(self, '_btn_confirm_randomize_yes'):
-                rect = getattr(self, '_btn_confirm_randomize_yes')
+            if hasattr(self, "_btn_confirm_randomize_yes"):
+                rect = getattr(self, "_btn_confirm_randomize_yes")
                 if rect.collidepoint(mouse_pos):
                     self._do_randomize()
                     self.show_randomize_confirmation = False
                     return True
 
-            if hasattr(self, '_btn_confirm_randomize_no'):
-                rect = getattr(self, '_btn_confirm_randomize_no')
+            if hasattr(self, "_btn_confirm_randomize_no"):
+                rect = getattr(self, "_btn_confirm_randomize_no")
                 if rect.collidepoint(mouse_pos):
                     self.show_randomize_confirmation = False
                     print("✓ Randomize cancelled - current character preserved")
@@ -1066,14 +1173,14 @@ class CharacterGeneratorUI:
 
         # Clear All confirmation
         if self.show_clear_confirmation:
-            if hasattr(self, '_btn_confirm_clear_yes'):
-                rect = getattr(self, '_btn_confirm_clear_yes')
+            if hasattr(self, "_btn_confirm_clear_yes"):
+                rect = getattr(self, "_btn_confirm_clear_yes")
                 if rect.collidepoint(mouse_pos):
                     self._do_clear_all()
                     return True
 
-            if hasattr(self, '_btn_confirm_clear_no'):
-                rect = getattr(self, '_btn_confirm_clear_no')
+            if hasattr(self, "_btn_confirm_clear_no"):
+                rect = getattr(self, "_btn_confirm_clear_no")
                 if rect.collidepoint(mouse_pos):
                     self.show_clear_confirmation = False
                     print("✓ Clear cancelled - current character preserved")
@@ -1081,14 +1188,14 @@ class CharacterGeneratorUI:
 
         # Component Replace confirmation
         if self.show_component_replace_confirmation:
-            if hasattr(self, '_btn_confirm_replace_yes'):
-                rect = getattr(self, '_btn_confirm_replace_yes')
+            if hasattr(self, "_btn_confirm_replace_yes"):
+                rect = getattr(self, "_btn_confirm_replace_yes")
                 if rect.collidepoint(mouse_pos):
                     self._replace_component()
                     return True
 
-            if hasattr(self, '_btn_confirm_replace_no'):
-                rect = getattr(self, '_btn_confirm_replace_no')
+            if hasattr(self, "_btn_confirm_replace_no"):
+                rect = getattr(self, "_btn_confirm_replace_no")
                 if rect.collidepoint(mouse_pos):
                     self.show_component_replace_confirmation = False
                     self.pending_component_add = None
@@ -1096,66 +1203,66 @@ class CharacterGeneratorUI:
                     return True
 
         # Bottom control buttons
-        if hasattr(self, '_btn_add_component'):
-            if getattr(self, '_btn_add_component').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_add_component"):
+            if getattr(self, "_btn_add_component").collidepoint(mouse_pos):
                 self._add_component_to_character()
                 return True
 
-        if hasattr(self, '_btn_color_tint'):
-            if getattr(self, '_btn_color_tint').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_color_tint"):
+            if getattr(self, "_btn_color_tint").collidepoint(mouse_pos):
                 self.show_color_picker = True
                 return True
 
-        if hasattr(self, '_btn_randomize'):
-            if getattr(self, '_btn_randomize').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_randomize"):
+            if getattr(self, "_btn_randomize").collidepoint(mouse_pos):
                 self._randomize_character()
                 return True
 
-        if hasattr(self, '_btn_clear_all'):
-            if getattr(self, '_btn_clear_all').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_clear_all"):
+            if getattr(self, "_btn_clear_all").collidepoint(mouse_pos):
                 self._clear_all()
                 return True
 
-        if hasattr(self, '_btn_save_preset'):
-            if getattr(self, '_btn_save_preset').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_save_preset"):
+            if getattr(self, "_btn_save_preset").collidepoint(mouse_pos):
                 self._save_preset()
                 return True
 
-        if hasattr(self, '_btn_load_preset'):
-            if getattr(self, '_btn_load_preset').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_load_preset"):
+            if getattr(self, "_btn_load_preset").collidepoint(mouse_pos):
                 self._load_preset()
                 return True
 
-        if hasattr(self, '_btn_export'):
-            if getattr(self, '_btn_export').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_export"):
+            if getattr(self, "_btn_export").collidepoint(mouse_pos):
                 self._export_character()
                 return True
 
-        if hasattr(self, '_btn_create_actor'):
-            if getattr(self, '_btn_create_actor').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_create_actor"):
+            if getattr(self, "_btn_create_actor").collidepoint(mouse_pos):
                 self._create_actor_from_character()
                 return True
 
-        if hasattr(self, '_btn_batch_export'):
-            if getattr(self, '_btn_batch_export').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_batch_export"):
+            if getattr(self, "_btn_batch_export").collidepoint(mouse_pos):
                 self._batch_export_characters()
                 return True
 
         # Color picker buttons
         if self.show_color_picker:
-            if hasattr(self, '_btn_close_picker'):
-                if getattr(self, '_btn_close_picker').collidepoint(mouse_pos):
+            if hasattr(self, "_btn_close_picker"):
+                if getattr(self, "_btn_close_picker").collidepoint(mouse_pos):
                     self.show_color_picker = False
                     return True
 
-            if hasattr(self, '_btn_apply_color'):
-                if getattr(self, '_btn_apply_color').collidepoint(mouse_pos):
+            if hasattr(self, "_btn_apply_color"):
+                if getattr(self, "_btn_apply_color").collidepoint(mouse_pos):
                     self._apply_color_tint()
                     return True
 
             # Check slider clicks
-            for channel in ['r', 'g', 'b', 'a']:
-                slider_attr = f'_slider_{channel}'
+            for channel in ["r", "g", "b", "a"]:
+                slider_attr = f"_slider_{channel}"
                 if hasattr(self, slider_attr):
                     rect = getattr(self, slider_attr)
                     if rect.collidepoint(mouse_pos):
@@ -1167,8 +1274,8 @@ class CharacterGeneratorUI:
 
         # Layer item clicks (for dragging)
         for i in range(len(self.current_preset.layers)):
-            layer_attr = f'_layer_item_{i}'
-            delete_attr = f'_btn_delete_layer_{i}'
+            layer_attr = f"_layer_item_{i}"
+            delete_attr = f"_btn_delete_layer_{i}"
 
             # Check delete button first
             if hasattr(self, delete_attr):
@@ -1204,7 +1311,7 @@ class CharacterGeneratorUI:
         # Find which layer position we're over
         drop_index = None
         for i in range(len(self.current_preset.layers)):
-            layer_attr = f'_layer_item_{i}'
+            layer_attr = f"_layer_item_{i}"
             if hasattr(self, layer_attr):
                 rect = getattr(self, layer_attr)
                 if rect.collidepoint(mouse_pos):
@@ -1227,8 +1334,7 @@ class CharacterGeneratorUI:
 
         # Check if layer already has a component (replacement warning)
         existing_layer = next(
-            (l for l in self.current_preset.layers if l.layer_type == self.selected_category),
-            None
+            (l for l in self.current_preset.layers if l.layer_type == self.selected_category), None
         )
 
         if existing_layer:
@@ -1239,7 +1345,9 @@ class CharacterGeneratorUI:
                 "layer_type": self.selected_category,
                 "existing_id": existing_layer.component_id,
             }
-            print(f"⚠ Layer {self.selected_category.name} already has {existing_layer.component_id}")
+            print(
+                f"⚠ Layer {self.selected_category.name} already has {existing_layer.component_id}"
+            )
             print("  Confirm replacement in UI")
             return
 
@@ -1270,7 +1378,8 @@ class CharacterGeneratorUI:
 
         # Remove existing layer
         self.current_preset.layers = [
-            l for l in self.current_preset.layers
+            l
+            for l in self.current_preset.layers
             if l.layer_type != self.pending_component_add["layer_type"]
         ]
 
@@ -1284,7 +1393,9 @@ class CharacterGeneratorUI:
         self.current_preset.add_layer(layer)
         self._regenerate_preview()
         self._mark_unsaved_changes()
-        print(f"✓ Replaced {self.pending_component_add['existing_id']} with {self.pending_component_add['component_id']}")
+        print(
+            f"✓ Replaced {self.pending_component_add['existing_id']} with {self.pending_component_add['component_id']}"
+        )
 
         # Clean up
         self.pending_component_add = None
@@ -1323,7 +1434,7 @@ class CharacterGeneratorUI:
             # Use the character generator's AI-friendly method
             self.current_preset = self.generator.generate_from_description(
                 self.ai_description,
-                name=self._extract_name_from_description() or "AI Generated Character"
+                name=self._extract_name_from_description() or "AI Generated Character",
             )
 
             self._regenerate_preview()
@@ -1342,9 +1453,9 @@ class CharacterGeneratorUI:
         # Simple pattern matching for names
         # Example: "Create a knight named Arthur" -> "Arthur"
         patterns = [
-            r'named\s+(\w+)',
-            r'called\s+(\w+)',
-            r'name\s+(\w+)',
+            r"named\s+(\w+)",
+            r"called\s+(\w+)",
+            r"name\s+(\w+)",
         ]
 
         for pattern in patterns:
@@ -1363,10 +1474,10 @@ class CharacterGeneratorUI:
         # Apply to last layer (could be enhanced to select specific layer)
         layer = self.current_preset.layers[-1]
         layer.tint = ColorTint(
-            r=self.color_sliders['r'],
-            g=self.color_sliders['g'],
-            b=self.color_sliders['b'],
-            a=self.color_sliders['a'],
+            r=self.color_sliders["r"],
+            g=self.color_sliders["g"],
+            b=self.color_sliders["b"],
+            a=self.color_sliders["a"],
         )
 
         self._regenerate_preview()
@@ -1562,7 +1673,7 @@ class CharacterGeneratorUI:
         history_file = Path("exports/characters/export_history.json")
         if history_file.exists():
             try:
-                with open(history_file, 'r') as f:
+                with open(history_file, "r") as f:
                     self.export_history = json.load(f)
                 print(f"✓ Loaded {len(self.export_history)} export history entries")
             except Exception as e:
@@ -1595,7 +1706,7 @@ class CharacterGeneratorUI:
         history_file.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            with open(history_file, 'w') as f:
+            with open(history_file, "w") as f:
                 json.dump(self.export_history, f, indent=2)
             print(f"✓ Export history updated ({len(self.export_history)} entries)")
         except Exception as e:
@@ -1619,8 +1730,8 @@ class CharacterGeneratorUI:
 
         # Prepare bio text
         if self.generated_bio:
-            description = self.generated_bio['description']
-            note = self.generated_bio['note']
+            description = self.generated_bio["description"]
+            note = self.generated_bio["note"]
         else:
             description = f"Generated character: {self.current_preset.name}"
             note = f"Created from character generator on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -1638,7 +1749,11 @@ class CharacterGeneratorUI:
                     class_id=1,
                     initial_level=1,
                     max_level=99,
-                    character_name=self.last_export_path.stem if self.last_export_path else self.current_preset.name,
+                    character_name=(
+                        self.last_export_path.stem
+                        if self.last_export_path
+                        else self.current_preset.name
+                    ),
                     face_name="",
                     face_index=0,
                     icon_index=1,
@@ -1658,8 +1773,12 @@ class CharacterGeneratorUI:
                 if not self.database_editor.visible:
                     self.database_editor.toggle()
 
-                print(f"✓ Created actor '{self.current_preset.name}' (ID: {created_actor.id}) in database")
-                print(f"  Character sprite: {self.last_export_path.name if self.last_export_path else 'N/A'}")
+                print(
+                    f"✓ Created actor '{self.current_preset.name}' (ID: {created_actor.id}) in database"
+                )
+                print(
+                    f"  Character sprite: {self.last_export_path.name if self.last_export_path else 'N/A'}"
+                )
 
             except Exception as e:
                 print(f"⚠ Failed to create actor: {e}")
@@ -1734,11 +1853,13 @@ class CharacterGeneratorUI:
         # Convert layers to dict format
         layers_data = []
         for layer in self.current_preset.layers:
-            layers_data.append({
-                "layer_type": layer.layer_type.name,
-                "component_id": layer.component_id,
-                "tint": layer.tint.to_dict() if layer.tint else None,
-            })
+            layers_data.append(
+                {
+                    "layer_type": layer.layer_type.name,
+                    "component_id": layer.component_id,
+                    "tint": layer.tint.to_dict() if layer.tint else None,
+                }
+            )
 
         try:
             self.generated_bio = generate_character_bio(
@@ -1749,7 +1870,9 @@ class CharacterGeneratorUI:
                 use_ai=not self.use_bio_templates,
             )
 
-            print(f"✓ Generated {self.character_importance.value.upper()} bio for {self.current_preset.name}")
+            print(
+                f"✓ Generated {self.character_importance.value.upper()} bio for {self.current_preset.name}"
+            )
             if self.character_importance == CharacterImportance.NPC:
                 print(f"  Short: {len(self.generated_bio['description'])} chars")
             else:
@@ -1781,7 +1904,9 @@ class CharacterGeneratorUI:
                 return char_type
 
         # Default to generic based on equipment
-        has_armor = any("armor" in layer.component_id.lower() for layer in self.current_preset.layers)
+        has_armor = any(
+            "armor" in layer.component_id.lower() for layer in self.current_preset.layers
+        )
         has_robe = any("robe" in layer.component_id.lower() for layer in self.current_preset.layers)
 
         if has_robe:
@@ -1797,7 +1922,7 @@ class CharacterGeneratorUI:
             self._generate_bio()
 
         if self.generated_bio:
-            self.bio_text_input = self.generated_bio['description']
+            self.bio_text_input = self.generated_bio["description"]
             self.show_bio_editor = True
             self.manual_bio_override = True
             print("✓ Bio editor opened - Press Enter to save, ESC to cancel")
@@ -1805,10 +1930,10 @@ class CharacterGeneratorUI:
     def _apply_manual_bio(self, bio_text: str):
         """Apply manually edited bio."""
         if self.generated_bio:
-            self.generated_bio['description'] = bio_text
+            self.generated_bio["description"] = bio_text
             # Keep the same note or update it
-            if not self.generated_bio['note'].startswith("Manual"):
-                self.generated_bio['note'] = f"Manual Override:\n\n{bio_text}"
+            if not self.generated_bio["note"].startswith("Manual"):
+                self.generated_bio["note"] = f"Manual Override:\n\n{bio_text}"
             print("✓ Manual bio applied")
         else:
             # Create new bio entry
@@ -1834,8 +1959,19 @@ class CharacterGeneratorUI:
         dialog_y = (screen_height - dialog_height) // 2
 
         # Background
-        pygame.draw.rect(self.screen, (40, 40, 50), (dialog_x, dialog_y, dialog_width, dialog_height), border_radius=8)
-        pygame.draw.rect(self.screen, (100, 100, 120), (dialog_x, dialog_y, dialog_width, dialog_height), 2, border_radius=8)
+        pygame.draw.rect(
+            self.screen,
+            (40, 40, 50),
+            (dialog_x, dialog_y, dialog_width, dialog_height),
+            border_radius=8,
+        )
+        pygame.draw.rect(
+            self.screen,
+            (100, 100, 120),
+            (dialog_x, dialog_y, dialog_width, dialog_height),
+            2,
+            border_radius=8,
+        )
 
         # Title
         title_text = self.title_font.render("Bio Regeneration Required", True, (255, 200, 100))
@@ -1848,7 +1984,7 @@ class CharacterGeneratorUI:
             "will require regenerating the bio to match the new role.",
             "",
             "This will overwrite your current bio.",
-            "Do you want to proceed?"
+            "Do you want to proceed?",
         ]
 
         message_y = dialog_y + 65
@@ -1940,8 +2076,19 @@ class CharacterGeneratorUI:
         dialog_y = (screen_height - dialog_height) // 2
 
         # Background
-        pygame.draw.rect(self.screen, (40, 40, 50), (dialog_x, dialog_y, dialog_width, dialog_height), border_radius=8)
-        pygame.draw.rect(self.screen, (100, 100, 120), (dialog_x, dialog_y, dialog_width, dialog_height), 2, border_radius=8)
+        pygame.draw.rect(
+            self.screen,
+            (40, 40, 50),
+            (dialog_x, dialog_y, dialog_width, dialog_height),
+            border_radius=8,
+        )
+        pygame.draw.rect(
+            self.screen,
+            (100, 100, 120),
+            (dialog_x, dialog_y, dialog_width, dialog_height),
+            2,
+            border_radius=8,
+        )
 
         # Title
         title_text = self.title_font.render(title, True, (255, 200, 100))

@@ -5,22 +5,24 @@ Generates character biographies with varying detail levels based on importance.
 Supports AI generation, template-based generation, and manual override.
 """
 
+import random
 from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, List, Optional
-import random
 
 
 class CharacterImportance(Enum):
     """Character importance levels determining bio length and detail."""
-    NPC = "npc"              # 1-2 sentences, basic description
+
+    NPC = "npc"  # 1-2 sentences, basic description
     SUPPORTING = "supporting"  # 2-4 sentences, moderate detail
-    MAIN = "main"            # 4-8 sentences, rich backstory
+    MAIN = "main"  # 4-8 sentences, rich backstory
 
 
 @dataclass
 class BioTemplate:
     """Template for generating character bios."""
+
     importance: CharacterImportance
     intro_patterns: List[str]
     trait_patterns: List[str]
@@ -65,7 +67,7 @@ class CharacterBioGenerator:
                     "Seeks to protect the innocent",
                     "Driven by a desire for glory",
                     "Motivated by loyalty to their comrades",
-                ]
+                ],
             ),
             "mage": BioTemplate(
                 importance=CharacterImportance.NPC,
@@ -88,7 +90,7 @@ class CharacterBioGenerator:
                     "Seeks to unlock forbidden knowledge",
                     "Driven by curiosity about the arcane",
                     "Motivated by a thirst for power",
-                ]
+                ],
             ),
             "thief": BioTemplate(
                 importance=CharacterImportance.NPC,
@@ -111,7 +113,7 @@ class CharacterBioGenerator:
                     "Seeks wealth to escape poverty",
                     "Driven by the thrill of the heist",
                     "Motivated by a desire for freedom",
-                ]
+                ],
             ),
             "cleric": BioTemplate(
                 importance=CharacterImportance.NPC,
@@ -134,7 +136,7 @@ class CharacterBioGenerator:
                     "Seeks to spread their faith",
                     "Driven by a mission to heal the suffering",
                     "Motivated by divine visions",
-                ]
+                ],
             ),
         }
 
@@ -303,10 +305,14 @@ class CharacterBioGenerator:
             "monk": f"{name} is a disciplined monk whose {appearance['armor_type']} reflect a life of simplicity.",
         }
 
-        intro = intros.get(char_type, f"{name} is a skilled {char_type} wearing {appearance['armor_type']}.")
+        intro = intros.get(
+            char_type, f"{name} is a skilled {char_type} wearing {appearance['armor_type']}."
+        )
 
         # Weapon detail
-        weapon_detail = f"Wielding {appearance['weapon']}, they have proven their worth time and again."
+        weapon_detail = (
+            f"Wielding {appearance['weapon']}, they have proven their worth time and again."
+        )
 
         # Background hint
         backgrounds = [
@@ -347,19 +353,17 @@ class CharacterBioGenerator:
         # Opening paragraph (2-3 sentences)
         openings = {
             "warrior": f"{name} stands as a legendary warrior, their {appearance['armor_type']} bearing witness to a lifetime of battle. Every dent and scratch tells a story of survival against impossible odds. {appearance['weapon'].capitalize()} in hand, they have become a symbol of strength to allies and a harbinger of doom to enemies.",
-
             "mage": f"{name} has dedicated their life to mastering the arcane arts, their {appearance['armor_type']} woven with protective enchantments accumulated over decades of study. The power channeled through {appearance['weapon']} represents years of dangerous experimentation and forbidden research. Their name is whispered in both awe and fear across magical circles.",
-
             "thief": f"{name} rose from the gutter streets to become a master of stealth and deception. Their {appearance['armor_type']} have been carefully selected for absolute silence, while {appearance['weapon']} have ended many lives before victims realized danger was near. The thieves' guild speaks of them in hushed, respectful tones.",
-
             "cleric": f"{name} received a divine calling that changed their life forever. Clad in {appearance['armor_type']} that seem to glow with inner light, they wield {appearance['weapon']} blessed by the gods themselves. Their faith has moved mountains and turned the tide of holy wars.",
-
             "knight": f"{name} embodies the ideals of chivalry and honor that many have forgotten. Their {appearance['armor_type']} shine not just from polish, but from the righteousness of their cause. {appearance['weapon'].capitalize()} held high, they charge into battle not for glory, but for those who cannot fight for themselves.",
-
             "paladin": f"{name} walks the sacred path between warrior and priest, their {appearance['armor_type']} radiating divine energy. {appearance['weapon'].capitalize()} serves as both sword and holy symbol, smiting evil wherever it appears. The gods themselves have marked them as a champion of light.",
         }
 
-        opening = openings.get(char_type, f"{name} is a renowned {char_type} whose {appearance['armor_type']} and {appearance['weapon']} are known throughout the land.")
+        opening = openings.get(
+            char_type,
+            f"{name} is a renowned {char_type} whose {appearance['armor_type']} and {appearance['weapon']} are known throughout the land.",
+        )
 
         # Background paragraph (2-3 sentences)
         background = f"Born into humble circumstances, {name} discovered their calling during a moment of crisis that would have broken lesser souls. Through trials that tested both body and spirit, they emerged transformed—no longer the person they once were, but something greater. The path chosen was not easy, marked by loss, sacrifice, and hard-won victories that shaped them into a force to be reckoned with."
@@ -404,7 +408,14 @@ class CharacterBioGenerator:
             armor_type=appearance["armor_type"],
         )
         trait = trait.format(
-            trait=random.choice(["exceptional skill", "tactical brilliance", "relentless determination", "unwavering focus"]),
+            trait=random.choice(
+                [
+                    "exceptional skill",
+                    "tactical brilliance",
+                    "relentless determination",
+                    "unwavering focus",
+                ]
+            ),
         )
 
         if importance == CharacterImportance.NPC:
@@ -416,7 +427,9 @@ class CharacterBioGenerator:
             note = f"{description} {background}."
         else:  # MAIN
             background = random.choice(template.background_patterns)
-            motivation = random.choice(template.motivation_patterns or ["Driven by unknown forces."])
+            motivation = random.choice(
+                template.motivation_patterns or ["Driven by unknown forces."]
+            )
             description = f"{character_name} is {intro}. {trait}."
             note = f"{description} {background} {motivation}."
 
