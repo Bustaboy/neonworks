@@ -153,18 +153,13 @@ class TestTiledTMXExporter:
         map_data.tileset.tileset_name = "TestTileset"
         map_data.tileset.tileset_path = "tilesets/test.png"
 
-        # Add layer with some data
-        layer_id = (
-            list(map_data.layer_manager.layers.keys())[0] if map_data.layer_manager.layers else None
-        )
+        # Create a layer explicitly
+        layer = map_data.layer_manager.create_layer(name="Ground Layer")
 
-        if layer_id:
-            layer = map_data.layer_manager.get_layer(layer_id)
-            if layer:
-                # Set some tiles
-                for y in range(5):
-                    for x in range(5):
-                        layer.set_tile(x, y, 1)
+        # Set some tiles
+        for y in range(5):
+            for x in range(5):
+                layer.set_tile(x, y, 1)
 
         output_path = tmp_path / "exported.tmx"
         result = exporter.export_to_tmx(map_data, str(output_path), encoding="csv")
@@ -172,17 +167,26 @@ class TestTiledTMXExporter:
         assert result is True
         assert output_path.exists()
 
-        # Verify it's valid XML
+        # Verify it's valid XML with CSV encoding
         with open(output_path, "r") as f:
             content = f.read()
             assert "<map" in content
             assert "</map>" in content
+            assert "<layer" in content
             assert 'encoding="csv"' in content
 
     def test_export_to_tmx_base64(self, tmp_path):
         """Test exporting map to TMX with base64 encoding."""
         exporter = TiledTMXExporter()
         map_data = MapData("TestMap", width=10, height=10, tile_size=32)
+
+        # Create a layer explicitly
+        layer = map_data.layer_manager.create_layer(name="Base Layer")
+
+        # Set some tiles
+        for y in range(3):
+            for x in range(3):
+                layer.set_tile(x, y, 2)
 
         output_path = tmp_path / "exported_base64.tmx"
         result = exporter.export_to_tmx(map_data, str(output_path), encoding="base64")
@@ -193,6 +197,7 @@ class TestTiledTMXExporter:
         # Verify it's valid XML with base64
         with open(output_path, "r") as f:
             content = f.read()
+            assert "<layer" in content
             assert 'encoding="base64"' in content
             assert 'compression="zlib"' in content
 
