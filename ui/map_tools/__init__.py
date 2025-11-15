@@ -10,6 +10,14 @@ from .eraser_tool import EraserTool
 from .eyedropper_tool import EyedropperTool
 from .fill_tool import FillTool
 from .pencil_tool import PencilTool
+from .preferences import (
+    apply_preferences,
+    export_preferences,
+    import_preferences,
+    load_and_apply_preferences,
+    load_preferences,
+    save_preferences,
+)
 from .select_tool import SelectTool
 from .settings import (
     ConnectivityModes,
@@ -24,6 +32,7 @@ from .settings import (
     get_default_stamps,
     get_tool_color,
 )
+from .settings_panel import SettingsPanel
 from .shape_tool import ShapeTool
 from .stamp_tool import StampTool
 from .themes import Theme, ThemeManager, get_theme_manager
@@ -58,4 +67,13 @@ __all__ = [
     "Theme",
     "ThemeManager",
     "get_theme_manager",
+    # Settings Panel
+    "SettingsPanel",
+    # Preferences
+    "save_preferences",
+    "load_preferences",
+    "apply_preferences",
+    "export_preferences",
+    "import_preferences",
+    "load_and_apply_preferences",
 ]
