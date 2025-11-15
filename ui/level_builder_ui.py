@@ -31,11 +31,13 @@ from .map_tools import (
     MapTool,
     PencilTool,
     SelectTool,
+    SettingsPanel,
     ShapeTool,
     StampTool,
     ToolContext,
     ToolManager,
     UndoManager,
+    load_and_apply_preferences,
 )
 from .tileset_picker_ui import TilesetPickerUI
 
@@ -204,6 +206,14 @@ class LevelBuilderUI:
 
         # Undo/Redo manager
         self.undo_manager = UndoManager(max_history=100)
+
+        # Settings panel (F11 to toggle)
+        self.settings_panel = SettingsPanel(
+            x=100, y=100, width=600, height=500
+        )
+
+        # Load user preferences on startup
+        load_and_apply_preferences()
 
     def _initialize_tools(self):
         """Initialize all map editing tools."""
@@ -382,6 +392,9 @@ class LevelBuilderUI:
 
         # Render AI chat if active
         self._render_ai_chat()
+
+        # Render settings panel last (so it appears on top)
+        self.settings_panel.render(self.screen)
 
     def _render_tilemap_preview(self, camera_offset: Tuple[int, int]):
         """Render the tilemap for editing."""
@@ -773,6 +786,10 @@ class LevelBuilderUI:
         if not self.visible:
             return False
 
+        # Handle settings panel events first (when visible)
+        if self.settings_panel.handle_event(event):
+            return True
+
         # Handle tileset picker events first (NEW)
         if self.use_tileset_picker and self.tileset_picker.visible:
             if self.tileset_picker.handle_event(event):
@@ -807,6 +824,11 @@ class LevelBuilderUI:
             ):
                 if self.undo_manager.redo():
                     return True
+
+            # F11 key toggles settings panel
+            if event.key == pygame.K_F11:
+                self.settings_panel.toggle()
+                return True
 
             # 'C' key toggles AI chat
             if event.key == pygame.K_c and not ctrl_pressed:
