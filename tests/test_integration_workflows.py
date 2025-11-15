@@ -70,7 +70,7 @@ class TestCombatWorkflow:
         # Turn 1: Player attacks
         events.emit(Event(EventType.TURN_START, {"actor": player.id}))
         enemy_health = enemy.get_component(Health)
-        enemy_health.hp -= 25
+        enemy_health.current -= 25
         events.emit(
             Event(
                 EventType.DAMAGE_DEALT,
@@ -83,7 +83,7 @@ class TestCombatWorkflow:
         # Turn 2: Enemy attacks
         events.emit(Event(EventType.TURN_START, {"actor": enemy.id}))
         player_health = player.get_component(Health)
-        player_health.hp -= 15
+        player_health.current -= 15
         events.emit(
             Event(
                 EventType.DAMAGE_DEALT,
@@ -93,7 +93,7 @@ class TestCombatWorkflow:
 
         # Turn 3: Player defeats enemy
         events.emit(Event(EventType.TURN_START, {"actor": player.id}))
-        enemy_health.hp = 0
+        enemy_health.current = 0
         events.emit(
             Event(
                 EventType.DAMAGE_DEALT,
@@ -361,10 +361,10 @@ class TestSerializationWorkflow:
         # Serialize world state
         world_state = {
             "entities": [],
-            "entity_count": len(world1.entities),
+            "entity_count": len(list(world1._entities.values())),
         }
 
-        for entity in world1.entities:
+        for entity in list(world1._entities.values()):
             entity_data = {
                 "id": entity.id,
                 "name": entity.name,
@@ -477,7 +477,7 @@ class TestComplexGameLoop:
         # 3. Player attacks enemy
         enemy_health = enemy.get_component(Health)
         damage = 20
-        enemy_health.hp -= damage
+        enemy_health.current -= damage
         events.emit(
             Event(
                 EventType.DAMAGE_DEALT,
@@ -498,7 +498,7 @@ class TestComplexGameLoop:
         # Verify game state after tick
         assert len(tick_events) == 4
         assert player_resources.resources["wood"] == 0  # 10 + 10 - 20
-        assert enemy_health.hp == 30  # 50 - 20
+        assert enemy_health.current == 30  # 50 - 20
         assert len(world.get_entities_with_tag("building")) == 1
 
 

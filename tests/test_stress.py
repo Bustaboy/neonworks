@@ -39,7 +39,7 @@ class TestMemoryStress:
 
         # Force garbage collection before test
         gc.collect()
-        initial_entity_count = len(world.entities)
+        initial_entity_count = len(list(world._entities.values()))
 
         # Create 10,000 entities
         for i in range(10000):
@@ -49,7 +49,7 @@ class TestMemoryStress:
             entity.add_component(GridPosition(grid_x=i % 100, grid_y=i // 100))
             entity.add_tag("test_entity")
 
-        assert len(world.entities) == initial_entity_count + 10000
+        assert len(list(world._entities.values())) == initial_entity_count + 10000
         print(f"\nSuccessfully created 10,000 entities")
 
     def test_memory_cleanup_after_entity_removal(self):
@@ -64,16 +64,16 @@ class TestMemoryStress:
             entity.add_component(Health(current=100, maximum=100))
             entity_ids.append(entity.id)
 
-        assert len(world.entities) == 5000
+        assert len(list(world._entities.values())) == 5000
 
         # Remove all entities
-        for entity in list(world.entities):
+        for entity in list(list(world._entities.values())):
             world.remove_entity(entity)
 
         # Force garbage collection
         gc.collect()
 
-        assert len(world.entities) == 0
+        assert len(list(world._entities.values())) == 0
         print(f"\nSuccessfully removed 5,000 entities and cleaned up memory")
 
     def test_repeated_entity_creation_and_removal(self):
@@ -89,13 +89,13 @@ class TestMemoryStress:
                 entity.add_component(Transform(x=i, y=i))
                 entities.append(entity)
 
-            assert len(world.entities) == 1000
+            assert len(list(world._entities.values())) == 1000
 
             # Remove all entities
             for entity in entities:
                 world.remove_entity(entity)
 
-            assert len(world.entities) == 0
+            assert len(list(world._entities.values())) == 0
 
         print(f"\nSuccessfully completed 10 iterations of create/remove cycle")
 
@@ -345,7 +345,7 @@ class TestConcurrentOperations:
 
         elapsed = time.perf_counter() - start
 
-        assert len(world.entities) == 2000
+        assert len(list(world._entities.values())) == 2000
         print(f"\nConcurrent create/query operations completed in {elapsed:.3f}s")
 
     def test_concurrent_add_remove_components(self):
@@ -410,14 +410,14 @@ class TestStabilityUnderLoad:
                 world.remove_entity(batch[i])
 
             # Verify
-            assert len(world.entities) == 100
+            assert len(list(world._entities.values())) == 100
 
             # Remove rest
             for i in range(100, 200):
                 world.remove_entity(batch[i])
 
             # Should be empty
-            assert len(world.entities) == 0
+            assert len(list(world._entities.values())) == 0
 
         print(f"\nCompleted 50 iterations of entity churn")
 
@@ -477,13 +477,13 @@ class TestStabilityUnderLoad:
                 transform.x += 1
 
             # Clean up some entities
-            if len(world.entities) > 100:
-                to_remove = list(world.entities)[:25]
+            if len(list(world._entities.values())) > 100:
+                to_remove = list(list(world._entities.values()))[:25]
                 for entity in to_remove:
                     world.remove_entity(entity)
 
         print(f"\nCompleted 30 iterations of mixed workload")
-        print(f"Final state: {len(world.entities)} entities, {event_count[0]} events processed")
+        print(f"Final state: {len(list(world._entities.values()))} entities, {event_count[0]} events processed")
 
 
 @pytest.mark.stress

@@ -43,7 +43,7 @@ class TestECSPerformance:
             start = time.perf_counter()
             world = create_entities()
             elapsed = time.perf_counter() - start
-            assert len(world.entities) == 1000
+            assert len(list(world._entities.values())) == 1000
             assert elapsed < 1.0  # Should complete in under 1 second
 
     def test_query_entities_with_component_performance(self):
@@ -444,7 +444,7 @@ class TestIntegratedPerformance:
 
         elapsed = time.perf_counter() - start
 
-        assert len(world.entities) == 1150
+        assert len(list(world._entities.values())) == 1150
         assert elapsed < 1.0  # Should complete in under 1 second
         print(f"\nFull game state created in {elapsed:.3f}s (1150 entities)")
 
