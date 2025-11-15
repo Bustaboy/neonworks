@@ -483,8 +483,8 @@ class TestWorld:
         world = World()
 
         assert world is not None
-        assert len(world.entities) == 0
-        assert len(world.systems) == 0
+        assert len(world._entities) == 0
+        assert len(world._systems) == 0
 
     def test_create_entity(self, world):
         """Test creating an entity in the world."""
@@ -492,7 +492,7 @@ class TestWorld:
 
         assert entity is not None
         assert entity.name == "TestEntity"
-        assert entity in world.entities
+        assert entity in world._entities.values()
 
     def test_create_multiple_entities(self, world):
         """Test creating multiple entities."""
@@ -500,10 +500,10 @@ class TestWorld:
         entity2 = world.create_entity("Entity2")
         entity3 = world.create_entity("Entity3")
 
-        assert len(world.entities) == 3
-        assert entity1 in world.entities
-        assert entity2 in world.entities
-        assert entity3 in world.entities
+        assert len(world._entities) == 3
+        assert entity1 in world._entities.values()
+        assert entity2 in world._entities.values()
+        assert entity3 in world._entities.values()
 
     def test_remove_entity(self, world):
         """Test removing an entity from the world."""
@@ -511,8 +511,8 @@ class TestWorld:
 
         world.remove_entity(entity)
 
-        assert entity not in world.entities
-        assert len(world.entities) == 0
+        assert entity not in world._entities.values()
+        assert len(world._entities) == 0
 
     def test_get_entity_by_id(self, world):
         """Test getting an entity by ID."""
@@ -597,8 +597,8 @@ class TestWorld:
         system = TestSystem()
         world.add_system(system)
 
-        assert system in world.systems
-        assert len(world.systems) == 1
+        assert system in world._systems
+        assert len(world._systems) == 1
 
     def test_add_multiple_systems(self, world):
         """Test adding multiple systems."""
@@ -617,9 +617,9 @@ class TestWorld:
         world.add_system(system1)
         world.add_system(system2)
 
-        assert len(world.systems) == 2
-        assert system1 in world.systems
-        assert system2 in world.systems
+        assert len(world._systems) == 2
+        assert system1 in world._systems
+        assert system2 in world._systems
 
     def test_remove_system(self, world):
         """Test removing a system from the world."""
@@ -633,8 +633,8 @@ class TestWorld:
 
         world.remove_system(system)
 
-        assert system not in world.systems
-        assert len(world.systems) == 0
+        assert system not in world._systems
+        assert len(world._systems) == 0
 
     def test_update_systems(self, world):
         """Test updating all systems."""
@@ -660,7 +660,7 @@ class TestWorld:
 
         world.clear()
 
-        assert len(world.entities) == 0
+        assert len(world._entities) == 0
 
 
 class TestSystem:
