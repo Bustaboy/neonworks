@@ -218,6 +218,16 @@ class WorkspaceManager:
         )
         level_editor_workspace.add_tool(
             ToolDefinition(
+                id="map_manager",
+                name="Map Manager",
+                description="Manage multiple maps",
+                icon="🗺️",
+                hotkey="Ctrl+M",
+                toggle_method="toggle_map_manager",
+            )
+        )
+        level_editor_workspace.add_tool(
+            ToolDefinition(
                 id="ai_assistant",
                 name="AI Assistant",
                 description="AI-powered level editing",
@@ -237,11 +247,41 @@ class WorkspaceManager:
         )
         content_workspace.add_tool(
             ToolDefinition(
+                id="database_editor",
+                name="Database Editor",
+                description="Manage game database (actors, items, skills)",
+                icon="💾",
+                hotkey="F6",
+                toggle_method="toggle_database_editor",
+            )
+        )
+        content_workspace.add_tool(
+            ToolDefinition(
+                id="character_generator",
+                name="Character Generator",
+                description="Create custom character sprites",
+                icon="👤",
+                hotkey="F7",
+                toggle_method="toggle_character_generator",
+            )
+        )
+        content_workspace.add_tool(
+            ToolDefinition(
+                id="quest_editor",
+                name="Quest Editor",
+                description="Create quests and dialogue",
+                icon="📜",
+                hotkey="F8",
+                toggle_method="toggle_quest_editor",
+            )
+        )
+        content_workspace.add_tool(
+            ToolDefinition(
                 id="asset_browser",
                 name="Asset Browser",
                 description="Manage game assets",
                 icon="📁",
-                hotkey="F7",
+                hotkey="Ctrl+Shift+A",
                 toggle_method="toggle_asset_browser",
             )
         )
@@ -253,16 +293,6 @@ class WorkspaceManager:
                 icon="🤖",
                 hotkey="Shift+F7",
                 toggle_method="toggle_ai_animator",
-            )
-        )
-        content_workspace.add_tool(
-            ToolDefinition(
-                id="quest_editor",
-                name="Quest Editor",
-                description="Create quests and dialogue",
-                icon="📜",
-                hotkey="F6",
-                toggle_method="toggle_quest_editor",
             )
         )
         self.workspaces[WorkspaceType.CONTENT_CREATION] = content_workspace
@@ -300,7 +330,7 @@ class WorkspaceManager:
                 name="Project Manager",
                 description="Manage projects",
                 icon="📦",
-                hotkey="F8",
+                hotkey="Ctrl+Shift+P",
                 toggle_method="toggle_project_manager",
             )
         )
