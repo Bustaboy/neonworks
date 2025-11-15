@@ -18,10 +18,12 @@ from ..core.event_commands import (
     TriggerType,
 )
 from ..data.tileset_manager import TilesetManager, get_tileset_manager
+from ..rendering.autotiles import AutotileManager, AutotileSet, get_autotile_manager
 from ..rendering.tilemap import Tile, Tilemap
 from ..rendering.ui import UI
 from .ai_generator_tool import AIGeneratorTool
 from .ai_tileset_ui import AITilesetPanel
+from .autotile_tool import AutotileFillTool, AutotileTool
 from .map_tools import (
     EraserTool,
     FillTool,
@@ -70,6 +72,10 @@ class LevelBuilderUI:
 
         # Tileset manager (NEW - replaces hardcoded tile_palette)
         self.tileset_manager = get_tileset_manager(project_path)
+
+        # Autotile manager (NEW - for intelligent tile matching)
+        self.autotile_manager = get_autotile_manager()
+        self.selected_autotile_set: Optional[AutotileSet] = None
 
         # Tileset picker UI (NEW)
         self.tileset_picker = TilesetPickerUI(
@@ -200,6 +206,12 @@ class LevelBuilderUI:
         self.tool_manager.register_tool("select", SelectTool())
         self.tool_manager.register_tool("ai_gen", AIGeneratorTool())
 
+        # Autotile tools (NEW - intelligent tile matching)
+        self.autotile_tool = AutotileTool()
+        self.autotile_fill_tool = AutotileFillTool()
+        self.tool_manager.register_tool("autotile", self.autotile_tool)
+        self.tool_manager.register_tool("autotile_fill", self.autotile_fill_tool)
+
     def _on_tile_selected(self, tileset_id: str, tile_id: int):
         """
         Callback when a tile is selected from the tileset picker.
@@ -222,6 +234,18 @@ class LevelBuilderUI:
         """
         print(f"New tileset generated: {tileset_id}")
         # The tileset manager will automatically set it as active
+
+    def set_autotile_set(self, autotile_set: AutotileSet):
+        """
+        Set the active autotile set for painting.
+
+        Args:
+            autotile_set: AutotileSet to use for painting
+        """
+        self.selected_autotile_set = autotile_set
+        # Update the autotile tools
+        self.autotile_tool.set_autotile_set(autotile_set)
+        self.autotile_fill_tool.set_autotile_set(autotile_set)
 
     def _get_tool_context(self) -> ToolContext:
         """Create a tool context with current editor state."""
