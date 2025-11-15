@@ -12,6 +12,7 @@ from ..core.ecs import World
 from ..core.state import StateManager
 from ..engine.ui.event_editor_ui import EventEditorUI
 from ..input.input_manager import InputManager
+from .ai_animator_ui import AIAnimatorUI
 from .asset_browser_ui import AssetBrowserUI
 from .autotile_editor_ui import AutotileEditorUI
 from .building_ui import BuildingUI
@@ -23,6 +24,8 @@ from .navmesh_editor_ui import NavmeshEditorUI
 from .project_manager_ui import ProjectManagerUI
 from .quest_editor_ui import QuestEditorUI
 from .settings_ui import SettingsUI
+from .workspace_system import get_workspace_manager
+from .workspace_toolbar import WorkspaceToolbar
 
 
 class MasterUIManager:
@@ -38,12 +41,14 @@ class MasterUIManager:
         state_manager: Optional[StateManager] = None,
         audio_manager: Optional[AudioManager] = None,
         input_manager: Optional[InputManager] = None,
+        renderer=None,
     ):
         self.screen = screen
         self.world = world
         self.state_manager = state_manager
         self.audio_manager = audio_manager
         self.input_manager = input_manager
+        self.renderer = renderer
 
         # Initialize all UI systems
         self.game_hud = GameHUD(screen)
@@ -58,14 +63,19 @@ class MasterUIManager:
         self.quest_editor = QuestEditorUI(screen)
         self.asset_browser = AssetBrowserUI(screen)
         self.autotile_editor = AutotileEditorUI(screen)
+        self.ai_animator = AIAnimatorUI(world, renderer)
 
         # Connect level builder to event editor for event management
         self.level_builder.event_editor = self.event_editor
 
+        # Workspace system and toolbar
+        self.workspace_manager = get_workspace_manager()
+        self.workspace_toolbar = WorkspaceToolbar(screen, master_ui_manager=self)
+
         # UI state
         self.current_mode = "game"  # 'game', 'editor', 'menu'
 
-        # Key bindings
+        # Key bindings (including Shift+F7 for AI Animator)
         self.keybinds = {
             pygame.K_F1: self.toggle_debug_console,
             pygame.K_F2: self.toggle_settings,
@@ -85,6 +95,9 @@ class MasterUIManager:
         """
         Render all active UI systems.
         """
+        # Render workspace toolbar first (at top)
+        self.workspace_toolbar.render()
+
         # Always render game HUD if in game mode
         if self.current_mode == "game" and self.game_hud.visible:
             self.game_hud.render(self.world, fps)
@@ -117,6 +130,10 @@ class MasterUIManager:
         if self.asset_browser.visible:
             self.asset_browser.render()
 
+        # Render AI Animator if visible
+        if self.ai_animator.visible:
+            self.ai_animator.render(self.screen)
+
         # Render project manager if visible
         if self.project_manager.visible:
             self.project_manager.render()
@@ -138,9 +155,18 @@ class MasterUIManager:
         Handle pygame events and route them to appropriate UI systems.
         Returns True if event was handled by UI.
         """
+        # Workspace toolbar gets first priority
+        if self.workspace_toolbar.handle_event(event):
+            return True
+
         # Handle key presses
         if event.type == pygame.KEYDOWN:
-            # Check for keybinds
+            # Check for Shift+F7 (AI Animator)
+            if event.key == pygame.K_F7 and (pygame.key.get_mods() & pygame.KMOD_SHIFT):
+                self.toggle_ai_animator()
+                return True
+
+            # Check for standard keybinds
             if event.key in self.keybinds:
                 self.keybinds[event.key]()
                 return True
@@ -168,6 +194,11 @@ class MasterUIManager:
         # Route events to autotile editor if visible
         if self.autotile_editor.visible:
             self.autotile_editor.handle_event(event)
+            return True
+
+        # Route events to AI Animator if visible
+        if self.ai_animator.visible:
+            self.ai_animator.handle_event(event)
             return True
 
         # Handle mouse clicks
@@ -217,6 +248,10 @@ class MasterUIManager:
         if self.autotile_editor.visible:
             self.autotile_editor.update(dt)
 
+        # Update AI Animator
+        if self.ai_animator.visible:
+            self.ai_animator.update(dt)
+
     # Toggle methods for each UI system
 
     def toggle_game_hud(self):
@@ -242,6 +277,10 @@ class MasterUIManager:
     def toggle_autotile_editor(self):
         """Toggle autotile editor."""
         self.autotile_editor.toggle()
+
+    def toggle_ai_animator(self):
+        """Toggle AI Animator."""
+        self.ai_animator.toggle()
 
     def toggle_quest_editor(self):
         """Toggle quest editor."""
@@ -319,11 +358,13 @@ class MasterUIManager:
         help_text += "F5 - Event Editor\n"
         help_text += "F6 - Quest Editor\n"
         help_text += "F7 - Asset Browser\n"
+        help_text += "Shift+F7 - AI Animator\n"
         help_text += "F8 - Project Manager\n"
         help_text += "F9 - Combat UI\n"
         help_text += "F10 - Toggle HUD\n"
         help_text += "F11 - Autotile Editor\n"
         help_text += "F12 - Navmesh Editor\n"
+        help_text += "\nClick the toolbar at the top to access all tools visually!\n"
         return help_text
 
     def save_ui_state(self) -> Dict[str, Any]:
