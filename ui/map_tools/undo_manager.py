@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
 from ...rendering.tilemap import Tile, Tilemap
+from .settings import ToolLimits
 
 
 class UndoableAction(ABC):
@@ -160,12 +161,12 @@ class UndoManager:
     Supports multi-level undo/redo with configurable history size.
     """
 
-    def __init__(self, max_history: int = 100):
+    def __init__(self, max_history: int = ToolLimits.MAX_UNDO_HISTORY):
         """
         Initialize undo manager.
 
         Args:
-            max_history: Maximum number of actions to keep in history
+            max_history: Maximum number of actions to keep in history (default from ToolLimits)
         """
         self.max_history = max_history
         self.undo_stack: List[UndoableAction] = []

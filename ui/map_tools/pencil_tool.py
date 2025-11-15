@@ -10,6 +10,7 @@ from ...core.ecs import GridPosition, Health, ResourceStorage, Sprite, Survival,
 from ...core.event_commands import EventPage, GameEvent
 from ...rendering.tilemap import Tile
 from .base import MapTool, ToolContext
+from .settings import RenderSettings, ToolColors, get_tool_color
 from .undo_manager import TileChangeAction
 
 
@@ -22,7 +23,7 @@ class PencilTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Pencil", 1, (0, 150, 0))
+        super().__init__("Pencil", 1, get_tool_color("pencil"))
         self.cursor_type = "pencil"
         self.last_painted_pos: Optional[Tuple[int, int]] = None
 
@@ -202,10 +203,27 @@ class PencilTool(MapTool):
         screen_y = grid_y * tile_size + camera_offset[1]
 
         # Draw green outline
-        pygame.draw.rect(screen, (0, 255, 0), (screen_x, screen_y, tile_size, tile_size), 3)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_PENCIL,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_HIGHLIGHT_WIDTH,
+        )
 
         # Draw crosshair
         center_x = screen_x + tile_size // 2
         center_y = screen_y + tile_size // 2
-        pygame.draw.line(screen, (0, 255, 0), (center_x - 5, center_y), (center_x + 5, center_y), 2)
-        pygame.draw.line(screen, (0, 255, 0), (center_x, center_y - 5), (center_x, center_y + 5), 2)
+        pygame.draw.line(
+            screen,
+            ToolColors.CURSOR_PENCIL,
+            (center_x - RenderSettings.CROSSHAIR_SIZE, center_y),
+            (center_x + RenderSettings.CROSSHAIR_SIZE, center_y),
+            RenderSettings.CROSSHAIR_WIDTH,
+        )
+        pygame.draw.line(
+            screen,
+            ToolColors.CURSOR_PENCIL,
+            (center_x, center_y - RenderSettings.CROSSHAIR_SIZE),
+            (center_x, center_y + RenderSettings.CROSSHAIR_SIZE),
+            RenderSettings.CROSSHAIR_WIDTH,
+        )

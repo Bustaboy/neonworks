@@ -15,6 +15,7 @@ import pygame
 
 from ...rendering.tilemap import Tile
 from .base import MapTool, ToolContext
+from .settings import RenderSettings, ToolColors, get_tool_color
 from .undo_manager import BatchTileChangeAction
 
 
@@ -28,7 +29,7 @@ class ShapeTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Shape", 5, (200, 100, 200))
+        super().__init__("Shape", 5, get_tool_color("shape"))
         self.cursor_type = "shape"
         self.shape_start: Optional[Tuple[int, int]] = None
         self.shape_end: Optional[Tuple[int, int]] = None
@@ -301,29 +302,38 @@ class ShapeTool(MapTool):
                 coords = set()
 
             # Draw preview
-            color = (200, 100, 200, 100)
             for x, y in coords:
                 screen_x = x * tile_size + camera_offset[0]
                 screen_y = y * tile_size + camera_offset[1]
 
                 # Draw semi-transparent preview
                 preview_surface = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
-                preview_surface.fill(color)
+                preview_surface.fill((*ToolColors.CURSOR_SHAPE, RenderSettings.SHAPE_PREVIEW_ALPHA))
                 screen.blit(preview_surface, (screen_x, screen_y))
 
                 # Draw outline
-                pygame.draw.rect(screen, (200, 100, 200), (screen_x, screen_y, tile_size, tile_size), 1)
+                pygame.draw.rect(
+                    screen,
+                    ToolColors.CURSOR_SHAPE,
+                    (screen_x, screen_y, tile_size, tile_size),
+                    RenderSettings.CURSOR_OUTLINE_WIDTH,
+                )
 
         # Draw cursor
         screen_x = grid_x * tile_size + camera_offset[0]
         screen_y = grid_y * tile_size + camera_offset[1]
 
-        pygame.draw.rect(screen, (200, 100, 200), (screen_x, screen_y, tile_size, tile_size), 2)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_SHAPE,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_OUTLINE_WIDTH,
+        )
 
         # Draw shape type indicator
         font = pygame.font.Font(None, 16)
         shape_initial = self.shape_type[0].upper()  # R, C, or L
         mode_initial = "F" if self.fill_mode else "O"  # F or O
         text = f"{shape_initial}{mode_initial}"
-        text_surface = font.render(text, True, (200, 100, 200))
+        text_surface = font.render(text, True, ToolColors.CURSOR_SHAPE)
         screen.blit(text_surface, (screen_x + 2, screen_y + 2))

@@ -12,6 +12,7 @@ from typing import Optional, Tuple
 import pygame
 
 from .base import MapTool, ToolContext
+from .settings import RenderSettings, ToolColors, get_tool_color
 
 
 class EyedropperTool(MapTool):
@@ -24,7 +25,7 @@ class EyedropperTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Eyedropper", 7, (255, 200, 0))
+        super().__init__("Eyedropper", 7, get_tool_color("eyedropper"))
         self.cursor_type = "eyedropper"
         self.previous_tool: Optional[str] = None
         self.picked_layer: Optional[int] = None
@@ -133,21 +134,38 @@ class EyedropperTool(MapTool):
         screen_y = grid_y * tile_size + camera_offset[1]
 
         # Draw orange outline
-        pygame.draw.rect(screen, (255, 200, 0), (screen_x, screen_y, tile_size, tile_size), 3)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_EYEDROPPER,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_HIGHLIGHT_WIDTH,
+        )
 
         # Draw eyedropper icon (simplified pipette)
         center_x = screen_x + tile_size // 2
         center_y = screen_y + tile_size // 2
 
         # Draw dropper body
-        pygame.draw.circle(screen, (255, 200, 0), (center_x, center_y + 3), 5, 2)
+        pygame.draw.circle(
+            screen,
+            ToolColors.CURSOR_EYEDROPPER,
+            (center_x, center_y + 3),
+            RenderSettings.EYEDROPPER_CIRCLE_RADIUS,
+            RenderSettings.CURSOR_OUTLINE_WIDTH,
+        )
 
         # Draw dropper tip
-        pygame.draw.line(screen, (255, 200, 0), (center_x, center_y - 2), (center_x, center_y - 8), 2)
+        pygame.draw.line(
+            screen,
+            ToolColors.CURSOR_EYEDROPPER,
+            (center_x, center_y - 2),
+            (center_x, center_y - 8),
+            RenderSettings.CURSOR_OUTLINE_WIDTH,
+        )
 
         # Draw picked layer indicator if available
         if self.picked_layer is not None:
             font = pygame.font.Font(None, 14)
             layer_text = f"L{self.picked_layer}"
-            text_surface = font.render(layer_text, True, (255, 200, 0))
+            text_surface = font.render(layer_text, True, ToolColors.CURSOR_EYEDROPPER)
             screen.blit(text_surface, (screen_x + 2, screen_y + tile_size - 14))

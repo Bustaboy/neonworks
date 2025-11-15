@@ -8,6 +8,7 @@ import pygame
 
 from ...core.ecs import GridPosition
 from .base import MapTool, ToolContext
+from .settings import RenderSettings, ToolColors, get_tool_color
 from .undo_manager import TileChangeAction
 
 
@@ -20,7 +21,7 @@ class EraserTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Eraser", 2, (150, 0, 0))
+        super().__init__("Eraser", 2, get_tool_color("eraser"))
         self.cursor_type = "eraser"
         self.last_erased_pos: Optional[Tuple[int, int]] = None
 
@@ -110,20 +111,31 @@ class EraserTool(MapTool):
         screen_y = grid_y * tile_size + camera_offset[1]
 
         # Draw red outline
-        pygame.draw.rect(screen, (255, 0, 0), (screen_x, screen_y, tile_size, tile_size), 3)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_ERASER,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_HIGHLIGHT_WIDTH,
+        )
 
         # Draw X
         pygame.draw.line(
             screen,
-            (255, 0, 0),
-            (screen_x + 5, screen_y + 5),
-            (screen_x + tile_size - 5, screen_y + tile_size - 5),
-            2,
+            ToolColors.CURSOR_ERASER,
+            (screen_x + RenderSettings.CROSSHAIR_SIZE, screen_y + RenderSettings.CROSSHAIR_SIZE),
+            (
+                screen_x + tile_size - RenderSettings.CROSSHAIR_SIZE,
+                screen_y + tile_size - RenderSettings.CROSSHAIR_SIZE,
+            ),
+            RenderSettings.CROSSHAIR_WIDTH,
         )
         pygame.draw.line(
             screen,
-            (255, 0, 0),
-            (screen_x + tile_size - 5, screen_y + 5),
-            (screen_x + 5, screen_y + tile_size - 5),
-            2,
+            ToolColors.CURSOR_ERASER,
+            (
+                screen_x + tile_size - RenderSettings.CROSSHAIR_SIZE,
+                screen_y + RenderSettings.CROSSHAIR_SIZE,
+            ),
+            (screen_x + RenderSettings.CROSSHAIR_SIZE, screen_y + tile_size - RenderSettings.CROSSHAIR_SIZE),
+            RenderSettings.CROSSHAIR_WIDTH,
         )

@@ -16,6 +16,7 @@ import pygame
 
 from ...rendering.tilemap import Tile
 from .base import MapTool, ToolContext
+from .settings import DefaultStamps, RenderSettings, ToolColors, get_default_stamps, get_tool_color
 from .undo_manager import BatchTileChangeAction
 
 
@@ -108,7 +109,7 @@ class StampTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Stamp", 6, (100, 200, 100))
+        super().__init__("Stamp", 6, get_tool_color("stamp"))
         self.cursor_type = "stamp"
         self.stamps: List[BrushStamp] = []
         self.current_stamp_index = 0
@@ -121,49 +122,13 @@ class StampTool(MapTool):
         self._create_default_stamps()
 
     def _create_default_stamps(self):
-        """Create default brush stamps."""
-        # 2x2 square stamp
-        square_tiles = {}
-        for x in range(2):
-            for y in range(2):
-                # This will be filled with actual tiles when painting
-                square_tiles[(x, y)] = None
-        self.stamps.append(BrushStamp("2x2 Square", square_tiles, 2, 2))
-
-        # 3x3 square stamp
-        square_tiles = {}
-        for x in range(3):
-            for y in range(3):
-                square_tiles[(x, y)] = None
-        self.stamps.append(BrushStamp("3x3 Square", square_tiles, 3, 3))
-
-        # Plus (+) pattern stamp
-        plus_tiles = {
-            (0, -1): None,
-            (-1, 0): None,
-            (0, 0): None,
-            (1, 0): None,
-            (0, 1): None,
-        }
-        self.stamps.append(BrushStamp("Plus", plus_tiles, 3, 3))
-
-        # Diamond pattern stamp
-        diamond_tiles = {
-            (0, -2): None,
-            (-1, -1): None,
-            (0, -1): None,
-            (1, -1): None,
-            (-2, 0): None,
-            (-1, 0): None,
-            (0, 0): None,
-            (1, 0): None,
-            (2, 0): None,
-            (-1, 1): None,
-            (0, 1): None,
-            (1, 1): None,
-            (0, 2): None,
-        }
-        self.stamps.append(BrushStamp("Diamond", diamond_tiles, 5, 5))
+        """Create default brush stamps from centralized settings."""
+        stamps_data = get_default_stamps()
+        for stamp_def in stamps_data.values():
+            # Convert coordinate tuples to dict with None values (filled during painting)
+            tiles = {tuple(coord): None for coord in stamp_def["coords"]}
+            stamp = BrushStamp(stamp_def["name"], tiles, stamp_def["width"], stamp_def["height"])
+            self.stamps.append(stamp)
 
     def on_mouse_down(self, grid_x: int, grid_y: int, button: int, context: ToolContext) -> bool:
         if button == 0:  # Left click - paint with stamp
@@ -308,7 +273,6 @@ class StampTool(MapTool):
         stamp = stamp.get_flipped(self.flip_h, self.flip_v)
 
         # Draw stamp preview
-        color = (100, 200, 100, 100)
         for (offset_x, offset_y), _ in stamp.tiles.items():
             x = grid_x + offset_x
             y = grid_y + offset_y
@@ -318,16 +282,26 @@ class StampTool(MapTool):
 
             # Draw semi-transparent preview
             preview_surface = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
-            preview_surface.fill(color)
+            preview_surface.fill((*ToolColors.CURSOR_STAMP, RenderSettings.STAMP_PREVIEW_ALPHA))
             screen.blit(preview_surface, (screen_x, screen_y))
 
             # Draw outline
-            pygame.draw.rect(screen, (100, 200, 100), (screen_x, screen_y, tile_size, tile_size), 1)
+            pygame.draw.rect(
+                screen,
+                ToolColors.CURSOR_STAMP,
+                (screen_x, screen_y, tile_size, tile_size),
+                RenderSettings.CURSOR_OUTLINE_WIDTH,
+            )
 
         # Draw center cursor
         screen_x = grid_x * tile_size + camera_offset[0]
         screen_y = grid_y * tile_size + camera_offset[1]
-        pygame.draw.rect(screen, (100, 200, 100), (screen_x, screen_y, tile_size, tile_size), 3)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_STAMP,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_HIGHLIGHT_WIDTH,
+        )
 
         # Draw stamp info
         font = pygame.font.Font(None, 14)
@@ -339,5 +313,5 @@ class StampTool(MapTool):
         if self.flip_v:
             info_text += " V"
 
-        text_surface = font.render(info_text, True, (100, 200, 100))
+        text_surface = font.render(info_text, True, ToolColors.CURSOR_STAMP)
         screen.blit(text_surface, (screen_x + 2, screen_y + 2))

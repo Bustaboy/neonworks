@@ -16,6 +16,7 @@ import pygame
 
 from ...rendering.tilemap import Tile
 from .base import MapTool, ToolContext
+from .settings import ConnectivityModes, RenderSettings, ToolColors, ToolLimits, get_tool_color
 from .undo_manager import BatchTileChangeAction
 
 
@@ -29,10 +30,10 @@ class FillTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Fill", 3, (0, 150, 150))
+        super().__init__("Fill", 3, get_tool_color("fill"))
         self.cursor_type = "fill"
         self.use_8way = False  # Toggle between 4-way and 8-way connectivity
-        self.max_fill_cells = 10000  # Safety limit to prevent infinite fills
+        self.max_fill_cells = ToolLimits.MAX_FILL_CELLS  # Safety limit to prevent infinite fills
 
     def on_mouse_down(self, grid_x: int, grid_y: int, button: int, context: ToolContext) -> bool:
         if button == 0:  # Left click - flood fill
@@ -96,21 +97,7 @@ class FillTool(MapTool):
         visited.add((start_x, start_y))
 
         # Define neighbor offsets based on connectivity mode
-        if self.use_8way:
-            # 8-way connectivity (includes diagonals)
-            neighbors = [
-                (0, 1),
-                (0, -1),
-                (1, 0),
-                (-1, 0),  # Cardinal directions
-                (1, 1),
-                (1, -1),
-                (-1, 1),
-                (-1, -1),  # Diagonal directions
-            ]
-        else:
-            # 4-way connectivity (cardinal directions only)
-            neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        neighbors = ConnectivityModes.EIGHT_WAY if self.use_8way else ConnectivityModes.FOUR_WAY
 
         while queue and len(changes) < self.max_fill_cells:
             x, y = queue.popleft()
@@ -169,16 +156,27 @@ class FillTool(MapTool):
         screen_y = grid_y * tile_size + camera_offset[1]
 
         # Draw cyan outline
-        pygame.draw.rect(screen, (0, 255, 255), (screen_x, screen_y, tile_size, tile_size), 3)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_FILL,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_HIGHLIGHT_WIDTH,
+        )
 
         # Draw fill icon (paint bucket)
         center_x = screen_x + tile_size // 2
         center_y = screen_y + tile_size // 2
-        pygame.draw.circle(screen, (0, 255, 255), (center_x, center_y), tile_size // 4, 2)
+        pygame.draw.circle(
+            screen,
+            ToolColors.CURSOR_FILL,
+            (center_x, center_y),
+            tile_size // 4,
+            RenderSettings.CURSOR_OUTLINE_WIDTH,
+        )
 
         # Draw mode indicator (4 or 8)
         mode_text = "8" if self.use_8way else "4"
         font = pygame.font.Font(None, 20)
-        text_surface = font.render(mode_text, True, (0, 255, 255))
+        text_surface = font.render(mode_text, True, ToolColors.CURSOR_FILL)
         text_rect = text_surface.get_rect(center=(center_x, center_y))
         screen.blit(text_surface, text_rect)

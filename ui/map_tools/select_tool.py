@@ -15,6 +15,7 @@ import pygame
 
 from ...rendering.tilemap import Tile
 from .base import MapTool, ToolContext
+from .settings import ConnectivityModes, RenderSettings, ToolColors, get_tool_color
 
 
 class SelectTool(MapTool):
@@ -29,7 +30,7 @@ class SelectTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("Select", 4, (150, 150, 0))
+        super().__init__("Select", 4, get_tool_color("select"))
         self.cursor_type = "select"
         self.selection_start: Optional[Tuple[int, int]] = None
         self.selection_end: Optional[Tuple[int, int]] = None
@@ -125,8 +126,8 @@ class SelectTool(MapTool):
             # Add to selection
             self.magic_wand_selection.add((x, y))
 
-            # Add neighbors to queue
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            # Add neighbors to queue (using 4-way connectivity)
+            for dx, dy in ConnectivityModes.FOUR_WAY:
                 nx, ny = x + dx, y + dy
 
                 if (
@@ -272,11 +273,16 @@ class SelectTool(MapTool):
             height = (max_y - min_y + 1) * tile_size
 
             # Draw selection box
-            pygame.draw.rect(screen, (255, 255, 0), (screen_x, screen_y, width, height), 2)
+            pygame.draw.rect(
+                screen,
+                ToolColors.CURSOR_SELECT_RECT,
+                (screen_x, screen_y, width, height),
+                RenderSettings.CURSOR_OUTLINE_WIDTH,
+            )
 
             # Draw semi-transparent overlay
             overlay = pygame.Surface((width, height), pygame.SRCALPHA)
-            overlay.fill((255, 255, 0, 50))
+            overlay.fill((*ToolColors.CURSOR_SELECT_RECT, RenderSettings.SELECTION_OVERLAY_ALPHA))
             screen.blit(overlay, (screen_x, screen_y))
 
         # Render magic wand selection
@@ -286,16 +292,23 @@ class SelectTool(MapTool):
                 screen_y = sel_y * tile_size + camera_offset[1]
 
                 # Draw selection box for each tile
-                pygame.draw.rect(screen, (255, 100, 255), (screen_x, screen_y, tile_size, tile_size), 2)
+                pygame.draw.rect(
+                    screen,
+                    ToolColors.CURSOR_SELECT_WAND,
+                    (screen_x, screen_y, tile_size, tile_size),
+                    RenderSettings.CURSOR_OUTLINE_WIDTH,
+                )
 
                 # Draw semi-transparent overlay
                 overlay = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
-                overlay.fill((255, 100, 255, 50))
+                overlay.fill((*ToolColors.CURSOR_SELECT_WAND, RenderSettings.SELECTION_OVERLAY_ALPHA))
                 screen.blit(overlay, (screen_x, screen_y))
 
         # Draw cursor
         screen_x = grid_x * tile_size + camera_offset[0]
         screen_y = grid_y * tile_size + camera_offset[1]
 
-        color = (255, 255, 0) if self.selection_mode == "rectangle" else (255, 100, 255)
-        pygame.draw.rect(screen, color, (screen_x, screen_y, tile_size, tile_size), 2)
+        color = ToolColors.CURSOR_SELECT_RECT if self.selection_mode == "rectangle" else ToolColors.CURSOR_SELECT_WAND
+        pygame.draw.rect(
+            screen, color, (screen_x, screen_y, tile_size, tile_size), RenderSettings.CURSOR_OUTLINE_WIDTH
+        )
