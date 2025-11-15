@@ -187,9 +187,7 @@ def demo_character_generator_integration():
 
             # Export with proper naming convention: {component_id}_{animation}_{frame}.png
             output_dir = Path(f"output/demo4_character_gen/{component_data['id']}")
-            animator.export_animation_frames(
-                frames, output_dir, component_data["id"], anim_type
-            )
+            animator.export_animation_frames(frames, output_dir, component_data["id"], anim_type)
 
             print(f"  ✓ {anim_type}: {len(frames)} frames")
 

@@ -15,7 +15,7 @@ import sys
 
 import pygame
 
-from neonworks.engine.data.database_schema import Effect, DropItem, EffectType
+from neonworks.engine.data.database_schema import DropItem, Effect, EffectType
 from neonworks.engine.ui.database_fields import (
     ActionEditor,
     DropEditor,

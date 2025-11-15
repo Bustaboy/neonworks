@@ -9,8 +9,8 @@ from typing import Any, Dict, Optional
 
 import pygame
 
-from neonworks.engine.ui.event_editor_ui import EventEditorUI
 from neonworks.engine.ui.character_generator_ui import CharacterGeneratorUI
+from neonworks.engine.ui.event_editor_ui import EventEditorUI
 from neonworks.engine.ui.face_generator_ui import FaceGeneratorUI
 
 
@@ -65,7 +65,7 @@ class MasterUIManager:
             self.character_generator.set_ui_references(
                 database_editor=self.database_editor,
                 asset_browser=None,  # Will be set if asset browser is added
-                level_builder=self.level_builder
+                level_builder=self.level_builder,
             )
             print("✓ Character generator UI components connected")
 

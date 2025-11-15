@@ -78,7 +78,9 @@ class AnimationScriptParser:
 
         if not model_path.exists():
             print(f"[ScriptParser] Large LLM not found: {model_path}")
-            print("                Download with: python scripts/download_models.py --model llama-3.2-8b")
+            print(
+                "                Download with: python scripts/download_models.py --model llama-3.2-8b"
+            )
             print("                Will use standard LLM for script parsing")
             return
 
@@ -98,7 +100,9 @@ class AnimationScriptParser:
             print(f"[ScriptParser] Failed to load model: {e}")
             self.llm = None
 
-    def parse_script(self, script: str, character_context: Optional[Dict] = None) -> List[AnimationAction]:
+    def parse_script(
+        self, script: str, character_context: Optional[Dict] = None
+    ) -> List[AnimationAction]:
         """
         Parse animation script into structured actions.
 
@@ -167,7 +171,7 @@ class AnimationScriptParser:
         Breaks script into sentences and creates basic actions.
         """
         # Split by common separators
-        sentences = re.split(r'[,;.]\s*|and\s+then|then\s+', script)
+        sentences = re.split(r"[,;.]\s*|and\s+then|then\s+", script)
 
         actions = []
         for sentence in sentences:
@@ -278,7 +282,7 @@ Consider:
         """Parse JSON array of actions from LLM response"""
 
         # Find JSON array
-        array_match = re.search(r'\[.*\]', text, re.DOTALL)
+        array_match = re.search(r"\[.*\]", text, re.DOTALL)
 
         if not array_match:
             return None
@@ -364,9 +368,7 @@ class AnimationSequenceGenerator:
             print(f"\n[SequenceGen] Generating action {i}/{len(actions)}: {action.action}")
 
             # Convert action to animation intent
-            intent = self.interpreter.interpret_request(
-                action.prompt, context=character_context
-            )
+            intent = self.interpreter.interpret_request(action.prompt, context=character_context)
 
             # Convert intent to config
             config = self.interpreter.intent_to_config(intent)

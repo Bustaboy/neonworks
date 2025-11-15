@@ -303,9 +303,7 @@ class AutotileEditorUI:
 
             # Match same type checkbox
             checkbox_rect = pygame.Rect(content_x, content_y, 20, 20)
-            self._draw_checkbox(
-                checkbox_rect, self.current_autotile_set.match_same_type
-            )
+            self._draw_checkbox(checkbox_rect, self.current_autotile_set.match_same_type)
             self._draw_text("Match same type", content_x + 30, content_y + 2, size=14)
 
         else:
@@ -495,8 +493,7 @@ class AutotileEditorUI:
 
         # Check if click is in grid
         if not (
-            grid_x <= mouse_x <= grid_x + grid_size
-            and grid_y <= mouse_y <= grid_y + grid_size
+            grid_x <= mouse_x <= grid_x + grid_size and grid_y <= mouse_y <= grid_y + grid_size
         ):
             return
 

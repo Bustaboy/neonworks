@@ -117,9 +117,7 @@ class AIAnimatorUI:
         )
 
         # Preset buttons
-        self.preset_label = Label(
-            text="Quick Presets:", x=self.panel_x + 20, y=self.panel_y + 310
-        )
+        self.preset_label = Label(text="Quick Presets:", x=self.panel_x + 20, y=self.panel_y + 310)
 
         preset_y = self.panel_y + 340
         preset_spacing = 35
@@ -167,13 +165,9 @@ class AIAnimatorUI:
             text="Advanced Options:", x=self.panel_x + 20, y=self.panel_y + 510
         )
 
-        self.intensity_label = Label(
-            text="Intensity:", x=self.panel_x + 20, y=self.panel_y + 540
-        )
+        self.intensity_label = Label(text="Intensity:", x=self.panel_x + 20, y=self.panel_y + 540)
 
-        self.speed_label = Label(
-            text="Speed:", x=self.panel_x + 220, y=self.panel_y + 540
-        )
+        self.speed_label = Label(text="Speed:", x=self.panel_x + 220, y=self.panel_y + 540)
 
         # TODO: Add sliders for intensity and speed
 
@@ -549,7 +543,9 @@ class AIAnimatorUI:
         self.preview_playing = True
         self._update_frame_info()
 
-        self.generate_status_label.set_text(f"✓ Generated {len(self.current_animation_frames)} frames")
+        self.generate_status_label.set_text(
+            f"✓ Generated {len(self.current_animation_frames)} frames"
+        )
 
     def _on_play(self):
         """Play animation preview"""
@@ -562,17 +558,17 @@ class AIAnimatorUI:
     def _on_prev_frame(self):
         """Go to previous frame"""
         if self.current_animation_frames:
-            self.preview_frame_index = (
-                self.preview_frame_index - 1
-            ) % len(self.current_animation_frames)
+            self.preview_frame_index = (self.preview_frame_index - 1) % len(
+                self.current_animation_frames
+            )
             self._update_frame_info()
 
     def _on_next_frame(self):
         """Go to next frame"""
         if self.current_animation_frames:
-            self.preview_frame_index = (
-                self.preview_frame_index + 1
-            ) % len(self.current_animation_frames)
+            self.preview_frame_index = (self.preview_frame_index + 1) % len(
+                self.current_animation_frames
+            )
             self._update_frame_info()
 
     def _on_export_frames(self):

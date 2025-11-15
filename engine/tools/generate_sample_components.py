@@ -25,12 +25,9 @@ def create_body_sprite(width: int, height: int, skin_color: tuple) -> pygame.Sur
     radius_x = width // 3
     radius_y = height // 2 - 2
 
-    pygame.draw.ellipse(surface, skin_color, (
-        center_x - radius_x,
-        center_y - radius_y,
-        radius_x * 2,
-        radius_y * 2
-    ))
+    pygame.draw.ellipse(
+        surface, skin_color, (center_x - radius_x, center_y - radius_y, radius_x * 2, radius_y * 2)
+    )
 
     # Draw head (circle)
     head_radius = width // 4
@@ -53,12 +50,16 @@ def create_hair_sprite(width: int, height: int, hair_color: tuple, style: str) -
         pygame.draw.circle(surface, hair_color, (center_x, center_y - height // 3), head_radius)
     elif style == "long":
         # Long hair - larger area
-        pygame.draw.ellipse(surface, hair_color, (
-            center_x - head_radius - 2,
-            center_y - height // 2,
-            (head_radius + 2) * 2,
-            height // 2 + 5
-        ))
+        pygame.draw.ellipse(
+            surface,
+            hair_color,
+            (
+                center_x - head_radius - 2,
+                center_y - height // 2,
+                (head_radius + 2) * 2,
+                height // 2 + 5,
+            ),
+        )
     elif style == "ponytail":
         # Ponytail - cap + tail
         pygame.draw.circle(surface, hair_color, (center_x, center_y - height // 3), head_radius)
@@ -77,12 +78,9 @@ def create_outfit_sprite(width: int, height: int, outfit_type: str, color: tuple
 
     if outfit_type == "armor":
         # Armor - rectangle with details
-        pygame.draw.rect(surface, color, (
-            center_x - width // 4,
-            center_y - 2,
-            width // 2,
-            height // 3
-        ))
+        pygame.draw.rect(
+            surface, color, (center_x - width // 4, center_y - 2, width // 2, height // 3)
+        )
         # Add shoulder plates
         pygame.draw.rect(surface, color, (center_x - width // 3, center_y - 5, 6, 6))
         pygame.draw.rect(surface, color, (center_x + width // 4, center_y - 5, 6, 6))
@@ -92,18 +90,15 @@ def create_outfit_sprite(width: int, height: int, outfit_type: str, color: tuple
         points = [
             (center_x, center_y - 5),
             (center_x - width // 3, center_y + height // 4),
-            (center_x + width // 3, center_y + height // 4)
+            (center_x + width // 3, center_y + height // 4),
         ]
         pygame.draw.polygon(surface, color, points)
 
     elif outfit_type == "clothes":
         # Simple clothes - basic rectangle
-        pygame.draw.rect(surface, color, (
-            center_x - width // 5,
-            center_y,
-            width // 2 + 2,
-            height // 4
-        ))
+        pygame.draw.rect(
+            surface, color, (center_x - width // 5, center_y, width // 2 + 2, height // 4)
+        )
 
     return surface
 
@@ -129,20 +124,13 @@ def create_weapon_sprite(width: int, height: int, weapon_type: str, color: tuple
 
     elif weapon_type == "bow":
         # Bow - arc shape
-        pygame.draw.arc(surface, color, (
-            center_x + width // 5,
-            center_y - 8,
-            8,
-            14
-        ), 0.5, 2.64, 2)
+        pygame.draw.arc(surface, color, (center_x + width // 5, center_y - 8, 8, 14), 0.5, 2.64, 2)
 
     return surface
 
 
 def create_multi_frame_sprite(
-    base_surface: pygame.Surface,
-    num_frames: int,
-    num_directions: int
+    base_surface: pygame.Surface, num_frames: int, num_directions: int
 ) -> pygame.Surface:
     """
     Create a multi-frame sprite sheet from a base sprite.
@@ -208,9 +196,9 @@ def generate_sample_components(output_dir: str = "test_outputs/character_compone
     body_dir.mkdir(exist_ok=True)
 
     body_variants = [
-        ("human_male", (255, 220, 180)),      # Light skin
-        ("human_female", (255, 200, 170)),    # Light skin
-        ("elf_male", (220, 255, 220)),        # Greenish tint
+        ("human_male", (255, 220, 180)),  # Light skin
+        ("human_female", (255, 200, 170)),  # Light skin
+        ("elf_male", (220, 255, 220)),  # Greenish tint
     ]
 
     for name, color in body_variants:
@@ -225,9 +213,9 @@ def generate_sample_components(output_dir: str = "test_outputs/character_compone
             "frames": num_frames,
             "directions": num_directions,
             "frame_width": sprite_size,
-            "frame_height": sprite_size
+            "frame_height": sprite_size,
         }
-        with open(filename.with_suffix('.json'), 'w') as f:
+        with open(filename.with_suffix(".json"), "w") as f:
             json.dump(metadata, f, indent=2)
 
         components.append(f"body/{name}")
@@ -255,9 +243,9 @@ def generate_sample_components(output_dir: str = "test_outputs/character_compone
             "frames": num_frames,
             "directions": num_directions,
             "frame_width": sprite_size,
-            "frame_height": sprite_size
+            "frame_height": sprite_size,
         }
-        with open(filename.with_suffix('.json'), 'w') as f:
+        with open(filename.with_suffix(".json"), "w") as f:
             json.dump(metadata, f, indent=2)
 
         components.append(f"hair/{name}")
@@ -285,9 +273,9 @@ def generate_sample_components(output_dir: str = "test_outputs/character_compone
             "frames": num_frames,
             "directions": num_directions,
             "frame_width": sprite_size,
-            "frame_height": sprite_size
+            "frame_height": sprite_size,
         }
-        with open(filename.with_suffix('.json'), 'w') as f:
+        with open(filename.with_suffix(".json"), "w") as f:
             json.dump(metadata, f, indent=2)
 
         components.append(f"outfit/{name}")
@@ -315,9 +303,9 @@ def generate_sample_components(output_dir: str = "test_outputs/character_compone
             "frames": num_frames,
             "directions": num_directions,
             "frame_width": sprite_size,
-            "frame_height": sprite_size
+            "frame_height": sprite_size,
         }
-        with open(filename.with_suffix('.json'), 'w') as f:
+        with open(filename.with_suffix(".json"), "w") as f:
             json.dump(metadata, f, indent=2)
 
         components.append(f"weapon/{name}")

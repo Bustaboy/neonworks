@@ -17,12 +17,12 @@ from typing import Dict, List, Optional, Tuple
 import pygame
 
 from neonworks.engine.tools.face_generator import (
+    ColorTint,
+    Expression,
     FaceGenerator,
-    FacePreset,
     FaceLayer,
     FaceLayerType,
-    Expression,
-    ColorTint,
+    FacePreset,
 )
 
 
@@ -63,7 +63,7 @@ class FaceGeneratorUI:
         # Color picker state
         self.show_color_picker = False
         self.editing_color_layer: Optional[FaceLayerType] = None
-        self.color_sliders = {'r': 255, 'g': 255, 'b': 255, 'a': 255}
+        self.color_sliders = {"r": 255, "g": 255, "b": 255, "a": 255}
 
         # AI description input state
         self.ai_description = ""
@@ -242,12 +242,7 @@ class FaceGeneratorUI:
 
         # Color picker overlay (if active)
         if self.show_color_picker:
-            self._render_color_picker(
-                screen_width // 2 - 200,
-                screen_height // 2 - 250,
-                400,
-                500
-            )
+            self._render_color_picker(screen_width // 2 - 200, screen_height // 2 - 250, 400, 500)
 
     def _render_expression_selector(self, x: int, y: int, width: int, height: int):
         """Render expression selector bar."""
@@ -288,32 +283,30 @@ class FaceGeneratorUI:
             color = (100, 150, 200) if is_selected else (50, 50, 70)
 
             # Check hover
-            is_hovered = (button_x <= mouse_pos[0] <= button_x + button_width and
-                         y + 10 <= mouse_pos[1] <= y + 10 + button_height)
+            is_hovered = (
+                button_x <= mouse_pos[0] <= button_x + button_width
+                and y + 10 <= mouse_pos[1] <= y + 10 + button_height
+            )
             if is_hovered and not is_selected:
                 color = (70, 70, 100)
 
             # Button
             pygame.draw.rect(
-                self.screen,
-                color,
-                (button_x, y + 10, button_width, button_height),
-                border_radius=3
+                self.screen, color, (button_x, y + 10, button_width, button_height), border_radius=3
             )
 
             # Label
-            expr_label = self.small_font.render(
-                expr.value.capitalize(),
-                True,
-                (255, 255, 255)
-            )
+            expr_label = self.small_font.render(expr.value.capitalize(), True, (255, 255, 255))
             label_x = button_x + (button_width - expr_label.get_width()) // 2
             label_y = y + 10 + (button_height - expr_label.get_height()) // 2
             self.screen.blit(expr_label, (label_x, label_y))
 
             # Store rect
-            setattr(self, f'_expr_btn_{expr.name}',
-                   pygame.Rect(button_x, y + 10, button_width, button_height))
+            setattr(
+                self,
+                f"_expr_btn_{expr.name}",
+                pygame.Rect(button_x, y + 10, button_width, button_height),
+            )
 
             button_x += button_width + button_spacing
 
@@ -328,14 +321,14 @@ class FaceGeneratorUI:
             self.screen,
             input_bg_color,
             (x, y, width - button_width - 10, input_height),
-            border_radius=4
+            border_radius=4,
         )
         pygame.draw.rect(
             self.screen,
             (100, 100, 120),
             (x, y, width - button_width - 10, input_height),
             2,
-            border_radius=4
+            border_radius=4,
         )
 
         # Placeholder or text
@@ -376,11 +369,11 @@ class FaceGeneratorUI:
             button_width,
             input_height,
             button_color,
-            id_="generate_ai"
+            id_="generate_ai",
         )
 
         # Store input field rect for click detection
-        setattr(self, '_ai_input_rect', pygame.Rect(x, y, width - button_width - 10, input_height))
+        setattr(self, "_ai_input_rect", pygame.Rect(x, y, width - button_width - 10, input_height))
 
     def _render_category_tabs(self, x: int, y: int, width: int, height: int):
         """Render left panel with component category tabs."""
@@ -421,27 +414,29 @@ class FaceGeneratorUI:
             color = (80, 120, 180) if is_selected else (40, 40, 60)
 
             # Check hover
-            is_hovered = (x + 5 <= mouse_pos[0] <= x + width - 5 and
-                         button_y <= mouse_pos[1] <= button_y + button_height)
+            is_hovered = (
+                x + 5 <= mouse_pos[0] <= x + width - 5
+                and button_y <= mouse_pos[1] <= button_y + button_height
+            )
             if is_hovered and not is_selected:
                 color = (60, 60, 90)
 
             # Button
             pygame.draw.rect(
-                self.screen,
-                color,
-                (x + 5, button_y, width - 10, button_height),
-                border_radius=3
+                self.screen, color, (x + 5, button_y, width - 10, button_height), border_radius=3
             )
 
             # Label
-            category_name = category.name.replace('_', ' ').title()
+            category_name = category.name.replace("_", " ").title()
             label = self.small_font.render(category_name, True, (255, 255, 255))
             self.screen.blit(label, (x + 15, button_y + 10))
 
             # Store button rect
-            setattr(self, f'_cat_btn_{category.name}',
-                   pygame.Rect(x + 5, button_y, width - 10, button_height))
+            setattr(
+                self,
+                f"_cat_btn_{category.name}",
+                pygame.Rect(x + 5, button_y, width - 10, button_height),
+            )
 
             button_y += button_height + button_spacing
 
@@ -452,7 +447,7 @@ class FaceGeneratorUI:
         pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 1, border_radius=4)
 
         # Title
-        category_name = self.selected_category.name.replace('_', ' ').title()
+        category_name = self.selected_category.name.replace("_", " ").title()
         label = self.font.render(f"Components: {category_name}", True, (200, 200, 200))
         self.screen.blit(label, (x + 10, y + 10))
 
@@ -488,7 +483,9 @@ class FaceGeneratorUI:
                     col = 0
                     row += 1
                     current_x = x + 10
-                    current_y = grid_start_y + row * (thumbnail_size + padding) - self.component_scroll
+                    current_y = (
+                        grid_start_y + row * (thumbnail_size + padding) - self.component_scroll
+                    )
                 else:
                     current_x += thumbnail_size + padding
                 continue
@@ -500,17 +497,21 @@ class FaceGeneratorUI:
             is_selected = comp_id == self.selected_component_id
 
             # Check hover
-            is_hovered = (current_x <= mouse_pos[0] <= current_x + thumbnail_size and
-                         current_y <= mouse_pos[1] <= current_y + thumbnail_size and
-                         grid_start_y <= mouse_pos[1] <= y + height)
+            is_hovered = (
+                current_x <= mouse_pos[0] <= current_x + thumbnail_size
+                and current_y <= mouse_pos[1] <= current_y + thumbnail_size
+                and grid_start_y <= mouse_pos[1] <= y + height
+            )
 
             # Thumbnail background
-            bg_color = (120, 160, 220) if is_selected else (90, 130, 170) if is_hovered else (50, 50, 70)
+            bg_color = (
+                (120, 160, 220) if is_selected else (90, 130, 170) if is_hovered else (50, 50, 70)
+            )
             pygame.draw.rect(
                 self.screen,
                 bg_color,
                 (current_x, current_y, thumbnail_size, thumbnail_size),
-                border_radius=4
+                border_radius=4,
             )
 
             # Render component preview
@@ -530,12 +531,15 @@ class FaceGeneratorUI:
                 pygame.draw.rect(
                     self.screen,
                     (100, 100, 120),
-                    (current_x + 4, current_y + 4, thumbnail_size - 8, thumbnail_size - 8)
+                    (current_x + 4, current_y + 4, thumbnail_size - 8, thumbnail_size - 8),
                 )
 
             # Store rect for click detection
-            setattr(self, f'_comp_btn_{comp_id}',
-                   pygame.Rect(current_x, current_y, thumbnail_size, thumbnail_size))
+            setattr(
+                self,
+                f"_comp_btn_{comp_id}",
+                pygame.Rect(current_x, current_y, thumbnail_size, thumbnail_size),
+            )
 
             # Next position
             col += 1
@@ -596,7 +600,7 @@ class FaceGeneratorUI:
                 self.screen,
                 bg_color,
                 (preview_x, preview_y, preview_size, preview_size),
-                border_radius=4
+                border_radius=4,
             )
 
             # Render preview
@@ -618,17 +622,10 @@ class FaceGeneratorUI:
         """Render bottom control buttons."""
         # Background
         pygame.draw.rect(
-            self.screen,
-            (30, 30, 45),
-            (x + 10, y, width - 20, height),
-            border_radius=4
+            self.screen, (30, 30, 45), (x + 10, y, width - 20, height), border_radius=4
         )
         pygame.draw.rect(
-            self.screen,
-            (60, 60, 80),
-            (x + 10, y, width - 20, height),
-            1,
-            border_radius=4
+            self.screen, (60, 60, 80), (x + 10, y, width - 20, height), 1, border_radius=4
         )
 
         button_width = 140
@@ -647,7 +644,9 @@ class FaceGeneratorUI:
 
         button_x = x + 20
         for label, color, btn_id in top_buttons:
-            self._render_button(label, button_x, button_y, button_width, button_height, color, id_=btn_id)
+            self._render_button(
+                label, button_x, button_y, button_width, button_height, color, id_=btn_id
+            )
             button_x += button_width + button_spacing
 
         # Bottom row buttons
@@ -659,7 +658,9 @@ class FaceGeneratorUI:
 
         button_x = x + 20
         for label, color, btn_id in bottom_buttons:
-            self._render_button(label, button_x, bottom_y, button_width, button_height, color, id_=btn_id)
+            self._render_button(
+                label, button_x, bottom_y, button_width, button_height, color, id_=btn_id
+            )
             button_x += button_width + button_spacing
 
         # Export size selector
@@ -679,7 +680,7 @@ class FaceGeneratorUI:
                 size_btn_width,
                 button_height,
                 color,
-                id_=f"size_{size}"
+                id_=f"size_{size}",
             )
             button_x += size_btn_width + 5
 
@@ -691,7 +692,9 @@ class FaceGeneratorUI:
         ]
 
         for label, color, btn_id in export_buttons:
-            self._render_button(label, button_x, bottom_y, button_width, button_height, color, id_=btn_id)
+            self._render_button(
+                label, button_x, bottom_y, button_width, button_height, color, id_=btn_id
+            )
             button_x += button_width + button_spacing
 
     def _render_button(
@@ -702,11 +705,11 @@ class FaceGeneratorUI:
         width: int,
         height: int,
         color: Tuple[int, int, int],
-        id_: str = ""
+        id_: str = "",
     ) -> bool:
         """Render a button and return True if hovered."""
         mouse_pos = pygame.mouse.get_pos()
-        is_hovered = (x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height)
+        is_hovered = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height
 
         # Adjust color on hover
         if is_hovered:
@@ -725,7 +728,7 @@ class FaceGeneratorUI:
 
         # Store rect for click detection
         if id_:
-            setattr(self, f'_btn_{id_}', pygame.Rect(x, y, width, height))
+            setattr(self, f"_btn_{id_}", pygame.Rect(x, y, width, height))
 
         return is_hovered
 
@@ -747,12 +750,12 @@ class FaceGeneratorUI:
         slider_height = 30
         slider_spacing = 50
 
-        for channel in ['r', 'g', 'b', 'a']:
+        for channel in ["r", "g", "b", "a"]:
             label_color = {
-                'r': (255, 100, 100),
-                'g': (100, 255, 100),
-                'b': (100, 100, 255),
-                'a': (200, 200, 200),
+                "r": (255, 100, 100),
+                "g": (100, 255, 100),
+                "b": (100, 100, 255),
+                "a": (200, 200, 200),
             }[channel]
 
             label = self.font.render(channel.upper(), True, label_color)
@@ -765,7 +768,7 @@ class FaceGeneratorUI:
                 self.screen,
                 (50, 50, 70),
                 (track_x, slider_y, track_width, slider_height),
-                border_radius=3
+                border_radius=3,
             )
 
             # Slider fill
@@ -774,7 +777,7 @@ class FaceGeneratorUI:
                 self.screen,
                 label_color,
                 (track_x, slider_y, fill_width, slider_height),
-                border_radius=3
+                border_radius=3,
             )
 
             # Value label
@@ -782,8 +785,11 @@ class FaceGeneratorUI:
             self.screen.blit(value_label, (x + width - 70, slider_y + 5))
 
             # Store rect for interaction
-            setattr(self, f'_slider_{channel}',
-                   pygame.Rect(track_x, slider_y, track_width, slider_height))
+            setattr(
+                self,
+                f"_slider_{channel}",
+                pygame.Rect(track_x, slider_y, track_width, slider_height),
+            )
 
             slider_y += slider_spacing
 
@@ -793,10 +799,10 @@ class FaceGeneratorUI:
         preview_x = x + (width - preview_size) // 2
 
         preview_color = (
-            self.color_sliders['r'],
-            self.color_sliders['g'],
-            self.color_sliders['b'],
-            self.color_sliders['a'],
+            self.color_sliders["r"],
+            self.color_sliders["g"],
+            self.color_sliders["b"],
+            self.color_sliders["a"],
         )
         preview_surface = pygame.Surface((preview_size, preview_size), pygame.SRCALPHA)
         preview_surface.fill(preview_color)
@@ -805,40 +811,34 @@ class FaceGeneratorUI:
         # Apply button
         apply_y = preview_y + preview_size + 30
         self._render_button(
-            "Apply",
-            x + width // 2 - 60,
-            apply_y,
-            120,
-            40,
-            (0, 150, 0),
-            id_="apply_color"
+            "Apply", x + width // 2 - 60, apply_y, 120, 40, (0, 150, 0), id_="apply_color"
         )
 
     def _handle_click(self, mouse_pos: Tuple[int, int]) -> bool:
         """Handle mouse click events."""
         # AI input field click
-        if hasattr(self, '_ai_input_rect'):
-            rect = getattr(self, '_ai_input_rect')
+        if hasattr(self, "_ai_input_rect"):
+            rect = getattr(self, "_ai_input_rect")
             if rect.collidepoint(mouse_pos):
                 self.ai_input_active = True
                 return True
 
         # Generate from AI button
-        if hasattr(self, '_btn_generate_ai'):
-            rect = getattr(self, '_btn_generate_ai')
+        if hasattr(self, "_btn_generate_ai"):
+            rect = getattr(self, "_btn_generate_ai")
             if rect.collidepoint(mouse_pos) and self.ai_description.strip():
                 self._generate_from_ai_description()
                 return True
 
         # Close button
-        if hasattr(self, '_btn_close'):
-            if getattr(self, '_btn_close').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_close"):
+            if getattr(self, "_btn_close").collidepoint(mouse_pos):
                 self.visible = False
                 return True
 
         # Expression selector
         for expr in Expression:
-            btn_attr = f'_expr_btn_{expr.name}'
+            btn_attr = f"_expr_btn_{expr.name}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -847,7 +847,7 @@ class FaceGeneratorUI:
 
         # Category buttons
         for category in FaceLayerType:
-            btn_attr = f'_cat_btn_{category.name}'
+            btn_attr = f"_cat_btn_{category.name}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -858,7 +858,7 @@ class FaceGeneratorUI:
         # Component thumbnails
         components = self.generator.list_components(self.selected_category)
         for comp_id in components.keys():
-            btn_attr = f'_comp_btn_{comp_id}'
+            btn_attr = f"_comp_btn_{comp_id}"
             if hasattr(self, btn_attr):
                 rect = getattr(self, btn_attr)
                 if rect.collidepoint(mouse_pos):
@@ -866,75 +866,75 @@ class FaceGeneratorUI:
                     return True
 
         # Bottom control buttons
-        if hasattr(self, '_btn_add_component'):
-            if getattr(self, '_btn_add_component').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_add_component"):
+            if getattr(self, "_btn_add_component").collidepoint(mouse_pos):
                 self._add_component_to_face()
                 return True
 
-        if hasattr(self, '_btn_color_tint'):
-            if getattr(self, '_btn_color_tint').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_color_tint"):
+            if getattr(self, "_btn_color_tint").collidepoint(mouse_pos):
                 self.show_color_picker = True
                 return True
 
-        if hasattr(self, '_btn_randomize'):
-            if getattr(self, '_btn_randomize').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_randomize"):
+            if getattr(self, "_btn_randomize").collidepoint(mouse_pos):
                 self._randomize_face()
                 return True
 
-        if hasattr(self, '_btn_clear_all'):
-            if getattr(self, '_btn_clear_all').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_clear_all"):
+            if getattr(self, "_btn_clear_all").collidepoint(mouse_pos):
                 self.current_preset = FacePreset(name="New Face")
                 self._regenerate_all_previews()
                 return True
 
-        if hasattr(self, '_btn_sync_colors'):
-            if getattr(self, '_btn_sync_colors').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_sync_colors"):
+            if getattr(self, "_btn_sync_colors").collidepoint(mouse_pos):
                 self._sync_colors_from_character()
                 return True
 
-        if hasattr(self, '_btn_save_preset'):
-            if getattr(self, '_btn_save_preset').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_save_preset"):
+            if getattr(self, "_btn_save_preset").collidepoint(mouse_pos):
                 self._save_preset()
                 return True
 
-        if hasattr(self, '_btn_load_preset'):
-            if getattr(self, '_btn_load_preset').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_load_preset"):
+            if getattr(self, "_btn_load_preset").collidepoint(mouse_pos):
                 self._load_preset()
                 return True
 
         # Export size buttons
         for size in self.export_sizes:
-            btn_attr = f'_btn_size_{size}'
+            btn_attr = f"_btn_size_{size}"
             if hasattr(self, btn_attr):
                 if getattr(self, btn_attr).collidepoint(mouse_pos):
                     self.export_size = size
                     return True
 
-        if hasattr(self, '_btn_export_single'):
-            if getattr(self, '_btn_export_single').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_export_single"):
+            if getattr(self, "_btn_export_single").collidepoint(mouse_pos):
                 self._export_single_expression()
                 return True
 
-        if hasattr(self, '_btn_export_all'):
-            if getattr(self, '_btn_export_all').collidepoint(mouse_pos):
+        if hasattr(self, "_btn_export_all"):
+            if getattr(self, "_btn_export_all").collidepoint(mouse_pos):
                 self._export_all_expressions()
                 return True
 
         # Color picker buttons
         if self.show_color_picker:
-            if hasattr(self, '_btn_close_picker'):
-                if getattr(self, '_btn_close_picker').collidepoint(mouse_pos):
+            if hasattr(self, "_btn_close_picker"):
+                if getattr(self, "_btn_close_picker").collidepoint(mouse_pos):
                     self.show_color_picker = False
                     return True
 
-            if hasattr(self, '_btn_apply_color'):
-                if getattr(self, '_btn_apply_color').collidepoint(mouse_pos):
+            if hasattr(self, "_btn_apply_color"):
+                if getattr(self, "_btn_apply_color").collidepoint(mouse_pos):
                     self._apply_color_tint()
                     return True
 
             # Check slider clicks
-            for channel in ['r', 'g', 'b', 'a']:
-                slider_attr = f'_slider_{channel}'
+            for channel in ["r", "g", "b", "a"]:
+                slider_attr = f"_slider_{channel}"
                 if hasattr(self, slider_attr):
                     rect = getattr(self, slider_attr)
                     if rect.collidepoint(mouse_pos):
@@ -985,8 +985,7 @@ class FaceGeneratorUI:
 
             # Use the face generator's AI-friendly method
             self.current_preset = self.generator.generate_from_description(
-                self.ai_description,
-                name="AI Generated Face"
+                self.ai_description, name="AI Generated Face"
             )
 
             # Auto-set expression if detected
@@ -1017,10 +1016,10 @@ class FaceGeneratorUI:
 
         layer = self.current_preset.layers[-1]
         layer.tint = ColorTint(
-            r=self.color_sliders['r'],
-            g=self.color_sliders['g'],
-            b=self.color_sliders['b'],
-            a=self.color_sliders['a'],
+            r=self.color_sliders["r"],
+            g=self.color_sliders["g"],
+            b=self.color_sliders["b"],
+            a=self.color_sliders["a"],
         )
 
         self._regenerate_all_previews()
@@ -1094,10 +1093,7 @@ class FaceGeneratorUI:
             output_path = output_dir / filename
 
             self.generator.render_face(
-                self.current_preset,
-                output_path,
-                self.selected_expression,
-                self.export_size
+                self.current_preset, output_path, self.selected_expression, self.export_size
             )
             print(f"✓ Exported {self.selected_expression.value} to {output_path}")
         except Exception as e:
@@ -1110,9 +1106,7 @@ class FaceGeneratorUI:
             output_dir.mkdir(parents=True, exist_ok=True)
 
             self.generator.batch_export_expressions(
-                self.current_preset,
-                output_dir,
-                output_size=self.export_size
+                self.current_preset, output_dir, output_size=self.export_size
             )
             print(f"✓ Exported all expressions to {output_dir}")
         except Exception as e:
@@ -1122,13 +1116,11 @@ class FaceGeneratorUI:
         """Regenerate all expression previews."""
         try:
             self.expression_previews = self.generator.render_all_expressions(
-                self.current_preset,
-                output_size=128
+                self.current_preset, output_size=128
             )
         except Exception as e:
             print(f"⚠ Preview generation failed: {e}")
             # Create empty previews
             self.expression_previews = {
-                expr: pygame.Surface((128, 128), pygame.SRCALPHA)
-                for expr in Expression
+                expr: pygame.Surface((128, 128), pygame.SRCALPHA) for expr in Expression
             }

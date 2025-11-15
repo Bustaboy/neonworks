@@ -203,9 +203,7 @@ class AITilesetGenerator:
         tile = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
 
         # Get base color (cycle through color variations)
-        base_color = terrain_def["base_colors"][
-            variation_index % len(terrain_def["base_colors"])
-        ]
+        base_color = terrain_def["base_colors"][variation_index % len(terrain_def["base_colors"])]
 
         # Fill with base color
         tile.fill(base_color)
@@ -263,9 +261,7 @@ class AITilesetGenerator:
 
         for i in range(2):
             y = size // 3 * (i + 1)
-            pygame.draw.line(
-                surface, wave_color, (0, y), (size, y + random.randint(-2, 2)), 1
-            )
+            pygame.draw.line(surface, wave_color, (0, y), (size, y + random.randint(-2, 2)), 1)
 
     def _add_stone_details(
         self, surface: pygame.Surface, base_color: Tuple[int, int, int], size: int

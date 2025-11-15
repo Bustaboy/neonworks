@@ -122,9 +122,7 @@ class TilesetInfo:
             "spacing": self.spacing,
             "margin": self.margin,
             "tile_count": self.tile_count,
-            "metadata": {
-                tile_id: meta.to_dict() for tile_id, meta in self.metadata.items()
-            },
+            "metadata": {tile_id: meta.to_dict() for tile_id, meta in self.metadata.items()},
         }
 
     @staticmethod
@@ -294,21 +292,15 @@ class TilesetManager:
 
         # Clean up references
         self.recently_used = [
-            (ts_id, tile_id)
-            for ts_id, tile_id in self.recently_used
-            if ts_id != tileset_id
+            (ts_id, tile_id) for ts_id, tile_id in self.recently_used if ts_id != tileset_id
         ]
         self.favorites = {
-            (ts_id, tile_id)
-            for ts_id, tile_id in self.favorites
-            if ts_id != tileset_id
+            (ts_id, tile_id) for ts_id, tile_id in self.favorites if ts_id != tileset_id
         }
 
         # Update active tileset if removed
         if self.active_tileset_id == tileset_id:
-            self.active_tileset_id = (
-                next(iter(self.tilesets.keys())) if self.tilesets else None
-            )
+            self.active_tileset_id = next(iter(self.tilesets.keys())) if self.tilesets else None
 
         return True
 
@@ -346,12 +338,12 @@ class TilesetManager:
             available_width = surface_width - (2 * tileset.margin)
             available_height = surface_height - (2 * tileset.margin)
 
-            tileset.columns = (
-                available_width + tileset.spacing
-            ) // (tileset.tile_width + tileset.spacing)
-            tileset.rows = (
-                available_height + tileset.spacing
-            ) // (tileset.tile_height + tileset.spacing)
+            tileset.columns = (available_width + tileset.spacing) // (
+                tileset.tile_width + tileset.spacing
+            )
+            tileset.rows = (available_height + tileset.spacing) // (
+                tileset.tile_height + tileset.spacing
+            )
 
             tileset.tile_count = tileset.columns * tileset.rows
 
@@ -424,9 +416,7 @@ class TilesetManager:
         self.active_tileset_id = tileset_id
         return True
 
-    def get_tile_surface(
-        self, tileset_id: str, tile_id: int
-    ) -> Optional[pygame.Surface]:
+    def get_tile_surface(self, tileset_id: str, tile_id: int) -> Optional[pygame.Surface]:
         """
         Get a tile surface from a tileset.
 
@@ -561,9 +551,7 @@ class TilesetManager:
         if custom_properties is not None:
             metadata.custom_properties.update(custom_properties)
 
-    def get_tile_metadata(
-        self, tileset_id: str, tile_id: int
-    ) -> Optional[TileMetadata]:
+    def get_tile_metadata(self, tileset_id: str, tile_id: int) -> Optional[TileMetadata]:
         """
         Get metadata for a tile.
 
@@ -590,16 +578,13 @@ class TilesetManager:
             "active_tileset_id": self.active_tileset_id,
             "max_recent_tiles": self.max_recent_tiles,
             "tilesets": {
-                tileset_id: tileset.to_dict()
-                for tileset_id, tileset in self.tilesets.items()
+                tileset_id: tileset.to_dict() for tileset_id, tileset in self.tilesets.items()
             },
             "recently_used": [
-                {"tileset_id": ts_id, "tile_id": tile_id}
-                for ts_id, tile_id in self.recently_used
+                {"tileset_id": ts_id, "tile_id": tile_id} for ts_id, tile_id in self.recently_used
             ],
             "favorites": [
-                {"tileset_id": ts_id, "tile_id": tile_id}
-                for ts_id, tile_id in self.favorites
+                {"tileset_id": ts_id, "tile_id": tile_id} for ts_id, tile_id in self.favorites
             ],
         }
 
@@ -634,14 +619,12 @@ class TilesetManager:
 
             # Load recently used
             self.recently_used = [
-                (item["tileset_id"], item["tile_id"])
-                for item in data.get("recently_used", [])
+                (item["tileset_id"], item["tile_id"]) for item in data.get("recently_used", [])
             ]
 
             # Load favorites
             self.favorites = {
-                (item["tileset_id"], item["tile_id"])
-                for item in data.get("favorites", [])
+                (item["tileset_id"], item["tile_id"]) for item in data.get("favorites", [])
             }
 
             return True

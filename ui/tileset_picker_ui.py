@@ -82,9 +82,7 @@ class TilesetPickerUI:
         self.tab_height = 30
         self.tile_padding = 2
         self.tiles_per_row = 8
-        self.tile_display_size = (
-            self.width - 20
-        ) // self.tiles_per_row - self.tile_padding * 2
+        self.tile_display_size = (self.width - 20) // self.tiles_per_row - self.tile_padding * 2
 
         # Font
         pygame.font.init()
@@ -118,12 +116,8 @@ class TilesetPickerUI:
             return
 
         # Draw background panel
-        pygame.draw.rect(
-            screen, self.PANEL_BG_COLOR, (self.x, self.y, self.width, self.height)
-        )
-        pygame.draw.rect(
-            screen, self.BORDER_COLOR, (self.x, self.y, self.width, self.height), 2
-        )
+        pygame.draw.rect(screen, self.PANEL_BG_COLOR, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(screen, self.BORDER_COLOR, (self.x, self.y, self.width, self.height), 2)
 
         # Draw tabs
         self._render_tabs(screen)
@@ -197,11 +191,7 @@ class TilesetPickerUI:
             tab_rect = (tab_x, tab_y, tab_width, self.tab_height)
 
             # Draw tab background
-            color = (
-                self.TAB_ACTIVE_COLOR
-                if self.active_tab == tab_id
-                else self.TAB_INACTIVE_COLOR
-            )
+            color = self.TAB_ACTIVE_COLOR if self.active_tab == tab_id else self.TAB_INACTIVE_COLOR
             pygame.draw.rect(screen, color, tab_rect)
             pygame.draw.rect(screen, self.BORDER_COLOR, tab_rect, 1)
 
@@ -210,9 +200,7 @@ class TilesetPickerUI:
             text_rect = text.get_rect(center=(tab_x + tab_width // 2, tab_y + self.tab_height // 2))
             screen.blit(text, text_rect)
 
-    def _render_tileset_view(
-        self, screen: pygame.Surface, content_y: int, content_height: int
-    ):
+    def _render_tileset_view(self, screen: pygame.Surface, content_y: int, content_height: int):
         """Render the main tileset grid view."""
         # Draw tileset selector if multiple tilesets
         if len(self.tileset_manager.tilesets) > 1:
@@ -239,9 +227,7 @@ class TilesetPickerUI:
             list(active_tileset.tiles.keys()),
         )
 
-    def _render_recent_view(
-        self, screen: pygame.Surface, content_y: int, content_height: int
-    ):
+    def _render_recent_view(self, screen: pygame.Surface, content_y: int, content_height: int):
         """Render recently used tiles."""
         recent_tiles = self.tileset_manager.get_recent_tiles()
 
@@ -256,9 +242,7 @@ class TilesetPickerUI:
         # Render tiles from all tilesets
         self._render_mixed_tile_grid(screen, content_y, content_height, recent_tiles)
 
-    def _render_favorites_view(
-        self, screen: pygame.Surface, content_y: int, content_height: int
-    ):
+    def _render_favorites_view(self, screen: pygame.Surface, content_y: int, content_height: int):
         """Render favorite tiles."""
         favorite_tiles = self.tileset_manager.get_favorite_tiles()
 
@@ -318,10 +302,7 @@ class TilesetPickerUI:
 
             # Determine background color
             bg_color = self.PANEL_BG_COLOR
-            if (
-                self.selected_tileset_id == tileset_id
-                and self.selected_tile_id == tile_id
-            ):
+            if self.selected_tileset_id == tileset_id and self.selected_tile_id == tile_id:
                 bg_color = self.SELECTED_COLOR
             elif self.hover_tile_id == tile_id:
                 bg_color = self.HOVER_COLOR
@@ -337,8 +318,7 @@ class TilesetPickerUI:
             # Draw border
             border_color = (
                 self.SELECTED_COLOR
-                if self.selected_tileset_id == tileset_id
-                and self.selected_tile_id == tile_id
+                if self.selected_tileset_id == tileset_id and self.selected_tile_id == tile_id
                 else self.BORDER_COLOR
             )
             pygame.draw.rect(screen, border_color, tile_rect, 2)
@@ -397,10 +377,7 @@ class TilesetPickerUI:
             self.tile_positions[(tileset_id, tile_id)] = tile_rect
 
             bg_color = self.PANEL_BG_COLOR
-            if (
-                self.selected_tileset_id == tileset_id
-                and self.selected_tile_id == tile_id
-            ):
+            if self.selected_tileset_id == tileset_id and self.selected_tile_id == tile_id:
                 bg_color = self.SELECTED_COLOR
             elif self.hover_tile_id == tile_id:
                 bg_color = self.HOVER_COLOR
@@ -414,8 +391,7 @@ class TilesetPickerUI:
 
             border_color = (
                 self.SELECTED_COLOR
-                if self.selected_tileset_id == tileset_id
-                and self.selected_tile_id == tile_id
+                if self.selected_tileset_id == tileset_id and self.selected_tile_id == tile_id
                 else self.BORDER_COLOR
             )
             pygame.draw.rect(screen, border_color, tile_rect, 2)
@@ -433,9 +409,7 @@ class TilesetPickerUI:
     def _render_tileset_selector(self, screen: pygame.Surface, y: int):
         """Render dropdown for selecting active tileset."""
         active_tileset = self.tileset_manager.get_active_tileset()
-        text = (
-            active_tileset.name if active_tileset else "No tileset selected"
-        )
+        text = active_tileset.name if active_tileset else "No tileset selected"
 
         # Draw selector box
         selector_rect = (self.x + 10, y, self.width - 20, 25)
@@ -460,9 +434,7 @@ class TilesetPickerUI:
     ):
         """Render message when no tileset is available."""
         text1 = self.font.render("No tileset loaded", True, self.TEXT_COLOR)
-        text2 = self.small_font.render(
-            "Add a tileset to begin", True, self.TEXT_COLOR
-        )
+        text2 = self.small_font.render("Add a tileset to begin", True, self.TEXT_COLOR)
 
         text1_rect = text1.get_rect(
             center=(self.x + self.width // 2, content_y + content_height // 2 - 15)
@@ -476,10 +448,7 @@ class TilesetPickerUI:
 
     def _render_metadata_panel(self, screen: pygame.Surface):
         """Render tile metadata panel at bottom."""
-        if (
-            self.selected_tileset_id is None
-            or self.selected_tile_id is None
-        ):
+        if self.selected_tileset_id is None or self.selected_tile_id is None:
             return
 
         panel_height = 60
@@ -507,9 +476,7 @@ class TilesetPickerUI:
         y_offset = panel_y + 5
 
         # Tile ID
-        text = self.small_font.render(
-            f"Tile ID: {self.selected_tile_id}", True, self.TEXT_COLOR
-        )
+        text = self.small_font.render(f"Tile ID: {self.selected_tile_id}", True, self.TEXT_COLOR)
         screen.blit(text, (self.x + 10, y_offset))
         y_offset += 18
 

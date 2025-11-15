@@ -30,47 +30,47 @@ from __future__ import annotations
 
 import json
 import random
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import pygame
 import numpy as np
+import pygame
 from PIL import Image
 
 
 class LayerType(Enum):
     """Character component layer types in render order (bottom to top)."""
 
-    BODY = 0           # Base body/skin
-    BODY_DETAIL = 1    # Scars, tattoos
-    UNDERWEAR = 2      # Base clothing layer
-    LEGS = 3           # Pants, leg armor
-    FEET = 4           # Shoes, boots
-    TORSO = 5          # Shirt, chest armor
-    BELT = 6           # Belt, waist accessories
-    HANDS = 7          # Gloves, gauntlets
-    CAPE = 8           # Cape, cloak (behind character)
-    WEAPON_BACK = 9    # Weapon on back (sheathed)
-    EYES = 10          # Eyes
-    HAIR_BACK = 11     # Hair behind head
-    HAIR_FRONT = 12    # Hair in front
-    FACIAL_HAIR = 13   # Beard, mustache
-    HEAD = 14          # Helmet, hat, crown
-    NECK = 15          # Necklace, scarf
-    WEAPON = 16        # Weapon in hand
-    ACCESSORY = 17     # Misc accessories
-    EFFECT = 18        # Special effects, aura
+    BODY = 0  # Base body/skin
+    BODY_DETAIL = 1  # Scars, tattoos
+    UNDERWEAR = 2  # Base clothing layer
+    LEGS = 3  # Pants, leg armor
+    FEET = 4  # Shoes, boots
+    TORSO = 5  # Shirt, chest armor
+    BELT = 6  # Belt, waist accessories
+    HANDS = 7  # Gloves, gauntlets
+    CAPE = 8  # Cape, cloak (behind character)
+    WEAPON_BACK = 9  # Weapon on back (sheathed)
+    EYES = 10  # Eyes
+    HAIR_BACK = 11  # Hair behind head
+    HAIR_FRONT = 12  # Hair in front
+    FACIAL_HAIR = 13  # Beard, mustache
+    HEAD = 14  # Helmet, hat, crown
+    NECK = 15  # Necklace, scarf
+    WEAPON = 16  # Weapon in hand
+    ACCESSORY = 17  # Misc accessories
+    EFFECT = 18  # Special effects, aura
 
 
 class Direction(Enum):
     """Sprite facing directions."""
 
-    DOWN = 0      # South
-    LEFT = 1      # West
-    RIGHT = 2     # East
-    UP = 3        # North
+    DOWN = 0  # South
+    LEFT = 1  # West
+    RIGHT = 2  # East
+    UP = 3  # North
     DOWN_LEFT = 4
     DOWN_RIGHT = 5
     UP_LEFT = 6
@@ -98,21 +98,23 @@ class ColorTint:
     def from_dict(cls, data: Dict[str, int]) -> ColorTint:
         """Create from dictionary."""
         return cls(
-            r=data.get("r", 255),
-            g=data.get("g", 255),
-            b=data.get("b", 255),
-            a=data.get("a", 255)
+            r=data.get("r", 255), g=data.get("g", 255), b=data.get("b", 255), a=data.get("a", 255)
         )
 
     @classmethod
     def from_hex(cls, hex_color: str) -> ColorTint:
         """Create from hex color string (#RRGGBB or #RRGGBBAA)."""
-        hex_color = hex_color.lstrip('#')
+        hex_color = hex_color.lstrip("#")
         if len(hex_color) == 6:
             r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
             return cls(r, g, b, 255)
         elif len(hex_color) == 8:
-            r, g, b, a = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16), int(hex_color[6:8], 16)
+            r, g, b, a = (
+                int(hex_color[0:2], 16),
+                int(hex_color[2:4], 16),
+                int(hex_color[4:6], 16),
+                int(hex_color[6:8], 16),
+            )
             return cls(r, g, b, a)
         else:
             raise ValueError(f"Invalid hex color: {hex_color}")
@@ -133,7 +135,7 @@ class ComponentLayer:
             "layer_type": self.layer_type.name,
             "component_id": self.component_id,
             "tint": self.tint.to_dict() if self.tint else None,
-            "enabled": self.enabled
+            "enabled": self.enabled,
         }
 
     @classmethod
@@ -143,7 +145,7 @@ class ComponentLayer:
             layer_type=LayerType[data["layer_type"]],
             component_id=data["component_id"],
             tint=ColorTint.from_dict(data["tint"]) if data.get("tint") else None,
-            enabled=data.get("enabled", True)
+            enabled=data.get("enabled", True),
         )
 
 
@@ -181,7 +183,7 @@ class CharacterPreset:
             "name": self.name,
             "description": self.description,
             "layers": [layer.to_dict() for layer in self.layers],
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -191,7 +193,7 @@ class CharacterPreset:
             name=data["name"],
             description=data.get("description", ""),
             layers=[ComponentLayer.from_dict(l) for l in data.get("layers", [])],
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
@@ -232,7 +234,9 @@ class ComponentSprite:
 
         # Extract frame
         frame_surface = pygame.Surface((self.frame_width, self.frame_height), pygame.SRCALPHA)
-        frame_surface.blit(self.surface, (0, 0), pygame.Rect(x, y, self.frame_width, self.frame_height))
+        frame_surface.blit(
+            self.surface, (0, 0), pygame.Rect(x, y, self.frame_width, self.frame_height)
+        )
 
         return frame_surface
 
@@ -284,9 +288,7 @@ class CharacterGenerator:
         self.presets: Dict[str, CharacterPreset] = {}
 
         # Default component metadata (maps layer type to available components)
-        self.available_components: Dict[LayerType, List[str]] = {
-            layer: [] for layer in LayerType
-        }
+        self.available_components: Dict[LayerType, List[str]] = {layer: [] for layer in LayerType}
 
     def load_component_library(self, library_path: Union[str, Path]):
         """
@@ -315,15 +317,17 @@ class CharacterGenerator:
         layer_map = {layer.name.lower(): layer for layer in LayerType}
 
         # Add friendly aliases for common directory names
-        layer_map.update({
-            "hair": LayerType.HAIR_FRONT,  # Default to front hair
-            "outfit": LayerType.TORSO,     # Outfit = torso clothing
-            "armor": LayerType.TORSO,      # Armor = torso
-            "clothes": LayerType.TORSO,
-            "helmet": LayerType.HEAD,
-            "hat": LayerType.HEAD,
-            "shield": LayerType.ACCESSORY,
-        })
+        layer_map.update(
+            {
+                "hair": LayerType.HAIR_FRONT,  # Default to front hair
+                "outfit": LayerType.TORSO,  # Outfit = torso clothing
+                "armor": LayerType.TORSO,  # Armor = torso
+                "clothes": LayerType.TORSO,
+                "helmet": LayerType.HEAD,
+                "hat": LayerType.HEAD,
+                "shield": LayerType.ACCESSORY,
+            }
+        )
 
         loaded_count = 0
 
@@ -352,7 +356,7 @@ class CharacterGenerator:
                     height = surface.get_height()
 
                     # Check for metadata JSON
-                    meta_file = sprite_file.with_suffix('.json')
+                    meta_file = sprite_file.with_suffix(".json")
                     if meta_file.exists():
                         with open(meta_file) as f:
                             metadata = json.load(f)
@@ -377,7 +381,7 @@ class CharacterGenerator:
                         frame_height=frame_height,
                         num_frames=num_frames,
                         num_directions=num_directions,
-                        metadata=metadata
+                        metadata=metadata,
                     )
 
                     self.component_library[component_id] = component
@@ -393,7 +397,7 @@ class CharacterGenerator:
         self,
         components: Dict[str, str],
         tints: Optional[Dict[str, ColorTint]] = None,
-        name: str = "Character"
+        name: str = "Character",
     ) -> CharacterPreset:
         """
         Create a character preset from component selections.
@@ -452,21 +456,14 @@ class CharacterGenerator:
             # Create layer
             tint = tints.get(layer_name)
             layer = ComponentLayer(
-                layer_type=layer_type,
-                component_id=component_id,
-                tint=tint,
-                enabled=True
+                layer_type=layer_type, component_id=component_id, tint=tint, enabled=True
             )
 
             preset.add_layer(layer)
 
         return preset
 
-    def apply_color_tint(
-        self,
-        surface: pygame.Surface,
-        tint: ColorTint
-    ) -> pygame.Surface:
+    def apply_color_tint(self, surface: pygame.Surface, tint: ColorTint) -> pygame.Surface:
         """
         Apply color tint to a surface.
 
@@ -505,7 +502,7 @@ class CharacterGenerator:
         preset: CharacterPreset,
         frame: int = 0,
         direction: Direction = Direction.DOWN,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ) -> pygame.Surface:
         """
         Compose a single frame from all layers.
@@ -558,7 +555,7 @@ class CharacterGenerator:
         preset: CharacterPreset,
         num_frames: int = 4,
         directions: Optional[List[Direction]] = None,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ) -> pygame.Surface:
         """
         Render a complete sprite sheet with multiple frames and directions.
@@ -605,7 +602,7 @@ class CharacterGenerator:
         output_path: Union[str, Path],
         num_frames: int = 4,
         directions: Optional[List[Direction]] = None,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ):
         """
         Render and save a character sprite sheet.
@@ -627,7 +624,7 @@ class CharacterGenerator:
         print(f"Saved character sprite sheet to {output_path}")
 
         # Save preset JSON
-        preset_path = output_path.with_suffix('.json')
+        preset_path = output_path.with_suffix(".json")
         self.save_preset(preset, preset_path)
 
     def save_preset(self, preset: CharacterPreset, path: Union[str, Path]):
@@ -635,7 +632,7 @@ class CharacterGenerator:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(preset.to_dict(), f, indent=2)
 
         print(f"Saved preset to {path}")
@@ -644,7 +641,7 @@ class CharacterGenerator:
         """Load character preset from JSON."""
         path = Path(path)
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             data = json.load(f)
 
         preset = CharacterPreset.from_dict(data)
@@ -654,9 +651,7 @@ class CharacterGenerator:
         return preset
 
     def randomize_character(
-        self,
-        layer_types: Optional[List[LayerType]] = None,
-        name: str = "Random Character"
+        self, layer_types: Optional[List[LayerType]] = None, name: str = "Random Character"
     ) -> CharacterPreset:
         """
         Create a random character by selecting random components.
@@ -689,14 +684,11 @@ class CharacterGenerator:
                     r=random.randint(150, 255),
                     g=random.randint(150, 255),
                     b=random.randint(150, 255),
-                    a=255
+                    a=255,
                 )
 
             layer = ComponentLayer(
-                layer_type=layer_type,
-                component_id=component_id,
-                tint=tint,
-                enabled=True
+                layer_type=layer_type, component_id=component_id, tint=tint, enabled=True
             )
 
             preset.add_layer(layer)
@@ -704,9 +696,7 @@ class CharacterGenerator:
         return preset
 
     def generate_from_description(
-        self,
-        description: str,
-        name: str = "Generated Character"
+        self, description: str, name: str = "Generated Character"
     ) -> CharacterPreset:
         """
         Generate a character from a text description.
@@ -799,7 +789,7 @@ class CharacterGenerator:
         output_dir: Union[str, Path],
         sizes: Optional[List[int]] = None,
         num_frames: int = 4,
-        directions: Optional[List[Direction]] = None
+        directions: Optional[List[Direction]] = None,
     ):
         """
         Export character at multiple sizes.
@@ -822,11 +812,7 @@ class CharacterGenerator:
             output_path = output_dir / filename
 
             self.render_character(
-                preset,
-                output_path,
-                num_frames=num_frames,
-                directions=directions,
-                output_size=size
+                preset, output_path, num_frames=num_frames, directions=directions, output_size=size
             )
 
             print(f"Exported {size}x{size} sprite sheet")
@@ -834,11 +820,12 @@ class CharacterGenerator:
 
 # Convenience functions
 
+
 def quick_character(
     description: str,
     output_path: str,
     library_path: str = "assets/character_components/",
-    size: int = 32
+    size: int = 32,
 ) -> CharacterPreset:
     """
     Quick character generation from description.
@@ -889,29 +876,32 @@ if __name__ == "__main__":
     print("- AI-friendly description API")
 
     # Example preset creation (without actual sprites)
-    preset = CharacterPreset(
-        name="Example Knight",
-        description="A brave knight character"
-    )
+    preset = CharacterPreset(name="Example Knight", description="A brave knight character")
 
     # Add some example layers
-    preset.add_layer(ComponentLayer(
-        layer_type=LayerType.BODY,
-        component_id="body_human_male",
-        tint=ColorTint(255, 220, 180)  # Skin tone
-    ))
+    preset.add_layer(
+        ComponentLayer(
+            layer_type=LayerType.BODY,
+            component_id="body_human_male",
+            tint=ColorTint(255, 220, 180),  # Skin tone
+        )
+    )
 
-    preset.add_layer(ComponentLayer(
-        layer_type=LayerType.HAIR,
-        component_id="hair_short_brown",
-        tint=ColorTint(139, 90, 43)  # Brown hair
-    ))
+    preset.add_layer(
+        ComponentLayer(
+            layer_type=LayerType.HAIR,
+            component_id="hair_short_brown",
+            tint=ColorTint(139, 90, 43),  # Brown hair
+        )
+    )
 
-    preset.add_layer(ComponentLayer(
-        layer_type=LayerType.TORSO,
-        component_id="outfit_knight_armor",
-        tint=ColorTint(100, 100, 200)  # Blue armor
-    ))
+    preset.add_layer(
+        ComponentLayer(
+            layer_type=LayerType.TORSO,
+            component_id="outfit_knight_armor",
+            tint=ColorTint(100, 100, 200),  # Blue armor
+        )
+    )
 
     # Save preset
     gen.save_preset(preset, "test_outputs/knight_preset.json")

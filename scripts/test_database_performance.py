@@ -20,11 +20,11 @@ import time
 from pathlib import Path
 from typing import Dict, List
 
+from neonworks.engine.data.database_manager import DatabaseManager
+from neonworks.engine.data.database_schema import Item, ItemType
+
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from engine.data.database_manager import DatabaseManager
-from engine.data.database_schema import Item, ItemType
 
 
 class PerformanceTester:
@@ -93,7 +93,7 @@ class PerformanceTester:
                 name=f"Perf Test Item {i}",
                 description="Performance test",
                 price=10,
-                item_type=ItemType.REGULAR
+                item_type=ItemType.REGULAR,
             )
             self.db.create("items", item)
 

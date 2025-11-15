@@ -431,8 +431,7 @@ class AIAnimator:
             sheet_width = frame_width * cols
             sheet_height = frame_height * rows
             positions = [
-                ((i % cols) * frame_width, (i // cols) * frame_height)
-                for i in range(frame_count)
+                ((i % cols) * frame_width, (i // cols) * frame_height) for i in range(frame_count)
             ]
 
         # Create sprite sheet
@@ -476,9 +475,7 @@ class AIAnimator:
 
         return None
 
-    def _save_to_cache(
-        self, component_id: str, animation_type: str, frames: List[pygame.Surface]
-    ):
+    def _save_to_cache(self, component_id: str, animation_type: str, frames: List[pygame.Surface]):
         """Save animation frames to cache"""
         # Create cache directory
         frame_dir = self.cache_dir / component_id / animation_type

@@ -212,9 +212,7 @@ class DropEditor:
         # Drop count and total rate
         total_rate = sum(d.drop_rate for d in self.drops)
         info_text = self.small_font.render(
-            f"{len(self.drops)} drops | Total rate: {total_rate:.2%}",
-            True,
-            (180, 180, 200)
+            f"{len(self.drops)} drops | Total rate: {total_rate:.2%}", True, (180, 180, 200)
         )
         self.screen.blit(info_text, (x + width - 250, y + 18))
 
@@ -224,10 +222,7 @@ class DropEditor:
         mouse_pos = pygame.mouse.get_pos()
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
-        is_hover = (
-            x <= mouse_pos[0] <= x + width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        is_hover = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + button_height
         btn_color = (0, 170, 0) if is_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -264,7 +259,7 @@ class DropEditor:
         item_height = 120
         mouse_pos = pygame.mouse.get_pos()
 
-        visible_drops = self.drops[self.scroll_offset:]
+        visible_drops = self.drops[self.scroll_offset :]
 
         for i, drop in enumerate(visible_drops):
             if current_y + item_height > y + height - 10:
@@ -281,7 +276,7 @@ class DropEditor:
                 actual_index,
                 drop,
                 is_selected,
-                mouse_pos
+                mouse_pos,
             )
 
             current_y += item_height
@@ -297,9 +292,14 @@ class DropEditor:
 
     def _render_drop_item(
         self,
-        x: int, y: int, width: int, height: int,
-        index: int, drop: DropItem, is_selected: bool,
-        mouse_pos: tuple
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        index: int,
+        drop: DropItem,
+        is_selected: bool,
+        mouse_pos: tuple,
     ):
         """Render a single drop item."""
         # Background
@@ -416,11 +416,7 @@ class DropEditor:
     ):
         """Render drop rate slider."""
         # Label
-        label = self.small_font.render(
-            f"Drop Rate: {drop.drop_rate:.1%}",
-            True,
-            (180, 180, 200)
-        )
+        label = self.small_font.render(f"Drop Rate: {drop.drop_rate:.1%}", True, (180, 180, 200))
         self.screen.blit(label, (x, y))
 
         # Slider
@@ -501,9 +497,7 @@ class DropEditor:
 
             # Button text
             btn_text = self.small_font.render(
-                f"{rarity_name[:6]} {rate:.0%}",
-                True,
-                (220, 220, 240)
+                f"{rarity_name[:6]} {rate:.0%}", True, (220, 220, 240)
             )
             text_x = x + button_width // 2 - btn_text.get_width() // 2
             self.screen.blit(btn_text, (text_x, current_y + 2))
@@ -514,14 +508,13 @@ class DropEditor:
 
             current_y += button_height + button_spacing
 
-    def _render_delete_button(self, x: int, y: int, width: int, height: int, index: int, mouse_pos: tuple):
+    def _render_delete_button(
+        self, x: int, y: int, width: int, height: int, index: int, mouse_pos: tuple
+    ):
         """Render delete button for drop item."""
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
-        is_hover = (
-            x <= mouse_pos[0] <= x + width
-            and y <= mouse_pos[1] <= y + height
-        )
+        is_hover = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height
 
         btn_color = (200, 50, 50) if is_hover else (150, 30, 30)
 
@@ -549,10 +542,7 @@ class DropEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(

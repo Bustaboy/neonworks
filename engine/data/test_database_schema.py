@@ -54,9 +54,7 @@ class TestEffect:
 
     def test_effect_serialization(self):
         """Test effect to_dict and from_dict."""
-        effect = Effect(
-            effect_type=EffectType.ADD_STATE, value1=1.0, target_param=5, rate=0.75
-        )
+        effect = Effect(effect_type=EffectType.ADD_STATE, value1=1.0, target_param=5, rate=0.75)
         data = effect.to_dict()
         restored = Effect.from_dict(data)
 

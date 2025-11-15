@@ -26,14 +26,14 @@ License: MIT
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-import json
+from typing import Any, Dict, List, Optional, Tuple
 
-import torch
 import numpy as np
+import torch
 from PIL import Image
 
 # Stable Diffusion imports
@@ -46,6 +46,7 @@ try:
         DPMSolverMultistepScheduler,
     )
     from diffusers.utils import load_image
+
     DIFFUSERS_AVAILABLE = True
 except ImportError:
     DIFFUSERS_AVAILABLE = False
@@ -54,6 +55,7 @@ except ImportError:
 # Background removal
 try:
     from rembg import remove
+
     REMBG_AVAILABLE = True
 except ImportError:
     REMBG_AVAILABLE = False
@@ -111,8 +113,8 @@ class GeneratedSprite:
         self.image.save(str(path), "PNG")
 
         # Save metadata
-        metadata_path = path.with_suffix('.json')
-        with open(metadata_path, 'w') as f:
+        metadata_path = path.with_suffix(".json")
+        with open(metadata_path, "w") as f:
             json.dump(self.metadata, f, indent=2)
 
         print(f"Saved sprite to {path}")
@@ -144,7 +146,7 @@ class SDSpriteGenerator:
         controlnet_model_id: Optional[str] = "lllyasviel/control_v11p_sd15_openpose",
         device: Optional[str] = None,
         use_safetensors: bool = True,
-        cache_dir: Optional[str] = None
+        cache_dir: Optional[str] = None,
     ):
         """
         Initialize Stable Diffusion sprite generator.
@@ -201,7 +203,7 @@ class SDSpriteGenerator:
             try:
                 # ROCm uses CUDA API but reports as 'hip'
                 device_name = torch.cuda.get_device_name(0).lower()
-                if 'amd' in device_name or 'radeon' in device_name:
+                if "amd" in device_name or "radeon" in device_name:
                     print(f"Detected AMD GPU (ROCm): {torch.cuda.get_device_name(0)}")
                     return "cuda"  # ROCm uses CUDA API
                 else:
@@ -415,7 +417,7 @@ class SDSpriteGenerator:
                     "num_inference_steps": config.num_inference_steps,
                     "model": self.model_id,
                     "controlnet": config.use_controlnet,
-                }
+                },
             )
 
             sprites.append(sprite)
@@ -439,10 +441,7 @@ class SDSpriteGenerator:
             return image
 
     def generate_batch(
-        self,
-        prompts: List[str],
-        base_config: SpriteGenerationConfig,
-        output_dir: str | Path
+        self, prompts: List[str], base_config: SpriteGenerationConfig, output_dir: str | Path
     ) -> List[GeneratedSprite]:
         """
         Generate multiple sprites from a list of prompts.
@@ -496,7 +495,7 @@ class SDSpriteGenerator:
         character_prompt: str,
         animations: List[str],
         output_dir: str | Path,
-        config: Optional[SpriteGenerationConfig] = None
+        config: Optional[SpriteGenerationConfig] = None,
     ) -> Dict[str, List[GeneratedSprite]]:
         """
         Generate a complete character sprite set for multiple animations.
@@ -562,12 +561,13 @@ class SDSpriteGenerator:
 
 # Convenience functions
 
+
 def generate_sprite(
     prompt: str,
     style: str = "pixel-art",
     size: Tuple[int, int] = (64, 64),
     output_path: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> GeneratedSprite:
     """
     Quick sprite generation function.
@@ -592,11 +592,7 @@ def generate_sprite(
     generator = SDSpriteGenerator()
 
     config = SpriteGenerationConfig(
-        prompt=prompt,
-        width=size[0],
-        height=size[1],
-        sprite_style=style,
-        **kwargs
+        prompt=prompt, width=size[0], height=size[1], sprite_style=style, **kwargs
     )
 
     sprites = generator.generate(config)

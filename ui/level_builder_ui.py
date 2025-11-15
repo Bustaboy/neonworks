@@ -26,12 +26,18 @@ from .ai_tileset_ui import AITilesetPanel
 from .autotile_tool import AutotileFillTool, AutotileTool
 from .map_tools import (
     EraserTool,
+    EyedropperTool,
     FillTool,
     MapTool,
     PencilTool,
     SelectTool,
+    SettingsPanel,
+    ShapeTool,
+    StampTool,
     ToolContext,
     ToolManager,
+    UndoManager,
+    load_and_apply_preferences,
 )
 from .tileset_picker_ui import TilesetPickerUI
 
@@ -198,12 +204,29 @@ class LevelBuilderUI:
         self.show_grid = True
         self.show_layer_preview = True
 
+        # Undo/Redo manager
+        self.undo_manager = UndoManager(max_history=100)
+
+        # Settings panel (F11 to toggle)
+        self.settings_panel = SettingsPanel(x=100, y=100, width=600, height=500)
+
+        # Load user preferences on startup
+        load_and_apply_preferences()
+
     def _initialize_tools(self):
         """Initialize all map editing tools."""
+        # Basic tools
         self.tool_manager.register_tool("pencil", PencilTool())
         self.tool_manager.register_tool("eraser", EraserTool())
         self.tool_manager.register_tool("fill", FillTool())
         self.tool_manager.register_tool("select", SelectTool())
+
+        # Advanced tools (NEW)
+        self.tool_manager.register_tool("shape", ShapeTool())
+        self.tool_manager.register_tool("stamp", StampTool())
+        self.tool_manager.register_tool("eyedropper", EyedropperTool())
+
+        # AI tool
         self.tool_manager.register_tool("ai_gen", AIGeneratorTool())
 
         # Autotile tools (NEW - intelligent tile matching)
@@ -264,6 +287,7 @@ class LevelBuilderUI:
             grid_height=self.grid_height,
             tile_size=self.tile_size,
             event_editor=self.event_editor,
+            undo_manager=self.undo_manager,
         )
 
     def initialize_tilemap(self):
@@ -367,6 +391,9 @@ class LevelBuilderUI:
         # Render AI chat if active
         self._render_ai_chat()
 
+        # Render settings panel last (so it appears on top)
+        self.settings_panel.render(self.screen)
+
     def _render_tilemap_preview(self, camera_offset: Tuple[int, int]):
         """Render the tilemap for editing."""
         if not self.tilemap:
@@ -384,7 +411,11 @@ class LevelBuilderUI:
                         screen_y = y * self.tile_size + camera_offset[1]
 
                         # Try to render from tileset first (NEW)
-                        if self.use_tileset_picker and hasattr(tile, 'tileset_id') and hasattr(tile, 'tile_id'):
+                        if (
+                            self.use_tileset_picker
+                            and hasattr(tile, "tileset_id")
+                            and hasattr(tile, "tile_id")
+                        ):
                             tile_surface = self.tileset_manager.get_tile_surface(
                                 tile.tileset_id, tile.tile_id
                             )
@@ -757,6 +788,10 @@ class LevelBuilderUI:
         if not self.visible:
             return False
 
+        # Handle settings panel events first (when visible)
+        if self.settings_panel.handle_event(event):
+            return True
+
         # Handle tileset picker events first (NEW)
         if self.use_tileset_picker and self.tileset_picker.visible:
             if self.tileset_picker.handle_event(event):
@@ -776,8 +811,29 @@ class LevelBuilderUI:
 
         # Handle keyboard shortcuts for tool switching
         if event.type == pygame.KEYDOWN:
+            # Check for Ctrl key modifier
+            ctrl_pressed = pygame.key.get_mods() & pygame.KMOD_CTRL
+            shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
+
+            # Ctrl+Z: Undo
+            if ctrl_pressed and event.key == pygame.K_z and not shift_pressed:
+                if self.undo_manager.undo():
+                    return True
+
+            # Ctrl+Y or Ctrl+Shift+Z: Redo
+            if (ctrl_pressed and event.key == pygame.K_y) or (
+                ctrl_pressed and shift_pressed and event.key == pygame.K_z
+            ):
+                if self.undo_manager.redo():
+                    return True
+
+            # F11 key toggles settings panel
+            if event.key == pygame.K_F11:
+                self.settings_panel.toggle()
+                return True
+
             # 'C' key toggles AI chat
-            if event.key == pygame.K_c:
+            if event.key == pygame.K_c and not ctrl_pressed:
                 active_tool = self.tool_manager.get_active_tool()
                 if isinstance(active_tool, AIGeneratorTool):
                     active_tool.toggle_chat()

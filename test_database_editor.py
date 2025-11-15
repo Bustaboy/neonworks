@@ -16,14 +16,15 @@ The database editor provides:
 4. CRUD operations (Create, Read, Update, Delete, Duplicate)
 """
 
-import pygame
 import sys
 from pathlib import Path
 
+import pygame
+
+from neonworks.engine.ui.database_editor_ui import DatabaseEditorUI
+
 # Add parent directory to path so we can import neonworks modules
 sys.path.insert(0, str(Path(__file__).parent))
-
-from engine.ui.database_editor_ui import DatabaseEditorUI
 
 
 def main():
@@ -111,9 +112,7 @@ def main():
             y_offset = screen_height // 2
             for line in instructions:
                 text = inst_font.render(line, True, (180, 180, 200))
-                screen.blit(
-                    text, (screen_width // 2 - text.get_width() // 2, y_offset)
-                )
+                screen.blit(text, (screen_width // 2 - text.get_width() // 2, y_offset))
                 y_offset += 30
 
         # Render database editor

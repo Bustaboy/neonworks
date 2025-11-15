@@ -38,9 +38,7 @@ def create_fantasy_character(filename: str, color: tuple, size: int = 32):
 
     # Weapon (small line)
     weapon_color = (150, 150, 150)
-    pygame.draw.line(
-        surface, weapon_color, (size - 5, size // 2 - 5), (size - 5, size // 2 + 8), 2
-    )
+    pygame.draw.line(surface, weapon_color, (size - 5, size // 2 - 5), (size - 5, size // 2 + 8), 2)
 
     pygame.image.save(surface, filename)
     print(f"✓ Created: {filename}")
@@ -78,9 +76,13 @@ def create_enemy_sprite(filename: str, enemy_type: str, size: int = 48):
         pygame.draw.ellipse(surface, dragon_color, (5, 10, size - 10, size - 15))
         # Wings
         wing_color = (150, 40, 40)
-        pygame.draw.polygon(surface, wing_color, [(5, size // 2), (0, size // 3), (10, size // 2 - 5)])
         pygame.draw.polygon(
-            surface, wing_color, [(size - 5, size // 2), (size, size // 3), (size - 10, size // 2 - 5)]
+            surface, wing_color, [(5, size // 2), (0, size // 3), (10, size // 2 - 5)]
+        )
+        pygame.draw.polygon(
+            surface,
+            wing_color,
+            [(size - 5, size // 2), (size, size // 3), (size - 10, size // 2 - 5)],
         )
         # Eye
         pygame.draw.circle(surface, (255, 200, 0), (size // 2, size // 3), 4)
@@ -264,7 +266,9 @@ def main():
     create_fantasy_character(str(chars_dir / "hero_warrior.png"), (180, 80, 80), 32)  # Red warrior
     create_fantasy_character(str(chars_dir / "hero_mage.png"), (80, 80, 180), 32)  # Blue mage
     create_fantasy_character(str(chars_dir / "hero_rogue.png"), (80, 180, 80), 32)  # Green rogue
-    create_fantasy_character(str(chars_dir / "hero_cleric.png"), (220, 220, 120), 32)  # Yellow cleric
+    create_fantasy_character(
+        str(chars_dir / "hero_cleric.png"), (220, 220, 120), 32
+    )  # Yellow cleric
 
     # Create enemies
     enemies_dir = assets_dir / "enemies"

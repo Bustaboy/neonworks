@@ -202,9 +202,7 @@ class ActionEditor:
 
         # Action count
         info_text = self.small_font.render(
-            f"{len(self.actions)} action patterns configured",
-            True,
-            (180, 180, 200)
+            f"{len(self.actions)} action patterns configured", True, (180, 180, 200)
         )
         self.screen.blit(info_text, (x + width - 270, y + 18))
 
@@ -214,10 +212,7 @@ class ActionEditor:
         mouse_pos = pygame.mouse.get_pos()
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
-        is_hover = (
-            x <= mouse_pos[0] <= x + width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        is_hover = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + button_height
         btn_color = (0, 170, 0) if is_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -254,7 +249,7 @@ class ActionEditor:
         item_height = 160
         mouse_pos = pygame.mouse.get_pos()
 
-        visible_actions = self.actions[self.scroll_offset:]
+        visible_actions = self.actions[self.scroll_offset :]
 
         for i, action in enumerate(visible_actions):
             if current_y + item_height > y + height - 10:
@@ -271,7 +266,7 @@ class ActionEditor:
                 actual_index,
                 action,
                 is_selected,
-                mouse_pos
+                mouse_pos,
             )
 
             current_y += item_height
@@ -287,9 +282,14 @@ class ActionEditor:
 
     def _render_action_item(
         self,
-        x: int, y: int, width: int, height: int,
-        index: int, action: Dict, is_selected: bool,
-        mouse_pos: tuple
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        index: int,
+        action: Dict,
+        is_selected: bool,
+        mouse_pos: tuple,
     ):
         """Render a single action item."""
         # Background
@@ -304,27 +304,26 @@ class ActionEditor:
         # Header: Action # and rating
         header_y = y + 8
         header_text = self.font.render(
-            f"Action #{index + 1}  |  Priority: {action.get('rating', 5)}",
-            True,
-            (255, 200, 0)
+            f"Action #{index + 1}  |  Priority: {action.get('rating', 5)}", True, (255, 200, 0)
         )
         self.screen.blit(header_text, (x + 10, header_y))
 
         # Skill ID
         skill_y = header_y + 30
         self._render_number_input(
-            x + 10, skill_y, 120,
-            index, "skill_id", "Skill ID",
+            x + 10,
+            skill_y,
+            120,
+            index,
+            "skill_id",
+            "Skill ID",
             action.get("skill_id", 1),
-            mouse_pos
+            mouse_pos,
         )
 
         # Rating
         self._render_number_input(
-            x + 140, skill_y, 100,
-            index, "rating", "Rating",
-            action.get("rating", 5),
-            mouse_pos
+            x + 140, skill_y, 100, index, "rating", "Rating", action.get("rating", 5), mouse_pos
         )
 
         # Condition type selector
@@ -336,18 +335,18 @@ class ActionEditor:
         self._render_condition_params(x + 10, params_y, index, action, mouse_pos)
 
         # Delete button
-        self._render_delete_button(
-            x + width - 90,
-            y + height // 2 - 15,
-            80, 30,
-            index,
-            mouse_pos
-        )
+        self._render_delete_button(x + width - 90, y + height // 2 - 15, 80, 30, index, mouse_pos)
 
     def _render_number_input(
-        self, x: int, y: int, width: int,
-        index: int, field_name: str, label: str,
-        value: int, mouse_pos: tuple
+        self,
+        x: int,
+        y: int,
+        width: int,
+        index: int,
+        field_name: str,
+        label: str,
+        value: int,
+        mouse_pos: tuple,
     ):
         """Render a number input field."""
         # Label
@@ -447,61 +446,81 @@ class ActionEditor:
 
         elif cond_type == 1:  # Turn
             self._render_number_input(
-                x, y, 100,
-                index, "condition_param1", "Turn #",
+                x,
+                y,
+                100,
+                index,
+                "condition_param1",
+                "Turn #",
                 action.get("condition_param1", 1),
-                mouse_pos
+                mouse_pos,
             )
 
         elif cond_type == 2 or cond_type == 3:  # HP% or MP%
             self._render_number_input(
-                x, y, 80,
-                index, "condition_param1", "Min %",
+                x,
+                y,
+                80,
+                index,
+                "condition_param1",
+                "Min %",
                 action.get("condition_param1", 0),
-                mouse_pos
+                mouse_pos,
             )
             self._render_number_input(
-                x + 90, y, 80,
-                index, "condition_param2", "Max %",
+                x + 90,
+                y,
+                80,
+                index,
+                "condition_param2",
+                "Max %",
                 action.get("condition_param2", 100),
-                mouse_pos
+                mouse_pos,
             )
 
         elif cond_type == 4:  # State
             self._render_number_input(
-                x, y, 120,
-                index, "condition_param1", "State ID",
+                x,
+                y,
+                120,
+                index,
+                "condition_param1",
+                "State ID",
                 action.get("condition_param1", 1),
-                mouse_pos
+                mouse_pos,
             )
 
         elif cond_type == 5:  # Party level
             self._render_number_input(
-                x, y, 120,
-                index, "condition_param1", "Min Level",
+                x,
+                y,
+                120,
+                index,
+                "condition_param1",
+                "Min Level",
                 action.get("condition_param1", 1),
-                mouse_pos
+                mouse_pos,
             )
 
         elif cond_type == 6:  # Switch
             self._render_number_input(
-                x, y, 120,
-                index, "condition_param1", "Switch ID",
+                x,
+                y,
+                120,
+                index,
+                "condition_param1",
+                "Switch ID",
                 action.get("condition_param1", 1),
-                mouse_pos
+                mouse_pos,
             )
 
     def _render_delete_button(
-        self, x: int, y: int, width: int, height: int,
-        index: int, mouse_pos: tuple
+        self, x: int, y: int, width: int, height: int, index: int, mouse_pos: tuple
     ):
         """Render delete button for action."""
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
-        is_hover = (
-            x <= mouse_pos[0] <= x + width
-            and y <= mouse_pos[1] <= y + height
-        )
+        is_hover = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height
 
         btn_color = (200, 50, 50) if is_hover else (150, 30, 30)
 
@@ -529,10 +548,7 @@ class ActionEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(

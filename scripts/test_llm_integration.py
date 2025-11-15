@@ -60,16 +60,21 @@ def test_llm_interpretation():
 
         # Display results
         print(f"\n  Animation Type: {intent.animation_type}")
-        print(f"  Style Modifiers: {', '.join(intent.style_modifiers) if intent.style_modifiers else 'None'}")
+        print(
+            f"  Style Modifiers: {', '.join(intent.style_modifiers) if intent.style_modifiers else 'None'}"
+        )
         print(f"  Intensity: {intent.intensity:.2f}")
         print(f"  Speed Multiplier: {intent.speed_multiplier:.2f}")
-        print(f"  Special Effects: {', '.join(intent.special_effects) if intent.special_effects else 'None'}")
+        print(
+            f"  Special Effects: {', '.join(intent.special_effects) if intent.special_effects else 'None'}"
+        )
         print(f"  Frame Count: {intent.frame_count if intent.frame_count else 'Default'}")
         print(f"  Confidence: {intent.confidence:.2f}")
 
         # Check if reasonable
         is_valid = (
-            intent.animation_type in [
+            intent.animation_type
+            in [
                 "idle",
                 "walk",
                 "run",

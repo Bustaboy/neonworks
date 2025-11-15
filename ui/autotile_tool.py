@@ -24,7 +24,7 @@ class AutotileTool(MapTool):
 
     def __init__(self):
         """Initialize the autotile tool."""
-        super().__init__("Autotile", hotkey=6, color=(100, 200, 255))
+        super().__init__("Autotile", hotkey=8, color=(100, 200, 255))
         self.cursor_type = "brush"
 
         self.autotile_manager = get_autotile_manager()
@@ -56,9 +56,7 @@ class AutotileTool(MapTool):
             return False
 
         if button == 0:  # Left click - paint
-            self.autotile_manager.paint_autotile(
-                layer, grid_x, grid_y, self.current_autotile_set
-            )
+            self.autotile_manager.paint_autotile(layer, grid_x, grid_y, self.current_autotile_set)
             return True
         elif button == 2:  # Right click - erase
             self.autotile_manager.erase_autotile(layer, grid_x, grid_y)
@@ -79,9 +77,7 @@ class AutotileTool(MapTool):
             return False
 
         if button == 0:  # Left click - paint
-            self.autotile_manager.paint_autotile(
-                layer, grid_x, grid_y, self.current_autotile_set
-            )
+            self.autotile_manager.paint_autotile(layer, grid_x, grid_y, self.current_autotile_set)
             return True
         elif button == 2:  # Right click - erase
             self.autotile_manager.erase_autotile(layer, grid_x, grid_y)
@@ -138,9 +134,7 @@ class AutotileTool(MapTool):
         screen.blit(preview_surface, (screen_x, screen_y))
 
         # Draw border
-        pygame.draw.rect(
-            screen, self.color, (screen_x, screen_y, tile_size, tile_size), 2
-        )
+        pygame.draw.rect(screen, self.color, (screen_x, screen_y, tile_size, tile_size), 2)
 
         # TODO: Render preview tile sprite if tileset is available
 
@@ -155,7 +149,7 @@ class AutotileFillTool(MapTool):
 
     def __init__(self):
         """Initialize the autotile fill tool."""
-        super().__init__("Autotile Fill", hotkey=7, color=(150, 220, 255))
+        super().__init__("Autotile Fill", hotkey=0, color=(150, 220, 255))
         self.cursor_type = "fill"
 
         self.autotile_manager = get_autotile_manager()
@@ -186,9 +180,7 @@ class AutotileFillTool(MapTool):
             return False
 
         # Fill with autotiles
-        self.autotile_manager.fill_with_autotile(
-            layer, grid_x, grid_y, self.current_autotile_set
-        )
+        self.autotile_manager.fill_with_autotile(layer, grid_x, grid_y, self.current_autotile_set)
         return True
 
     def on_mouse_drag(self, grid_x: int, grid_y: int, button: int, context: ToolContext) -> bool:
@@ -217,9 +209,7 @@ class AutotileFillTool(MapTool):
         screen.blit(preview_surface, (screen_x, screen_y))
 
         # Draw border
-        pygame.draw.rect(
-            screen, self.color, (screen_x, screen_y, tile_size, tile_size), 2
-        )
+        pygame.draw.rect(screen, self.color, (screen_x, screen_y, tile_size, tile_size), 2)
 
         # Draw fill icon (simplified bucket)
         center_x = screen_x + tile_size // 2

@@ -20,6 +20,10 @@ import sys
 
 import pygame
 
+from neonworks.core.ecs import World
+from scripts.components import GameScreen, ScreenState
+from scripts.game import render_game, setup_game, start_gameplay
+
 # Add the engine to Python path
 # This allows us to import from the engine module
 engine_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -28,11 +32,6 @@ sys.path.insert(0, engine_path)
 # Add scripts to Python path
 scripts_path = os.path.join(os.path.dirname(__file__), "scripts")
 sys.path.insert(0, scripts_path)
-
-from scripts.components import GameScreen, ScreenState
-from scripts.game import render_game, setup_game, start_gameplay
-
-from neonworks.core.ecs import World
 
 
 def load_config():

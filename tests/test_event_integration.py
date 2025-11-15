@@ -8,16 +8,16 @@ import os
 import sys
 from dataclasses import dataclass
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.event_commands import (
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventPage,
     GameEvent,
     TriggerType,
 )
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def test_event_command_serialization():
@@ -289,9 +289,7 @@ def test_event_templates():
         print(f"  ✓ Loaded template: {template_data['name']} ({template_name})")
         print(f"    - Icon: {template_data['icon']}")
         print(f"    - Pages: {len(template_data['pages'])}")
-        print(
-            f"    - Commands in first page: {len(template_data['pages'][0]['commands'])}"
-        )
+        print(f"    - Commands in first page: {len(template_data['pages'][0]['commands'])}")
 
     print("✓ Event templates passed")
 

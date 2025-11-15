@@ -97,9 +97,7 @@ class AITilesetPanel:
 
         self.buttons = {
             "generate": {
-                "rect": pygame.Rect(
-                    self.x + 10, button_y, self.width - 20, button_height
-                ),
+                "rect": pygame.Rect(self.x + 10, button_y, self.width - 20, button_height),
                 "text": "Generate Tileset",
                 "action": self._generate_tileset,
             },
@@ -150,12 +148,8 @@ class AITilesetPanel:
             return
 
         # Draw background panel
-        pygame.draw.rect(
-            screen, self.PANEL_BG_COLOR, (self.x, self.y, self.width, self.height)
-        )
-        pygame.draw.rect(
-            screen, self.BORDER_COLOR, (self.x, self.y, self.width, self.height), 2
-        )
+        pygame.draw.rect(screen, self.PANEL_BG_COLOR, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(screen, self.BORDER_COLOR, (self.x, self.y, self.width, self.height), 2)
 
         # Draw title
         title = self.font.render("AI Tileset Tools", True, self.TEXT_COLOR)

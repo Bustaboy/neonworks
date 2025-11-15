@@ -206,9 +206,7 @@ class EffectEditor:
 
         # Help text
         help_text = self.small_font.render(
-            "Create and configure skill/item effects",
-            True,
-            (150, 150, 150)
+            "Create and configure skill/item effects", True, (150, 150, 150)
         )
         self.screen.blit(help_text, (x + width - 280, y + 18))
 
@@ -288,23 +286,35 @@ class EffectEditor:
 
         # Value1 (base value or percentage)
         current_y = self._render_number_field(
-            x, current_y, width // 2 - 10,
-            "value1", "Base Value", self.effect.value1,
-            help_text="Base damage/heal or percentage"
+            x,
+            current_y,
+            width // 2 - 10,
+            "value1",
+            "Base Value",
+            self.effect.value1,
+            help_text="Base damage/heal or percentage",
         )
 
         # Value2 (variance or additional value)
         current_y = self._render_number_field(
-            x, current_y, width // 2 - 10,
-            "value2", "Variance/Extra", self.effect.value2,
-            help_text="Variance or additional modifier"
+            x,
+            current_y,
+            width // 2 - 10,
+            "value2",
+            "Variance/Extra",
+            self.effect.value2,
+            help_text="Variance or additional modifier",
         )
 
         # Target param (for buffs, states, etc.)
         current_y = self._render_number_field(
-            x, current_y, width // 2 - 10,
-            "target_param", "Target Param ID", self.effect.target_param,
-            help_text="State/stat ID for buffs/debuffs"
+            x,
+            current_y,
+            width // 2 - 10,
+            "target_param",
+            "Target Param ID",
+            self.effect.target_param,
+            help_text="State/stat ID for buffs/debuffs",
         )
 
         # Success rate slider
@@ -314,9 +324,14 @@ class EffectEditor:
         current_y = self._render_timing_selector(x, current_y, width)
 
     def _render_number_field(
-        self, x: int, y: int, width: int,
-        field_name: str, label: str, value: float,
-        help_text: str = ""
+        self,
+        x: int,
+        y: int,
+        width: int,
+        field_name: str,
+        label: str,
+        value: float,
+        help_text: str = "",
     ) -> int:
         """Render a number input field."""
         # Label
@@ -363,9 +378,7 @@ class EffectEditor:
         """Render success rate slider."""
         # Label
         label = self.small_font.render(
-            f"Success Rate: {int(self.effect.rate * 100)}%",
-            True,
-            (180, 180, 200)
+            f"Success Rate: {int(self.effect.rate * 100)}%", True, (180, 180, 200)
         )
         self.screen.blit(label, (x, y))
 
@@ -522,10 +535,7 @@ class EffectEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(

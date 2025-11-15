@@ -16,11 +16,8 @@ import sys
 
 import pygame
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from core.ecs import World
-from core.event_commands import (
+from neonworks.core.ecs import World
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventPage,
@@ -29,9 +26,12 @@ from core.event_commands import (
     TriggerType,
     WaitCommand,
 )
-from engine.ui.event_editor_ui import EventEditorUI
-from ui.level_builder_ui import LevelBuilderUI
-from ui.master_ui_manager import MasterUIManager
+from neonworks.engine.ui.event_editor_ui import EventEditorUI
+from neonworks.ui.level_builder_ui import LevelBuilderUI
+from neonworks.ui.master_ui_manager import MasterUIManager
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def create_test_events():
@@ -218,18 +218,10 @@ def test_save_load_workflow():
     print(f"  - Loaded {len(level_builder2.events)} events")
 
     # Verify loaded data
-    assert len(level_builder2.events) == len(
-        test_events
-    ), "Event count mismatch after load"
-    assert (
-        level_builder2.events[0].name == test_events[0].name
-    ), "Event name mismatch after load"
-    assert (
-        level_builder2.events[0].x == test_events[0].x
-    ), "Event x position mismatch after load"
-    assert (
-        level_builder2.events[0].y == test_events[0].y
-    ), "Event y position mismatch after load"
+    assert len(level_builder2.events) == len(test_events), "Event count mismatch after load"
+    assert level_builder2.events[0].name == test_events[0].name, "Event name mismatch after load"
+    assert level_builder2.events[0].x == test_events[0].x, "Event x position mismatch after load"
+    assert level_builder2.events[0].y == test_events[0].y, "Event y position mismatch after load"
     assert len(level_builder2.events[0].pages) == len(
         test_events[0].pages
     ), "Event page count mismatch"
@@ -280,9 +272,7 @@ def test_event_editor_integration():
     print(f"✓ Synced {len(test_events)} events to event editor")
 
     # Verify events in event editor
-    assert len(ui_manager.event_editor.events) == len(
-        test_events
-    ), "Event sync count mismatch"
+    assert len(ui_manager.event_editor.events) == len(test_events), "Event sync count mismatch"
 
     print("✓ Events successfully synced between components")
 
@@ -320,9 +310,7 @@ def test_event_placement():
     initial_event_count = len(level_builder.events)
     level_builder.place_event(5, 5)
 
-    assert (
-        len(level_builder.events) == initial_event_count + 1
-    ), "Event not added to level"
+    assert len(level_builder.events) == initial_event_count + 1, "Event not added to level"
     assert level_builder.events[-1].x == 5, "Event x position incorrect"
     assert level_builder.events[-1].y == 5, "Event y position incorrect"
 
@@ -338,9 +326,7 @@ def test_event_placement():
     level_builder.selected_event_template = "chest"
     level_builder.place_event(10, 10)
 
-    assert (
-        len(level_builder.events) == initial_event_count + 2
-    ), "Second event not added"
+    assert len(level_builder.events) == initial_event_count + 2, "Second event not added"
     assert level_builder.events[-1].template_type == "chest", "Event type mismatch"
 
     print("✓ Multiple event types placed successfully")

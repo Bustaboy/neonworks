@@ -161,9 +161,7 @@ class TestTilesetInfo:
 
     def test_get_tile_metadata(self):
         """Test getting metadata for a tile."""
-        tileset = TilesetInfo(
-            tileset_id="test", name="Test", image_path="test.png"
-        )
+        tileset = TilesetInfo(tileset_id="test", name="Test", image_path="test.png")
 
         # Should create default metadata if not exists
         metadata = tileset.get_tile_metadata(5)
@@ -172,9 +170,7 @@ class TestTilesetInfo:
 
     def test_is_tile_passable(self):
         """Test checking if a tile is passable."""
-        tileset = TilesetInfo(
-            tileset_id="test", name="Test", image_path="test.png"
-        )
+        tileset = TilesetInfo(tileset_id="test", name="Test", image_path="test.png")
 
         # Default tiles should be passable
         assert tileset.is_tile_passable(0) is True
@@ -185,9 +181,7 @@ class TestTilesetInfo:
 
     def test_get_tile_terrain_tags(self):
         """Test getting terrain tags for a tile."""
-        tileset = TilesetInfo(
-            tileset_id="test", name="Test", image_path="test.png"
-        )
+        tileset = TilesetInfo(tileset_id="test", name="Test", image_path="test.png")
 
         # Default tiles should have no tags
         assert tileset.get_tile_terrain_tags(0) == []
@@ -222,9 +216,7 @@ class TestTilesetInfo:
             "image_path": "assets/tileset.png",
             "tile_width": 32,
             "tile_height": 32,
-            "metadata": {
-                "0": {"tile_id": 0, "passable": False, "name": "Wall"}
-            },
+            "metadata": {"0": {"tile_id": 0, "passable": False, "name": "Wall"}},
         }
 
         tileset = TilesetInfo.from_dict(data)
@@ -501,9 +493,7 @@ class TestTilesetManager:
         )
         tileset_manager.add_to_favorites("test_tileset", 0)
         tileset_manager.add_to_recent("test_tileset", 1)
-        tileset_manager.set_tile_metadata(
-            "test_tileset", 0, passable=False, terrain_tags=["wall"]
-        )
+        tileset_manager.set_tile_metadata("test_tileset", 0, passable=False, terrain_tags=["wall"])
 
         # Save configuration
         config_path = os.path.join(temp_project_dir, "tilesets.json")

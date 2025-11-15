@@ -7,7 +7,7 @@ into structured animation parameters that the AI animator can execute.
 
 import json
 import re
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Optional, Tuple
 
 from neonworks.editor.ai_animator import AnimationConfig
@@ -215,9 +215,7 @@ class AnimationInterpreter:
         style_modifiers = self._extract_style_modifiers(user_request_lower)
 
         # 3. Calculate derived parameters
-        intensity, speed_multiplier, style = self._calculate_parameters(
-            style_modifiers
-        )
+        intensity, speed_multiplier, style = self._calculate_parameters(style_modifiers)
 
         # 4. Detect special effects
         special_effects = self._detect_special_effects(user_request_lower)
@@ -238,9 +236,7 @@ class AnimationInterpreter:
         print(f"[Interpreter] Parsed intent: {intent}")
         return intent
 
-    def _interpret_api(
-        self, user_request: str, context: Optional[Dict] = None
-    ) -> AnimationIntent:
+    def _interpret_api(self, user_request: str, context: Optional[Dict] = None) -> AnimationIntent:
         """
         Interpret using local LLM (llama-cpp).
 
@@ -275,7 +271,9 @@ class AnimationInterpreter:
 
             if intent:
                 intent.confidence = 0.95  # High confidence for LLM
-                print(f"[LLM] Interpreted: {intent.animation_type} with modifiers {intent.style_modifiers}")
+                print(
+                    f"[LLM] Interpreted: {intent.animation_type} with modifiers {intent.style_modifiers}"
+                )
                 return intent
             else:
                 # JSON parsing failed, fallback
@@ -319,9 +317,7 @@ class AnimationInterpreter:
 
         return found_modifiers
 
-    def _calculate_parameters(
-        self, style_modifiers: List[str]
-    ) -> Tuple[float, float, str]:
+    def _calculate_parameters(self, style_modifiers: List[str]) -> Tuple[float, float, str]:
         """
         Calculate animation parameters from style modifiers.
 
@@ -385,15 +381,11 @@ class AnimationInterpreter:
         """Check if request is simple enough for local processing"""
         # Simple if: single animation type, <= 2 modifiers, < 20 words
         word_count = len(text.split())
-        modifier_count = sum(
-            1 for mod in self.style_modifiers.keys() if mod in text.lower()
-        )
+        modifier_count = sum(1 for mod in self.style_modifiers.keys() if mod in text.lower())
 
         return word_count < 20 and modifier_count <= 2
 
-    def _build_llm_prompt(
-        self, user_request: str, context: Optional[Dict] = None
-    ) -> str:
+    def _build_llm_prompt(self, user_request: str, context: Optional[Dict] = None) -> str:
         """
         Build structured prompt for LLM.
 
@@ -441,9 +433,7 @@ Consider the mood, energy level, and style implied by the user's words.
                 confidence=0.3,
             )
 
-    def _build_llm_prompt_v2(
-        self, user_request: str, context: Optional[Dict] = None
-    ) -> str:
+    def _build_llm_prompt_v2(self, user_request: str, context: Optional[Dict] = None) -> str:
         """
         Build optimized prompt for local LLMs (Phi-3, Llama).
 
@@ -486,11 +476,11 @@ Return ONLY valid JSON in this exact format:
         Handles various LLM output formats and extracts valid JSON.
         """
         # Try to find JSON object in response
-        json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+        json_match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
 
         if not json_match:
             # Try to find JSON with nested objects
-            json_match = re.search(r'\{(?:[^{}]|\{[^{}]*\})*\}', text, re.DOTALL)
+            json_match = re.search(r"\{(?:[^{}]|\{[^{}]*\})*\}", text, re.DOTALL)
 
         if not json_match:
             return None
@@ -498,10 +488,10 @@ Return ONLY valid JSON in this exact format:
         json_str = json_match.group(0)
 
         # Add closing brace if missing
-        open_count = json_str.count('{')
-        close_count = json_str.count('}')
+        open_count = json_str.count("{")
+        close_count = json_str.count("}")
         if open_count > close_count:
-            json_str += '}' * (open_count - close_count)
+            json_str += "}" * (open_count - close_count)
 
         try:
             data = json.loads(json_str)
@@ -588,9 +578,7 @@ Return ONLY valid JSON in this exact format:
 
         return suggestions
 
-    def refine_intent(
-        self, intent: AnimationIntent, user_feedback: str
-    ) -> AnimationIntent:
+    def refine_intent(self, intent: AnimationIntent, user_feedback: str) -> AnimationIntent:
         """
         Refine animation intent based on user feedback.
 
@@ -610,14 +598,9 @@ Return ONLY valid JSON in this exact format:
             intent.speed_multiplier *= 1.3
 
         # Intensity adjustments
-        if any(
-            word in feedback_lower
-            for word in ["more intense", "stronger", "more pronounced"]
-        ):
+        if any(word in feedback_lower for word in ["more intense", "stronger", "more pronounced"]):
             intent.intensity = min(1.0, intent.intensity * 1.3)
-        elif any(
-            word in feedback_lower for word in ["less intense", "subtler", "gentler"]
-        ):
+        elif any(word in feedback_lower for word in ["less intense", "subtler", "gentler"]):
             intent.intensity = max(0.1, intent.intensity * 0.7)
 
         # Style changes

@@ -201,7 +201,7 @@ class DatabaseManager:
                 "animations": [anim.to_dict() for anim in self.animations.values()],
             }
 
-            with open(backup_file, 'w', encoding='utf-8') as f:
+            with open(backup_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
             return backup_file
@@ -239,9 +239,7 @@ class DatabaseManager:
     # CRUD Operations
     # =========================================================================
 
-    def create(
-        self, category: str, entry: DatabaseEntry, auto_id: bool = False
-    ) -> DatabaseEntry:
+    def create(self, category: str, entry: DatabaseEntry, auto_id: bool = False) -> DatabaseEntry:
         """
         Create a new entry in the specified category.
 
@@ -269,15 +267,11 @@ class DatabaseManager:
 
         # Check for duplicate ID
         if entry.id in storage:
-            raise DuplicateIDError(
-                f"{category} entry with ID {entry.id} already exists"
-            )
+            raise DuplicateIDError(f"{category} entry with ID {entry.id} already exists")
 
         # Validate entry
         if not entry.validate():
-            raise ValidationError(
-                f"{category} entry with ID {entry.id} failed validation"
-            )
+            raise ValidationError(f"{category} entry with ID {entry.id} failed validation")
 
         # Add to storage
         storage[entry.id] = entry
@@ -304,9 +298,7 @@ class DatabaseManager:
         storage = self._categories[category]
 
         if entry_id not in storage:
-            raise EntryNotFoundError(
-                f"{category} entry with ID {entry_id} not found"
-            )
+            raise EntryNotFoundError(f"{category} entry with ID {entry_id} not found")
 
         return storage[entry_id]
 
@@ -351,15 +343,11 @@ class DatabaseManager:
         storage = self._categories[category]
 
         if entry.id not in storage:
-            raise EntryNotFoundError(
-                f"{category} entry with ID {entry.id} not found"
-            )
+            raise EntryNotFoundError(f"{category} entry with ID {entry.id} not found")
 
         # Validate updated entry
         if not entry.validate():
-            raise ValidationError(
-                f"{category} entry with ID {entry.id} failed validation"
-            )
+            raise ValidationError(f"{category} entry with ID {entry.id} failed validation")
 
         # Auto-backup before update
         self._auto_backup_if_enabled(f"update_{category}_{entry.id}")
@@ -388,9 +376,7 @@ class DatabaseManager:
         storage = self._categories[category]
 
         if entry_id not in storage:
-            raise EntryNotFoundError(
-                f"{category} entry with ID {entry_id} not found"
-            )
+            raise EntryNotFoundError(f"{category} entry with ID {entry_id} not found")
 
         # Auto-backup before delete
         self._auto_backup_if_enabled(f"delete_{category}_{entry_id}")
@@ -865,39 +851,20 @@ class DatabaseManager:
             self.clear()
 
             # Load each category
-            self.items = {
-                item["id"]: Item.from_dict(item) for item in data.get("items", [])
-            }
-            self.skills = {
-                skill["id"]: Skill.from_dict(skill)
-                for skill in data.get("skills", [])
-            }
+            self.items = {item["id"]: Item.from_dict(item) for item in data.get("items", [])}
+            self.skills = {skill["id"]: Skill.from_dict(skill) for skill in data.get("skills", [])}
             self.weapons = {
-                weapon["id"]: Weapon.from_dict(weapon)
-                for weapon in data.get("weapons", [])
+                weapon["id"]: Weapon.from_dict(weapon) for weapon in data.get("weapons", [])
             }
-            self.armors = {
-                armor["id"]: Armor.from_dict(armor)
-                for armor in data.get("armors", [])
-            }
+            self.armors = {armor["id"]: Armor.from_dict(armor) for armor in data.get("armors", [])}
             self.enemies = {
-                enemy["id"]: Enemy.from_dict(enemy)
-                for enemy in data.get("enemies", [])
+                enemy["id"]: Enemy.from_dict(enemy) for enemy in data.get("enemies", [])
             }
-            self.states = {
-                state["id"]: State.from_dict(state)
-                for state in data.get("states", [])
-            }
-            self.actors = {
-                actor["id"]: Actor.from_dict(actor)
-                for actor in data.get("actors", [])
-            }
-            self.classes = {
-                cls["id"]: Class.from_dict(cls) for cls in data.get("classes", [])
-            }
+            self.states = {state["id"]: State.from_dict(state) for state in data.get("states", [])}
+            self.actors = {actor["id"]: Actor.from_dict(actor) for actor in data.get("actors", [])}
+            self.classes = {cls["id"]: Class.from_dict(cls) for cls in data.get("classes", [])}
             self.animations = {
-                anim["id"]: Animation.from_dict(anim)
-                for anim in data.get("animations", [])
+                anim["id"]: Animation.from_dict(anim) for anim in data.get("animations", [])
             }
 
             # Update category mappings
@@ -924,9 +891,7 @@ class DatabaseManager:
         except Exception as e:
             raise DatabaseError(f"Unexpected error loading from {filepath}: {e}")
 
-    def save_category_to_file(
-        self, category: str, filepath: Path, pretty: bool = True
-    ) -> None:
+    def save_category_to_file(self, category: str, filepath: Path, pretty: bool = True) -> None:
         """
         Save a single category to a JSON file.
 
@@ -956,9 +921,7 @@ class DatabaseManager:
         except (OSError, IOError) as e:
             raise DatabaseError(f"Failed to save {category} to {filepath}: {e}")
         except Exception as e:
-            raise DatabaseError(
-                f"Unexpected error saving {category} to {filepath}: {e}"
-            )
+            raise DatabaseError(f"Unexpected error saving {category} to {filepath}: {e}")
 
     # =========================================================================
     # CSV Import/Export
@@ -1021,9 +984,7 @@ class DatabaseManager:
         except (OSError, IOError) as e:
             raise DatabaseError(f"Failed to export {category} to {filepath}: {e}")
         except Exception as e:
-            raise DatabaseError(
-                f"Unexpected error exporting {category} to {filepath}: {e}"
-            )
+            raise DatabaseError(f"Unexpected error exporting {category} to {filepath}: {e}")
 
     def import_from_csv(
         self,
@@ -1225,7 +1186,9 @@ class DatabaseManager:
 
         return list(self._categories[category].values())
 
-    def create_entry(self, category: str, entry: DatabaseEntry, auto_id: bool = False) -> DatabaseEntry:
+    def create_entry(
+        self, category: str, entry: DatabaseEntry, auto_id: bool = False
+    ) -> DatabaseEntry:
         """
         Alias for create() method for backward compatibility.
 
@@ -1286,9 +1249,7 @@ class DatabaseManager:
         Returns:
             Dictionary mapping category names to entry counts
         """
-        return {
-            category: len(storage) for category, storage in self._categories.items()
-        }
+        return {category: len(storage) for category, storage in self._categories.items()}
 
     def get_categories(self) -> List[str]:
         """
