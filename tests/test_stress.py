@@ -68,7 +68,7 @@ class TestMemoryStress:
 
         # Remove all entities
         for entity in list(list(world._entities.values())):
-            world.remove_entity(entity)
+            world.remove_entity(entity.id)
 
         # Force garbage collection
         gc.collect()
@@ -93,7 +93,7 @@ class TestMemoryStress:
 
             # Remove all entities
             for entity in entities:
-                world.remove_entity(entity)
+                world.remove_entity(entity.id)
 
             assert len(list(world._entities.values())) == 0
 
@@ -480,7 +480,7 @@ class TestStabilityUnderLoad:
             if len(list(world._entities.values())) > 100:
                 to_remove = list(list(world._entities.values()))[:25]
                 for entity in to_remove:
-                    world.remove_entity(entity)
+                    world.remove_entity(entity.id)
 
         print(f"\nCompleted 30 iterations of mixed workload")
         print(f"Final state: {len(list(world._entities.values()))} entities, {event_count[0]} events processed")
