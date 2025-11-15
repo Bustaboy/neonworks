@@ -8,6 +8,7 @@ from typing import List, Optional, Set, Tuple
 import pygame
 
 from ..core.ecs import GridPosition, Navmesh, World
+from ..core.undo_manager import NavmeshPaintCommand, UndoManager
 from ..editor.ai_navmesh import NavmeshGenerator
 from ..rendering.ui import UI
 
@@ -44,6 +45,12 @@ class NavmeshEditorUI:
         # Painting state
         self.is_painting = False
         self.last_paint_pos = None
+
+        # Undo/Redo manager
+        self.undo_manager = UndoManager(enable_compression=True)
+
+        # Track changes for batching
+        self.current_paint_stroke: List[Tuple[int, int, bool, bool]] = []
 
     def toggle(self):
         """Toggle navmesh editor visibility."""
@@ -249,8 +256,54 @@ class NavmeshEditorUI:
         ):
             self.load_from_entity()
 
-        # Statistics
+        # Undo/Redo buttons
         current_y += 45
+        self.ui.label("Undo/Redo:", panel_x + 10, current_y, size=14, color=(200, 200, 200))
+        current_y += 20
+
+        # Undo button
+        undo_enabled = self.undo_manager.can_undo()
+        undo_color = (0, 180, 0) if undo_enabled else (50, 50, 50)
+        if self.ui.button(
+            f"Undo (Ctrl+Z)",
+            panel_x + 10,
+            current_y,
+            button_width // 2 - 5,
+            30,
+            color=undo_color,
+        ):
+            if undo_enabled:
+                self.undo_manager.undo()
+
+        # Redo button
+        redo_enabled = self.undo_manager.can_redo()
+        redo_color = (0, 140, 180) if redo_enabled else (50, 50, 50)
+        if self.ui.button(
+            f"Redo (Ctrl+Y)",
+            panel_x + button_width // 2 + 15,
+            current_y,
+            button_width // 2 - 5,
+            30,
+            color=redo_color,
+        ):
+            if redo_enabled:
+                self.undo_manager.redo()
+
+        # Show undo/redo descriptions
+        current_y += 35
+        undo_desc = self.undo_manager.get_undo_description()
+        if undo_desc:
+            self.ui.label(
+                f"← {undo_desc[:25]}",
+                panel_x + 15,
+                current_y,
+                size=10,
+                color=(150, 255, 150),
+            )
+        current_y += 15
+
+        # Statistics
+        current_y += 10
         self.ui.label("Statistics:", panel_x + 10, current_y, size=14, color=(200, 200, 200))
         current_y += 20
         self.ui.label(f"Walkable: {len(self.walkable_tiles)}", panel_x + 15, current_y, size=12)
@@ -279,20 +332,41 @@ class NavmeshEditorUI:
 
                 tile_pos = (tile_x, tile_y)
 
+                # Get old state for undo
+                old_walkable = tile_pos in self.walkable_tiles
+                old_unwalkable = tile_pos in self.unwalkable_tiles
+
+                # Determine new state
                 if self.paint_mode == "walkable":
-                    self.walkable_tiles.add(tile_pos)
-                    self.unwalkable_tiles.discard(tile_pos)
+                    new_walkable = True
                 elif self.paint_mode == "unwalkable":
-                    self.unwalkable_tiles.add(tile_pos)
-                    self.walkable_tiles.discard(tile_pos)
+                    new_walkable = False
+                else:  # erase
+                    new_walkable = None  # Neither walkable nor unwalkable
+
+                # Only record change if state actually changes
+                if self.paint_mode == "walkable":
+                    if not old_walkable:
+                        self.current_paint_stroke.append((tile_x, tile_y, old_walkable, True))
+                        self.walkable_tiles.add(tile_pos)
+                        self.unwalkable_tiles.discard(tile_pos)
+                elif self.paint_mode == "unwalkable":
+                    if not old_unwalkable:
+                        self.current_paint_stroke.append((tile_x, tile_y, old_walkable, False))
+                        self.unwalkable_tiles.add(tile_pos)
+                        self.walkable_tiles.discard(tile_pos)
                 elif self.paint_mode == "erase":
-                    self.walkable_tiles.discard(tile_pos)
-                    self.unwalkable_tiles.discard(tile_pos)
+                    if old_walkable or old_unwalkable:
+                        # Track what was there before erasing
+                        self.current_paint_stroke.append((tile_x, tile_y, old_walkable, None))
+                        self.walkable_tiles.discard(tile_pos)
+                        self.unwalkable_tiles.discard(tile_pos)
 
     def start_painting(self, grid_x: int, grid_y: int):
         """Start a painting stroke."""
         self.is_painting = True
         self.last_paint_pos = (grid_x, grid_y)
+        self.current_paint_stroke.clear()  # Start new stroke
         self.paint_tile(grid_x, grid_y)
 
     def continue_painting(self, grid_x: int, grid_y: int):
@@ -307,9 +381,33 @@ class NavmeshEditorUI:
         self.last_paint_pos = (grid_x, grid_y)
 
     def stop_painting(self):
-        """Stop painting."""
+        """Stop painting and record undo command."""
+        if not self.is_painting:
+            return
+
         self.is_painting = False
         self.last_paint_pos = None
+
+        # Record undo command if any changes were made
+        if self.current_paint_stroke:
+            # Convert None values to proper boolean for NavmeshPaintCommand
+            processed_changes = []
+            for x, y, old_walkable, new_walkable in self.current_paint_stroke:
+                # Convert None to False for consistency
+                if new_walkable is None:
+                    new_walkable = False
+                processed_changes.append((x, y, old_walkable, new_walkable))
+
+            command = NavmeshPaintCommand(
+                self.walkable_tiles,
+                self.unwalkable_tiles,
+                processed_changes,
+                f"Paint {self.paint_mode.capitalize()}",
+            )
+            # Don't execute since we already applied changes
+            command.executed = True
+            self.undo_manager.undo_stack.append(command)
+            self.current_paint_stroke.clear()
 
     def _paint_line(self, x0: int, y0: int, x1: int, y1: int):
         """Paint a line between two points (Bresenham's algorithm)."""
@@ -424,3 +522,36 @@ class NavmeshEditorUI:
                     self.unwalkable_tiles.add((x, y))
 
         print(f"Navmesh loaded from entity #{navmesh_entity}")
+
+    def handle_event(self, event: pygame.event.Event) -> bool:
+        """
+        Handle input events.
+
+        Args:
+            event: Pygame event
+
+        Returns:
+            True if event was handled
+        """
+        if not self.visible:
+            return False
+
+        # Handle keyboard shortcuts
+        if event.type == pygame.KEYDOWN:
+            # Check for Ctrl modifier
+            ctrl_pressed = pygame.key.get_mods() & pygame.KMOD_CTRL
+            shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
+
+            # Ctrl+Z: Undo
+            if ctrl_pressed and event.key == pygame.K_z and not shift_pressed:
+                if self.undo_manager.undo():
+                    return True
+
+            # Ctrl+Y or Ctrl+Shift+Z: Redo
+            if (ctrl_pressed and event.key == pygame.K_y) or (
+                ctrl_pressed and shift_pressed and event.key == pygame.K_z
+            ):
+                if self.undo_manager.redo():
+                    return True
+
+        return False

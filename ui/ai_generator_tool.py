@@ -3,6 +3,10 @@ AI-Powered Level Generator Tool
 
 Comprehensive level generation tool with chat interface.
 Users can generate complete levels by chatting with AI.
+
+All AI-generated content is fully undoable via Ctrl+Z.
+The tool integrates with the undo/redo system to batch all changes
+from a single generation operation into one undoable action.
 """
 
 import json
@@ -237,8 +241,9 @@ class AILevelGenerator:
             f"  • Shape Tool (5): Geometric shapes\n"
             f"  • Stamp Tool (6): Custom patterns\n"
             f"  • Eyedropper (7): Pick tiles\n"
-            f"  • Fill Tool (3): Flood fill\n"
-            f"  • Undo/Redo: Ctrl+Z / Ctrl+Y"
+            f"  • Fill Tool (3): Flood fill\n\n"
+            f"↩️ Undo/Redo: Ctrl+Z / Ctrl+Y\n"
+            f"   (All AI generation is fully undoable!)"
         )
 
         return response
@@ -247,19 +252,33 @@ class AILevelGenerator:
         """Generate terrain using selected tile type."""
         terrain_data = self.terrain_types.get(terrain_type, self.terrain_types["grass"])
 
+        # Collect all changes for batch undo command
+        changes = []
+
         # Base layer - fill entire map
         for y in range(height):
             for x in range(width):
-                tile = Tile(tile_type=terrain_type, walkable=terrain_data["walkable"])
-                context.tilemap.set_tile(x, y, 0, tile)
+                old_tile = context.tilemap.get_tile(x, y, 0)
+                new_tile = Tile(tile_type=terrain_type, walkable=terrain_data["walkable"])
+                changes.append((x, y, 0, old_tile, new_tile))
+                context.tilemap.set_tile(x, y, 0, new_tile)
 
         # Add variation with Perlin-noise-like patterns
-        self._add_terrain_variation(terrain_type, width, height, context)
+        changes.extend(self._add_terrain_variation(terrain_type, width, height, context))
+
+        # Record as single undoable command if undo manager is available
+        if context.undo_manager and changes:
+            from ..ui.map_tools.undo_manager import BatchTileChangeAction
+
+            action = BatchTileChangeAction(context.tilemap, changes)
+            context.undo_manager.record_action(action)
 
     def _add_terrain_variation(
         self, base_terrain: str, width: int, height: int, context: ToolContext
     ):
-        """Add natural-looking terrain variation."""
+        """Add natural-looking terrain variation. Returns list of changes."""
+        changes = []
+
         # Determine variation terrain
         variations = {
             "grass": ["dirt", "flowers"],
@@ -270,7 +289,7 @@ class AILevelGenerator:
         }
 
         if base_terrain not in variations:
-            return
+            return changes
 
         variation_types = variations[base_terrain]
 
@@ -293,8 +312,12 @@ class AILevelGenerator:
                 for x in range(max(0, center_x - radius), min(width, center_x + radius + 1)):
                     dist_sq = (x - center_x) ** 2 + (y - center_y) ** 2
                     if dist_sq <= radius**2 and random.random() > 0.3:
-                        tile = Tile(tile_type=variation_type, walkable=terrain_data["walkable"])
-                        context.tilemap.set_tile(x, y, 0, tile)
+                        old_tile = context.tilemap.get_tile(x, y, 0)
+                        new_tile = Tile(tile_type=variation_type, walkable=terrain_data["walkable"])
+                        changes.append((x, y, 0, old_tile, new_tile))
+                        context.tilemap.set_tile(x, y, 0, new_tile)
+
+        return changes
 
     def _generate_buildings(
         self,
