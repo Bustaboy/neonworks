@@ -9,8 +9,8 @@ from typing import Any, Dict, Optional
 
 import pygame
 
-from neonworks.engine.ui.event_editor_ui import EventEditorUI
 from neonworks.engine.ui.character_generator_ui import CharacterGeneratorUI
+from neonworks.engine.ui.event_editor_ui import EventEditorUI
 from neonworks.engine.ui.face_generator_ui import FaceGeneratorUI
 
 

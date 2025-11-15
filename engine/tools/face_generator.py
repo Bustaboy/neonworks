@@ -31,10 +31,10 @@ import random
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-import pygame
 import numpy as np
+import pygame
 
 
 class FaceLayerType(Enum):

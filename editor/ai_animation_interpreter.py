@@ -7,7 +7,7 @@ into structured animation parameters that the AI animator can execute.
 
 import json
 import re
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Optional, Tuple
 
 from neonworks.editor.ai_animator import AnimationConfig

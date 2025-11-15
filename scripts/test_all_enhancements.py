@@ -26,7 +26,9 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # Also add to PYTHONPATH for imports
-os.environ["PYTHONPATH"] = str(project_root) + os.pathsep + os.environ.get("PYTHONPATH", "")
+os.environ["PYTHONPATH"] = str(project_root) + os.pathsep + os.environ.get(
+    "PYTHONPATH", ""
+)
 
 # Test results
 test_results = []
