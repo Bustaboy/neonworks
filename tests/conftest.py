@@ -199,7 +199,7 @@ def turn_actor(world):
     entity = world.create_entity("TurnActor")
     entity.add_component(Transform(x=5, y=5))
     entity.add_component(GridPosition(grid_x=5, grid_y=5))
-    entity.add_component(TurnActor(action_points=10, max_ap=10, initiative=15))
+    entity.add_component(TurnActor(action_points=10, max_action_points=10, initiative=15))
     entity.add_component(Health(current=50, maximum=50))
     entity.add_tag("combatant")
     return entity
@@ -218,8 +218,8 @@ def physics_entity(world):
     """
     entity = world.create_entity("PhysicsObject")
     entity.add_component(Transform(x=0, y=0))
-    entity.add_component(Collider(shape="box", width=32, height=32))
-    entity.add_component(RigidBody(velocity=(0, 0), acceleration=(0, 0), mass=1.0))
+    entity.add_component(Collider(width=32, height=32))
+    entity.add_component(RigidBody(velocity_x=0, velocity_y=0, mass=1.0))
     return entity
 
 

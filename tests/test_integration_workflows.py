@@ -53,7 +53,7 @@ class TestCombatWorkflow:
         player.add_component(Transform(x=0, y=0))
         player.add_component(GridPosition(grid_x=0, grid_y=0))
         player.add_component(Health(current=100, maximum=100))
-        player.add_component(TurnActor(action_points=10, max_ap=10, initiative=15))
+        player.add_component(TurnActor(action_points=10, max_action_points=10, initiative=15))
         player.add_tag("player")
 
         # Create enemy
@@ -61,7 +61,7 @@ class TestCombatWorkflow:
         enemy.add_component(Transform(x=10, y=10))
         enemy.add_component(GridPosition(grid_x=5, grid_y=5))
         enemy.add_component(Health(current=50, maximum=50))
-        enemy.add_component(TurnActor(action_points=10, max_ap=10, initiative=10))
+        enemy.add_component(TurnActor(action_points=10, max_action_points=10, initiative=10))
         enemy.add_tag("enemy")
 
         # Start combat

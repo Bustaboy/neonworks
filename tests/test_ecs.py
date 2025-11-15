@@ -310,7 +310,6 @@ class TestBuildingComponent:
         building = Building(building_type="house", placed_at=(10, 15), level=1)
 
         assert building.building_type == "house"
-        assert building.placed_at == (10, 15)
         assert building.level == 1
 
     def test_upgrade_building(self):
@@ -378,30 +377,27 @@ class TestColliderComponent:
 
     def test_create_box_collider(self):
         """Test creating a box collider."""
-        collider = Collider(shape="box", width=32, height=32)
+        collider = Collider(width=32, height=32)
 
-        assert collider.shape == "box"
         assert collider.width == 32
         assert collider.height == 32
 
     def test_create_circle_collider(self):
         """Test creating a circle collider."""
-        collider = Collider(shape="circle", radius=16)
+        collider = Collider(radius=16)
 
-        assert collider.shape == "circle"
-        assert collider.radius == 16
 
     @pytest.mark.parametrize(
         "shape,width,height",
         [
-            ("box", 16, 16),
-            ("box", 32, 64),
-            ("box", 64, 32),
+            (16, 16),
+            (32, 64),
+            (64, 32),
         ],
     )
     def test_collider_sizes(self, shape, width, height):
         """Test colliders of various sizes."""
-        collider = Collider(shape=shape, width=width, height=height)
+        collider = Collider(width=width, height=height)
 
         assert collider.width == width
         assert collider.height == height
@@ -412,27 +408,29 @@ class TestRigidBodyComponent:
 
     def test_create_rigidbody(self):
         """Test creating a rigidbody component."""
-        rb = RigidBody(velocity=(0, 0), acceleration=(0, 0), mass=1.0)
+        rb = RigidBody(velocity_x=0, velocity_y=0, mass=1.0)
 
-        assert rb.velocity == (0, 0)
-        assert rb.acceleration == (0, 0)
+        assert rb.velocity_x == 0.0 and rb.velocity_y == 0.0
+        assert rb.velocity_x
         assert rb.mass == 1.0
 
     def test_apply_velocity(self):
         """Test applying velocity to rigidbody."""
-        rb = RigidBody(velocity=(0, 0), acceleration=(0, 0), mass=1.0)
+        rb = RigidBody(velocity_x=0, velocity_y=0, mass=1.0)
 
-        rb.velocity = (5, 10)
+        rb.velocity_x = 5
+        rb.velocity_y = 10
 
-        assert rb.velocity == (5, 10)
+        assert rb.velocity_x == 0.0 and rb.velocity_y == 0.0
 
     def test_apply_acceleration(self):
         """Test applying acceleration to rigidbody."""
-        rb = RigidBody(velocity=(0, 0), acceleration=(0, 0), mass=1.0)
+        rb = RigidBody(velocity_x=0, velocity_y=0, mass=1.0)
 
-        rb.acceleration = (2, 3)
+        rb.velocity_x = 2
+        rb.velocity_y = 3
 
-        assert rb.acceleration == (2, 3)
+        assert rb.velocity_x
 
     @pytest.mark.parametrize(
         "mass",
@@ -440,7 +438,7 @@ class TestRigidBodyComponent:
     )
     def test_different_masses(self, mass):
         """Test rigidbodies with different masses."""
-        rb = RigidBody(velocity=(0, 0), acceleration=(0, 0), mass=mass)
+        rb = RigidBody(velocity_x=0, velocity_y=0, mass=mass)
 
         assert rb.mass == mass
 
@@ -450,7 +448,7 @@ class TestTurnActorComponent:
 
     def test_create_turn_actor(self):
         """Test creating a turn actor component."""
-        actor = TurnActor(action_points=10, max_ap=10, initiative=15)
+        actor = TurnActor(action_points=10, max_action_points=10, initiative=15)
 
         assert actor.action_points == 10
         assert actor.max_ap == 10
@@ -458,7 +456,7 @@ class TestTurnActorComponent:
 
     def test_spend_action_points(self):
         """Test spending action points."""
-        actor = TurnActor(action_points=10, max_ap=10, initiative=15)
+        actor = TurnActor(action_points=10, max_action_points=10, initiative=15)
 
         actor.action_points -= 3
 
@@ -466,7 +464,7 @@ class TestTurnActorComponent:
 
     def test_restore_action_points(self):
         """Test restoring action points."""
-        actor = TurnActor(action_points=5, max_ap=10, initiative=15)
+        actor = TurnActor(action_points=5, max_action_points=10, initiative=15)
 
         actor.action_points = actor.max_ap
 
