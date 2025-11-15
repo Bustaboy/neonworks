@@ -1,0 +1,170 @@
+{
+  "name": "Open Plains",
+  "width": 30,
+  "height": 30,
+  "tile_size": 32,
+  "background_music": "grasslands.mp3",
+  "encounter_rate": 0.03,
+  "encounter_table": "plains_encounters",
+  "spawn_points": [
+    {
+      "name": "default",
+      "x": 15,
+      "y": 28,
+      "direction": "UP"
+    }
+  ],
+  "tilemap": {
+    "tilesets": [
+      {
+        "name": "plains_tiles",
+        "image": "tilesets/plains.png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "columns": 16,
+        "tile_count": 256,
+        "spacing": 0,
+        "margin": 0
+      }
+    ],
+    "layers": [
+      {
+        "name": "ground",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "PLAINS_GROUND_DATA"
+      },
+      {
+        "name": "grass",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "PLAINS_GRASS_DATA"
+      }
+    ]
+  },
+  "collision": {
+    "blocked_tiles": []
+  },
+  "encounter_groups": {
+    "plains_encounters": [
+      {"enemy_id": 1, "weight": 60},
+      {"enemy_id": 2, "weight": 40}
+    ]
+  },
+  "objects": [
+    {
+      "id": "expansion_flag",
+      "x": 15,
+      "y": 15,
+      "sprite": "objects/flag.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "claim_territory"
+    }
+  ],
+  "triggers": [],
+  "events": [
+    {
+      "id": "claim_territory",
+      "trigger": "action_button",
+      "name": "Claim Territory",
+      "note": "TUTORIAL: Expansion mechanic",
+      "pages": [
+        {
+          "conditions": {
+            "self_switch": "A"
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "An empty plot of land!\\nPerfect for expansion."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Do you want to claim this\\nterritory for your settlement?"
+              }
+            },
+            {
+              "code": "show_choices",
+              "parameters": {
+                "choices": ["Yes, claim it!", "Not yet"],
+                "cancel_type": 1
+              }
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Territory claimed!\\n\\nYou can now build structures here.\\nUse the Building UI (F3) to construct."
+              }
+            },
+            {
+              "code": "control_switches",
+              "parameters": {
+                "switch_id": "plains_claimed",
+                "value": true
+              }
+            },
+            {
+              "code": "control_self_switch",
+              "parameters": {
+                "self_switch": "A",
+                "value": true
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "claim.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        },
+        {
+          "conditions": {
+            "self_switch": "A",
+            "self_switch_value": true
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "This territory belongs to\\nyour settlement.\\n\\nPress F3 to build here!"
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

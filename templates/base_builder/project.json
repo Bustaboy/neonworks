@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "name": "Base Builder Demo",
+    "version": "1.0.0",
+    "description": "A complete base-building game demonstrating all NeonWorks features: events, database, characters, maps, music, and more",
+    "author": "NeonWorks Team",
+    "engine_version": "0.1.0"
+  },
+  "paths": {
+    "assets": "assets",
+    "scripts": "scripts",
+    "data": "data"
+  },
+  "settings": {
+    "window": {
+      "width": 1280,
+      "height": 720,
+      "title": "Base Builder Demo - NeonWorks",
+      "fullscreen": false
+    },
+    "tile_size": 32,
+    "target_fps": 60,
+    "features_enabled": {
+      "rendering": true,
+      "physics": true,
+      "audio": true,
+      "base_building": true,
+      "survival": true,
+      "turn_based": false,
+      "jrpg": false
+    },
+    "initial_map": "home_base",
+    "initial_spawn": "default"
+  },
+  "game_data": {
+    "database_file": "data/database.json",
+    "starting_resources": {
+      "wood": 100,
+      "stone": 50,
+      "food": 30,
+      "iron_ore": 10
+    },
+    "starting_inventory": [
+      {"item_id": 101, "quantity": 3},
+      {"item_id": 1, "quantity": 10}
+    ],
+    "starting_party": [
+      {"actor_id": 1, "level": 1}
+    ]
+  },
+  "custom_data": {
+    "tutorial_completed": false,
+    "difficulty": "normal",
+    "starting_population": 5,
+    "day_night_cycle": true,
+    "weather_enabled": true
+  }
+}
