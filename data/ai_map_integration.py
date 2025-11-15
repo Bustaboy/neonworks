@@ -19,6 +19,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from neonworks.data.map_manager import MapConnection, MapData, MapManager, get_map_manager
+from neonworks.data.tileset_manager import get_tileset_manager
+from engine.tools.map_importers import (
+    LegacyFormatConverter,
+    PNGExporter,
+    TiledTMXExporter,
+    TiledTMXImporter,
+    TilesetImageImporter,
+)
 
 
 class AIMapCommands:
@@ -37,6 +45,14 @@ class AIMapCommands:
             map_manager: MapManager instance (None to use global)
         """
         self.map_manager = map_manager or get_map_manager()
+
+        # Import/Export tools
+        self.tileset_manager = get_tileset_manager()
+        self.png_exporter = PNGExporter(self.tileset_manager)
+        self.tmx_exporter = TiledTMXExporter()
+        self.tmx_importer = None  # Will be initialized when needed
+        self.tileset_importer = TilesetImageImporter(self.tileset_manager)
+        self.legacy_converter = LegacyFormatConverter()
 
     def process_command(self, user_message: str) -> Optional[str]:
         """
@@ -91,6 +107,28 @@ class AIMapCommands:
         # EXPORT MAPS command
         if "export" in message_lower and "map" in message_lower:
             return self._cmd_export_maps(user_message)
+
+        # IMPORT TMX command
+        if ("import" in message_lower and "tmx" in message_lower) or (
+            "import" in message_lower and "tiled" in message_lower
+        ):
+            return self._cmd_import_tmx(user_message)
+
+        # IMPORT LEGACY command
+        if "import" in message_lower and "legacy" in message_lower:
+            return self._cmd_import_legacy(user_message)
+
+        # CONVERT LEGACY command
+        if "convert" in message_lower and ("legacy" in message_lower or "old" in message_lower):
+            return self._cmd_convert_legacy(user_message)
+
+        # IMPORT TILESET command
+        if (
+            "import tileset" in message_lower
+            or "import" in message_lower
+            and "tileset" in message_lower
+        ):
+            return self._cmd_import_tileset(user_message)
 
         # AI LEVEL BUILDER commands
         if "add spawn" in message_lower or "add player" in message_lower:
@@ -954,6 +992,184 @@ class AIMapCommands:
         except Exception as e:
             return f"❌ Error adding terrain: {e}"
 
+    def _cmd_import_tmx(self, user_message: str) -> str:
+        """Handle import TMX command."""
+        # Parse: "import tmx mymap.tmx" or "import tiled map from path/to/map.tmx"
+        match = re.search(r"import.*?([^\s]+\.tmx)", user_message, re.IGNORECASE)
+
+        if match:
+            tmx_path = match.group(1)
+
+            try:
+                # Initialize TMX importer if needed
+                if self.tmx_importer is None:
+                    project_root = self.map_manager.project_root
+                    self.tmx_importer = TiledTMXImporter(project_root, self.tileset_manager)
+
+                # Import the TMX file
+                map_data = self.tmx_importer.import_tmx(tmx_path)
+
+                if map_data:
+                    # Save imported map
+                    self.map_manager.save_map(map_data)
+                    self.map_manager._build_folder_structure()
+
+                    response = f"✅ **IMPORTED TMX MAP**\n\n"
+                    response += f"📜 Name: {map_data.metadata.name}\n"
+                    response += (
+                        f"📏 Size: {map_data.dimensions.width}x{map_data.dimensions.height}\n"
+                    )
+                    response += f"🎨 Layers: {len(map_data.layer_manager.layers)}\n\n"
+                    response += f"Map saved as '{map_data.metadata.name}'!\n"
+                    response += f"Switch to it with: 'switch to map {map_data.metadata.name}'"
+
+                    return response
+                else:
+                    return f"❌ Failed to import TMX file: {tmx_path}"
+
+            except FileNotFoundError:
+                return f"❌ TMX file not found: {tmx_path}"
+            except Exception as e:
+                return f"❌ Error importing TMX: {e}"
+
+        return (
+            "To import a Tiled TMX map, say:\n"
+            "  'import tmx path/to/map.tmx'\n"
+            "  'import tiled map from mymap.tmx'\n\n"
+            "Tiled is a popular open-source map editor!"
+        )
+
+    def _cmd_import_legacy(self, user_message: str) -> str:
+        """Handle import legacy command."""
+        # Parse: "import legacy oldmap.json"
+        match = re.search(r"import legacy\s+([^\s]+\.json)", user_message, re.IGNORECASE)
+
+        if match:
+            legacy_path = match.group(1)
+
+            try:
+                import json
+
+                with open(legacy_path, "r") as f:
+                    legacy_data = json.load(f)
+
+                map_data = self.legacy_converter.convert_legacy_map(legacy_data)
+
+                if map_data:
+                    # Save converted map
+                    self.map_manager.save_map(map_data)
+                    self.map_manager._build_folder_structure()
+
+                    response = f"✅ **CONVERTED LEGACY MAP**\n\n"
+                    response += f"📜 Name: {map_data.metadata.name}\n"
+                    response += (
+                        f"📏 Size: {map_data.dimensions.width}x{map_data.dimensions.height}\n"
+                    )
+                    response += f"🎨 Layers: {len(map_data.layer_manager.layers)}\n\n"
+                    response += f"Old 3-layer format converted to enhanced format!\n"
+                    response += f"All data preserved and upgraded."
+
+                    return response
+                else:
+                    return f"❌ Failed to convert legacy map: {legacy_path}"
+
+            except FileNotFoundError:
+                return f"❌ Legacy map file not found: {legacy_path}"
+            except Exception as e:
+                return f"❌ Error converting legacy map: {e}"
+
+        return (
+            "To import a legacy map, say:\n"
+            "  'import legacy path/to/oldmap.json'\n\n"
+            "Converts old 3-layer format to enhanced layer system!"
+        )
+
+    def _cmd_convert_legacy(self, user_message: str) -> str:
+        """Handle batch convert legacy maps."""
+        # Parse: "convert legacy maps from path/to/dir"
+        match = re.search(r"convert.*from\s+([^\s]+)", user_message, re.IGNORECASE)
+
+        if match:
+            input_dir = Path(match.group(1))
+            output_dir = self.map_manager.levels_dir
+
+            try:
+                success, fail = self.legacy_converter.batch_convert_maps(input_dir, output_dir)
+
+                response = f"🔄 **BATCH CONVERSION COMPLETE**\n\n"
+                response += f"✅ Converted: {success} maps\n"
+                response += f"❌ Failed: {fail} maps\n\n"
+
+                if success > 0:
+                    response += f"Converted maps saved to: {output_dir}\n"
+                    response += "Use 'list maps' to see them!"
+
+                return response
+
+            except Exception as e:
+                return f"❌ Error during batch conversion: {e}"
+
+        return (
+            "To batch convert legacy maps, say:\n"
+            "  'convert legacy maps from path/to/directory'\n\n"
+            "Converts all JSON maps in the directory!"
+        )
+
+    def _cmd_import_tileset(self, user_message: str) -> str:
+        """Handle import tileset command."""
+        # Parse: "import tileset mysheet.png 32x32"
+        match = re.search(
+            r"import tileset\s+([^\s]+\.png)(?:\s+(\d+)x(\d+))?", user_message, re.IGNORECASE
+        )
+
+        if match:
+            tileset_path = match.group(1)
+            tile_width = int(match.group(2)) if match.group(2) else 32
+            tile_height = int(match.group(3)) if match.group(3) else 32
+
+            try:
+                # Extract tileset name from filename
+                tileset_name = Path(tileset_path).stem
+
+                # Import tileset
+                tileset = self.tileset_importer.import_tileset_image(
+                    image_path=tileset_path,
+                    tileset_name=tileset_name,
+                    tile_width=tile_width,
+                    tile_height=tile_height,
+                    auto_detect=True,
+                )
+
+                if tileset:
+                    response = f"✅ **IMPORTED TILESET**\n\n"
+                    response += f"🎨 Name: {tileset.name}\n"
+                    response += f"📏 Tile Size: {tileset.tile_width}x{tileset.tile_height}px\n"
+                    response += f"📊 Grid: {tileset.columns}x{tileset.rows}\n"
+                    response += f"🔢 Total Tiles: {tileset.tile_count}\n"
+
+                    if tileset.spacing > 0:
+                        response += f"📐 Spacing: {tileset.spacing}px\n"
+                    if tileset.margin > 0:
+                        response += f"📐 Margin: {tileset.margin}px\n"
+
+                    response += f"\n💾 Tileset ready to use in maps!"
+
+                    return response
+                else:
+                    return f"❌ Failed to import tileset: {tileset_path}"
+
+            except FileNotFoundError:
+                return f"❌ Tileset image not found: {tileset_path}"
+            except Exception as e:
+                return f"❌ Error importing tileset: {e}"
+
+        return (
+            "To import a tileset, say:\n"
+            "  'import tileset mytiles.png'\n"
+            "  'import tileset tiles.png 16x16'\n\n"
+            "Auto-detects grid spacing and margin!"
+        )
+
     def get_help_text(self) -> str:
         """Get help text for all map commands."""
         return """🗺️  AI MAP COMMANDS:
@@ -973,6 +1189,13 @@ class AIMapCommands:
 **Organization:**
 • "Organize maps" - AI organization suggestions
 • "Export maps" - Export guidance
+
+**Import/Export:**
+• "Import tmx path/to/map.tmx" - Import Tiled map
+• "Import legacy oldmap.json" - Convert legacy format
+• "Convert legacy maps from dir/" - Batch convert
+• "Import tileset tiles.png" - Import tileset image
+• "Import tileset tiles.png 16x16" - With custom tile size
 
 **Procedural Generation:**
 • "Generate interior map 50x50" - Create dungeon
