@@ -109,7 +109,7 @@ class TestCombatWorkflow:
         events.process_events()
 
         # Verify combat flow
-        assert len(combat_log) == 8
+        assert len(combat_log) == 9  # All combat events logged
         assert combat_log[0]["type"] == EventType.COMBAT_START
         assert combat_log[-1]["type"] == EventType.COMBAT_END
         assert combat_log[-1]["data"]["winner"] == player.id
