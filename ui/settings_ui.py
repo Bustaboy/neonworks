@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 import pygame
 
 from ..audio.audio_manager import AudioManager
+from ..core.hotkey_manager import Hotkey, HotkeyContext, get_hotkey_manager
 from ..input.input_manager import InputManager
 from ..rendering.ui import UI
 
@@ -28,9 +29,10 @@ class SettingsUI:
         self.ui = UI(screen)
         self.audio_manager = audio_manager
         self.input_manager = input_manager
+        self.hotkey_manager = get_hotkey_manager()
 
         self.visible = False
-        self.current_tab = "audio"  # 'audio', 'input', 'graphics', 'gameplay'
+        self.current_tab = "audio"  # 'audio', 'input', 'graphics', 'gameplay', 'shortcuts'
 
         # Settings data
         self.settings = {
@@ -71,6 +73,16 @@ class SettingsUI:
             "inventory": pygame.K_i,
             "build": pygame.K_b,
         }
+
+        # Shortcuts rebinding state
+        self.waiting_for_shortcut = None  # Hotkey being rebound
+        self.waiting_for_modifier = False
+        self.new_modifiers = set()
+
+        # Shortcuts tab scroll
+        self.shortcuts_scroll_offset = 0
+        self.shortcuts_max_scroll = 0
+        self.shortcuts_category_filter = None  # None = show all
 
         # Changes tracking
         self.has_unsaved_changes = False
@@ -129,6 +141,8 @@ class SettingsUI:
             self._render_graphics_settings(panel_x, content_y, panel_width, content_height)
         elif self.current_tab == "input":
             self._render_input_settings(panel_x, content_y, panel_width, content_height)
+        elif self.current_tab == "shortcuts":
+            self._render_shortcuts_settings(panel_x, content_y, panel_width, content_height)
         elif self.current_tab == "gameplay":
             self._render_gameplay_settings(panel_x, content_y, panel_width, content_height)
 
@@ -137,7 +151,7 @@ class SettingsUI:
 
     def _render_tabs(self, x: int, y: int, width: int):
         """Render tab buttons."""
-        tabs = ["audio", "graphics", "input", "gameplay"]
+        tabs = ["audio", "graphics", "input", "shortcuts", "gameplay"]
         tab_width = width // len(tabs)
 
         for i, tab in enumerate(tabs):
@@ -365,6 +379,150 @@ class SettingsUI:
 
             current_y += 35
 
+    def _render_shortcuts_settings(self, x: int, y: int, width: int, height: int):
+        """Render keyboard shortcuts settings."""
+        self.ui.label("Keyboard Shortcuts", x + 20, y, size=20, color=(200, 200, 255))
+
+        # Category filter buttons
+        filter_y = y + 30
+        categories = ["All"] + self.hotkey_manager.get_categories()
+        button_width = 100
+        button_spacing = 5
+
+        for i, category in enumerate(categories[:6]):  # Show first 6 categories
+            button_x = x + 20 + i * (button_width + button_spacing)
+            is_active = (category == "All" and self.shortcuts_category_filter is None) or (
+                category == self.shortcuts_category_filter
+            )
+            button_color = (50, 100, 200) if is_active else (30, 30, 50)
+
+            if self.ui.button(category, button_x, filter_y, button_width, 30, color=button_color):
+                self.shortcuts_category_filter = None if category == "All" else category
+                self.shortcuts_scroll_offset = 0
+
+        # Reset to defaults button
+        if self.ui.button(
+            "Reset All", x + width - 120, filter_y, 100, 30, color=(150, 100, 0)
+        ):
+            self.hotkey_manager.reset_to_defaults()
+            self.has_unsaved_changes = True
+
+        # Scrollable shortcuts list
+        list_y = filter_y + 40
+        list_height = height - 80
+
+        # Create clipping rect for scrolling
+        clip_rect = pygame.Rect(x + 10, list_y, width - 20, list_height)
+        original_clip = self.screen.get_clip()
+        self.screen.set_clip(clip_rect)
+
+        current_y = list_y - self.shortcuts_scroll_offset
+
+        # Get hotkeys grouped by category
+        if self.shortcuts_category_filter:
+            hotkeys = self.hotkey_manager.get_hotkeys_by_category(
+                self.shortcuts_category_filter
+            )
+            categories_to_show = {self.shortcuts_category_filter: hotkeys}
+        else:
+            categories_to_show = {}
+            for category in self.hotkey_manager.get_categories():
+                hotkeys = self.hotkey_manager.get_hotkeys_by_category(category)
+                if hotkeys:
+                    categories_to_show[category] = hotkeys
+
+        # Render each category
+        for category, hotkeys in categories_to_show.items():
+            # Category header
+            if current_y >= list_y - 30 and current_y <= list_y + list_height:
+                self.ui.label(category, x + 25, current_y, size=16, color=(255, 200, 100))
+            current_y += 25
+
+            # Hotkeys in category
+            for hotkey in hotkeys:
+                if current_y >= list_y - 40 and current_y <= list_y + list_height:
+                    self._render_shortcut_row(
+                        x + 35, current_y, width - 70, hotkey, list_y, list_height
+                    )
+                current_y += 35
+
+            current_y += 10  # Spacing between categories
+
+        # Calculate max scroll
+        total_height = current_y - (list_y - self.shortcuts_scroll_offset)
+        self.shortcuts_max_scroll = max(0, total_height - list_height)
+
+        # Restore clip
+        self.screen.set_clip(original_clip)
+
+        # Scroll indicator
+        if self.shortcuts_max_scroll > 0:
+            self._render_scroll_indicator(
+                x + width - 15, list_y, 10, list_height, self.shortcuts_scroll_offset
+            )
+
+        # Footer help text
+        footer_y = list_y + list_height + 5
+        if self.waiting_for_shortcut:
+            self.ui.label(
+                f"Press new key for '{self.waiting_for_shortcut.description}'... (ESC to cancel)",
+                x + 20,
+                footer_y,
+                size=14,
+                color=(255, 200, 0),
+            )
+        else:
+            self.ui.label(
+                "Click on a shortcut to rebind it | Use mouse wheel to scroll",
+                x + 20,
+                footer_y,
+                size=12,
+                color=(150, 150, 150),
+            )
+
+    def _render_shortcut_row(
+        self, x: int, y: int, width: int, hotkey: Hotkey, clip_y: int, clip_height: int
+    ):
+        """Render a single shortcut row."""
+        # Description (left side)
+        self.ui.label(hotkey.description, x, y, size=14, color=(200, 200, 200))
+
+        # Shortcut button (right side)
+        button_width = 200
+        button_x = x + width - button_width
+        is_waiting = self.waiting_for_shortcut == hotkey
+        button_color = (255, 200, 0) if is_waiting else (50, 50, 80)
+        button_text = "Press Key..." if is_waiting else hotkey.get_display_name()
+
+        if self.ui.button(button_text, button_x, y - 5, button_width, 30, color=button_color):
+            self.waiting_for_shortcut = hotkey
+            self.new_modifiers = set()
+
+        # Context indicator (small badge)
+        if hotkey.context != HotkeyContext.GLOBAL:
+            context_text = hotkey.context.value.capitalize()
+            context_x = button_x - 80
+            self.ui.label(f"[{context_text}]", context_x, y, size=12, color=(150, 150, 150))
+
+    def _render_scroll_indicator(
+        self, x: int, y: int, width: int, height: int, scroll_offset: int
+    ):
+        """Render a scroll indicator."""
+        max_scroll = self.shortcuts_max_scroll
+        if max_scroll <= 0:
+            return
+
+        # Background track
+        pygame.draw.rect(self.screen, (40, 40, 40), (x, y, width, height))
+
+        # Scrollbar handle
+        handle_height = max(20, height * height // (height + max_scroll))
+        handle_y = y + (scroll_offset / max_scroll) * (height - handle_height)
+
+        pygame.draw.rect(
+            self.screen, (100, 100, 150), (x, int(handle_y), width, int(handle_height))
+        )
+
     def _render_gameplay_settings(self, x: int, y: int, width: int, height: int):
         """Render gameplay settings."""
         self.ui.label("Gameplay Settings", x + 20, y, size=20, color=(200, 200, 255))
@@ -460,11 +618,53 @@ class SettingsUI:
             self.reset_to_defaults()
 
     def handle_key_press(self, key: int):
-        """Handle key press for key binding."""
+        """Handle key press for key binding and shortcut rebinding."""
+        # Handle legacy key bindings
         if self.waiting_for_key:
             self.key_bindings[self.waiting_for_key] = key
             self.waiting_for_key = None
             self.has_unsaved_changes = True
+            return
+
+        # Handle shortcut rebinding
+        if self.waiting_for_shortcut:
+            # Cancel on Escape
+            if key == pygame.K_ESCAPE:
+                self.waiting_for_shortcut = None
+                self.new_modifiers = set()
+                return
+
+            # Get modifiers
+            mods = pygame.key.get_mods()
+            new_modifiers = set()
+            if mods & pygame.KMOD_CTRL:
+                new_modifiers.add("ctrl")
+            if mods & pygame.KMOD_SHIFT:
+                new_modifiers.add("shift")
+            if mods & pygame.KMOD_ALT:
+                new_modifiers.add("alt")
+
+            # Rebind the hotkey
+            self.hotkey_manager.rebind(
+                self.waiting_for_shortcut.action, key, new_modifiers
+            )
+            self.waiting_for_shortcut = None
+            self.new_modifiers = set()
+            self.has_unsaved_changes = True
+
+    def handle_mouse_wheel(self, y: int):
+        """
+        Handle mouse wheel scrolling.
+
+        Args:
+            y: Scroll direction (positive = up, negative = down)
+        """
+        if self.current_tab == "shortcuts":
+            scroll_speed = 30
+            self.shortcuts_scroll_offset -= y * scroll_speed
+            self.shortcuts_scroll_offset = max(
+                0, min(self.shortcuts_scroll_offset, self.shortcuts_max_scroll)
+            )
 
     def save_settings(self):
         """Save settings to file."""
@@ -476,6 +676,10 @@ class SettingsUI:
         try:
             with open("settings.json", "w") as f:
                 json.dump(settings_data, f, indent=2)
+
+            # Save hotkey configuration separately
+            self.hotkey_manager.save_config()
+
             self.has_unsaved_changes = False
             print("Settings saved successfully")
         except Exception as e:
@@ -490,6 +694,10 @@ class SettingsUI:
                 self.key_bindings = {
                     k: int(v) for k, v in settings_data.get("key_bindings", {}).items()
                 }
+
+            # Load hotkey configuration separately
+            self.hotkey_manager.load_config()
+
             print("Settings loaded successfully")
         except FileNotFoundError:
             print("No settings file found, using defaults")
@@ -546,6 +754,9 @@ class SettingsUI:
             "inventory": pygame.K_i,
             "build": pygame.K_b,
         }
+
+        # Reset hotkeys
+        self.hotkey_manager.reset_to_defaults()
 
         self.has_unsaved_changes = True
         print("Settings reset to defaults")

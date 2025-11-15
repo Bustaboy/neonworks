@@ -9,6 +9,7 @@ import pygame
 
 from ..audio.audio_manager import AudioManager
 from ..core.ecs import World
+from ..core.hotkey_manager import HotkeyContext, get_hotkey_manager
 from ..core.state import StateManager
 from ..engine.ui.event_editor_ui import EventEditorUI
 from ..input.input_manager import InputManager
@@ -29,6 +30,7 @@ from .navmesh_editor_ui import NavmeshEditorUI
 from .project_manager_ui import ProjectManagerUI
 from .quest_editor_ui import QuestEditorUI
 from .settings_ui import SettingsUI
+from .shortcuts_overlay_ui import ShortcutsOverlayUI
 from .workspace_system import get_workspace_manager
 from .workspace_toolbar import WorkspaceToolbar
 
@@ -55,6 +57,9 @@ class MasterUIManager:
         self.input_manager = input_manager
         self.renderer = renderer
 
+        # Hotkey manager
+        self.hotkey_manager = get_hotkey_manager()
+
         # Initialize all UI systems
         self.game_hud = GameHUD(screen)
         self.building_ui = BuildingUI(screen, world)
@@ -70,6 +75,7 @@ class MasterUIManager:
         self.autotile_editor = AutotileEditorUI(screen)
         self.ai_animator = AIAnimatorUI(world, renderer)
         self.map_manager = MapManagerUI(screen)
+        self.shortcuts_overlay = ShortcutsOverlayUI(screen)
 
         # AI Assistant System
         self.ai_assistant = AIAssistantPanel(screen, world)
@@ -91,6 +97,7 @@ class MasterUIManager:
         self.current_mode = "game"  # 'game', 'editor', 'menu'
 
         # Key bindings (including Shift+F7 for AI Animator)
+        # Note: These are kept for backward compatibility, but hotkey_manager is now preferred
         self.keybinds = {
             pygame.K_F1: self.toggle_debug_console,
             pygame.K_F2: self.toggle_settings,
@@ -105,6 +112,58 @@ class MasterUIManager:
             pygame.K_F11: self.toggle_autotile_editor,
             pygame.K_F12: self.toggle_navmesh_editor,
         }
+
+        # Wire up hotkey manager callbacks
+        self._setup_hotkey_callbacks()
+
+    def _setup_hotkey_callbacks(self):
+        """Wire up all hotkey manager callbacks."""
+        # UI Editors
+        self.hotkey_manager.set_callback("toggle_debug_console", self.toggle_debug_console)
+        self.hotkey_manager.set_callback("toggle_settings", self.toggle_settings)
+        self.hotkey_manager.set_callback("toggle_building_ui", self.toggle_building_ui)
+        self.hotkey_manager.set_callback("toggle_level_builder", self.toggle_level_builder)
+        self.hotkey_manager.set_callback("toggle_event_editor", self.toggle_event_editor)
+        self.hotkey_manager.set_callback("toggle_quest_editor", self.toggle_quest_editor)
+        self.hotkey_manager.set_callback("toggle_asset_browser", self.toggle_asset_browser)
+        self.hotkey_manager.set_callback("toggle_project_manager", self.toggle_project_manager)
+        self.hotkey_manager.set_callback("toggle_combat_ui", self.toggle_combat_ui)
+        self.hotkey_manager.set_callback("toggle_game_hud", self.toggle_game_hud)
+        self.hotkey_manager.set_callback("toggle_autotile_editor", self.toggle_autotile_editor)
+        self.hotkey_manager.set_callback("toggle_navmesh_editor", self.toggle_navmesh_editor)
+
+        # Special UI shortcuts
+        self.hotkey_manager.set_callback("toggle_ai_animator", self.toggle_ai_animator)
+        self.hotkey_manager.set_callback("toggle_map_manager", self.toggle_map_manager)
+        self.hotkey_manager.set_callback("toggle_ai_assistant", self.toggle_ai_assistant)
+        self.hotkey_manager.set_callback("toggle_history_viewer", self._toggle_active_history_viewer)
+        self.hotkey_manager.set_callback("show_shortcuts_overlay", self.shortcuts_overlay.toggle)
+
+        # Edit commands
+        self.hotkey_manager.set_callback("undo", self._handle_undo)
+        self.hotkey_manager.set_callback("redo", self._handle_redo)
+        self.hotkey_manager.set_callback("redo_alt", self._handle_redo)
+
+    def _toggle_active_history_viewer(self):
+        """Toggle history viewer for the active editor."""
+        if self.level_builder.visible:
+            self.level_builder_history.toggle()
+        elif self.navmesh_editor.visible:
+            self.navmesh_history.toggle()
+
+    def _handle_undo(self):
+        """Handle undo action for active editor."""
+        if self.level_builder.visible and hasattr(self.level_builder, "undo"):
+            self.level_builder.undo()
+        elif self.navmesh_editor.visible and hasattr(self.navmesh_editor, "undo"):
+            self.navmesh_editor.undo()
+
+    def _handle_redo(self):
+        """Handle redo action for active editor."""
+        if self.level_builder.visible and hasattr(self.level_builder, "redo"):
+            self.level_builder.redo()
+        elif self.navmesh_editor.visible and hasattr(self.navmesh_editor, "redo"):
+            self.navmesh_editor.redo()
 
     def render(self, fps: float = 60.0, camera_offset: tuple = (0, 0)):
         """
@@ -184,12 +243,34 @@ class MasterUIManager:
         if self.debug_console.visible:
             self.debug_console.render(fps)
 
+        # Render shortcuts overlay on top of everything
+        if self.shortcuts_overlay.visible:
+            self.shortcuts_overlay.render()
+
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
         Handle pygame events and route them to appropriate UI systems.
         Returns True if event was handled by UI.
         """
-        # Workspace toolbar gets first priority
+        # Update hotkey manager context based on current mode
+        if self.current_mode == "game":
+            if self.combat_ui.visible:
+                self.hotkey_manager.set_context(HotkeyContext.COMBAT)
+            elif self.building_ui.visible:
+                self.hotkey_manager.set_context(HotkeyContext.BUILDING)
+            else:
+                self.hotkey_manager.set_context(HotkeyContext.GAME)
+        elif self.current_mode == "editor":
+            self.hotkey_manager.set_context(HotkeyContext.EDITOR)
+        elif self.current_mode == "menu":
+            self.hotkey_manager.set_context(HotkeyContext.MENU)
+
+        # Shortcuts overlay gets highest priority
+        if self.shortcuts_overlay.visible:
+            if self.shortcuts_overlay.handle_event(event):
+                return True
+
+        # Workspace toolbar gets second priority
         if self.workspace_toolbar.handle_event(event):
             return True
 
@@ -202,27 +283,41 @@ class MasterUIManager:
             if self.navmesh_history.handle_event(event):
                 return True
 
+        # Handle mouse wheel events
+        if event.type == pygame.MOUSEWHEEL:
+            # Settings UI scrolling
+            if self.settings_ui.visible:
+                self.settings_ui.handle_mouse_wheel(event.y)
+                return True
+
         # Handle key presses
         if event.type == pygame.KEYDOWN:
+            # Try hotkey manager first (handles all configured shortcuts)
+            action = self.hotkey_manager.handle_event(event)
+            if action:
+                # Action was handled by hotkey manager
+                return True
+
+            # Legacy handling for backward compatibility
             ctrl_pressed = pygame.key.get_mods() & pygame.KMOD_CTRL
             shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
 
-            # Check for Shift+F7 (AI Animator)
+            # Check for Shift+F7 (AI Animator) - fallback
             if event.key == pygame.K_F7 and shift_pressed:
                 self.toggle_ai_animator()
                 return True
 
-            # Check for Ctrl+M (Map Manager)
+            # Check for Ctrl+M (Map Manager) - fallback
             if event.key == pygame.K_m and ctrl_pressed:
                 self.toggle_map_manager()
                 return True
 
-            # Check for Ctrl+Space (AI Assistant)
+            # Check for Ctrl+Space (AI Assistant) - fallback
             if event.key == pygame.K_SPACE and ctrl_pressed:
                 self.toggle_ai_assistant()
                 return True
 
-            # Ctrl+H: Toggle history viewer for active editor
+            # Ctrl+H: Toggle history viewer for active editor - fallback
             if ctrl_pressed and event.key == pygame.K_h:
                 if self.level_builder.visible:
                     self.level_builder_history.toggle()
@@ -231,11 +326,7 @@ class MasterUIManager:
                     self.navmesh_history.toggle()
                     return True
 
-            # Global undo/redo shortcuts (if no specific editor handles them)
-            # These will be caught by the level builder or navmesh editor if they're active
-            # Otherwise, route to the appropriate editor based on which is visible
-
-            # Check for standard keybinds
+            # Check for standard keybinds - fallback
             if event.key in self.keybinds:
                 self.keybinds[event.key]()
                 return True
@@ -479,27 +570,24 @@ class MasterUIManager:
     def get_keybind_help(self) -> str:
         """
         Get a help string showing all keybinds.
+        Uses the hotkey manager to get current bindings.
         """
-        help_text = "UI Keybinds:\n"
-        help_text += "F1 - Debug Console\n"
-        help_text += "F2 - Settings\n"
-        help_text += "F3 - Building UI\n"
-        help_text += "F4 - Level Builder\n"
-        help_text += "F5 - Event Editor\n"
-        help_text += "F6 - Quest Editor\n"
-        help_text += "F7 - Asset Browser\n"
-        help_text += "Shift+F7 - AI Animator\n"
-        help_text += "F8 - Project Manager\n"
-        help_text += "F9 - Combat UI\n"
-        help_text += "F10 - Toggle HUD\n"
-        help_text += "F11 - Autotile Editor\n"
-        help_text += "F12 - Navmesh Editor\n"
-        help_text += "\nEdit Commands:\n"
-        help_text += "Ctrl+M - Map Manager\n"
-        help_text += "Ctrl+Z - Undo\n"
-        help_text += "Ctrl+Y / Ctrl+Shift+Z - Redo\n"
-        help_text += "Ctrl+H - History Viewer (in editors)\n"
+        help_text = "Keyboard Shortcuts:\n\n"
+        help_text += "Press ? (Shift+/) to see the full shortcuts overlay\n\n"
+
+        # Get shortcuts organized by category
+        help_dict = self.hotkey_manager.get_help_text()
+
+        # Show only UI and Editor categories in brief help
+        for category in ["UI", "Editor", "File"]:
+            if category in help_dict:
+                help_text += f"{category}:\n"
+                for shortcut, description in help_dict[category][:8]:  # Show first 8
+                    help_text += f"  {shortcut:20} - {description}\n"
+                help_text += "\n"
+
         help_text += "\nClick the toolbar at the top to access all tools visually!\n"
+        help_text += "Press ? for complete keyboard shortcuts reference\n"
         return help_text
 
     def save_ui_state(self) -> Dict[str, Any]:
