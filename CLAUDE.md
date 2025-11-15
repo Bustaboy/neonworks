@@ -130,12 +130,13 @@ neonworks/                    # Root directory (note: NOT "engine/")
 ├── input/                   # Input management (2 files, ~400 LOC)
 ├── audio/                   # Audio playback (2 files, ~700 LOC)
 ├── ai/                      # AI pathfinding (2 files, ~500 LOC)
-├── data/                    # Data management (5 files, ~2,200 LOC)
+├── data/                    # Data management (6 files, ~2,800 LOC)
 │   ├── config_loader.py     # JSON config loading
 │   ├── serialization.py     # Save/load utilities
 │   ├── map_layers.py        # Layer management system
 │   ├── tileset_manager.py   # Tileset management
-│   └── map_manager.py       # Map management system
+│   ├── map_manager.py       # Map management system
+│   └── ai_map_integration.py # AI-powered map commands & procedural gen
 │
 ├── tests/                   # Test suite (18 files, 9,400+ LOC)
 │   └── test_*.py            # Comprehensive tests
