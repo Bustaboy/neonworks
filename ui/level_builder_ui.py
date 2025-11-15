@@ -40,6 +40,7 @@ from .map_tools import (
     load_and_apply_preferences,
 )
 from .tileset_picker_ui import TilesetPickerUI
+from .map_components import MinimapUI, ToolOptionsPanel, MapPropertiesDialog
 
 
 class LevelBuilderUI:
@@ -101,6 +102,29 @@ class LevelBuilderUI:
             height=370,
             tileset_manager=self.tileset_manager,
             on_tileset_generated=self._on_tileset_generated,
+        )
+
+        # Minimap (NEW)
+        self.minimap = MinimapUI(
+            x=10,
+            y=self.screen.get_height() - 220,
+            width=200,
+            height=200,
+            on_navigate=self._on_minimap_navigate,
+        )
+
+        # Tool Options Panel (NEW)
+        self.tool_options_panel = ToolOptionsPanel(
+            x=self.screen.get_width() - 270,
+            y=100,
+            width=250,
+            height=300,
+        )
+
+        # Map Properties Dialog (NEW)
+        self.map_properties_dialog = MapPropertiesDialog(
+            on_apply=self._on_map_properties_apply,
+            on_cancel=self._on_map_properties_cancel,
         )
 
         # Legacy tile palette (kept for backwards compatibility with old saves)
@@ -258,6 +282,58 @@ class LevelBuilderUI:
         print(f"New tileset generated: {tileset_id}")
         # The tileset manager will automatically set it as active
 
+    def _on_minimap_navigate(self, grid_x: int, grid_y: int):
+        """
+        Callback when user clicks on minimap to navigate.
+
+        Args:
+            grid_x: Target grid X coordinate
+            grid_y: Target grid Y coordinate
+        """
+        # This would update camera position in a real implementation
+        # For now, just print the navigation request
+        print(f"Navigate to grid position: ({grid_x}, {grid_y})")
+
+    def _on_map_properties_apply(self, properties: dict):
+        """
+        Callback when map properties are applied.
+
+        Args:
+            properties: Dictionary of map properties
+        """
+        # Apply map properties
+        if "width" in properties:
+            self.grid_width = properties["width"]
+        if "height" in properties:
+            self.grid_height = properties["height"]
+        if "tile_size" in properties:
+            self.tile_size = properties["tile_size"]
+
+        # Reinitialize tilemap if dimensions changed
+        if self.tilemap:
+            if self.tilemap.width != self.grid_width or self.tilemap.height != self.grid_height:
+                # Create new tilemap with new dimensions
+                old_tilemap = self.tilemap
+                self.tilemap = Tilemap(
+                    width=self.grid_width,
+                    height=self.grid_height,
+                    tile_size=self.tile_size,
+                    layers=old_tilemap.layers,
+                )
+                # Copy old tiles that fit in new dimensions
+                for layer in range(min(old_tilemap.layers, self.tilemap.layers)):
+                    for y in range(min(old_tilemap.height, self.grid_height)):
+                        for x in range(min(old_tilemap.width, self.grid_width)):
+                            tile = old_tilemap.get_tile(x, y, layer)
+                            if tile:
+                                self.tilemap.set_tile(x, y, layer, tile)
+
+        print(f"Map properties applied: {properties}")
+
+    def _on_map_properties_cancel(self):
+        """Callback when map properties dialog is cancelled."""
+        print("Map properties cancelled")
+
     def set_autotile_set(self, autotile_set: AutotileSet):
         """
         Set the active autotile set for painting.
@@ -320,6 +396,20 @@ class LevelBuilderUI:
         if self.use_tileset_picker:
             self.tileset_picker.update(dt)
             self.ai_tileset_panel.update(dt)
+
+        # Update new components (NEW)
+        self.minimap.update(dt)
+        self.tool_options_panel.update(dt)
+        self.map_properties_dialog.update(dt)
+
+        # Update minimap with current tilemap and viewport
+        if self.tilemap:
+            self.minimap.set_tilemap(self.tilemap)
+            self.minimap.set_world(self.world)
+
+        # Update tool options panel with active tool
+        active_tool = self.tool_manager.get_active_tool()
+        self.tool_options_panel.set_active_tool(active_tool)
 
     def add_tileset(
         self,
@@ -388,11 +478,18 @@ class LevelBuilderUI:
             self.tileset_picker.render(self.screen)
             self.ai_tileset_panel.render(self.screen)
 
+        # Render new components (NEW)
+        self.minimap.render(self.screen)
+        self.tool_options_panel.render(self.screen)
+
         # Render AI chat if active
         self._render_ai_chat()
 
-        # Render settings panel last (so it appears on top)
+        # Render settings panel (so it appears on top)
         self.settings_panel.render(self.screen)
+
+        # Render map properties dialog last (modal on top of everything)
+        self.map_properties_dialog.render(self.screen)
 
     def _render_tilemap_preview(self, camera_offset: Tuple[int, int]):
         """Render the tilemap for editing."""
@@ -788,11 +885,16 @@ class LevelBuilderUI:
         if not self.visible:
             return False
 
-        # Handle settings panel events first (when visible)
+        # Handle map properties dialog first (modal)
+        if self.map_properties_dialog.visible:
+            if self.map_properties_dialog.handle_event(event):
+                return True
+
+        # Handle settings panel events (when visible)
         if self.settings_panel.handle_event(event):
             return True
 
-        # Handle tileset picker events first (NEW)
+        # Handle tileset picker events (NEW)
         if self.use_tileset_picker and self.tileset_picker.visible:
             if self.tileset_picker.handle_event(event):
                 return True
@@ -801,6 +903,13 @@ class LevelBuilderUI:
         if self.use_tileset_picker and self.ai_tileset_panel.visible:
             if self.ai_tileset_panel.handle_event(event):
                 return True
+
+        # Handle new component events (NEW)
+        if self.minimap.handle_event(event):
+            return True
+
+        if self.tool_options_panel.handle_event(event):
+            return True
 
         # Handle AI chat events first
         active_tool = self.tool_manager.get_active_tool()
@@ -830,6 +939,28 @@ class LevelBuilderUI:
             # F11 key toggles settings panel
             if event.key == pygame.K_F11:
                 self.settings_panel.toggle()
+                return True
+
+            # 'M' key toggles minimap (NEW)
+            if event.key == pygame.K_m and not ctrl_pressed:
+                self.minimap.toggle_visibility()
+                return True
+
+            # 'T' key toggles tool options panel (NEW)
+            if event.key == pygame.K_t and not ctrl_pressed:
+                self.tool_options_panel.toggle_visibility()
+                return True
+
+            # 'P' key toggles map properties dialog (NEW)
+            if event.key == pygame.K_p and not ctrl_pressed:
+                # Show with current properties
+                current_properties = {
+                    "name": "Current Map",
+                    "width": self.grid_width,
+                    "height": self.grid_height,
+                    "tile_size": self.tile_size,
+                }
+                self.map_properties_dialog.show(current_properties)
                 return True
 
             # 'C' key toggles AI chat
