@@ -16,11 +16,8 @@ import sys
 
 import pygame
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-from core.ecs import World
-from core.event_commands import (
+from neonworks.core.ecs import World
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventPage,
@@ -29,9 +26,12 @@ from core.event_commands import (
     TriggerType,
     WaitCommand,
 )
-from engine.ui.event_editor_ui import EventEditorUI
-from ui.level_builder_ui import LevelBuilderUI
-from ui.master_ui_manager import MasterUIManager
+from neonworks.engine.ui.event_editor_ui import EventEditorUI
+from neonworks.ui.level_builder_ui import LevelBuilderUI
+from neonworks.ui.master_ui_manager import MasterUIManager
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 def create_test_events():

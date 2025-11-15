@@ -9,20 +9,16 @@ Tests AI-powered character generation including:
 - Name generation
 """
 
-import sys
 from pathlib import Path
 
 import pytest
 
-from engine.tools.ai_character_generator import (
+from neonworks.engine.tools.ai_character_generator import (
     AICharacterGenerator,
     CharacterArchetype,
     ColorTint,
 )
-from engine.tools.character_generator import LayerType
-
-# Import the AI character generator
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from neonworks.engine.tools.character_generator import LayerType
 
 
 @pytest.fixture

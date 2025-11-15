@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from engine.tools.character_generator import (
+from neonworks.engine.tools.character_generator import (
     CharacterGenerator,
     CharacterPreset,
     ColorTint,

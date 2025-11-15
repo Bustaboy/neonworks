@@ -11,21 +11,17 @@ Tests the character generator core functionality including:
 """
 
 import json
-import pytest
 from pathlib import Path
 
-# Import the character generator
-import sys
+import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from engine.tools.character_generator import (
+from neonworks.engine.tools.character_generator import (
     CharacterGenerator,
     CharacterPreset,
-    ComponentLayer,
     ColorTint,
-    LayerType,
+    ComponentLayer,
     Direction,
+    LayerType,
 )
 
 

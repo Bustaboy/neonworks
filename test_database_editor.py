@@ -21,10 +21,10 @@ from pathlib import Path
 
 import pygame
 
+from neonworks.engine.ui.database_editor_ui import DatabaseEditorUI
+
 # Add parent directory to path so we can import neonworks modules
 sys.path.insert(0, str(Path(__file__).parent))
-
-from engine.ui.database_editor_ui import DatabaseEditorUI
 
 
 def main():

@@ -6,7 +6,7 @@ Demonstrates the Event Editor UI for creating and managing RPG-style events.
 
 import pygame
 
-from core.event_commands import (
+from neonworks.core.event_commands import (
     CommandType,
     EventCommand,
     EventPage,
@@ -15,7 +15,7 @@ from core.event_commands import (
     TriggerType,
     WaitCommand,
 )
-from engine.ui.event_editor_ui import EventEditorUI
+from neonworks.engine.ui.event_editor_ui import EventEditorUI
 
 
 def create_sample_events():

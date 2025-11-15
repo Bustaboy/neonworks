@@ -25,8 +25,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from engine.data.database_manager import DatabaseManager
-from engine.data.database_schema import (
+from neonworks.engine.data.database_manager import DatabaseManager
+from neonworks.engine.data.database_schema import (
     Actor,
     Animation,
     Armor,

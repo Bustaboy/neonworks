@@ -15,16 +15,20 @@ Run this demo:
 """
 
 from pathlib import Path
-from engine.tools.character_generator import (
+
+from neonworks.engine.tools.ai_character_generator import (
+    AICharacterGenerator,
+    generate_ai_character,
+)
+from neonworks.engine.tools.character_generator import (
     CharacterGenerator,
     CharacterPreset,
-    ComponentLayer,
     ColorTint,
-    LayerType,
+    ComponentLayer,
     Direction,
+    LayerType,
     quick_character,
 )
-from engine.tools.ai_character_generator import AICharacterGenerator, generate_ai_character
 
 
 def demo_basic_character():
