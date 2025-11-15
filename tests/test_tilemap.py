@@ -228,7 +228,9 @@ class TestTilemap:
 
     def test_tilemap_creation(self):
         """Test creating a tilemap"""
-        tilemap = Tilemap(width=20, height=15, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=20, height=15, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
 
         assert tilemap.width == 20
         assert tilemap.height == 15
@@ -237,7 +239,9 @@ class TestTilemap:
 
     def test_add_layer(self):
         """Test adding layers"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         layer = TileLayer(name="ground", width=10, height=10)
 
         index = tilemap.add_layer(layer)
@@ -247,7 +251,9 @@ class TestTilemap:
 
     def test_create_layer(self):
         """Test creating and adding a layer"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
 
         index = tilemap.create_layer("ground", fill_tile=5)
 
@@ -258,7 +264,9 @@ class TestTilemap:
 
     def test_get_layer_by_index(self):
         """Test getting layer by index"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tilemap.create_layer("ground")
         tilemap.create_layer("objects")
 
@@ -267,7 +275,9 @@ class TestTilemap:
 
     def test_get_layer_by_name(self):
         """Test getting layer by name"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tilemap.create_layer("ground")
         tilemap.create_layer("objects")
 
@@ -277,7 +287,9 @@ class TestTilemap:
 
     def test_add_tileset(self):
         """Test adding a tileset"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tileset = Tileset(
             name="tiles",
             texture_path="tileset.png",
@@ -294,7 +306,9 @@ class TestTilemap:
 
     def test_get_tileset(self):
         """Test getting tileset"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tileset = Tileset(
             name="tiles",
             texture_path="tileset.png",
@@ -314,7 +328,9 @@ class TestTilemap:
 
     def test_world_to_tile_conversion(self):
         """Test converting world coordinates to tile coordinates"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
 
         tile_x, tile_y = tilemap.world_to_tile(64, 96)
         assert tile_x == 2
@@ -322,7 +338,9 @@ class TestTilemap:
 
     def test_tile_to_world_conversion(self):
         """Test converting tile coordinates to world coordinates"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
 
         world_x, world_y = tilemap.tile_to_world(2, 3)
         # Should return center of tile
@@ -331,7 +349,9 @@ class TestTilemap:
 
     def test_is_valid_tile(self):
         """Test checking if tile coordinates are valid"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
 
         assert tilemap.is_valid_tile(5, 5)
         assert tilemap.is_valid_tile(0, 0)
@@ -351,7 +371,9 @@ class TestTilemapRenderer:
     def test_render_empty_tilemap(self, asset_manager, camera):
         """Test rendering empty tilemap doesn't crash"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         screen = pygame.Surface((800, 600))
 
         # Should not crash with no tileset
@@ -362,7 +384,9 @@ class TestTilemapRenderer:
         renderer = TilemapRenderer(asset_manager)
 
         # Create tilemap with tileset
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tileset = Tileset(
             name="tiles",
             texture_path="tileset.png",
@@ -394,7 +418,9 @@ class TestTilemapRenderer:
         camera.y = 50
 
         # Create large tilemap
-        tilemap = Tilemap(width=100, height=100, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=100, height=100, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tileset = Tileset(
             name="tiles",
             texture_path="tileset.png",
@@ -420,7 +446,9 @@ class TestTilemapRenderer:
         """Test invisible layers are not rendered"""
         renderer = TilemapRenderer(asset_manager)
 
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
+        tilemap = Tilemap(
+            width=10, height=10, tile_width=32, tile_height=32, use_enhanced_layers=False
+        )
         tileset = Tileset(
             name="tiles",
             texture_path="tileset.png",
@@ -447,7 +475,7 @@ class TestTilemapBuilder:
 
     def test_create_simple_tilemap(self):
         """Test creating simple tilemap"""
-        tilemap = TilemapBuilder.create_simple_tilemap(20, 15, tile_size=32)
+        tilemap = TilemapBuilder.create_simple_tilemap(20, 15, tile_size=32, use_enhanced=False)
 
         assert tilemap.width == 20
         assert tilemap.height == 15
@@ -457,7 +485,9 @@ class TestTilemapBuilder:
     def test_create_layered_tilemap(self):
         """Test creating multi-layer tilemap"""
         layer_names = ["ground", "decorations", "overlay"]
-        tilemap = TilemapBuilder.create_layered_tilemap(10, 10, layer_names=layer_names)
+        tilemap = TilemapBuilder.create_layered_tilemap(
+            10, 10, layer_names=layer_names, use_enhanced=False
+        )
 
         assert len(tilemap.layers) == 3
         assert tilemap.get_layer_by_name("ground") is not None
