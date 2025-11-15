@@ -408,29 +408,33 @@ class TestRigidBodyComponent:
 
     def test_create_rigidbody(self):
         """Test creating a rigidbody component."""
-        rb = RigidBody(velocity_x=0, velocity_y=0, mass=1.0)
+        rb = RigidBody(velocity_x=0.0, velocity_y=0.0, mass=1.0)
 
-        assert rb.velocity_x == 0.0 and rb.velocity_y == 0.0
-        assert rb.velocity_x
+        assert rb.velocity_x == 0.0
+        assert rb.velocity_y == 0.0
         assert rb.mass == 1.0
 
     def test_apply_velocity(self):
         """Test applying velocity to rigidbody."""
-        rb = RigidBody(velocity_x=0, velocity_y=0, mass=1.0)
+        rb = RigidBody(velocity_x=0.0, velocity_y=0.0, mass=1.0)
 
-        rb.velocity_x = 5
-        rb.velocity_y = 10
+        rb.velocity_x = 5.0
+        rb.velocity_y = 10.0
 
-        assert rb.velocity_x == 0.0 and rb.velocity_y == 0.0
+        assert rb.velocity_x == 5.0
+        assert rb.velocity_y == 10.0
 
     def test_apply_acceleration(self):
         """Test applying acceleration to rigidbody."""
-        rb = RigidBody(velocity_x=0, velocity_y=0, mass=1.0)
+        rb = RigidBody(velocity_x=0.0, velocity_y=0.0, mass=1.0)
 
-        rb.velocity_x = 2
-        rb.velocity_y = 3
+        # RigidBody doesn't have acceleration in the actual API
+        # Just test velocity changes
+        rb.velocity_x = 2.0
+        rb.velocity_y = 3.0
 
-        assert rb.velocity_x
+        assert rb.velocity_x == 2.0
+        assert rb.velocity_y == 3.0
 
     @pytest.mark.parametrize(
         "mass",
