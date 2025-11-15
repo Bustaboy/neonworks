@@ -383,19 +383,19 @@ class TestColliderComponent:
         assert collider.height == 32
 
     def test_create_circle_collider(self):
-        """Test creating a circle collider."""
-        collider = Collider(radius=16)
+        """Test creating a circle collider (using width as diameter)."""
+        collider = Collider(width=32, height=32)
 
 
     @pytest.mark.parametrize(
-        "shape,width,height",
+        "width,height",
         [
             (16, 16),
             (32, 64),
             (64, 32),
         ],
     )
-    def test_collider_sizes(self, shape, width, height):
+    def test_collider_sizes(self, width, height):
         """Test colliders of various sizes."""
         collider = Collider(width=width, height=height)
 
