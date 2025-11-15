@@ -26,12 +26,12 @@ lint:  ## Run linters (flake8, pylint)
 
 test:  ## Run tests with pytest
 	@echo "🧪 Running tests..."
-	pytest tests/ -v
+	python -m pytest tests/ -v
 	@echo "✅ Tests complete!"
 
 test-cov:  ## Run tests with coverage report
 	@echo "🧪 Running tests with coverage..."
-	pytest tests/ --cov=. --cov-report=html --cov-report=term-missing -v
+	python -m pytest tests/ --cov=. --cov-report=html --cov-report=term-missing -v
 	@echo "✅ Coverage report generated in htmlcov/"
 
 install:  ## Install development dependencies
