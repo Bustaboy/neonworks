@@ -508,7 +508,7 @@ class TestWorld:
         """Test removing an entity from the world."""
         entity = world.create_entity("TestEntity")
 
-        world.remove_entity(entity)
+        world.remove_entity(entity.id)
 
         assert entity not in world._entities.values()
         assert len(world._entities) == 0
