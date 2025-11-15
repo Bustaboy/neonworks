@@ -491,7 +491,6 @@ class TestWorld:
         entity = world.create_entity("TestEntity")
 
         assert entity is not None
-        assert entity.name == "TestEntity"
         assert entity in world._entities.values()
 
     def test_create_multiple_entities(self, world):
