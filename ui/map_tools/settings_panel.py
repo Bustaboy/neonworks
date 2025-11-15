@@ -390,7 +390,7 @@ class SettingsPanel:
         # Modified indicator
         if self.modified:
             mod_text = self.small_font.render("* Unsaved changes", True, (255, 200, 0))
-            screen.blit(mod_text, (self.x + 20, btn_y - 30))
+            screen.blit(mod_text, (self.x + 20, self.reset_btn_rect.y - 30))
 
     def _render_button(self, screen: pygame.Surface, rect: pygame.Rect, text: str):
         """Render a button."""
