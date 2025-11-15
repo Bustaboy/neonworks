@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 
-class TestOrchestrator:
+class SuiteOrchestrator:
     """Orchestrates running different test suites."""
 
     def __init__(self):
@@ -306,7 +306,7 @@ def main():
 
     args = parser.parse_args()
 
-    orchestrator = TestOrchestrator()
+    orchestrator = SuiteOrchestrator()
 
     # Show summary if requested
     if args.summary:
