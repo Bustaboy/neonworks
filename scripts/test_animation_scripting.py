@@ -8,16 +8,16 @@ Tests the animation scripting system that parses complex animation sequences.
 import sys
 from pathlib import Path
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 import pygame
 
+from editor.ai_animator import AIAnimator
 from editor.animation_script_parser import (
     AnimationScriptParser,
     AnimationSequenceGenerator,
 )
-from editor.ai_animator import AIAnimator
+
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 def test_script_parsing():

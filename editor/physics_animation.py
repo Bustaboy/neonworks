@@ -23,13 +23,13 @@ License: MIT
 
 from __future__ import annotations
 
-import os
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Callable
-from enum import Enum
 import json
 import math
+import os
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFilter, ImageTransform
 

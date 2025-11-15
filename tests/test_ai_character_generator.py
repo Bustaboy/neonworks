@@ -9,13 +9,10 @@ Tests AI-powered character generation including:
 - Name generation
 """
 
-import pytest
+import sys
 from pathlib import Path
 
-# Import the AI character generator
-import sys
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import pytest
 
 from engine.tools.ai_character_generator import (
     AICharacterGenerator,
@@ -23,6 +20,9 @@ from engine.tools.ai_character_generator import (
     ColorTint,
 )
 from engine.tools.character_generator import LayerType
+
+# Import the AI character generator
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 @pytest.fixture

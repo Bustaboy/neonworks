@@ -16,9 +16,10 @@ The database editor provides:
 4. CRUD operations (Create, Read, Update, Delete, Duplicate)
 """
 
-import pygame
 import sys
 from pathlib import Path
+
+import pygame
 
 # Add parent directory to path so we can import neonworks modules
 sys.path.insert(0, str(Path(__file__).parent))

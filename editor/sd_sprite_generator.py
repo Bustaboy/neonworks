@@ -26,14 +26,14 @@ License: MIT
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-import json
+from typing import Any, Dict, List, Optional, Tuple
 
-import torch
 import numpy as np
+import torch
 from PIL import Image
 
 # Stable Diffusion imports

@@ -22,20 +22,20 @@ License: MIT
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
-import json
+from typing import Any, Dict, List, Optional, Tuple
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import numpy as np
-from PIL import Image
-import torchvision.transforms as transforms
 import torchvision.models as models
+import torchvision.transforms as transforms
+from PIL import Image
 
 
 @dataclass

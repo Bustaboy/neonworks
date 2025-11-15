@@ -22,23 +22,22 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 from engine.tools.character_generator import (
     CharacterGenerator,
     CharacterPreset,
-    ComponentLayer,
     ColorTint,
+    ComponentLayer,
     LayerType,
 )
 
 # Try to import AI config (may not be available in all contexts)
 try:
-    import sys
-
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from config.ai_config import get_ai_config, AIConfig
+    from config.ai_config import AIConfig, get_ai_config
 
     AI_CONFIG_AVAILABLE = True
 except ImportError:

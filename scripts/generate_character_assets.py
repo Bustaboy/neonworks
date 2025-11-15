@@ -19,10 +19,10 @@ License: MIT
 
 from __future__ import annotations
 
-import os
 import json
+import os
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFilter
 

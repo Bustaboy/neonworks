@@ -14,20 +14,19 @@ License: MIT
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import List, Tuple
+
+from PIL import Image, ImageDraw
 
 # Add parent directory to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # Also add to PYTHONPATH for imports
-import os
-
 os.environ["PYTHONPATH"] = str(project_root) + os.pathsep + os.environ.get("PYTHONPATH", "")
-
-from PIL import Image, ImageDraw
 
 # Test results
 test_results = []
