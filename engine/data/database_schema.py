@@ -420,14 +420,10 @@ class Skill(DatabaseEntry):
                 "message1": self.message1,
                 "message2": self.message2,
                 "required_weapon_type1": (
-                    self.required_weapon_type1.value
-                    if self.required_weapon_type1
-                    else None
+                    self.required_weapon_type1.value if self.required_weapon_type1 else None
                 ),
                 "required_weapon_type2": (
-                    self.required_weapon_type2.value
-                    if self.required_weapon_type2
-                    else None
+                    self.required_weapon_type2.value if self.required_weapon_type2 else None
                 ),
                 "effects": [e.to_dict() for e in self.effects],
             }
@@ -885,9 +881,7 @@ class Actor(DatabaseEntry):
     face_name: str = ""  # Face graphic filename
     face_index: int = 0  # Index in face sheet
     # Equipment slots
-    equips: List[int] = field(
-        default_factory=lambda: [0, 0, 0, 0, 0]
-    )  # Initial equipment IDs
+    equips: List[int] = field(default_factory=lambda: [0, 0, 0, 0, 0])  # Initial equipment IDs
     # Traits
     traits: List[Dict[str, Any]] = field(default_factory=list)
 
@@ -1152,39 +1146,20 @@ class DatabaseManager:
             with open(filepath, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            self.items = {
-                item["id"]: Item.from_dict(item) for item in data.get("items", [])
-            }
-            self.skills = {
-                skill["id"]: Skill.from_dict(skill)
-                for skill in data.get("skills", [])
-            }
+            self.items = {item["id"]: Item.from_dict(item) for item in data.get("items", [])}
+            self.skills = {skill["id"]: Skill.from_dict(skill) for skill in data.get("skills", [])}
             self.weapons = {
-                weapon["id"]: Weapon.from_dict(weapon)
-                for weapon in data.get("weapons", [])
+                weapon["id"]: Weapon.from_dict(weapon) for weapon in data.get("weapons", [])
             }
-            self.armors = {
-                armor["id"]: Armor.from_dict(armor)
-                for armor in data.get("armors", [])
-            }
+            self.armors = {armor["id"]: Armor.from_dict(armor) for armor in data.get("armors", [])}
             self.enemies = {
-                enemy["id"]: Enemy.from_dict(enemy)
-                for enemy in data.get("enemies", [])
+                enemy["id"]: Enemy.from_dict(enemy) for enemy in data.get("enemies", [])
             }
-            self.states = {
-                state["id"]: State.from_dict(state)
-                for state in data.get("states", [])
-            }
-            self.actors = {
-                actor["id"]: Actor.from_dict(actor)
-                for actor in data.get("actors", [])
-            }
-            self.classes = {
-                cls["id"]: Class.from_dict(cls) for cls in data.get("classes", [])
-            }
+            self.states = {state["id"]: State.from_dict(state) for state in data.get("states", [])}
+            self.actors = {actor["id"]: Actor.from_dict(actor) for actor in data.get("actors", [])}
+            self.classes = {cls["id"]: Class.from_dict(cls) for cls in data.get("classes", [])}
             self.animations = {
-                anim["id"]: Animation.from_dict(anim)
-                for anim in data.get("animations", [])
+                anim["id"]: Animation.from_dict(anim) for anim in data.get("animations", [])
             }
 
             return True

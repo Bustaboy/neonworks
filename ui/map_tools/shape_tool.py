@@ -93,7 +93,12 @@ class ShapeTool(MapTool):
         Returns:
             True if shape was drawn
         """
-        if not context.tilemap or not context.selected_tile or not self.shape_start or not self.shape_end:
+        if (
+            not context.tilemap
+            or not context.selected_tile
+            or not self.shape_start
+            or not self.shape_end
+        ):
             return False
 
         # Get tile data
@@ -113,7 +118,9 @@ class ShapeTool(MapTool):
 
         # Filter coordinates to valid grid positions
         valid_coords = [
-            (x, y) for x, y in coords if 0 <= x < context.grid_width and 0 <= y < context.grid_height
+            (x, y)
+            for x, y in coords
+            if 0 <= x < context.grid_width and 0 <= y < context.grid_height
         ]
 
         if not valid_coords:
@@ -185,7 +192,7 @@ class ShapeTool(MapTool):
             for x in range(center_x - radius, center_x + radius + 1):
                 for y in range(center_y - radius, center_y + radius + 1):
                     dist_sq = (x - center_x) ** 2 + (y - center_y) ** 2
-                    if dist_sq <= radius ** 2:
+                    if dist_sq <= radius**2:
                         coords.add((x, y))
         else:
             # Outline circle using Bresenham's algorithm
@@ -239,7 +246,9 @@ class ShapeTool(MapTool):
         if not self.shape_start or not self.shape_end:
             return set()
 
-        return self._bresenham_line(self.shape_start[0], self.shape_start[1], self.shape_end[0], self.shape_end[1])
+        return self._bresenham_line(
+            self.shape_start[0], self.shape_start[1], self.shape_end[0], self.shape_end[1]
+        )
 
     def _bresenham_line(self, x0: int, y0: int, x1: int, y1: int) -> Set[Tuple[int, int]]:
         """

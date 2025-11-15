@@ -289,9 +289,7 @@ def test_event_templates():
         print(f"  ✓ Loaded template: {template_data['name']} ({template_name})")
         print(f"    - Icon: {template_data['icon']}")
         print(f"    - Pages: {len(template_data['pages'])}")
-        print(
-            f"    - Commands in first page: {len(template_data['pages'][0]['commands'])}"
-        )
+        print(f"    - Commands in first page: {len(template_data['pages'][0]['commands'])}")
 
     print("✓ Event templates passed")
 

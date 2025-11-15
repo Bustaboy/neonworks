@@ -81,7 +81,9 @@ class TileChangeAction(UndoableAction):
 class BatchTileChangeAction(UndoableAction):
     """Action for changing multiple tiles at once."""
 
-    def __init__(self, tilemap: Tilemap, changes: List[Tuple[int, int, int, Optional[Tile], Optional[Tile]]]):
+    def __init__(
+        self, tilemap: Tilemap, changes: List[Tuple[int, int, int, Optional[Tile], Optional[Tile]]]
+    ):
         """
         Initialize batch tile change action.
 

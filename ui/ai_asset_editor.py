@@ -99,7 +99,9 @@ class AIAssetEditor:
             "grey": (128, 128, 128),
         }
 
-    def parse_command(self, command: str, selected_entity: Optional[Entity] = None) -> List[EditAction]:
+    def parse_command(
+        self, command: str, selected_entity: Optional[Entity] = None
+    ) -> List[EditAction]:
         """
         Parse natural language command into edit actions.
 

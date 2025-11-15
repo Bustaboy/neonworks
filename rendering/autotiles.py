@@ -79,9 +79,7 @@ class AutotileSet:
 
     # Optional: Custom matching rules
     match_same_type: bool = True  # Only match with tiles from same autotile set
-    match_tile_ids: Set[int] = field(
-        default_factory=set
-    )  # Additional tile IDs to match with
+    match_tile_ids: Set[int] = field(default_factory=set)  # Additional tile IDs to match with
 
     def __post_init__(self):
         """Initialize bitmask mapping based on format."""
@@ -94,9 +92,7 @@ class AutotileSet:
         # Auto-populate tile_ids if not provided
         if not self.tile_ids:
             max_offset = max(self.bitmask_to_tile.values()) if self.bitmask_to_tile else 0
-            self.tile_ids = {
-                self.base_tile_id + i for i in range(max_offset + 1)
-            }
+            self.tile_ids = {self.base_tile_id + i for i in range(max_offset + 1)}
 
     def _create_47_tile_mapping(self) -> Dict[int, int]:
         """
@@ -171,9 +167,7 @@ class AutotileSet:
         mapping[CARDINAL_TOP | CARDINAL_BOTTOM] = 12  # Vertical connection
         mapping[CARDINAL_TOP | CARDINAL_BOTTOM | CARDINAL_LEFT] = 13  # T-junction left
         mapping[CARDINAL_TOP | CARDINAL_BOTTOM | CARDINAL_RIGHT] = 14  # T-junction right
-        mapping[
-            CARDINAL_TOP | CARDINAL_RIGHT | CARDINAL_BOTTOM | CARDINAL_LEFT
-        ] = 15  # Full cross
+        mapping[CARDINAL_TOP | CARDINAL_RIGHT | CARDINAL_BOTTOM | CARDINAL_LEFT] = 15  # Full cross
 
         return mapping
 

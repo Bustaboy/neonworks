@@ -16,6 +16,7 @@ from pathlib import Path
 
 # Import the character generator
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from engine.tools.character_generator import (
@@ -124,7 +125,7 @@ class TestComponentLayer:
             layer_type=LayerType.BODY,
             component_id="body_human_male",
             tint=ColorTint(255, 220, 180),
-            enabled=True
+            enabled=True,
         )
 
         assert layer.layer_type == LayerType.BODY
@@ -137,7 +138,7 @@ class TestComponentLayer:
         layer = ComponentLayer(
             layer_type=LayerType.HAIR_FRONT,
             component_id="hair_short_brown",
-            tint=ColorTint(139, 90, 43)
+            tint=ColorTint(139, 90, 43),
         )
 
         result = layer.to_dict()
@@ -152,7 +153,7 @@ class TestComponentLayer:
             "layer_type": "TORSO",
             "component_id": "outfit_knight_armor",
             "tint": {"r": 100, "g": 100, "b": 200, "a": 255},
-            "enabled": True
+            "enabled": True,
         }
 
         layer = ComponentLayer.from_dict(data)
@@ -167,10 +168,7 @@ class TestCharacterPreset:
 
     def test_create_preset(self):
         """Test creating a character preset."""
-        preset = CharacterPreset(
-            name="Test Knight",
-            description="A test character"
-        )
+        preset = CharacterPreset(name="Test Knight", description="A test character")
 
         assert preset.name == "Test Knight"
         assert preset.description == "A test character"
@@ -180,10 +178,7 @@ class TestCharacterPreset:
         """Test adding a layer to preset."""
         preset = CharacterPreset(name="Test")
 
-        layer = ComponentLayer(
-            layer_type=LayerType.BODY,
-            component_id="body_human_male"
-        )
+        layer = ComponentLayer(layer_type=LayerType.BODY, component_id="body_human_male")
 
         preset.add_layer(layer)
 
@@ -194,14 +189,8 @@ class TestCharacterPreset:
         """Test that adding duplicate layer type replaces existing."""
         preset = CharacterPreset(name="Test")
 
-        layer1 = ComponentLayer(
-            layer_type=LayerType.BODY,
-            component_id="body_human_male"
-        )
-        layer2 = ComponentLayer(
-            layer_type=LayerType.BODY,
-            component_id="body_elf_male"
-        )
+        layer1 = ComponentLayer(layer_type=LayerType.BODY, component_id="body_human_male")
+        layer2 = ComponentLayer(layer_type=LayerType.BODY, component_id="body_elf_male")
 
         preset.add_layer(layer1)
         preset.add_layer(layer2)
@@ -213,10 +202,7 @@ class TestCharacterPreset:
         """Test getting a layer by type."""
         preset = CharacterPreset(name="Test")
 
-        layer = ComponentLayer(
-            layer_type=LayerType.HAIR_FRONT,
-            component_id="hair_short_brown"
-        )
+        layer = ComponentLayer(layer_type=LayerType.HAIR_FRONT, component_id="hair_short_brown")
         preset.add_layer(layer)
 
         result = preset.get_layer(LayerType.HAIR_FRONT)
@@ -228,10 +214,7 @@ class TestCharacterPreset:
         """Test removing a layer."""
         preset = CharacterPreset(name="Test")
 
-        layer = ComponentLayer(
-            layer_type=LayerType.WEAPON,
-            component_id="weapon_sword"
-        )
+        layer = ComponentLayer(layer_type=LayerType.WEAPON, component_id="weapon_sword")
         preset.add_layer(layer)
 
         assert len(preset.layers) == 1
@@ -242,15 +225,9 @@ class TestCharacterPreset:
 
     def test_preset_to_dict(self):
         """Test converting preset to dictionary."""
-        preset = CharacterPreset(
-            name="Knight",
-            description="A knight character"
-        )
+        preset = CharacterPreset(name="Knight", description="A knight character")
 
-        layer = ComponentLayer(
-            layer_type=LayerType.BODY,
-            component_id="body_human_male"
-        )
+        layer = ComponentLayer(layer_type=LayerType.BODY, component_id="body_human_male")
         preset.add_layer(layer)
 
         result = preset.to_dict()
@@ -269,10 +246,10 @@ class TestCharacterPreset:
                     "layer_type": "BODY",
                     "component_id": "body_human_female",
                     "tint": None,
-                    "enabled": True
+                    "enabled": True,
                 }
             ],
-            "metadata": {}
+            "metadata": {},
         }
 
         preset = CharacterPreset.from_dict(data)
@@ -310,9 +287,9 @@ class TestCharacterGenerator:
             components={
                 "body": "body_human_male",
                 "hair": "hair_short_brown",
-                "outfit": "outfit_knight_armor"
+                "outfit": "outfit_knight_armor",
             },
-            name="Test Knight"
+            name="Test Knight",
         )
 
         assert character.name == "Test Knight"
@@ -326,14 +303,9 @@ class TestCharacterGenerator:
             pytest.skip("Sample components not generated")
 
         character = loaded_generator.create_character(
-            components={
-                "body": "body_human_male",
-                "hair": "hair_short_brown"
-            },
-            tints={
-                "hair": ColorTint(200, 100, 50)
-            },
-            name="Tinted Character"
+            components={"body": "body_human_male", "hair": "hair_short_brown"},
+            tints={"hair": ColorTint(200, 100, 50)},
+            name="Tinted Character",
         )
 
         # Hair maps to HAIR_FRONT
@@ -346,10 +318,7 @@ class TestCharacterGenerator:
     def test_save_and_load_preset(self, generator, tmp_path):
         """Test saving and loading a preset."""
         preset = CharacterPreset(name="SaveTest")
-        preset.add_layer(ComponentLayer(
-            layer_type=LayerType.BODY,
-            component_id="test_body"
-        ))
+        preset.add_layer(ComponentLayer(layer_type=LayerType.BODY, component_id="test_body"))
 
         # Save
         save_path = tmp_path / "test_preset.json"
@@ -368,9 +337,7 @@ class TestCharacterGenerator:
         if len(loaded_generator.component_library) == 0:
             pytest.skip("Sample components not generated")
 
-        character = loaded_generator.randomize_character(
-            name="Random Character"
-        )
+        character = loaded_generator.randomize_character(name="Random Character")
 
         assert character.name == "Random Character"
         assert len(character.layers) > 0
@@ -401,11 +368,7 @@ class TestCharacterGenerator:
         if len(loaded_generator.component_library) == 0:
             pytest.skip("Sample components not generated")
 
-        character = loaded_generator.create_character(
-            components={
-                "body": "body_human_male"
-            }
-        )
+        character = loaded_generator.create_character(components={"body": "body_human_male"})
 
         frame = loaded_generator.compose_frame(character, frame=0, direction=Direction.DOWN)
 
@@ -418,16 +381,12 @@ class TestCharacterGenerator:
         if len(loaded_generator.component_library) == 0:
             pytest.skip("Sample components not generated")
 
-        character = loaded_generator.create_character(
-            components={
-                "body": "body_human_male"
-            }
-        )
+        character = loaded_generator.create_character(components={"body": "body_human_male"})
 
         sheet = loaded_generator.render_sprite_sheet(
             character,
             num_frames=4,
-            directions=[Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP]
+            directions=[Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP],
         )
 
         assert sheet is not None
@@ -440,18 +399,15 @@ class TestCharacterGenerator:
             pytest.skip("Sample components not generated")
 
         character = loaded_generator.create_character(
-            components={
-                "body": "body_human_male",
-                "hair": "hair_short_brown"
-            },
-            name="Test Character"
+            components={"body": "body_human_male", "hair": "hair_short_brown"},
+            name="Test Character",
         )
 
         output_path = tmp_path / "test_character.png"
         loaded_generator.render_character(character, output_path)
 
         assert output_path.exists()
-        assert output_path.with_suffix('.json').exists()
+        assert output_path.with_suffix(".json").exists()
 
     def test_export_multi_size(self, loaded_generator, tmp_path):
         """Test exporting at multiple sizes."""
@@ -459,17 +415,10 @@ class TestCharacterGenerator:
             pytest.skip("Sample components not generated")
 
         character = loaded_generator.create_character(
-            components={
-                "body": "body_human_male"
-            },
-            name="MultiSize"
+            components={"body": "body_human_male"}, name="MultiSize"
         )
 
-        loaded_generator.export_multi_size(
-            character,
-            tmp_path,
-            sizes=[32, 48, 64]
-        )
+        loaded_generator.export_multi_size(character, tmp_path, sizes=[32, 48, 64])
 
         assert (tmp_path / "MultiSize_32x32.png").exists()
         assert (tmp_path / "MultiSize_48x48.png").exists()
@@ -481,8 +430,7 @@ class TestCharacterGenerator:
             pytest.skip("Sample components not generated")
 
         character = loaded_generator.generate_from_description(
-            "A knight with brown hair and blue armor",
-            name="Described Knight"
+            "A knight with brown hair and blue armor", name="Described Knight"
         )
 
         assert character.name == "Described Knight"

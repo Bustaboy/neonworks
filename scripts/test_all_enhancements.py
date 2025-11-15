@@ -24,7 +24,8 @@ sys.path.insert(0, str(project_root))
 
 # Also add to PYTHONPATH for imports
 import os
-os.environ['PYTHONPATH'] = str(project_root) + os.pathsep + os.environ.get('PYTHONPATH', '')
+
+os.environ["PYTHONPATH"] = str(project_root) + os.pathsep + os.environ.get("PYTHONPATH", "")
 
 from PIL import Image, ImageDraw
 
@@ -34,14 +35,15 @@ test_results = []
 
 def test_sd_sprite_generator():
     """Test Stable Diffusion sprite generator initialization."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST: Stable Diffusion Sprite Generator")
-    print("="*60)
+    print("=" * 60)
 
     try:
         # Check for torch dependency first
         try:
             import torch
+
             TORCH_AVAILABLE = True
         except ImportError:
             print("⚠️  SKIP: torch not available (GPU dependency, expected in minimal environment)")
@@ -52,7 +54,7 @@ def test_sd_sprite_generator():
             SDSpriteGenerator,
             SpriteGenerationConfig,
             generate_sprite,
-            DIFFUSERS_AVAILABLE
+            DIFFUSERS_AVAILABLE,
         )
 
         if not DIFFUSERS_AVAILABLE:
@@ -66,7 +68,7 @@ def test_sd_sprite_generator():
             width=64,
             height=64,
             num_images=1,
-            sprite_style="pixel-art"
+            sprite_style="pixel-art",
         )
 
         print(f"✓ Created config: {config.prompt}")
@@ -83,14 +85,15 @@ def test_sd_sprite_generator():
 
 def test_style_transfer():
     """Test style transfer system."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST: Style Transfer System")
-    print("="*60)
+    print("=" * 60)
 
     try:
         # Check for torch dependency first
         try:
             import torch
+
             TORCH_AVAILABLE = True
         except ImportError:
             print("⚠️  SKIP: torch not available (GPU dependency, expected in minimal environment)")
@@ -98,11 +101,7 @@ def test_style_transfer():
             test_results.append(("Style Transfer", "SKIP", "torch not installed"))
             return
 
-        from editor.style_transfer import (
-            StyleTransferSystem,
-            PaletteSwapper,
-            transfer_style
-        )
+        from editor.style_transfer import StyleTransferSystem, PaletteSwapper, transfer_style
 
         # Note about torch availability
         print("✓ torch available - full testing enabled")
@@ -146,9 +145,9 @@ def test_style_transfer():
 
 def test_multi_directional():
     """Test multi-directional sprite generation."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST: Multi-Directional Sprite Generation")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from editor.multi_directional import (
@@ -156,7 +155,7 @@ def test_multi_directional():
             DirectionalConfig,
             Direction,
             generate_4way_sprites,
-            generate_8way_sprites
+            generate_8way_sprites,
         )
 
         # Create test sprite (circle with direction indicator)
@@ -177,11 +176,7 @@ def test_multi_directional():
         print("\nTesting 4-way sprite generation...")
         generator = MultiDirectionalGenerator(use_ai=False)
 
-        config = DirectionalConfig(
-            source_sprite=test_sprite,
-            num_directions=4,
-            method="rotate"
-        )
+        config = DirectionalConfig(source_sprite=test_sprite, num_directions=4, method="rotate")
 
         sprite_set_4 = generator.generate(config)
         assert len(sprite_set_4.sprites) == 4
@@ -201,10 +196,7 @@ def test_multi_directional():
         sprite_set_4.save(output_dir / "4way", prefix="sprite")
         print(f"✓ Saved 4-way sprites")
 
-        sheet = sprite_set_8.save_sprite_sheet(
-            output_dir / "8way_sheet.png",
-            layout="grid"
-        )
+        sheet = sprite_set_8.save_sprite_sheet(output_dir / "8way_sheet.png", layout="grid")
         print(f"✓ Created 8-way sprite sheet: {sheet.size}")
 
         # Test convenience functions
@@ -223,9 +215,9 @@ def test_multi_directional():
 
 def test_physics_animation():
     """Test physics-based animation system."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST: Physics-Based Animation")
-    print("="*60)
+    print("=" * 60)
 
     try:
         from editor.physics_animation import (
@@ -234,7 +226,7 @@ def test_physics_animation():
             PhysicsState,
             SpringSystem,
             create_jump_animation,
-            create_bounce_animation
+            create_bounce_animation,
         )
 
         # Test Vector2D
@@ -247,11 +239,7 @@ def test_physics_animation():
 
         # Test PhysicsState
         print("\nTesting PhysicsState...")
-        state = PhysicsState(
-            position=Vector2D(0, 0),
-            velocity=Vector2D(10, 0),
-            mass=1.0
-        )
+        state = PhysicsState(position=Vector2D(0, 0), velocity=Vector2D(10, 0), mass=1.0)
         state.apply_force(Vector2D(5, 0))
         state.update(0.1)
         assert state.position.x > 0  # Should have moved
@@ -260,10 +248,7 @@ def test_physics_animation():
         # Test SpringSystem
         print("\nTesting SpringSystem...")
         spring = SpringSystem(
-            anchor=Vector2D(0, 0),
-            position=Vector2D(10, 0),
-            stiffness=100.0,
-            damping=10.0
+            anchor=Vector2D(0, 0), position=Vector2D(10, 0), stiffness=100.0, damping=10.0
         )
         initial_displacement = spring.position.x
         for _ in range(10):
@@ -284,11 +269,7 @@ def test_physics_animation():
         # Test jump animation
         print("Testing jump animation...")
         jump_frames = physics.animate_jump(
-            test_sprite,
-            jump_velocity=300.0,
-            duration=1.0,
-            fps=30,
-            squash_stretch=True
+            test_sprite, jump_velocity=300.0, duration=1.0, fps=30, squash_stretch=True
         )
         assert len(jump_frames) == 30  # 1 second at 30 fps
         print(f"✓ Jump animation: {len(jump_frames)} frames")
@@ -296,10 +277,7 @@ def test_physics_animation():
         # Test bounce animation
         print("Testing bounce animation...")
         bounce_frames = physics.animate_bounce(
-            test_sprite,
-            bounce_height=100.0,
-            num_bounces=3,
-            fps=30
+            test_sprite, bounce_height=100.0, num_bounces=3, fps=30
         )
         assert len(bounce_frames) > 0
         print(f"✓ Bounce animation: {len(bounce_frames)} frames")
@@ -307,10 +285,7 @@ def test_physics_animation():
         # Test spring animation
         print("Testing spring animation...")
         spring_frames = physics.animate_spring(
-            test_sprite,
-            displacement=Vector2D(30, 0),
-            duration=1.0,
-            fps=30
+            test_sprite, displacement=Vector2D(30, 0), duration=1.0, fps=30
         )
         assert len(spring_frames) == 30
         print(f"✓ Spring animation: {len(spring_frames)} frames")
@@ -318,11 +293,7 @@ def test_physics_animation():
         # Test projectile motion
         print("Testing projectile motion...")
         projectile_frames = physics.animate_projectile(
-            test_sprite,
-            initial_velocity=Vector2D(200, -300),
-            duration=1.0,
-            fps=30,
-            rotation=True
+            test_sprite, initial_velocity=Vector2D(200, -300), duration=1.0, fps=30, rotation=True
         )
         assert len(projectile_frames) == 30
         print(f"✓ Projectile animation: {len(projectile_frames)} frames")
@@ -352,9 +323,9 @@ def test_physics_animation():
 
 def test_character_assets():
     """Test character generator assets."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST: Character Generator Assets")
-    print("="*60)
+    print("=" * 60)
 
     try:
         assets_dir = Path("assets/character_generator")
@@ -423,9 +394,9 @@ def test_character_assets():
 
 def print_summary():
     """Print test summary."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("TEST SUMMARY")
-    print("="*60)
+    print("=" * 60)
 
     passed = sum(1 for _, status, _ in test_results if status == "PASS")
     failed = sum(1 for _, status, _ in test_results if status == "FAIL")
@@ -433,11 +404,7 @@ def print_summary():
     total = len(test_results)
 
     for test_name, status, details in test_results:
-        status_symbol = {
-            "PASS": "✅",
-            "FAIL": "❌",
-            "SKIP": "⚠️"
-        }[status]
+        status_symbol = {"PASS": "✅", "FAIL": "❌", "SKIP": "⚠️"}[status]
 
         print(f"{status_symbol} {test_name:30s} {status:6s} - {details}")
 
@@ -458,16 +425,16 @@ def print_summary():
 
 def main():
     """Run all tests."""
-    print("="*60)
+    print("=" * 60)
     print("INTEGRATION TESTS FOR ALL ENHANCEMENTS")
-    print("="*60)
+    print("=" * 60)
     print("Testing:")
     print("  1. Stable Diffusion sprite generation")
     print("  2. Style transfer system")
     print("  3. Multi-directional sprite generation")
     print("  4. Physics-based animation")
     print("  5. Character generator assets")
-    print("="*60)
+    print("=" * 60)
 
     # Run tests
     test_sd_sprite_generator()

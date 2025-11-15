@@ -55,7 +55,7 @@ class Vector2D:
 
     def magnitude(self) -> float:
         """Get vector length."""
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return math.sqrt(self.x**2 + self.y**2)
 
     def normalized(self) -> Vector2D:
         """Get unit vector."""
@@ -186,7 +186,7 @@ class PhysicsAnimation:
         jump_velocity: float = 500.0,
         duration: float = 1.0,
         fps: int = 30,
-        squash_stretch: bool = True
+        squash_stretch: bool = True,
     ) -> List[Image.Image]:
         """
         Generate jump animation with realistic physics.
@@ -211,7 +211,7 @@ class PhysicsAnimation:
             velocity=Vector2D(0, -jump_velocity),
             mass=1.0,
             drag=0.1,
-            elasticity=0.3
+            elasticity=0.3,
         )
 
         ground_y = sprite.height / 2
@@ -234,11 +234,7 @@ class PhysicsAnimation:
 
             # Generate frame
             if squash_stretch:
-                frame = self._apply_squash_stretch(
-                    sprite,
-                    state.velocity,
-                    SquashStretchParams()
-                )
+                frame = self._apply_squash_stretch(sprite, state.velocity, SquashStretchParams())
             else:
                 frame = sprite.copy()
 
@@ -257,7 +253,7 @@ class PhysicsAnimation:
         initial_velocity: Vector2D,
         duration: float = 2.0,
         fps: int = 30,
-        rotation: bool = True
+        rotation: bool = True,
     ) -> List[Tuple[Image.Image, Vector2D]]:
         """
         Generate projectile motion animation.
@@ -278,10 +274,7 @@ class PhysicsAnimation:
 
         # Initialize physics
         state = PhysicsState(
-            position=Vector2D(0, 0),
-            velocity=initial_velocity,
-            mass=1.0,
-            drag=0.05
+            position=Vector2D(0, 0), velocity=initial_velocity, mass=1.0, drag=0.05
         )
 
         for i in range(num_frames):
@@ -296,9 +289,7 @@ class PhysicsAnimation:
 
             # Apply rotation if enabled
             if rotation and state.velocity.magnitude() > 0:
-                angle = math.degrees(
-                    math.atan2(state.velocity.y, state.velocity.x)
-                )
+                angle = math.degrees(math.atan2(state.velocity.y, state.velocity.x))
                 frame = frame.rotate(-angle, resample=Image.BICUBIC, expand=True)
 
             frames.append((frame, state.position))
@@ -311,7 +302,7 @@ class PhysicsAnimation:
         bounce_height: float = 200.0,
         num_bounces: int = 5,
         fps: int = 30,
-        squash_stretch: bool = True
+        squash_stretch: bool = True,
     ) -> List[Image.Image]:
         """
         Generate bouncing animation with diminishing returns.
@@ -338,7 +329,7 @@ class PhysicsAnimation:
             position=Vector2D(sprite.width / 2, 0),
             velocity=Vector2D(0, -initial_velocity),
             mass=1.0,
-            elasticity=0.7  # Energy retained per bounce
+            elasticity=0.7,  # Energy retained per bounce
         )
 
         ground_y = 0
@@ -365,11 +356,7 @@ class PhysicsAnimation:
 
             # Generate frame
             if squash_stretch:
-                frame = self._apply_squash_stretch(
-                    sprite,
-                    state.velocity,
-                    SquashStretchParams()
-                )
+                frame = self._apply_squash_stretch(sprite, state.velocity, SquashStretchParams())
             else:
                 frame = sprite.copy()
 
@@ -393,7 +380,7 @@ class PhysicsAnimation:
         duration: float = 2.0,
         fps: int = 30,
         stiffness: float = 200.0,
-        damping: float = 15.0
+        damping: float = 15.0,
     ) -> List[Image.Image]:
         """
         Generate spring-based animation (wobble, overshoot, settle).
@@ -442,7 +429,7 @@ class PhysicsAnimation:
         max_angle: float = 30.0,
         period: float = 2.0,
         num_cycles: int = 3,
-        fps: int = 30
+        fps: int = 30,
     ) -> List[Image.Image]:
         """
         Generate pendulum/swing animation.
@@ -473,11 +460,7 @@ class PhysicsAnimation:
             angle = max_angle_rad * math.sin(omega * t)
 
             # Rotate sprite
-            frame = sprite.rotate(
-                -math.degrees(angle),
-                resample=Image.BICUBIC,
-                expand=True
-            )
+            frame = sprite.rotate(-math.degrees(angle), resample=Image.BICUBIC, expand=True)
 
             # Calculate position offset due to pivot point
             # (This is simplified; proper pivot rotation is more complex)
@@ -490,10 +473,7 @@ class PhysicsAnimation:
         return frames
 
     def _apply_squash_stretch(
-        self,
-        sprite: Image.Image,
-        velocity: Vector2D,
-        params: SquashStretchParams
+        self, sprite: Image.Image, velocity: Vector2D, params: SquashStretchParams
     ) -> Image.Image:
         """
         Apply squash and stretch deformation based on velocity.
@@ -553,12 +533,7 @@ class PhysicsAnimation:
 
         return deformed
 
-    def _apply_offset(
-        self,
-        sprite: Image.Image,
-        offset_x: int,
-        offset_y: int
-    ) -> Image.Image:
+    def _apply_offset(self, sprite: Image.Image, offset_x: int, offset_y: int) -> Image.Image:
         """Apply positional offset to sprite."""
         result = Image.new(sprite.mode, sprite.size, (0, 0, 0, 0))
 
@@ -584,10 +559,7 @@ class SecondaryAnimation:
         pass
 
     def add_follow_through(
-        self,
-        frames: List[Image.Image],
-        delay_frames: int = 2,
-        decay: float = 0.8
+        self, frames: List[Image.Image], delay_frames: int = 2, decay: float = 0.8
     ) -> List[Image.Image]:
         """
         Add follow-through effect to animation.
@@ -611,22 +583,14 @@ class SecondaryAnimation:
                 delayed_frame = frames[i - delay_frames]
 
                 # Blend
-                blended = Image.blend(
-                    delayed_frame,
-                    frame,
-                    alpha=1.0 - decay
-                )
+                blended = Image.blend(delayed_frame, frame, alpha=1.0 - decay)
                 result_frames.append(blended)
             else:
                 result_frames.append(frame.copy())
 
         return result_frames
 
-    def add_overlap(
-        self,
-        frames: List[Image.Image],
-        lag_pixels: int = 3
-    ) -> List[Image.Image]:
+    def add_overlap(self, frames: List[Image.Image], lag_pixels: int = 3) -> List[Image.Image]:
         """
         Add overlapping action (parts lag behind main motion).
 
@@ -653,10 +617,9 @@ class SecondaryAnimation:
 
 # Convenience functions
 
+
 def create_jump_animation(
-    sprite: Image.Image | str | Path,
-    output_dir: Optional[str | Path] = None,
-    **kwargs
+    sprite: Image.Image | str | Path, output_dir: Optional[str | Path] = None, **kwargs
 ) -> List[Image.Image]:
     """
     Quick jump animation creation.
@@ -691,9 +654,7 @@ def create_jump_animation(
 
 
 def create_bounce_animation(
-    sprite: Image.Image | str | Path,
-    output_dir: Optional[str | Path] = None,
-    **kwargs
+    sprite: Image.Image | str | Path, output_dir: Optional[str | Path] = None, **kwargs
 ) -> List[Image.Image]:
     """
     Quick bounce animation creation.
@@ -741,21 +702,13 @@ if __name__ == "__main__":
     # Generate jump animation
     print("Generating jump animation...")
     jump_frames = create_jump_animation(
-        test_sprite,
-        output_dir="test_jump",
-        jump_velocity=400.0,
-        duration=1.5,
-        fps=30
+        test_sprite, output_dir="test_jump", jump_velocity=400.0, duration=1.5, fps=30
     )
 
     # Generate bounce animation
     print("\nGenerating bounce animation...")
     bounce_frames = create_bounce_animation(
-        test_sprite,
-        output_dir="test_bounce",
-        bounce_height=150.0,
-        num_bounces=5,
-        fps=30
+        test_sprite, output_dir="test_bounce", bounce_height=150.0, num_bounces=5, fps=30
     )
 
     # Generate spring animation
@@ -766,7 +719,7 @@ if __name__ == "__main__":
         duration=2.0,
         fps=30,
         stiffness=150.0,
-        damping=12.0
+        damping=12.0,
     )
 
     # Save spring animation

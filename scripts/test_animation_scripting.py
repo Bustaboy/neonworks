@@ -140,9 +140,7 @@ def test_sequence_generation():
         print(f"\nExporting frames to {output_dir}...")
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        animator.export_animation_frames(
-            frames, output_dir, "scripted_test", "sequence"
-        )
+        animator.export_animation_frames(frames, output_dir, "scripted_test", "sequence")
 
         print(f"✓ Exported frames to: {output_dir}")
 

@@ -183,9 +183,7 @@ class AIAssistantPanel:
 
         # Collapse button
         collapse_text = self.small_font.render("►", True, self.text_color)
-        self.screen.blit(
-            collapse_text, (self.panel_x + self.panel_width - 25, self.panel_y + 12)
-        )
+        self.screen.blit(collapse_text, (self.panel_x + self.panel_width - 25, self.panel_y + 12))
 
         # Chat area
         chat_y = self.panel_y + 45
@@ -238,9 +236,7 @@ class AIAssistantPanel:
         if not self.current_suggestions:
             return
 
-        suggestion_text = self.small_font.render(
-            "Suggestions:", True, (150, 150, 150)
-        )
+        suggestion_text = self.small_font.render("Suggestions:", True, (150, 150, 150))
         self.screen.blit(suggestion_text, (self.panel_x + 10, y))
 
         for i, suggestion in enumerate(self.current_suggestions[:3]):
@@ -260,9 +256,7 @@ class AIAssistantPanel:
             input_text = self.input_font.render(self.current_input, True, self.text_color)
             self.screen.blit(input_text, (self.panel_x + 10, y + 10))
         elif self.input_active:
-            placeholder = self.input_font.render(
-                "Ask AI anything...", True, (100, 100, 100)
-            )
+            placeholder = self.input_font.render("Ask AI anything...", True, (100, 100, 100))
             self.screen.blit(placeholder, (self.panel_x + 10, y + 10))
 
     def _render_wrapped_text(self, text: str, x: int, y: int, max_width: int):
@@ -464,7 +458,11 @@ I can see what's on your map and understand spatial relationships!"""
         # Add welcome message
         if not self.chat_history:
             self.chat_history.append(
-                ("AI", "Hello! I'm your AI assistant. I can help you build levels, place objects, and edit your map. Try asking 'what can you do?'", "Now")
+                (
+                    "AI",
+                    "Hello! I'm your AI assistant. I can help you build levels, place objects, and edit your map. Try asking 'what can you do?'",
+                    "Now",
+                )
             )
 
     def _on_workspace_changed(self, workspace_name: str):
@@ -474,7 +472,11 @@ I can see what's on your map and understand spatial relationships!"""
         # Workspace-specific greetings
         if "level" in workspace_name.lower():
             self.chat_history.append(
-                ("AI", "I see you're in the Level Editor! I can help you build maps, place entities, and generate content. Try 'make a town' or 'what can you do?'", timestamp)
+                (
+                    "AI",
+                    "I see you're in the Level Editor! I can help you build maps, place entities, and generate content. Try 'make a town' or 'what can you do?'",
+                    timestamp,
+                )
             )
             self.current_suggestions = [
                 "Generate a town",
@@ -484,7 +486,11 @@ I can see what's on your map and understand spatial relationships!"""
 
         elif "content" in workspace_name.lower():
             self.chat_history.append(
-                ("AI", "Welcome to Content Creation! I can help you create sprites, animations, and assets.", timestamp)
+                (
+                    "AI",
+                    "Welcome to Content Creation! I can help you create sprites, animations, and assets.",
+                    timestamp,
+                )
             )
             self.current_suggestions = [
                 "Create a sprite",

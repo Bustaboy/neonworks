@@ -313,9 +313,7 @@ class AIAssetInspector:
         y = self.panel_y + self.panel_height - 80
 
         # AI Edit hint
-        hint_text = self.value_font.render(
-            "Use AI Assistant to edit:", True, (150, 150, 150)
-        )
+        hint_text = self.value_font.render("Use AI Assistant to edit:", True, (150, 150, 150))
         self.screen.blit(hint_text, (self.panel_x + 10, y))
 
         y += 20

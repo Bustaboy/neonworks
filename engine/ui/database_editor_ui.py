@@ -149,9 +149,7 @@ class DatabaseEditorUI:
         detail_panel_width = panel_width - category_panel_width - entry_list_width - 40
 
         # Render three panels
-        self._render_category_panel(
-            panel_x + 10, content_y, category_panel_width, content_height
-        )
+        self._render_category_panel(panel_x + 10, content_y, category_panel_width, content_height)
         self._render_entry_list_panel(
             panel_x + category_panel_width + 20,
             content_y,
@@ -168,9 +166,7 @@ class DatabaseEditorUI:
     def _render_title_bar(self, x: int, y: int, width: int, height: int):
         """Render the title bar with close button."""
         # Title bar background
-        pygame.draw.rect(
-            self.screen, (40, 40, 60), (x, y, width, height), border_radius=8
-        )
+        pygame.draw.rect(self.screen, (40, 40, 60), (x, y, width, height), border_radius=8)
 
         # Title text
         font = pygame.font.Font(None, 32)
@@ -183,9 +179,7 @@ class DatabaseEditorUI:
         # Entry count
         count = self.db.get_count(self.current_category)
         count_font = pygame.font.Font(None, 20)
-        count_surface = count_font.render(
-            f"{count} entries", True, (180, 180, 200)
-        )
+        count_surface = count_font.render(f"{count} entries", True, (180, 180, 200))
         self.screen.blit(count_surface, (x + 250, y + 18))
 
         # Save button
@@ -239,12 +233,8 @@ class DatabaseEditorUI:
     def _render_category_panel(self, x: int, y: int, width: int, height: int):
         """Render the category selection panel (left panel)."""
         # Panel background
-        pygame.draw.rect(
-            self.screen, (30, 30, 45), (x, y, width, height), border_radius=6
-        )
-        pygame.draw.rect(
-            self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6
-        )
+        pygame.draw.rect(self.screen, (30, 30, 45), (x, y, width, height), border_radius=6)
+        pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6)
 
         # Panel title
         font = pygame.font.Font(None, 20)
@@ -287,9 +277,7 @@ class DatabaseEditorUI:
             # Entry count
             count = self.db.get_count(category_id)
             count_surface = cat_font.render(f"({count})", True, (180, 180, 200))
-            self.screen.blit(
-                count_surface, (x + width - 50, current_y + 12)
-            )
+            self.screen.blit(count_surface, (x + width - 50, current_y + 12))
 
             # Click to select
             if is_hovered and mouse_pressed:
@@ -304,18 +292,12 @@ class DatabaseEditorUI:
     def _render_entry_list_panel(self, x: int, y: int, width: int, height: int):
         """Render the entry list panel with search (middle panel)."""
         # Panel background
-        pygame.draw.rect(
-            self.screen, (30, 30, 45), (x, y, width, height), border_radius=6
-        )
-        pygame.draw.rect(
-            self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6
-        )
+        pygame.draw.rect(self.screen, (30, 30, 45), (x, y, width, height), border_radius=6)
+        pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6)
 
         # Panel title
         font = pygame.font.Font(None, 20)
-        category_display = dict(self.CATEGORIES).get(
-            self.current_category, self.current_category
-        )
+        category_display = dict(self.CATEGORIES).get(self.current_category, self.current_category)
         title_surface = font.render(category_display, True, (200, 200, 255))
         self.screen.blit(title_surface, (x + 10, y + 10))
 
@@ -341,9 +323,7 @@ class DatabaseEditorUI:
         # Search bar background
         is_active = self.active_input_field == "search"
         bar_color = (60, 60, 100) if is_active else (40, 40, 60)
-        pygame.draw.rect(
-            self.screen, bar_color, (x, y, width, bar_height), border_radius=4
-        )
+        pygame.draw.rect(self.screen, bar_color, (x, y, width, bar_height), border_radius=4)
 
         # Search icon/text
         font = pygame.font.Font(None, 18)
@@ -354,11 +334,7 @@ class DatabaseEditorUI:
         self.screen.blit(text_surface, (x + 10, y + 8))
 
         # Click to activate search
-        if (
-            x <= mouse_pos[0] <= x + width
-            and y <= mouse_pos[1] <= y + bar_height
-            and mouse_pressed
-        ):
+        if x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + bar_height and mouse_pressed:
             self.active_input_field = "search"
             self.input_text = self.search_query
 
@@ -368,15 +344,10 @@ class DatabaseEditorUI:
         mouse_pos = pygame.mouse.get_pos()
         mouse_pressed = pygame.mouse.get_pressed()[0]
 
-        is_hovered = (
-            x <= mouse_pos[0] <= x + width
-            and y <= mouse_pos[1] <= y + btn_height
-        )
+        is_hovered = x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + btn_height
         btn_color = (0, 170, 0) if is_hovered else (0, 120, 0)
 
-        pygame.draw.rect(
-            self.screen, btn_color, (x, y, width, btn_height), border_radius=4
-        )
+        pygame.draw.rect(self.screen, btn_color, (x, y, width, btn_height), border_radius=4)
 
         font = pygame.font.Font(None, 20)
         btn_text = font.render("+ New Entry", True, (255, 255, 255))
@@ -449,9 +420,7 @@ class DatabaseEditorUI:
             # Icon preview (if available)
             if hasattr(entry, "icon_index") and entry.icon_index > 0:
                 icon_font = pygame.font.Font(None, 16)
-                icon_text = icon_font.render(
-                    f"Icon: {entry.icon_index}", True, (180, 180, 200)
-                )
+                icon_text = icon_font.render(f"Icon: {entry.icon_index}", True, (180, 180, 200))
                 self.screen.blit(icon_text, (x + width - 80, current_y + 8))
 
             # Click to select
@@ -475,19 +444,13 @@ class DatabaseEditorUI:
     def _render_detail_panel(self, x: int, y: int, width: int, height: int):
         """Render the detail editor panel (right panel)."""
         # Panel background
-        pygame.draw.rect(
-            self.screen, (30, 30, 45), (x, y, width, height), border_radius=6
-        )
-        pygame.draw.rect(
-            self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6
-        )
+        pygame.draw.rect(self.screen, (30, 30, 45), (x, y, width, height), border_radius=6)
+        pygame.draw.rect(self.screen, (60, 60, 80), (x, y, width, height), 2, border_radius=6)
 
         if not self.current_entry:
             # Show placeholder
             font = pygame.font.Font(None, 20)
-            msg = font.render(
-                "Select an entry to edit", True, (150, 150, 150)
-            )
+            msg = font.render("Select an entry to edit", True, (150, 150, 150))
             self.screen.blit(msg, (x + width // 2 - 100, y + height // 2))
             return
 
@@ -515,14 +478,11 @@ class DatabaseEditorUI:
         # Duplicate button
         dup_x = x + 10
         dup_hover = (
-            dup_x <= mouse_pos[0] <= dup_x + btn_width
-            and y <= mouse_pos[1] <= y + btn_height
+            dup_x <= mouse_pos[0] <= dup_x + btn_width and y <= mouse_pos[1] <= y + btn_height
         )
         dup_color = (0, 120, 180) if dup_hover else (0, 80, 140)
 
-        pygame.draw.rect(
-            self.screen, dup_color, (dup_x, y, btn_width, btn_height), border_radius=4
-        )
+        pygame.draw.rect(self.screen, dup_color, (dup_x, y, btn_width, btn_height), border_radius=4)
         font = pygame.font.Font(None, 18)
         dup_text = font.render("Duplicate", True, (255, 255, 255))
         self.screen.blit(dup_text, (dup_x + btn_width // 2 - 35, y + 10))
@@ -533,14 +493,11 @@ class DatabaseEditorUI:
         # Delete button
         del_x = dup_x + btn_width + 10
         del_hover = (
-            del_x <= mouse_pos[0] <= del_x + btn_width
-            and y <= mouse_pos[1] <= y + btn_height
+            del_x <= mouse_pos[0] <= del_x + btn_width and y <= mouse_pos[1] <= y + btn_height
         )
         del_color = (200, 50, 50) if del_hover else (150, 0, 0)
 
-        pygame.draw.rect(
-            self.screen, del_color, (del_x, y, btn_width, btn_height), border_radius=4
-        )
+        pygame.draw.rect(self.screen, del_color, (del_x, y, btn_width, btn_height), border_radius=4)
         del_text = font.render("Delete", True, (255, 255, 255))
         self.screen.blit(del_text, (del_x + btn_width // 2 - 25, y + 10))
 
@@ -635,9 +592,7 @@ class DatabaseEditorUI:
 
         return value_y + field_height
 
-    def _render_category_specific_fields(
-        self, x: int, y: int, width: int, height: int
-    ) -> int:
+    def _render_category_specific_fields(self, x: int, y: int, width: int, height: int) -> int:
         """Render fields specific to the current category."""
         current_y = y
         entry = self.current_entry
@@ -929,9 +884,7 @@ class DatabaseEditorUI:
             )
 
             # Create in database
-            created_entry = self.db.create(
-                self.current_category, new_entry, auto_id=True
-            )
+            created_entry = self.db.create(self.current_category, new_entry, auto_id=True)
 
             # Select the new entry
             self.current_entry = created_entry
@@ -948,9 +901,7 @@ class DatabaseEditorUI:
             return
 
         try:
-            duplicated = self.db.duplicate(
-                self.current_category, self.current_entry.id
-            )
+            duplicated = self.db.duplicate(self.current_category, self.current_entry.id)
             self.current_entry = duplicated
             self.has_unsaved_changes = True
             print(f"✓ Duplicated entry #{duplicated.id}")

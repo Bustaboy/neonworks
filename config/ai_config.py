@@ -124,9 +124,7 @@ class HardwareDetector:
             if torch.cuda.is_available():
                 hardware.has_cuda = True
                 hardware.gpu_name = torch.cuda.get_device_name(0)
-                hardware.vram_gb = (
-                    torch.cuda.get_device_properties(0).total_memory / 1e9
-                )
+                hardware.vram_gb = torch.cuda.get_device_properties(0).total_memory / 1e9
         except ImportError:
             hardware.has_cuda = False
 

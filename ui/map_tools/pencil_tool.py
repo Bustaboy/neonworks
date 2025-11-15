@@ -6,7 +6,15 @@ from typing import Optional, Tuple
 
 import pygame
 
-from ...core.ecs import GridPosition, Health, ResourceStorage, Sprite, Survival, Transform, TurnActor
+from ...core.ecs import (
+    GridPosition,
+    Health,
+    ResourceStorage,
+    Sprite,
+    Survival,
+    Transform,
+    TurnActor,
+)
 from ...core.event_commands import EventPage, GameEvent
 from ...rendering.tilemap import Tile
 from .base import MapTool, ToolContext

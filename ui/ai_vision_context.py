@@ -88,9 +88,9 @@ class AIVisionContext:
             timestamp=data["timestamp"],
             workspace=data["workspace"],
             current_layer=data["current_layer"],
-            selected_position=tuple(data["selected_position"])
-            if data["selected_position"]
-            else None,
+            selected_position=(
+                tuple(data["selected_position"]) if data["selected_position"] else None
+            ),
             tilemap=tilemap,
             entities=entities,
             spatial=spatial,
@@ -170,9 +170,7 @@ class AIVisionExporter:
     ) -> TilemapSnapshot:
         """Capture tilemap state"""
         if not tilemap:
-            return TilemapSnapshot(
-                width=0, height=0, layers={}, visible_area=visible_area
-            )
+            return TilemapSnapshot(width=0, height=0, layers={}, visible_area=visible_area)
 
         min_x, min_y, max_x, max_y = visible_area
 
@@ -313,7 +311,12 @@ class AIVisionExporter:
                 "center": entity.position,
                 "entities": [entity.id],
                 "tags": set(entity.tags),
-                "bounds": [entity.position[0], entity.position[1], entity.position[0], entity.position[1]],
+                "bounds": [
+                    entity.position[0],
+                    entity.position[1],
+                    entity.position[0],
+                    entity.position[1],
+                ],
             }
 
             # Find nearby entities
@@ -394,9 +397,7 @@ class AIVisionExporter:
                         break
 
                 if is_empty:
-                    empty_regions.append(
-                        (min_x + x, min_y + y, min_size, min_size)
-                    )
+                    empty_regions.append((min_x + x, min_y + y, min_size, min_size))
 
         return empty_regions[:10]  # Return max 10 regions
 

@@ -191,23 +191,17 @@ class TestAITilesetGenerator:
     def test_classify_terrain_by_color(self, ai_generator):
         """Test classifying terrain based on color."""
         # Blue water
-        terrain, passable = ai_generator._classify_terrain_by_color(
-            (100, 150, 255), 180, "blue"
-        )
+        terrain, passable = ai_generator._classify_terrain_by_color((100, 150, 255), 180, "blue")
         assert terrain == "water"
         assert passable is False
 
         # Green grass
-        terrain, passable = ai_generator._classify_terrain_by_color(
-            (100, 200, 50), 150, "green"
-        )
+        terrain, passable = ai_generator._classify_terrain_by_color((100, 200, 50), 150, "green")
         assert terrain == "grass"
         assert passable is True
 
         # Red lava
-        terrain, passable = ai_generator._classify_terrain_by_color(
-            (255, 100, 0), 180, "red"
-        )
+        terrain, passable = ai_generator._classify_terrain_by_color((255, 100, 0), 180, "red")
         assert terrain == "lava"
         assert passable is False
 
@@ -268,9 +262,7 @@ class TestAITilesetGenerator:
 
     def test_create_autotiling_rules(self, ai_generator):
         """Test creating autotiling rules for a terrain type."""
-        rules = ai_generator.create_autotiling_rules(
-            tileset_id="test_tileset", terrain_tag="grass"
-        )
+        rules = ai_generator.create_autotiling_rules(tileset_id="test_tileset", terrain_tag="grass")
 
         assert rules is not None
         assert rules["terrain_tag"] == "grass"
@@ -278,9 +270,7 @@ class TestAITilesetGenerator:
         assert "rules" in rules
         assert len(rules["rules"]) > 0
 
-    def test_suggest_tile_variations(
-        self, ai_generator, tileset_manager, pygame_display
-    ):
+    def test_suggest_tile_variations(self, ai_generator, tileset_manager, pygame_display):
         """Test generating variations of a tile."""
         # Generate a test tileset first
         tileset_surface, _ = ai_generator.generate_procedural_tileset(
@@ -321,9 +311,7 @@ class TestAITilesetGenerator:
     def test_suggest_variations_nonexistent_tileset_fails(self, ai_generator):
         """Test that suggesting variations for non-existent tileset fails."""
         with pytest.raises(ValueError):
-            ai_generator.suggest_tile_variations(
-                tileset_id="nonexistent", tile_id=0, count=3
-            )
+            ai_generator.suggest_tile_variations(tileset_id="nonexistent", tile_id=0, count=3)
 
     def test_unknown_terrain_type_warning(self, ai_generator):
         """Test that unknown terrain types are handled gracefully."""

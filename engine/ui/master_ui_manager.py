@@ -65,7 +65,7 @@ class MasterUIManager:
             self.character_generator.set_ui_references(
                 database_editor=self.database_editor,
                 asset_browser=None,  # Will be set if asset browser is added
-                level_builder=self.level_builder
+                level_builder=self.level_builder,
             )
             print("✓ Character generator UI components connected")
 

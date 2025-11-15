@@ -301,14 +301,23 @@ class SelectTool(MapTool):
 
                 # Draw semi-transparent overlay
                 overlay = pygame.Surface((tile_size, tile_size), pygame.SRCALPHA)
-                overlay.fill((*ToolColors.CURSOR_SELECT_WAND, RenderSettings.SELECTION_OVERLAY_ALPHA))
+                overlay.fill(
+                    (*ToolColors.CURSOR_SELECT_WAND, RenderSettings.SELECTION_OVERLAY_ALPHA)
+                )
                 screen.blit(overlay, (screen_x, screen_y))
 
         # Draw cursor
         screen_x = grid_x * tile_size + camera_offset[0]
         screen_y = grid_y * tile_size + camera_offset[1]
 
-        color = ToolColors.CURSOR_SELECT_RECT if self.selection_mode == "rectangle" else ToolColors.CURSOR_SELECT_WAND
+        color = (
+            ToolColors.CURSOR_SELECT_RECT
+            if self.selection_mode == "rectangle"
+            else ToolColors.CURSOR_SELECT_WAND
+        )
         pygame.draw.rect(
-            screen, color, (screen_x, screen_y, tile_size, tile_size), RenderSettings.CURSOR_OUTLINE_WIDTH
+            screen,
+            color,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_OUTLINE_WIDTH,
         )

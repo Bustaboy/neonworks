@@ -36,8 +36,10 @@ from engine.tools.character_generator import (
 # Try to import AI config (may not be available in all contexts)
 try:
     import sys
+
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from config.ai_config import get_ai_config, AIConfig
+
     AI_CONFIG_AVAILABLE = True
 except ImportError:
     AI_CONFIG_AVAILABLE = False
@@ -56,8 +58,8 @@ class CharacterArchetype:
             },
             "color_palette": {
                 "outfit": ColorTint(150, 150, 180),  # Steel grey
-                "weapon": ColorTint(200, 200, 210)   # Metallic
-            }
+                "weapon": ColorTint(200, 200, 210),  # Metallic
+            },
         },
         "knight": {
             "description": "Noble armored warrior",
@@ -67,8 +69,8 @@ class CharacterArchetype:
             },
             "color_palette": {
                 "outfit": ColorTint(100, 100, 200),  # Blue/silver
-                "weapon": ColorTint(220, 220, 230)
-            }
+                "weapon": ColorTint(220, 220, 230),
+            },
         },
         "mage": {
             "description": "Magic user with robes",
@@ -77,9 +79,9 @@ class CharacterArchetype:
                 "weapon": ["staff"],
             },
             "color_palette": {
-                "outfit": ColorTint(100, 50, 150),   # Purple
-                "weapon": ColorTint(139, 90, 43)     # Brown wood
-            }
+                "outfit": ColorTint(100, 50, 150),  # Purple
+                "weapon": ColorTint(139, 90, 43),  # Brown wood
+            },
         },
         "wizard": {
             "description": "Powerful spellcaster",
@@ -89,10 +91,10 @@ class CharacterArchetype:
                 "head": ["hat", "wizard_hat"],
             },
             "color_palette": {
-                "outfit": ColorTint(50, 50, 150),    # Dark blue
+                "outfit": ColorTint(50, 50, 150),  # Dark blue
                 "weapon": ColorTint(150, 100, 50),
-                "head": ColorTint(50, 50, 150)
-            }
+                "head": ColorTint(50, 50, 150),
+            },
         },
         "ranger": {
             "description": "Skilled archer",
@@ -101,9 +103,9 @@ class CharacterArchetype:
                 "weapon": ["bow"],
             },
             "color_palette": {
-                "outfit": ColorTint(100, 130, 80),   # Forest green
-                "weapon": ColorTint(150, 100, 50)    # Brown wood
-            }
+                "outfit": ColorTint(100, 130, 80),  # Forest green
+                "weapon": ColorTint(150, 100, 50),  # Brown wood
+            },
         },
         "peasant": {
             "description": "Common folk",
@@ -111,8 +113,8 @@ class CharacterArchetype:
                 "torso": ["peasant_clothes", "clothes"],
             },
             "color_palette": {
-                "outfit": ColorTint(150, 120, 80),   # Tan/brown
-            }
+                "outfit": ColorTint(150, 120, 80),  # Tan/brown
+            },
         },
         "elf": {
             "description": "Graceful elven being",
@@ -121,9 +123,9 @@ class CharacterArchetype:
                 "hair": ["long", "ponytail"],
             },
             "color_palette": {
-                "hair": ColorTint(255, 230, 150),    # Golden blonde
-                "body": ColorTint(255, 240, 220)     # Fair skin
-            }
+                "hair": ColorTint(255, 230, 150),  # Golden blonde
+                "body": ColorTint(255, 240, 220),  # Fair skin
+            },
         },
     }
 
@@ -165,9 +167,7 @@ class AICharacterGenerator(CharacterGenerator):
             print("○ AI character generation using enhanced rules (AI config not available)")
 
     def generate_from_ai_description(
-        self,
-        description: str,
-        name: Optional[str] = None
+        self, description: str, name: Optional[str] = None
     ) -> CharacterPreset:
         """
         Generate character from natural language description using AI.
@@ -202,11 +202,7 @@ class AICharacterGenerator(CharacterGenerator):
         # Fallback to enhanced rule-based generation
         return self._generate_with_rules(description, name)
 
-    def _generate_with_llm(
-        self,
-        description: str,
-        name: Optional[str] = None
-    ) -> CharacterPreset:
+    def _generate_with_llm(self, description: str, name: Optional[str] = None) -> CharacterPreset:
         """
         Generate character using LLM.
 
@@ -307,11 +303,7 @@ Use only component IDs from the available list above. Choose colors that match t
             )
 
             output = llm(
-                prompt,
-                max_tokens=512,
-                temperature=0.7,
-                stop=["```", "\n\n\n"],
-                echo=False
+                prompt, max_tokens=512, temperature=0.7, stop=["```", "\n\n\n"], echo=False
             )
 
             return output["choices"][0]["text"]
@@ -325,7 +317,7 @@ Use only component IDs from the available list above. Choose colors that match t
                     model="gpt-3.5-turbo",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=512,
-                    temperature=0.7
+                    temperature=0.7,
                 )
 
                 return response.choices[0].message.content
@@ -354,11 +346,11 @@ Use only component IDs from the available list above. Choose colors that match t
             Parsed configuration dict
         """
         # Remove markdown code blocks
-        response = re.sub(r'```json\s*', '', response)
-        response = re.sub(r'```\s*', '', response)
+        response = re.sub(r"```json\s*", "", response)
+        response = re.sub(r"```\s*", "", response)
 
         # Try to find JSON in response (match nested braces)
-        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        json_match = re.search(r"\{.*\}", response, re.DOTALL)
         if json_match:
             response = json_match.group(0)
 
@@ -372,10 +364,7 @@ Use only component IDs from the available list above. Choose colors that match t
             print(f"  Response was: {response[:200]}")
             raise
 
-    def _format_components_for_llm(
-        self,
-        components: Dict[LayerType, List[str]]
-    ) -> str:
+    def _format_components_for_llm(self, components: Dict[LayerType, List[str]]) -> str:
         """
         Format component list for LLM prompt.
 
@@ -394,11 +383,7 @@ Use only component IDs from the available list above. Choose colors that match t
 
         return "\n".join(lines)
 
-    def _generate_with_rules(
-        self,
-        description: str,
-        name: Optional[str] = None
-    ) -> CharacterPreset:
+    def _generate_with_rules(self, description: str, name: Optional[str] = None) -> CharacterPreset:
         """
         Generate character using enhanced rule-based matching.
 
@@ -505,11 +490,7 @@ Use only component IDs from the available list above. Choose colors that match t
 
         return None
 
-    def _find_matching_component(
-        self,
-        layer: str,
-        preferred: List[str]
-    ) -> Optional[str]:
+    def _find_matching_component(self, layer: str, preferred: List[str]) -> Optional[str]:
         """Find best matching component for layer."""
         # Try friendly name first
         friendly_map = {
@@ -542,10 +523,7 @@ Use only component IDs from the available list above. Choose colors that match t
         """Find best component match for keywords."""
         return self._find_matching_component(layer, keywords)
 
-    def _extract_hair_info(
-        self,
-        description: str
-    ) -> Tuple[Optional[str], Optional[ColorTint]]:
+    def _extract_hair_info(self, description: str) -> Tuple[Optional[str], Optional[ColorTint]]:
         """Extract hair style and color from description."""
         hair_component = None
         hair_color = None
@@ -619,7 +597,7 @@ def generate_ai_character(
     description: str,
     output_path: Optional[str] = None,
     library_path: str = "assets/character_components/",
-    size: int = 32
+    size: int = 32,
 ) -> CharacterPreset:
     """
     Quick AI character generation from description.

@@ -22,12 +22,9 @@ from engine.tools.character_generator import (
     ColorTint,
     LayerType,
     Direction,
-    quick_character
+    quick_character,
 )
-from engine.tools.ai_character_generator import (
-    AICharacterGenerator,
-    generate_ai_character
-)
+from engine.tools.ai_character_generator import AICharacterGenerator, generate_ai_character
 
 
 def demo_basic_character():
@@ -52,12 +49,10 @@ def demo_basic_character():
             "body": "body_human_male",
             "hair": "hair_short_brown",
             "outfit": "outfit_knight_armor",
-            "weapon": "weapon_sword"
+            "weapon": "weapon_sword",
         },
-        tints={
-            "outfit": ColorTint(100, 100, 200)  # Blue armor
-        },
-        name="Sir Lancelot"
+        tints={"outfit": ColorTint(100, 100, 200)},  # Blue armor
+        name="Sir Lancelot",
     )
 
     print(f"Created character: {knight.name}")
@@ -120,13 +115,13 @@ def demo_preset_save_load():
             "body": "body_human_female",
             "hair": "hair_long_blonde",
             "outfit": "outfit_mage_robe",
-            "weapon": "weapon_staff"
+            "weapon": "weapon_staff",
         },
         tints={
             "outfit": ColorTint(100, 50, 150),  # Purple robe
-            "weapon": ColorTint(150, 100, 50)   # Brown staff
+            "weapon": ColorTint(150, 100, 50),  # Brown staff
         },
-        name="Morgana the Wise"
+        name="Morgana the Wise",
     )
 
     # Save preset
@@ -165,19 +160,14 @@ def demo_multi_size_export():
             "body": "body_elf_male",
             "hair": "hair_ponytail_red",
             "outfit": "outfit_peasant_clothes",
-            "weapon": "weapon_bow"
+            "weapon": "weapon_bow",
         },
-        name="Legolas"
+        name="Legolas",
     )
 
     # Export at multiple sizes
     output_dir = Path("../../test_outputs/demo_multi_size/")
-    gen.export_multi_size(
-        character,
-        output_dir,
-        sizes=[32, 48, 64],
-        num_frames=4
-    )
+    gen.export_multi_size(character, output_dir, sizes=[32, 48, 64], num_frames=4)
 
     print(f"Exported character at 3 sizes to: {output_dir}")
     print("  - 32x32")
@@ -202,11 +192,11 @@ def demo_description_based():
     descriptions = [
         "A brave knight with brown hair and blue armor",
         "An elf mage with blonde hair and a purple robe",
-        "A peasant with red hair and a bow"
+        "A peasant with red hair and a bow",
     ]
 
     for i, desc in enumerate(descriptions):
-        print(f"\nDescription: \"{desc}\"")
+        print(f'\nDescription: "{desc}"')
 
         character = gen.generate_from_description(desc, name=f"Character {i+1}")
 
@@ -237,7 +227,7 @@ def demo_color_variations():
     base_components = {
         "body": "body_human_male",
         "hair": "hair_short_brown",
-        "outfit": "outfit_knight_armor"
+        "outfit": "outfit_knight_armor",
     }
 
     # Different color schemes
@@ -245,16 +235,14 @@ def demo_color_variations():
         ("Red Knight", ColorTint(200, 80, 80)),
         ("Blue Knight", ColorTint(80, 80, 200)),
         ("Green Knight", ColorTint(80, 200, 80)),
-        ("Gold Knight", ColorTint(200, 180, 80))
+        ("Gold Knight", ColorTint(200, 180, 80)),
     ]
 
     print("Creating color variations:\n")
 
     for name, armor_tint in color_schemes:
         character = gen.create_character(
-            components=base_components,
-            tints={"outfit": armor_tint},
-            name=name
+            components=base_components, tints={"outfit": armor_tint}, name=name
         )
 
         print(f"{name}: armor tint {armor_tint.to_tuple()}")
@@ -310,13 +298,13 @@ def demo_ai_generation():
         "A wise wizard with flowing purple robes and a gnarled staff",
         "A skilled elven ranger with a longbow",
         "A simple peasant farmer",
-        "A fierce warrior with red armor and a sword"
+        "A fierce warrior with red armor and a sword",
     ]
 
     print("Generating characters from natural language descriptions:\n")
 
     for i, desc in enumerate(descriptions):
-        print(f"\n{i+1}. \"{desc}\"")
+        print(f'\n{i+1}. "{desc}"')
         print("-" * 60)
 
         character = ai_gen.generate_from_ai_description(desc)

@@ -14,6 +14,7 @@ from pathlib import Path
 
 # Import the AI character generator
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from engine.tools.ai_character_generator import (
@@ -79,7 +80,7 @@ class TestAICharacterGenerator:
     def test_create_ai_generator(self, ai_generator):
         """Test creating an AI generator instance."""
         assert ai_generator.default_size == 32
-        assert hasattr(ai_generator, 'llm_available')
+        assert hasattr(ai_generator, "llm_available")
         assert isinstance(ai_generator.llm_available, bool)
 
     def test_detect_archetype(self, ai_generator):
@@ -152,8 +153,7 @@ class TestAICharacterGenerator:
 
         # Generate knight
         character = loaded_ai_generator._generate_with_rules(
-            "A brave knight with shining blue armor",
-            name="Test Knight"
+            "A brave knight with shining blue armor", name="Test Knight"
         )
 
         assert character.name == "Test Knight"
@@ -228,10 +228,7 @@ class TestAICharacterGenerator:
             pytest.skip("Sample components not generated")
 
         # Try to find armor component
-        component = loaded_ai_generator._find_matching_component(
-            "outfit",
-            ["armor", "knight"]
-        )
+        component = loaded_ai_generator._find_matching_component("outfit", ["armor", "knight"])
 
         # Should find knight_armor if it exists
         if component:
@@ -252,7 +249,7 @@ class TestAICharacterGenerator:
     def test_parse_llm_response(self, ai_generator):
         """Test LLM response parsing."""
         # Test clean JSON
-        response = '''{
+        response = """{
     "name": "Test Knight",
     "components": {
         "body": "body_human_male",
@@ -261,7 +258,7 @@ class TestAICharacterGenerator:
     "tints": {
         "hair": {"r": 139, "g": 90, "b": 43}
     }
-}'''
+}"""
 
         result = ai_generator._parse_llm_response(response)
 
@@ -271,7 +268,7 @@ class TestAICharacterGenerator:
 
     def test_parse_llm_response_with_markdown(self, ai_generator):
         """Test parsing LLM response with markdown code blocks."""
-        response = '''Here's the character:
+        response = """Here's the character:
 ```json
 {
     "name": "Test Mage",
@@ -279,7 +276,7 @@ class TestAICharacterGenerator:
         "body": "body_human_female"
     }
 }
-```'''
+```"""
 
         result = ai_generator._parse_llm_response(response)
 
@@ -368,19 +365,14 @@ class TestIntegration:
 
         # Verify output
         assert output_path.exists()
-        assert output_path.with_suffix('.json').exists()
+        assert output_path.with_suffix(".json").exists()
 
     def test_multiple_generations(self, loaded_ai_generator):
         """Test generating multiple different characters."""
         if len(loaded_ai_generator.component_library) == 0:
             pytest.skip("Sample components not generated")
 
-        descriptions = [
-            "A brave knight",
-            "A wise wizard",
-            "An elven ranger",
-            "A common peasant"
-        ]
+        descriptions = ["A brave knight", "A wise wizard", "An elven ranger", "A common peasant"]
 
         for desc in descriptions:
             character = loaded_ai_generator.generate_from_ai_description(desc)

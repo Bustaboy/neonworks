@@ -164,9 +164,7 @@ class ModelDownloader:
                 filled = int(bar_length * percent / 100)
                 bar = "=" * filled + "-" * (bar_length - filled)
 
-                sys.stdout.write(
-                    f"\r   [{bar}] {percent}% ({mb_downloaded:.1f}/{mb_total:.1f} MB)"
-                )
+                sys.stdout.write(f"\r   [{bar}] {percent}% ({mb_downloaded:.1f}/{mb_total:.1f} MB)")
                 sys.stdout.flush()
 
         urllib.request.urlretrieve(url, output_path, reporthook=reporthook)
@@ -257,9 +255,7 @@ Examples:
         """,
     )
 
-    parser.add_argument(
-        "--list", action="store_true", help="List available models"
-    )
+    parser.add_argument("--list", action="store_true", help="List available models")
 
     parser.add_argument(
         "--recommended",
@@ -269,9 +265,7 @@ Examples:
 
     parser.add_argument("--model", type=str, help="Download specific model")
 
-    parser.add_argument(
-        "--check", action="store_true", help="Check downloaded models"
-    )
+    parser.add_argument("--check", action="store_true", help="Check downloaded models")
 
     parser.add_argument(
         "--models-dir",

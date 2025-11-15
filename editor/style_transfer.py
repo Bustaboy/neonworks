@@ -67,12 +67,10 @@ class StyleTransferConfig:
     def __post_init__(self):
         """Initialize default layer configurations."""
         if self.style_layers is None:
-            self.style_layers = [
-                'conv1_1', 'conv2_1', 'conv3_1', 'conv4_1', 'conv5_1'
-            ]
+            self.style_layers = ["conv1_1", "conv2_1", "conv3_1", "conv4_1", "conv5_1"]
 
         if self.content_layers is None:
-            self.content_layers = ['conv4_2']
+            self.content_layers = ["conv4_2"]
 
 
 class VGGFeatures(nn.Module):
@@ -99,11 +97,22 @@ class VGGFeatures(nn.Module):
 
         # Layer name mapping
         self.layer_names = {
-            '0': 'conv1_1', '2': 'conv1_2',
-            '5': 'conv2_1', '7': 'conv2_2',
-            '10': 'conv3_1', '12': 'conv3_2', '14': 'conv3_3', '16': 'conv3_4',
-            '19': 'conv4_1', '21': 'conv4_2', '23': 'conv4_3', '25': 'conv4_4',
-            '28': 'conv5_1', '30': 'conv5_2', '32': 'conv5_3', '34': 'conv5_4',
+            "0": "conv1_1",
+            "2": "conv1_2",
+            "5": "conv2_1",
+            "7": "conv2_2",
+            "10": "conv3_1",
+            "12": "conv3_2",
+            "14": "conv3_3",
+            "16": "conv3_4",
+            "19": "conv4_1",
+            "21": "conv4_2",
+            "23": "conv4_3",
+            "25": "conv4_4",
+            "28": "conv5_1",
+            "30": "conv5_2",
+            "32": "conv5_3",
+            "34": "conv5_4",
         }
 
         # Normalization for ImageNet
@@ -180,7 +189,7 @@ class NeuralStyleTransfer:
         """Detect best available device."""
         if torch.cuda.is_available():
             device_name = torch.cuda.get_device_name(0).lower()
-            if 'amd' in device_name or 'radeon' in device_name:
+            if "amd" in device_name or "radeon" in device_name:
                 print(f"Detected AMD GPU (ROCm): {torch.cuda.get_device_name(0)}")
             else:
                 print(f"Detected NVIDIA GPU: {torch.cuda.get_device_name(0)}")
@@ -194,10 +203,12 @@ class NeuralStyleTransfer:
 
     def _image_to_tensor(self, image: Image.Image, size: Tuple[int, int]) -> torch.Tensor:
         """Convert PIL Image to tensor."""
-        transform = transforms.Compose([
-            transforms.Resize(size),
-            transforms.ToTensor(),
-        ])
+        transform = transforms.Compose(
+            [
+                transforms.Resize(size),
+                transforms.ToTensor(),
+            ]
+        )
         return transform(image).unsqueeze(0).to(self.device)
 
     def _tensor_to_image(self, tensor: torch.Tensor) -> Image.Image:
@@ -246,23 +257,14 @@ class NeuralStyleTransfer:
             # Compute losses
             c_loss = 0
             for layer in config.content_layers:
-                c_loss += content_loss(
-                    output_content_features[layer],
-                    content_features[layer]
-                )
+                c_loss += content_loss(output_content_features[layer], content_features[layer])
 
             s_loss = 0
             for layer in config.style_layers:
-                s_loss += style_loss(
-                    output_style_features[layer],
-                    style_features[layer]
-                )
+                s_loss += style_loss(output_style_features[layer], style_features[layer])
 
             # Total loss
-            total_loss = (
-                config.content_weight * c_loss +
-                config.style_weight * s_loss
-            )
+            total_loss = config.content_weight * c_loss + config.style_weight * s_loss
 
             # Backprop and update
             total_loss.backward()
@@ -274,9 +276,11 @@ class NeuralStyleTransfer:
 
             # Progress
             if (step + 1) % 50 == 0 or step == 0:
-                print(f"Step {step+1}/{config.num_steps}: "
-                      f"Content Loss: {c_loss.item():.4f}, "
-                      f"Style Loss: {s_loss.item():.4f}")
+                print(
+                    f"Step {step+1}/{config.num_steps}: "
+                    f"Content Loss: {c_loss.item():.4f}, "
+                    f"Style Loss: {s_loss.item():.4f}"
+                )
 
         # Convert back to image
         result = self._tensor_to_image(output)
@@ -303,9 +307,7 @@ class PaletteSwapper:
         pass
 
     def extract_palette(
-        self,
-        image: Image.Image,
-        num_colors: int = 16
+        self, image: Image.Image, num_colors: int = 16
     ) -> List[Tuple[int, int, int]]:
         """
         Extract color palette from image.
@@ -336,10 +338,7 @@ class PaletteSwapper:
         return colors
 
     def apply_palette(
-        self,
-        image: Image.Image,
-        palette: List[Tuple[int, int, int]],
-        dithering: bool = False
+        self, image: Image.Image, palette: List[Tuple[int, int, int]], dithering: bool = False
     ) -> Image.Image:
         """
         Apply palette to image.
@@ -389,7 +388,7 @@ class PaletteSwapper:
         content: Image.Image,
         style: Image.Image,
         num_colors: int = 16,
-        dithering: bool = False
+        dithering: bool = False,
     ) -> Image.Image:
         """
         Transfer palette from style to content.
@@ -436,11 +435,7 @@ class StyleTransferSystem:
                 print("Will use traditional methods only")
 
     def transfer(
-        self,
-        content: Image.Image,
-        style: Image.Image,
-        method: str = "auto",
-        **kwargs
+        self, content: Image.Image, style: Image.Image, method: str = "auto", **kwargs
     ) -> Image.Image:
         """
         Transfer style from style image to content image.
@@ -472,19 +467,13 @@ class StyleTransferSystem:
             if self.neural_transfer is None:
                 raise ValueError("Neural transfer not available (GPU required)")
 
-            config = StyleTransferConfig(
-                content_image=content,
-                style_image=style,
-                **kwargs
-            )
+            config = StyleTransferConfig(content_image=content, style_image=style, **kwargs)
             return self.neural_transfer.transfer(config)
 
         elif method == "palette":
             num_colors = kwargs.get("num_colors", 16)
             dithering = kwargs.get("dithering", False)
-            return self.palette_swapper.transfer_palette(
-                content, style, num_colors, dithering
-            )
+            return self.palette_swapper.transfer_palette(content, style, num_colors, dithering)
 
         else:
             raise ValueError(f"Unknown method: {method}")
@@ -495,7 +484,7 @@ class StyleTransferSystem:
         style: Image.Image,
         method: str = "auto",
         output_dir: Optional[Path] = None,
-        **kwargs
+        **kwargs,
     ) -> List[Image.Image]:
         """
         Apply style transfer to multiple images.
@@ -526,12 +515,13 @@ class StyleTransferSystem:
 
 # Convenience function
 
+
 def transfer_style(
     content: Image.Image | str | Path,
     style: Image.Image | str | Path,
     method: str = "auto",
     output_path: Optional[str | Path] = None,
-    **kwargs
+    **kwargs,
 ) -> Image.Image:
     """
     Quick style transfer function.

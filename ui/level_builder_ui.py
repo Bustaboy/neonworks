@@ -208,9 +208,7 @@ class LevelBuilderUI:
         self.undo_manager = UndoManager(max_history=100)
 
         # Settings panel (F11 to toggle)
-        self.settings_panel = SettingsPanel(
-            x=100, y=100, width=600, height=500
-        )
+        self.settings_panel = SettingsPanel(x=100, y=100, width=600, height=500)
 
         # Load user preferences on startup
         load_and_apply_preferences()
@@ -413,7 +411,11 @@ class LevelBuilderUI:
                         screen_y = y * self.tile_size + camera_offset[1]
 
                         # Try to render from tileset first (NEW)
-                        if self.use_tileset_picker and hasattr(tile, 'tileset_id') and hasattr(tile, 'tile_id'):
+                        if (
+                            self.use_tileset_picker
+                            and hasattr(tile, "tileset_id")
+                            and hasattr(tile, "tile_id")
+                        ):
                             tile_surface = self.tileset_manager.get_tile_surface(
                                 tile.tileset_id, tile.tile_id
                             )

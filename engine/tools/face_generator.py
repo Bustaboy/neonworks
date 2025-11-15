@@ -40,18 +40,18 @@ import numpy as np
 class FaceLayerType(Enum):
     """Face component layer types in render order (bottom to top)."""
 
-    BASE = 0           # Face base/skin tone
-    BLUSH = 1          # Cheek blush
-    NOSE = 2           # Nose
-    MOUTH = 3          # Mouth
-    EYES = 4           # Eyes
-    EYEBROWS = 5       # Eyebrows
-    EYE_DETAIL = 6     # Eye highlights, pupils
-    FACIAL_HAIR = 7    # Beard, mustache
-    GLASSES = 8        # Glasses, monocle
-    FACE_PAINT = 9     # Tattoos, scars, makeup
-    ACCESSORY = 10     # Earrings, piercings
-    EFFECT = 11        # Special effects (tears, sweat, etc.)
+    BASE = 0  # Face base/skin tone
+    BLUSH = 1  # Cheek blush
+    NOSE = 2  # Nose
+    MOUTH = 3  # Mouth
+    EYES = 4  # Eyes
+    EYEBROWS = 5  # Eyebrows
+    EYE_DETAIL = 6  # Eye highlights, pupils
+    FACIAL_HAIR = 7  # Beard, mustache
+    GLASSES = 8  # Glasses, monocle
+    FACE_PAINT = 9  # Tattoos, scars, makeup
+    ACCESSORY = 10  # Earrings, piercings
+    EFFECT = 11  # Special effects (tears, sweat, etc.)
 
 
 class Expression(Enum):
@@ -90,22 +90,23 @@ class ColorTint:
     def from_dict(cls, data: Dict[str, int]) -> ColorTint:
         """Create from dictionary."""
         return cls(
-            r=data.get("r", 255),
-            g=data.get("g", 255),
-            b=data.get("b", 255),
-            a=data.get("a", 255)
+            r=data.get("r", 255), g=data.get("g", 255), b=data.get("b", 255), a=data.get("a", 255)
         )
 
     @classmethod
     def from_hex(cls, hex_color: str) -> ColorTint:
         """Create from hex color string (#RRGGBB or #RRGGBBAA)."""
-        hex_color = hex_color.lstrip('#')
+        hex_color = hex_color.lstrip("#")
         if len(hex_color) == 6:
             r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
             return cls(r, g, b, 255)
         elif len(hex_color) == 8:
-            r, g, b, a = (int(hex_color[0:2], 16), int(hex_color[2:4], 16),
-                         int(hex_color[4:6], 16), int(hex_color[6:8], 16))
+            r, g, b, a = (
+                int(hex_color[0:2], 16),
+                int(hex_color[2:4], 16),
+                int(hex_color[4:6], 16),
+                int(hex_color[6:8], 16),
+            )
             return cls(r, g, b, a)
         else:
             raise ValueError(f"Invalid hex color: {hex_color}")
@@ -130,7 +131,7 @@ class FaceLayer:
             "enabled": self.enabled,
             "expression_offset": {
                 expr.name: offset for expr, offset in self.expression_offset.items()
-            }
+            },
         }
 
     @classmethod
@@ -138,16 +139,14 @@ class FaceLayer:
         """Create from dictionary."""
         expr_offsets = {}
         if "expression_offset" in data:
-            expr_offsets = {
-                Expression[k]: tuple(v) for k, v in data["expression_offset"].items()
-            }
+            expr_offsets = {Expression[k]: tuple(v) for k, v in data["expression_offset"].items()}
 
         return cls(
             layer_type=FaceLayerType[data["layer_type"]],
             component_id=data["component_id"],
             tint=ColorTint.from_dict(data["tint"]) if data.get("tint") else None,
             enabled=data.get("enabled", True),
-            expression_offset=expr_offsets
+            expression_offset=expr_offsets,
         )
 
 
@@ -185,7 +184,7 @@ class FacePreset:
             "name": self.name,
             "description": self.description,
             "layers": [layer.to_dict() for layer in self.layers],
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -195,7 +194,7 @@ class FacePreset:
             name=data["name"],
             description=data.get("description", ""),
             layers=[FaceLayer.from_dict(l) for l in data.get("layers", [])],
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
@@ -320,7 +319,7 @@ class FaceGenerator:
 
             # Load components in this layer
             for comp_dir in layer_dir.iterdir():
-                if comp_dir.is_file() and comp_dir.suffix == '.png':
+                if comp_dir.is_file() and comp_dir.suffix == ".png":
                     # Single file component (no expressions)
                     component_id = f"{layer_name}_{comp_dir.stem}"
                     try:
@@ -328,7 +327,7 @@ class FaceGenerator:
                         component = FaceComponent(
                             component_id=component_id,
                             layer_type=layer_type,
-                            expressions={Expression.NEUTRAL: surface}
+                            expressions={Expression.NEUTRAL: surface},
                         )
                         self.component_library[component_id] = component
                         self.available_components[layer_type].append(component_id)
@@ -356,7 +355,7 @@ class FaceGenerator:
                         component = FaceComponent(
                             component_id=component_id,
                             layer_type=layer_type,
-                            expressions=expressions
+                            expressions=expressions,
                         )
                         self.component_library[component_id] = component
                         self.available_components[layer_type].append(component_id)
@@ -368,7 +367,7 @@ class FaceGenerator:
         self,
         components: Dict[str, str],
         tints: Optional[Dict[str, ColorTint]] = None,
-        name: str = "Face"
+        name: str = "Face",
     ) -> FacePreset:
         """
         Create a face preset from component selections.
@@ -402,21 +401,14 @@ class FaceGenerator:
             # Create layer
             tint = tints.get(layer_name)
             layer = FaceLayer(
-                layer_type=layer_type,
-                component_id=component_id,
-                tint=tint,
-                enabled=True
+                layer_type=layer_type, component_id=component_id, tint=tint, enabled=True
             )
 
             preset.add_layer(layer)
 
         return preset
 
-    def apply_color_tint(
-        self,
-        surface: pygame.Surface,
-        tint: ColorTint
-    ) -> pygame.Surface:
+    def apply_color_tint(self, surface: pygame.Surface, tint: ColorTint) -> pygame.Surface:
         """
         Apply color tint to a surface.
 
@@ -448,7 +440,7 @@ class FaceGenerator:
         self,
         preset: FacePreset,
         expression: Expression = Expression.NEUTRAL,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ) -> pygame.Surface:
         """
         Compose a face from all layers with specified expression.
@@ -501,9 +493,7 @@ class FaceGenerator:
         return output
 
     def render_all_expressions(
-        self,
-        preset: FacePreset,
-        output_size: Optional[int] = None
+        self, preset: FacePreset, output_size: Optional[int] = None
     ) -> Dict[Expression, pygame.Surface]:
         """
         Render all expressions for a face.
@@ -525,7 +515,7 @@ class FaceGenerator:
         preset: FacePreset,
         expressions: Optional[List[Expression]] = None,
         columns: int = 5,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ) -> pygame.Surface:
         """
         Render a sheet with multiple expressions.
@@ -573,7 +563,7 @@ class FaceGenerator:
         preset: FacePreset,
         output_path: Union[str, Path],
         expression: Expression = Expression.NEUTRAL,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ):
         """
         Render and save a single face expression.
@@ -597,7 +587,7 @@ class FaceGenerator:
         preset: FacePreset,
         output_dir: Union[str, Path],
         expressions: Optional[List[Expression]] = None,
-        output_size: Optional[int] = None
+        output_size: Optional[int] = None,
     ):
         """
         Export all expressions as individual files.
@@ -627,7 +617,7 @@ class FaceGenerator:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(preset.to_dict(), f, indent=2)
 
         print(f"Saved preset to {path}")
@@ -636,7 +626,7 @@ class FaceGenerator:
         """Load face preset from JSON."""
         path = Path(path)
 
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             data = json.load(f)
 
         preset = FacePreset.from_dict(data)
@@ -646,9 +636,7 @@ class FaceGenerator:
         return preset
 
     def randomize_face(
-        self,
-        layer_types: Optional[List[FaceLayerType]] = None,
-        name: str = "Random Face"
+        self, layer_types: Optional[List[FaceLayerType]] = None, name: str = "Random Face"
     ) -> FacePreset:
         """
         Create a random face.
@@ -679,14 +667,11 @@ class FaceGenerator:
                     r=random.randint(180, 255),
                     g=random.randint(180, 255),
                     b=random.randint(180, 255),
-                    a=255
+                    a=255,
                 )
 
             layer = FaceLayer(
-                layer_type=layer_type,
-                component_id=component_id,
-                tint=tint,
-                enabled=True
+                layer_type=layer_type, component_id=component_id, tint=tint, enabled=True
             )
 
             preset.add_layer(layer)
@@ -694,9 +679,7 @@ class FaceGenerator:
         return preset
 
     def generate_from_description(
-        self,
-        description: str,
-        name: str = "AI Generated Face"
+        self, description: str, name: str = "AI Generated Face"
     ) -> FacePreset:
         """
         Generate a face from a text description using AI-friendly keyword matching.
@@ -843,7 +826,9 @@ class FaceGenerator:
         has_makeup = any(word in desc_lower for word in ["makeup", "make-up", "lipstick"])
 
         # Blush detection
-        has_blush = any(word in desc_lower for word in ["rosy", "blushing", "flushed", "pink cheeks"])
+        has_blush = any(
+            word in desc_lower for word in ["rosy", "blushing", "flushed", "pink cheeks"]
+        )
 
         # Select components based on detected features
         # Note: These component IDs are examples - actual IDs depend on your asset library
@@ -924,9 +909,11 @@ class FaceGenerator:
             available_face_paint = self.available_components.get(FaceLayerType.FACE_PAINT, [])
             if available_face_paint:
                 for comp_id in available_face_paint:
-                    if (has_scar and "scar" in comp_id.lower()) or \
-                       (has_freckles and "freckle" in comp_id.lower()) or \
-                       (has_tattoo and "tattoo" in comp_id.lower()):
+                    if (
+                        (has_scar and "scar" in comp_id.lower())
+                        or (has_freckles and "freckle" in comp_id.lower())
+                        or (has_tattoo and "tattoo" in comp_id.lower())
+                    ):
                         components["face_paint"] = comp_id
                         break
 
@@ -956,8 +943,7 @@ class FaceGenerator:
         return preset
 
     def list_components(
-        self,
-        layer_type: Optional[FaceLayerType] = None
+        self, layer_type: Optional[FaceLayerType] = None
     ) -> Dict[str, FaceComponent]:
         """
         List available components.
@@ -970,15 +956,14 @@ class FaceGenerator:
         """
         if layer_type:
             return {
-                comp_id: comp for comp_id, comp in self.component_library.items()
+                comp_id: comp
+                for comp_id, comp in self.component_library.items()
                 if comp.layer_type == layer_type
             }
         return self.component_library.copy()
 
     def sync_colors_from_character(
-        self,
-        preset: FacePreset,
-        character_colors: Dict[str, ColorTint]
+        self, preset: FacePreset, character_colors: Dict[str, ColorTint]
     ):
         """
         Synchronize face colors with character body colors.
@@ -1018,9 +1003,6 @@ if __name__ == "__main__":
     print("- Character color synchronization")
 
     # Example preset
-    preset = FacePreset(
-        name="Example Face",
-        description="A friendly face"
-    )
+    preset = FacePreset(name="Example Face", description="A friendly face")
 
     print("\nExample preset created!")

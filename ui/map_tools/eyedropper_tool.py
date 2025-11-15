@@ -44,7 +44,9 @@ class EyedropperTool(MapTool):
     def on_mouse_up(self, grid_x: int, grid_y: int, button: int, context: ToolContext) -> bool:
         return False
 
-    def _pick_tile(self, grid_x: int, grid_y: int, context: ToolContext, current_layer_only: bool) -> bool:
+    def _pick_tile(
+        self, grid_x: int, grid_y: int, context: ToolContext, current_layer_only: bool
+    ) -> bool:
         """
         Pick a tile from the map.
 

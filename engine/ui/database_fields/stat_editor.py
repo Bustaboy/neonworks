@@ -66,11 +66,56 @@ class StatEditor:
 
         # Preset templates
         self.presets = {
-            "Balanced": {"HP": 100, "MP": 50, "ATK": 15, "DEF": 15, "MAT": 15, "MDF": 15, "AGI": 15, "LUK": 10},
-            "Warrior": {"HP": 150, "MP": 20, "ATK": 25, "DEF": 20, "MAT": 5, "MDF": 10, "AGI": 12, "LUK": 8},
-            "Mage": {"HP": 80, "MP": 100, "ATK": 5, "DEF": 8, "MAT": 30, "MDF": 25, "AGI": 10, "LUK": 12},
-            "Tank": {"HP": 200, "MP": 30, "ATK": 12, "DEF": 30, "MAT": 5, "MDF": 20, "AGI": 8, "LUK": 5},
-            "Rogue": {"HP": 90, "MP": 40, "ATK": 20, "DEF": 10, "MAT": 8, "MDF": 8, "AGI": 30, "LUK": 25},
+            "Balanced": {
+                "HP": 100,
+                "MP": 50,
+                "ATK": 15,
+                "DEF": 15,
+                "MAT": 15,
+                "MDF": 15,
+                "AGI": 15,
+                "LUK": 10,
+            },
+            "Warrior": {
+                "HP": 150,
+                "MP": 20,
+                "ATK": 25,
+                "DEF": 20,
+                "MAT": 5,
+                "MDF": 10,
+                "AGI": 12,
+                "LUK": 8,
+            },
+            "Mage": {
+                "HP": 80,
+                "MP": 100,
+                "ATK": 5,
+                "DEF": 8,
+                "MAT": 30,
+                "MDF": 25,
+                "AGI": 10,
+                "LUK": 12,
+            },
+            "Tank": {
+                "HP": 200,
+                "MP": 30,
+                "ATK": 12,
+                "DEF": 30,
+                "MAT": 5,
+                "MDF": 20,
+                "AGI": 8,
+                "LUK": 5,
+            },
+            "Rogue": {
+                "HP": 90,
+                "MP": 40,
+                "ATK": 20,
+                "DEF": 10,
+                "MAT": 8,
+                "MDF": 8,
+                "AGI": 30,
+                "LUK": 25,
+            },
         }
 
     def open(
@@ -102,9 +147,7 @@ class StatEditor:
             self.stats = initial_stats.copy()
         else:
             # Use default values from config
-            self.stats = {
-                name: config[2] for name, config in self.stat_config.items()
-            }
+            self.stats = {name: config[2] for name, config in self.stat_config.items()}
 
         # Point pool settings
         self.use_point_pool = use_point_pool
@@ -220,9 +263,7 @@ class StatEditor:
 
         # Help text
         help_text = self.small_font.render(
-            "Adjust sliders to set stat values",
-            True,
-            (150, 150, 150)
+            "Adjust sliders to set stat values", True, (150, 150, 150)
         )
         self.screen.blit(help_text, (x + width - 250, y + 18))
 
@@ -241,9 +282,7 @@ class StatEditor:
         color = (100, 255, 100) if points_remaining >= 0 else (255, 100, 100)
 
         label = self.large_font.render(
-            f"Points: {self.points_spent} / {self.max_points}",
-            True,
-            color
+            f"Points: {self.points_spent} / {self.max_points}", True, color
         )
         self.screen.blit(label, (x + 20, y + 12))
 
@@ -301,18 +340,30 @@ class StatEditor:
 
             # Render slider
             self._render_slider(
-                slider_x, slider_y, slider_width, slider_bar_height,
-                stat_name, current_value, min_val, max_val,
-                mouse_pos
+                slider_x,
+                slider_y,
+                slider_width,
+                slider_bar_height,
+                stat_name,
+                current_value,
+                min_val,
+                max_val,
+                mouse_pos,
             )
 
             current_y += slider_height
 
     def _render_slider(
         self,
-        x: int, y: int, width: int, height: int,
-        stat_name: str, value: int, min_val: int, max_val: int,
-        mouse_pos: tuple
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        stat_name: str,
+        value: int,
+        min_val: int,
+        max_val: int,
+        mouse_pos: tuple,
     ):
         """Render a single slider."""
         # Background track
@@ -348,8 +399,7 @@ class StatEditor:
 
         # Handle interaction
         if self.dragging or (
-            x <= mouse_pos[0] <= x + width
-            and y - 10 <= mouse_pos[1] <= y + height + 10
+            x <= mouse_pos[0] <= x + width and y - 10 <= mouse_pos[1] <= y + height + 10
         ):
             # Update value based on mouse position if dragging
             if self.dragging and pygame.mouse.get_pressed()[0]:
@@ -421,10 +471,7 @@ class StatEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(

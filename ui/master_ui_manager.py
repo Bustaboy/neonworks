@@ -266,6 +266,7 @@ class MasterUIManager:
 
                     # Find entity at this grid position
                     from ..core.ecs import GridPosition
+
                     for entity in self.world.entities.values():
                         grid_pos = entity.get_component(GridPosition)
                         if grid_pos and grid_pos.x == grid_x and grid_pos.y == grid_y:
@@ -306,7 +307,7 @@ class MasterUIManager:
         if self.ai_assistant.visible:
             # Get tilemap from level builder if active
             tilemap = None
-            if self.level_builder.visible and hasattr(self.level_builder, 'tilemap'):
+            if self.level_builder.visible and hasattr(self.level_builder, "tilemap"):
                 tilemap = self.level_builder.tilemap
 
             self.ai_assistant.update(dt, tilemap, camera_offset)

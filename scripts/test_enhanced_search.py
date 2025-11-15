@@ -141,9 +141,7 @@ def test_combined_filtering():
         print(f"  - {asset.name}")
 
     # Find fantasy enemies with commercial use
-    result = assets.filter_assets(
-        category="enemies", genre="fantasy", commercial_use_only=True
-    )
+    result = assets.filter_assets(category="enemies", genre="fantasy", commercial_use_only=True)
     print(f"\n✓ Fantasy enemies (commercial-use): {len(result)}")
     for asset in result:
         print(f"  - {asset.name} [{asset.license}]")
@@ -258,7 +256,9 @@ def print_summary():
     print(f"\nTags ({len(assets.get_all_tags())} total):")
     print(f"  {', '.join(sorted(assets.get_all_tags())[:20])}...")
 
-    print(f"\nCommercial-use assets: {assets.get_commercial_use_count()}/{assets.get_asset_count()}")
+    print(
+        f"\nCommercial-use assets: {assets.get_commercial_use_count()}/{assets.get_asset_count()}"
+    )
 
 
 def main():

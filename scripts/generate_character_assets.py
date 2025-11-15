@@ -100,12 +100,7 @@ class ProceduralSpriteGenerator:
         cx = self.size[0] // 2
 
         # Draw head
-        head_box = [
-            cx - head_size // 2,
-            head_y,
-            cx + head_size // 2,
-            head_y + head_size
-        ]
+        head_box = [cx - head_size // 2, head_y, cx + head_size // 2, head_y + head_size]
         draw_sprite.ellipse(head_box, fill=skin_color)
         draw_mask.ellipse(head_box, fill=255)
 
@@ -116,18 +111,13 @@ class ProceduralSpriteGenerator:
             cx - neck_width // 2,
             head_y + head_size - 2,
             cx + neck_width // 2,
-            head_y + head_size + neck_height
+            head_y + head_size + neck_height,
         ]
         draw_sprite.rectangle(neck_box, fill=skin_color)
         draw_mask.rectangle(neck_box, fill=255)
 
         # Draw torso
-        torso_box = [
-            cx - torso_width // 2,
-            torso_y,
-            cx + torso_width // 2,
-            torso_y + torso_height
-        ]
+        torso_box = [cx - torso_width // 2, torso_y, cx + torso_width // 2, torso_y + torso_height]
         draw_sprite.rectangle(torso_box, fill=skin_color)
         draw_mask.rectangle(torso_box, fill=255)
 
@@ -139,7 +129,7 @@ class ProceduralSpriteGenerator:
             cx - torso_width // 2 - arm_width,
             torso_y + 2,
             cx - torso_width // 2,
-            torso_y + 2 + arm_height
+            torso_y + 2 + arm_height,
         ]
         draw_sprite.rectangle(left_arm_box, fill=skin_color)
         draw_mask.rectangle(left_arm_box, fill=255)
@@ -149,29 +139,19 @@ class ProceduralSpriteGenerator:
             cx + torso_width // 2,
             torso_y + 2,
             cx + torso_width // 2 + arm_width,
-            torso_y + 2 + arm_height
+            torso_y + 2 + arm_height,
         ]
         draw_sprite.rectangle(right_arm_box, fill=skin_color)
         draw_mask.rectangle(right_arm_box, fill=255)
 
         # Draw legs
         # Left leg
-        left_leg_box = [
-            cx - leg_width - 1,
-            leg_y,
-            cx - 1,
-            leg_y + leg_height
-        ]
+        left_leg_box = [cx - leg_width - 1, leg_y, cx - 1, leg_y + leg_height]
         draw_sprite.rectangle(left_leg_box, fill=skin_color)
         draw_mask.rectangle(left_leg_box, fill=255)
 
         # Right leg
-        right_leg_box = [
-            cx + 1,
-            leg_y,
-            cx + leg_width + 1,
-            leg_y + leg_height
-        ]
+        right_leg_box = [cx + 1, leg_y, cx + leg_width + 1, leg_y + leg_height]
         draw_sprite.rectangle(right_leg_box, fill=skin_color)
         draw_mask.rectangle(right_leg_box, fill=255)
 
@@ -200,23 +180,13 @@ class ProceduralSpriteGenerator:
 
         if style == "short":
             # Simple cap covering top of head
-            hair_box = [
-                cx - head_size // 2,
-                head_y,
-                cx + head_size // 2,
-                head_y + head_size // 2
-            ]
+            hair_box = [cx - head_size // 2, head_y, cx + head_size // 2, head_y + head_size // 2]
             draw_sprite.ellipse(hair_box, fill=hair_color)
             draw_mask.ellipse(hair_box, fill=255)
 
         elif style == "long":
             # Top part
-            hair_top = [
-                cx - head_size // 2,
-                head_y,
-                cx + head_size // 2,
-                head_y + head_size // 2
-            ]
+            hair_top = [cx - head_size // 2, head_y, cx + head_size // 2, head_y + head_size // 2]
             draw_sprite.ellipse(hair_top, fill=hair_color)
             draw_mask.ellipse(hair_top, fill=255)
 
@@ -225,7 +195,7 @@ class ProceduralSpriteGenerator:
                 cx - head_size // 2 - 2,
                 head_y + head_size // 2,
                 cx + head_size // 2 + 2,
-                head_y + head_size + 15
+                head_y + head_size + 15,
             ]
             draw_sprite.rectangle(hair_long, fill=hair_color)
             draw_mask.rectangle(hair_long, fill=255)
@@ -238,40 +208,25 @@ class ProceduralSpriteGenerator:
                 cx - mohawk_width // 2,
                 head_y - 4,
                 cx + mohawk_width // 2,
-                head_y + mohawk_height
+                head_y + mohawk_height,
             ]
             draw_sprite.rectangle(mohawk_box, fill=hair_color)
             draw_mask.rectangle(mohawk_box, fill=255)
 
         elif style == "bun":
             # Base hair
-            hair_base = [
-                cx - head_size // 2,
-                head_y,
-                cx + head_size // 2,
-                head_y + head_size // 2
-            ]
+            hair_base = [cx - head_size // 2, head_y, cx + head_size // 2, head_y + head_size // 2]
             draw_sprite.ellipse(hair_base, fill=hair_color)
             draw_mask.ellipse(hair_base, fill=255)
 
             # Bun on top
             bun_size = 8
-            bun_box = [
-                cx - bun_size // 2,
-                head_y - bun_size,
-                cx + bun_size // 2,
-                head_y
-            ]
+            bun_box = [cx - bun_size // 2, head_y - bun_size, cx + bun_size // 2, head_y]
             draw_sprite.ellipse(bun_box, fill=hair_color)
             draw_mask.ellipse(bun_box, fill=255)
 
         else:  # Default: short
-            hair_box = [
-                cx - head_size // 2,
-                head_y,
-                cx + head_size // 2,
-                head_y + head_size // 2
-            ]
+            hair_box = [cx - head_size // 2, head_y, cx + head_size // 2, head_y + head_size // 2]
             draw_sprite.ellipse(hair_box, fill=hair_color)
             draw_mask.ellipse(hair_box, fill=255)
 
@@ -298,12 +253,7 @@ class ProceduralSpriteGenerator:
 
         if style == "tunic":
             # Simple shirt
-            torso_box = [
-                cx - 10,
-                26,
-                cx + 10,
-                46
-            ]
+            torso_box = [cx - 10, 26, cx + 10, 46]
             draw_sprite.rectangle(torso_box, fill=cloth_color)
             draw_mask.rectangle(torso_box, fill=255)
 
@@ -317,12 +267,7 @@ class ProceduralSpriteGenerator:
 
         elif style == "robe":
             # Long flowing robe
-            robe_box = [
-                cx - 12,
-                26,
-                cx + 12,
-                60
-            ]
+            robe_box = [cx - 12, 26, cx + 12, 60]
             draw_sprite.rectangle(robe_box, fill=cloth_color)
             draw_mask.rectangle(robe_box, fill=255)
 
@@ -336,12 +281,7 @@ class ProceduralSpriteGenerator:
 
         elif style == "armor":
             # Chest plate
-            chest_box = [
-                cx - 11,
-                26,
-                cx + 11,
-                42
-            ]
+            chest_box = [cx - 11, 26, cx + 11, 42]
             draw_sprite.rectangle(chest_box, fill=(150, 150, 160, 255))  # Metal
             draw_mask.rectangle(chest_box, fill=255)
 
@@ -465,17 +405,13 @@ class ProceduralSpriteGenerator:
             # Pointed ears
             ear_color = (200, 180, 160, 255)
             # Left ear
-            draw_sprite.polygon([
-                (cx - 9, head_y + 8),
-                (cx - 12, head_y + 4),
-                (cx - 9, head_y + 10)
-            ], fill=ear_color)
+            draw_sprite.polygon(
+                [(cx - 9, head_y + 8), (cx - 12, head_y + 4), (cx - 9, head_y + 10)], fill=ear_color
+            )
             # Right ear
-            draw_sprite.polygon([
-                (cx + 9, head_y + 8),
-                (cx + 12, head_y + 4),
-                (cx + 9, head_y + 10)
-            ], fill=ear_color)
+            draw_sprite.polygon(
+                [(cx + 9, head_y + 8), (cx + 12, head_y + 4), (cx + 9, head_y + 10)], fill=ear_color
+            )
 
         elif style == "orc":
             # Tusks
@@ -559,8 +495,9 @@ def generate_character_assets(output_dir: str | Path):
 
     # Create README
     readme_path = output_dir / "README.md"
-    with open(readme_path, 'w') as f:
-        f.write("""# Character Generator Assets
+    with open(readme_path, "w") as f:
+        f.write(
+            """# Character Generator Assets
 
 This directory contains procedurally generated placeholder sprites for the
 character generator system.
@@ -588,7 +525,8 @@ pixels (0) are left unchanged. This allows flexible color customization while
 preserving details.
 
 Generated by: generate_character_assets.py
-""")
+"""
+        )
 
     print(f"\nAsset generation complete!")
     print(f"Generated assets in: {output_dir}")

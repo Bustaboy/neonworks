@@ -13,6 +13,7 @@ from typing import Dict, Tuple
 # TOOL COLORS
 # =============================================================================
 
+
 class ToolColors:
     """RGB color definitions for tools and UI elements."""
 
@@ -41,6 +42,7 @@ class ToolColors:
 # RENDERING SETTINGS
 # =============================================================================
 
+
 class RenderSettings:
     """Settings for rendering cursors, previews, and UI elements."""
 
@@ -67,6 +69,7 @@ class RenderSettings:
 # TOOL LIMITS & THRESHOLDS
 # =============================================================================
 
+
 class ToolLimits:
     """Limits and thresholds for tool operations."""
 
@@ -90,6 +93,7 @@ class ToolLimits:
 # DEFAULT STAMPS
 # =============================================================================
 
+
 class DefaultStamps:
     """Pre-defined stamp patterns."""
 
@@ -107,9 +111,15 @@ class DefaultStamps:
         "width": 3,
         "height": 3,
         "tiles": [
-            (0, 0), (1, 0), (2, 0),
-            (0, 1), (1, 1), (2, 1),
-            (0, 2), (1, 2), (2, 2),
+            (0, 0),
+            (1, 0),
+            (2, 0),
+            (0, 1),
+            (1, 1),
+            (2, 1),
+            (0, 2),
+            (1, 2),
+            (2, 2),
         ],
     }
 
@@ -120,7 +130,9 @@ class DefaultStamps:
         "height": 3,
         "tiles": [
             (1, 0),  # Top
-            (0, 1), (1, 1), (2, 1),  # Middle row
+            (0, 1),
+            (1, 1),
+            (2, 1),  # Middle row
             (1, 2),  # Bottom
         ],
     }
@@ -132,9 +144,17 @@ class DefaultStamps:
         "height": 5,
         "tiles": [
             (2, 0),  # Top
-            (1, 1), (2, 1), (3, 1),  # Row 2
-            (0, 2), (1, 2), (2, 2), (3, 2), (4, 2),  # Middle row
-            (1, 3), (2, 3), (3, 3),  # Row 4
+            (1, 1),
+            (2, 1),
+            (3, 1),  # Row 2
+            (0, 2),
+            (1, 2),
+            (2, 2),
+            (3, 2),
+            (4, 2),  # Middle row
+            (1, 3),
+            (2, 3),
+            (3, 3),  # Row 4
             (2, 4),  # Bottom
         ],
     }
@@ -143,6 +163,7 @@ class DefaultStamps:
 # =============================================================================
 # KEYBOARD SHORTCUTS
 # =============================================================================
+
 
 class KeyboardShortcuts:
     """Keyboard shortcut definitions."""
@@ -177,27 +198,35 @@ class KeyboardShortcuts:
 # CONNECTIVITY MODES
 # =============================================================================
 
+
 class ConnectivityModes:
     """Connectivity modes for flood fill and selection tools."""
 
     # 4-way connectivity (cardinal directions only)
     FOUR_WAY = [
-        (0, 1),   # Down
+        (0, 1),  # Down
         (0, -1),  # Up
-        (1, 0),   # Right
+        (1, 0),  # Right
         (-1, 0),  # Left
     ]
 
     # 8-way connectivity (includes diagonals)
     EIGHT_WAY = [
-        (0, 1), (0, -1), (1, 0), (-1, 0),      # Cardinal
-        (1, 1), (1, -1), (-1, 1), (-1, -1),    # Diagonal
+        (0, 1),
+        (0, -1),
+        (1, 0),
+        (-1, 0),  # Cardinal
+        (1, 1),
+        (1, -1),
+        (-1, 1),
+        (-1, -1),  # Diagonal
     ]
 
 
 # =============================================================================
 # FONT SETTINGS
 # =============================================================================
+
 
 class FontSettings:
     """Font settings for text rendering in tools."""
@@ -215,6 +244,7 @@ class FontSettings:
 # MOUSE BUTTON MAPPINGS
 # =============================================================================
 
+
 class MouseButtons:
     """Mouse button index mappings."""
 
@@ -226,6 +256,7 @@ class MouseButtons:
 # =============================================================================
 # HELPER FUNCTIONS
 # =============================================================================
+
 
 def get_tool_color(tool_name: str) -> Tuple[int, int, int]:
     """
@@ -289,6 +320,7 @@ def get_default_stamps() -> Dict:
 # =============================================================================
 # CONFIGURATION VALIDATION
 # =============================================================================
+
 
 def validate_settings():
     """Validate all settings for correctness."""

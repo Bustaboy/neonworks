@@ -93,7 +93,7 @@ class PerformanceTester:
                 name=f"Perf Test Item {i}",
                 description="Performance test",
                 price=10,
-                item_type=ItemType.REGULAR
+                item_type=ItemType.REGULAR,
             )
             self.db.create("items", item)
 

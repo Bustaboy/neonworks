@@ -50,41 +50,53 @@ class FormulaEditor:
 
         # Quick insert buttons for common formula elements
         self.formula_elements = [
-            ("Attacker", [
-                ("a.atk", "Attack Power"),
-                ("a.def", "Defense"),
-                ("a.mat", "Magic Attack"),
-                ("a.mdf", "Magic Defense"),
-                ("a.agi", "Agility"),
-                ("a.luk", "Luck"),
-                ("a.hp", "Current HP"),
-                ("a.mp", "Current MP"),
-                ("a.level", "Level"),
-            ]),
-            ("Target", [
-                ("b.atk", "Attack Power"),
-                ("b.def", "Defense"),
-                ("b.mat", "Magic Attack"),
-                ("b.mdf", "Magic Defense"),
-                ("b.agi", "Agility"),
-                ("b.luk", "Luck"),
-                ("b.hp", "Current HP"),
-                ("b.mp", "Current MP"),
-                ("b.level", "Level"),
-            ]),
-            ("Functions", [
-                ("max(", "Maximum value"),
-                ("min(", "Minimum value"),
-                ("abs(", "Absolute value"),
-                ("floor(", "Round down"),
-                ("ceil(", "Round up"),
-            ]),
-            ("Templates", [
-                ("a.atk * 4 - b.def * 2", "Physical"),
-                ("a.mat * 3 - b.mdf * 2", "Magical"),
-                ("a.atk * 2 + a.level", "Level scaling"),
-                ("max(a.atk - b.def, 0) * 4", "Min 0 damage"),
-            ]),
+            (
+                "Attacker",
+                [
+                    ("a.atk", "Attack Power"),
+                    ("a.def", "Defense"),
+                    ("a.mat", "Magic Attack"),
+                    ("a.mdf", "Magic Defense"),
+                    ("a.agi", "Agility"),
+                    ("a.luk", "Luck"),
+                    ("a.hp", "Current HP"),
+                    ("a.mp", "Current MP"),
+                    ("a.level", "Level"),
+                ],
+            ),
+            (
+                "Target",
+                [
+                    ("b.atk", "Attack Power"),
+                    ("b.def", "Defense"),
+                    ("b.mat", "Magic Attack"),
+                    ("b.mdf", "Magic Defense"),
+                    ("b.agi", "Agility"),
+                    ("b.luk", "Luck"),
+                    ("b.hp", "Current HP"),
+                    ("b.mp", "Current MP"),
+                    ("b.level", "Level"),
+                ],
+            ),
+            (
+                "Functions",
+                [
+                    ("max(", "Maximum value"),
+                    ("min(", "Minimum value"),
+                    ("abs(", "Absolute value"),
+                    ("floor(", "Round down"),
+                    ("ceil(", "Round up"),
+                ],
+            ),
+            (
+                "Templates",
+                [
+                    ("a.atk * 4 - b.def * 2", "Physical"),
+                    ("a.mat * 3 - b.mdf * 2", "Magical"),
+                    ("a.atk * 2 + a.level", "Level scaling"),
+                    ("max(a.atk - b.def, 0) * 4", "Min 0 damage"),
+                ],
+            ),
         ]
 
     def open(self, initial_formula: str = "") -> None:
@@ -128,12 +140,16 @@ class FormulaEditor:
                 return False
             elif event.key == pygame.K_BACKSPACE:
                 if self.cursor_pos > 0:
-                    self.formula = self.formula[:self.cursor_pos - 1] + self.formula[self.cursor_pos:]
+                    self.formula = (
+                        self.formula[: self.cursor_pos - 1] + self.formula[self.cursor_pos :]
+                    )
                     self.cursor_pos -= 1
                     self._validate_formula()
             elif event.key == pygame.K_DELETE:
                 if self.cursor_pos < len(self.formula):
-                    self.formula = self.formula[:self.cursor_pos] + self.formula[self.cursor_pos + 1:]
+                    self.formula = (
+                        self.formula[: self.cursor_pos] + self.formula[self.cursor_pos + 1 :]
+                    )
                     self._validate_formula()
             elif event.key == pygame.K_LEFT:
                 self.cursor_pos = max(0, self.cursor_pos - 1)
@@ -145,7 +161,11 @@ class FormulaEditor:
                 self.cursor_pos = len(self.formula)
             elif event.unicode and event.unicode.isprintable():
                 # Insert character
-                self.formula = self.formula[:self.cursor_pos] + event.unicode + self.formula[self.cursor_pos:]
+                self.formula = (
+                    self.formula[: self.cursor_pos]
+                    + event.unicode
+                    + self.formula[self.cursor_pos :]
+                )
                 self.cursor_pos += 1
                 self._validate_formula()
 
@@ -228,9 +248,7 @@ class FormulaEditor:
 
         # Help text
         help_text = self.small_font.render(
-            "Ctrl+Enter to confirm | a=attacker, b=target",
-            True,
-            (150, 150, 150)
+            "Ctrl+Enter to confirm | a=attacker, b=target", True, (150, 150, 150)
         )
         self.screen.blit(help_text, (x + width - 320, y + 18))
 
@@ -265,9 +283,7 @@ class FormulaEditor:
         if not self.formula:
             # Placeholder text
             placeholder = self.small_font.render(
-                "Enter damage formula (e.g., a.atk * 4 - b.def * 2)",
-                True,
-                (120, 120, 140)
+                "Enter damage formula (e.g., a.atk * 4 - b.def * 2)", True, (120, 120, 140)
             )
             self.screen.blit(placeholder, (x, y + 5))
             return
@@ -292,7 +308,7 @@ class FormulaEditor:
         # Render cursor
         if pygame.time.get_ticks() % 1000 < 500:
             # Calculate cursor position
-            text_before_cursor = self.formula[:self.cursor_pos]
+            text_before_cursor = self.formula[: self.cursor_pos]
             cursor_x_offset = self.code_font.size(text_before_cursor)[0]
 
             # Adjust if scrolled
@@ -416,10 +432,7 @@ class FormulaEditor:
         mouse_clicked = pygame.mouse.get_pressed()[0]
 
         # OK button
-        ok_hover = (
-            x <= mouse_pos[0] <= x + button_width
-            and y <= mouse_pos[1] <= y + button_height
-        )
+        ok_hover = x <= mouse_pos[0] <= x + button_width and y <= mouse_pos[1] <= y + button_height
         ok_color = (0, 150, 0) if ok_hover else (0, 120, 0)
 
         pygame.draw.rect(
@@ -465,7 +478,7 @@ class FormulaEditor:
 
     def _insert_code(self, code: str):
         """Insert code at cursor position."""
-        self.formula = self.formula[:self.cursor_pos] + code + self.formula[self.cursor_pos:]
+        self.formula = self.formula[: self.cursor_pos] + code + self.formula[self.cursor_pos :]
         self.cursor_pos += len(code)
         self._validate_formula()
 
@@ -490,7 +503,9 @@ class FormulaEditor:
             return False
 
         # Check for valid characters (allow letters, numbers, operators, dots, parentheses)
-        valid_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*/%.^()[] ,")
+        valid_chars = set(
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*/%.^()[] ,"
+        )
         if not all(c in valid_chars for c in self.formula):
             self.validation_message = "Error: Invalid characters in formula"
             return False

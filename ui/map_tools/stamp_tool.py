@@ -215,7 +215,9 @@ class StampTool(MapTool):
         """
         # This requires access to SelectTool's selection
         # For now, we'll print a message
-        print("To create a stamp: Use Select tool to select tiles, then switch to Stamp tool and right-click")
+        print(
+            "To create a stamp: Use Select tool to select tiles, then switch to Stamp tool and right-click"
+        )
         return False
 
     def add_stamp(self, stamp: BrushStamp):

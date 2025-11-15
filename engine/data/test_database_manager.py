@@ -345,9 +345,7 @@ def test_validation():
     print("  ✓ Valid item created")
 
     # Try to create invalid item (invalid price)
-    invalid_item = Item(
-        id=2, name="Invalid", icon_index=1, description="Test", price=9999999
-    )
+    invalid_item = Item(id=2, name="Invalid", icon_index=1, description="Test", price=9999999)
     try:
         manager.create("items", invalid_item)
         assert False, "Should raise ValidationError"

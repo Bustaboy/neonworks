@@ -37,7 +37,7 @@ try:
     from editor.sd_sprite_generator import (
         SDSpriteGenerator,
         SpriteGenerationConfig,
-        DIFFUSERS_AVAILABLE
+        DIFFUSERS_AVAILABLE,
     )
 except ImportError:
     DIFFUSERS_AVAILABLE = False
@@ -127,16 +127,12 @@ class DirectionalSpriteSet:
 
         # Save metadata
         metadata_path = output_dir / f"{prefix}_metadata.json"
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, "w") as f:
             json.dump(self.metadata, f, indent=2)
 
         print(f"Saved {len(self.sprites)} directional sprites to {output_dir}")
 
-    def save_sprite_sheet(
-        self,
-        output_path: str | Path,
-        layout: str = "horizontal"
-    ) -> Image.Image:
+    def save_sprite_sheet(self, output_path: str | Path, layout: str = "horizontal") -> Image.Image:
         """
         Save sprites as a sprite sheet.
 
@@ -178,10 +174,7 @@ class DirectionalSpriteSet:
         sheet = Image.new("RGBA", (sheet_width, sheet_height), (0, 0, 0, 0))
 
         # Paste sprites
-        directions = (
-            Direction.full_8() if num_sprites == 8
-            else Direction.cardinal_4()
-        )
+        directions = Direction.full_8() if num_sprites == 8 else Direction.cardinal_4()
 
         for i, direction in enumerate(directions):
             if direction not in self.sprites:
@@ -284,10 +277,7 @@ class MultiDirectionalGenerator:
             Set of directional sprites
         """
         # Determine directions to generate
-        directions = (
-            Direction.full_8() if config.num_directions == 8
-            else Direction.cardinal_4()
-        )
+        directions = Direction.full_8() if config.num_directions == 8 else Direction.cardinal_4()
 
         # Select method
         method = config.method
@@ -321,16 +311,14 @@ class MultiDirectionalGenerator:
                 "method": method,
                 "front_direction": config.front_direction.value,
                 "symmetric": config.symmetric,
-            }
+            },
         )
 
         print(f"Generated {len(sprites)} directional sprites")
         return sprite_set
 
     def _generate_ai(
-        self,
-        config: DirectionalConfig,
-        directions: List[Direction]
+        self, config: DirectionalConfig, directions: List[Direction]
     ) -> Dict[Direction, Image.Image]:
         """Generate sprites using AI for each direction."""
         if not self.sd_generator:
@@ -388,9 +376,7 @@ class MultiDirectionalGenerator:
         return sprites
 
     def _generate_flip(
-        self,
-        config: DirectionalConfig,
-        directions: List[Direction]
+        self, config: DirectionalConfig, directions: List[Direction]
     ) -> Dict[Direction, Image.Image]:
         """
         Generate sprites by flipping source sprite.
@@ -445,9 +431,7 @@ class MultiDirectionalGenerator:
         return sprites
 
     def _generate_rotate(
-        self,
-        config: DirectionalConfig,
-        directions: List[Direction]
+        self, config: DirectionalConfig, directions: List[Direction]
     ) -> Dict[Direction, Image.Image]:
         """
         Generate sprites by rotating source sprite.
@@ -469,9 +453,7 @@ class MultiDirectionalGenerator:
 
             # Rotate sprite
             rotated = config.source_sprite.rotate(
-                -rotation,  # PIL rotates counter-clockwise
-                resample=Image.BICUBIC,
-                expand=False
+                -rotation, resample=Image.BICUBIC, expand=False  # PIL rotates counter-clockwise
             )
 
             sprites[direction] = rotated
@@ -479,10 +461,7 @@ class MultiDirectionalGenerator:
         return sprites
 
     def generate_animation_set(
-        self,
-        config: DirectionalConfig,
-        animation_frames: List[Image.Image],
-        output_dir: str | Path
+        self, config: DirectionalConfig, animation_frames: List[Image.Image], output_dir: str | Path
     ) -> Dict[Direction, List[Image.Image]]:
         """
         Generate multi-directional sprites for an animation sequence.
@@ -498,10 +477,7 @@ class MultiDirectionalGenerator:
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        directions = (
-            Direction.full_8() if config.num_directions == 8
-            else Direction.cardinal_4()
-        )
+        directions = Direction.full_8() if config.num_directions == 8 else Direction.cardinal_4()
 
         animation_set = {d: [] for d in directions}
 
@@ -528,7 +504,9 @@ class MultiDirectionalGenerator:
             # Save frame set
             sprite_set.save(output_dir / f"frame_{frame_idx:02d}", prefix="sprite")
 
-        print(f"Generated {config.num_directions}-way animation with {len(animation_frames)} frames")
+        print(
+            f"Generated {config.num_directions}-way animation with {len(animation_frames)} frames"
+        )
         return animation_set
 
     def cleanup(self):
@@ -539,10 +517,9 @@ class MultiDirectionalGenerator:
 
 # Convenience functions
 
+
 def generate_4way_sprites(
-    source: Image.Image | str | Path,
-    method: str = "flip",
-    output_dir: Optional[str | Path] = None
+    source: Image.Image | str | Path, method: str = "flip", output_dir: Optional[str | Path] = None
 ) -> DirectionalSpriteSet:
     """
     Quick 4-way sprite generation.
@@ -577,9 +554,7 @@ def generate_4way_sprites(
 
 
 def generate_8way_sprites(
-    source: Image.Image | str | Path,
-    method: str = "flip",
-    output_dir: Optional[str | Path] = None
+    source: Image.Image | str | Path, method: str = "flip", output_dir: Optional[str | Path] = None
 ) -> DirectionalSpriteSet:
     """
     Quick 8-way sprite generation.
@@ -628,19 +603,11 @@ if __name__ == "__main__":
 
     # Generate 4-way sprites using rotation
     print("Generating 4-way sprites using rotation...")
-    sprite_set_4 = generate_4way_sprites(
-        test_sprite,
-        method="rotate",
-        output_dir="test_4way"
-    )
+    sprite_set_4 = generate_4way_sprites(test_sprite, method="rotate", output_dir="test_4way")
 
     # Generate 8-way sprites using rotation
     print("\nGenerating 8-way sprites using rotation...")
-    sprite_set_8 = generate_8way_sprites(
-        test_sprite,
-        method="rotate",
-        output_dir="test_8way"
-    )
+    sprite_set_8 = generate_8way_sprites(test_sprite, method="rotate", output_dir="test_8way")
 
     # Create sprite sheets
     sprite_set_4.save_sprite_sheet("test_4way_sheet.png", layout="horizontal")

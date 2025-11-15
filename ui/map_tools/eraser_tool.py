@@ -136,6 +136,9 @@ class EraserTool(MapTool):
                 screen_x + tile_size - RenderSettings.CROSSHAIR_SIZE,
                 screen_y + RenderSettings.CROSSHAIR_SIZE,
             ),
-            (screen_x + RenderSettings.CROSSHAIR_SIZE, screen_y + tile_size - RenderSettings.CROSSHAIR_SIZE),
+            (
+                screen_x + RenderSettings.CROSSHAIR_SIZE,
+                screen_y + tile_size - RenderSettings.CROSSHAIR_SIZE,
+            ),
             RenderSettings.CROSSHAIR_WIDTH,
         )

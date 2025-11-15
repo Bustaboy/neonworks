@@ -26,13 +26,32 @@ from typing import Any, Dict, List, Optional
 
 # Add parent directory to path for imports
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from engine.data.database_manager import DatabaseManager
 from engine.data.database_schema import (
-    Actor, Animation, Armor, Class, DropItem, Effect, EffectTiming, EffectType,
-    ElementType, Enemy, EquipType, Item, ItemType, Skill, SkillType, State,
-    StateRestriction, Weapon, WeaponType, ArmorType, DamageType
+    Actor,
+    Animation,
+    Armor,
+    Class,
+    DropItem,
+    Effect,
+    EffectTiming,
+    EffectType,
+    ElementType,
+    Enemy,
+    EquipType,
+    Item,
+    ItemType,
+    Skill,
+    SkillType,
+    State,
+    StateRestriction,
+    Weapon,
+    WeaponType,
+    ArmorType,
+    DamageType,
 )
 
 
@@ -68,7 +87,7 @@ class DatabaseIntegrator:
 
         # Save current database state
         data = self.db.to_dict()
-        with open(backup_file, 'w', encoding='utf-8') as f:
+        with open(backup_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
         print(f"✓ Backup created: {backup_file}")
@@ -86,7 +105,7 @@ class DatabaseIntegrator:
             print(f"⚠ No items.json found at {items_file}")
             return []
 
-        with open(items_file, 'r', encoding='utf-8') as f:
+        with open(items_file, "r", encoding="utf-8") as f:
             legacy_data = json.load(f)
 
         items = []
@@ -107,7 +126,7 @@ class DatabaseIntegrator:
                 item_type=item_type,
                 consumable=data.get("type") != "equipment",
                 icon_index=item_id,  # Use ID as icon index
-                note=f"Converted from legacy key: {key}"
+                note=f"Converted from legacy key: {key}",
             )
 
             items.append(item)
@@ -121,56 +140,86 @@ class DatabaseIntegrator:
         items = [
             # Healing items
             Item(
-                id=101, name="Potion", description="Restores 50 HP",
-                price=50, icon_index=1, item_type=ItemType.REGULAR,
-                effects=[Effect(
-                    effect_type=EffectType.RECOVER_HP,
-                    value1=50, timing=EffectTiming.IMMEDIATE
-                )]
+                id=101,
+                name="Potion",
+                description="Restores 50 HP",
+                price=50,
+                icon_index=1,
+                item_type=ItemType.REGULAR,
+                effects=[
+                    Effect(
+                        effect_type=EffectType.RECOVER_HP, value1=50, timing=EffectTiming.IMMEDIATE
+                    )
+                ],
             ),
             Item(
-                id=102, name="Hi-Potion", description="Restores 200 HP",
-                price=200, icon_index=2, item_type=ItemType.REGULAR,
-                effects=[Effect(
-                    effect_type=EffectType.RECOVER_HP,
-                    value1=200, timing=EffectTiming.IMMEDIATE
-                )]
+                id=102,
+                name="Hi-Potion",
+                description="Restores 200 HP",
+                price=200,
+                icon_index=2,
+                item_type=ItemType.REGULAR,
+                effects=[
+                    Effect(
+                        effect_type=EffectType.RECOVER_HP, value1=200, timing=EffectTiming.IMMEDIATE
+                    )
+                ],
             ),
             Item(
-                id=103, name="Ether", description="Restores 30 MP",
-                price=150, icon_index=3, item_type=ItemType.REGULAR,
-                effects=[Effect(
-                    effect_type=EffectType.RECOVER_MP,
-                    value1=30, timing=EffectTiming.IMMEDIATE
-                )]
+                id=103,
+                name="Ether",
+                description="Restores 30 MP",
+                price=150,
+                icon_index=3,
+                item_type=ItemType.REGULAR,
+                effects=[
+                    Effect(
+                        effect_type=EffectType.RECOVER_MP, value1=30, timing=EffectTiming.IMMEDIATE
+                    )
+                ],
             ),
             Item(
-                id=104, name="Elixir", description="Fully restores HP and MP",
-                price=5000, icon_index=4, item_type=ItemType.REGULAR,
+                id=104,
+                name="Elixir",
+                description="Fully restores HP and MP",
+                price=5000,
+                icon_index=4,
+                item_type=ItemType.REGULAR,
                 effects=[
                     Effect(effect_type=EffectType.RECOVER_HP, value1=9999),
-                    Effect(effect_type=EffectType.RECOVER_MP, value1=9999)
-                ]
+                    Effect(effect_type=EffectType.RECOVER_MP, value1=9999),
+                ],
             ),
             # Status items
             Item(
-                id=105, name="Antidote", description="Cures poison",
-                price=50, icon_index=5, item_type=ItemType.REGULAR,
-                effects=[Effect(
-                    effect_type=EffectType.REMOVE_STATE,
-                    target_param=1  # Poison state ID
-                )]
+                id=105,
+                name="Antidote",
+                description="Cures poison",
+                price=50,
+                icon_index=5,
+                item_type=ItemType.REGULAR,
+                effects=[
+                    Effect(effect_type=EffectType.REMOVE_STATE, target_param=1)  # Poison state ID
+                ],
             ),
             # Key items
             Item(
-                id=201, name="Gold Key", description="Opens gold doors",
-                price=0, icon_index=20, item_type=ItemType.KEY,
-                consumable=False
+                id=201,
+                name="Gold Key",
+                description="Opens gold doors",
+                price=0,
+                icon_index=20,
+                item_type=ItemType.KEY,
+                consumable=False,
             ),
             Item(
-                id=202, name="Silver Key", description="Opens silver doors",
-                price=0, icon_index=21, item_type=ItemType.KEY,
-                consumable=False
+                id=202,
+                name="Silver Key",
+                description="Opens silver doors",
+                price=0,
+                icon_index=21,
+                item_type=ItemType.KEY,
+                consumable=False,
             ),
         ]
         print(f"✓ Created {len(items)} default items")
@@ -181,71 +230,92 @@ class DatabaseIntegrator:
         skills = [
             # Physical skills
             Skill(
-                id=1, name="Power Attack", description="Strong physical attack",
-                skill_type=SkillType.PHYSICAL, mp_cost=5, tp_cost=0,
-                damage_type=DamageType.HP_DAMAGE, element_type=ElementType.NORMAL,
-                animation_id=1, icon_index=1,
+                id=1,
+                name="Power Attack",
+                description="Strong physical attack",
+                skill_type=SkillType.PHYSICAL,
+                mp_cost=5,
+                tp_cost=0,
+                damage_type=DamageType.HP_DAMAGE,
+                element_type=ElementType.NORMAL,
+                animation_id=1,
+                icon_index=1,
                 message1="%1 uses Power Attack!",
-                effects=[Effect(
-                    effect_type=EffectType.DAMAGE_HP,
-                    value1=50, value2=10
-                )]
+                effects=[Effect(effect_type=EffectType.DAMAGE_HP, value1=50, value2=10)],
             ),
             # Magic skills
             Skill(
-                id=2, name="Fire", description="Fire magic attack",
-                skill_type=SkillType.MAGIC, mp_cost=10, tp_cost=0,
-                damage_type=DamageType.HP_DAMAGE, element_type=ElementType.FIRE,
-                animation_id=2, icon_index=10,
+                id=2,
+                name="Fire",
+                description="Fire magic attack",
+                skill_type=SkillType.MAGIC,
+                mp_cost=10,
+                tp_cost=0,
+                damage_type=DamageType.HP_DAMAGE,
+                element_type=ElementType.FIRE,
+                animation_id=2,
+                icon_index=10,
                 message1="%1 casts Fire!",
-                effects=[Effect(
-                    effect_type=EffectType.DAMAGE_HP,
-                    value1=40, value2=10
-                )]
+                effects=[Effect(effect_type=EffectType.DAMAGE_HP, value1=40, value2=10)],
             ),
             Skill(
-                id=3, name="Ice", description="Ice magic attack",
-                skill_type=SkillType.MAGIC, mp_cost=10, tp_cost=0,
-                damage_type=DamageType.HP_DAMAGE, element_type=ElementType.ICE,
-                animation_id=3, icon_index=11,
+                id=3,
+                name="Ice",
+                description="Ice magic attack",
+                skill_type=SkillType.MAGIC,
+                mp_cost=10,
+                tp_cost=0,
+                damage_type=DamageType.HP_DAMAGE,
+                element_type=ElementType.ICE,
+                animation_id=3,
+                icon_index=11,
                 message1="%1 casts Ice!",
-                effects=[Effect(
-                    effect_type=EffectType.DAMAGE_HP,
-                    value1=40, value2=10
-                )]
+                effects=[Effect(effect_type=EffectType.DAMAGE_HP, value1=40, value2=10)],
             ),
             Skill(
-                id=4, name="Thunder", description="Thunder magic attack",
-                skill_type=SkillType.MAGIC, mp_cost=10, tp_cost=0,
-                damage_type=DamageType.HP_DAMAGE, element_type=ElementType.THUNDER,
-                animation_id=4, icon_index=12,
+                id=4,
+                name="Thunder",
+                description="Thunder magic attack",
+                skill_type=SkillType.MAGIC,
+                mp_cost=10,
+                tp_cost=0,
+                damage_type=DamageType.HP_DAMAGE,
+                element_type=ElementType.THUNDER,
+                animation_id=4,
+                icon_index=12,
                 message1="%1 casts Thunder!",
-                effects=[Effect(
-                    effect_type=EffectType.DAMAGE_HP,
-                    value1=40, value2=10
-                )]
+                effects=[Effect(effect_type=EffectType.DAMAGE_HP, value1=40, value2=10)],
             ),
             # Healing skills
             Skill(
-                id=5, name="Heal", description="Restores HP to one ally",
-                skill_type=SkillType.MAGIC, mp_cost=15, tp_cost=0,
-                damage_type=DamageType.HP_RECOVER, element_type=ElementType.LIGHT,
-                animation_id=5, icon_index=20,
+                id=5,
+                name="Heal",
+                description="Restores HP to one ally",
+                skill_type=SkillType.MAGIC,
+                mp_cost=15,
+                tp_cost=0,
+                damage_type=DamageType.HP_RECOVER,
+                element_type=ElementType.LIGHT,
+                animation_id=5,
+                icon_index=20,
                 message1="%1 casts Heal!",
                 scope=3,  # One ally
-                effects=[Effect(
-                    effect_type=EffectType.RECOVER_HP,
-                    value1=100, value2=20
-                )]
+                effects=[Effect(effect_type=EffectType.RECOVER_HP, value1=100, value2=20)],
             ),
             # Special skills
             Skill(
-                id=6, name="Steal", description="Steal item from enemy",
-                skill_type=SkillType.SPECIAL, mp_cost=0, tp_cost=10,
-                damage_type=DamageType.NONE, element_type=ElementType.NORMAL,
-                animation_id=6, icon_index=30,
+                id=6,
+                name="Steal",
+                description="Steal item from enemy",
+                skill_type=SkillType.SPECIAL,
+                mp_cost=0,
+                tp_cost=10,
+                damage_type=DamageType.NONE,
+                element_type=ElementType.NORMAL,
+                animation_id=6,
+                icon_index=30,
                 message1="%1 tries to steal!",
-                note="Special effect: steal item"
+                note="Special effect: steal item",
             ),
         ]
         print(f"✓ Created {len(skills)} default skills")
@@ -255,40 +325,64 @@ class DatabaseIntegrator:
         """Create default weapons for all types."""
         weapons = [
             Weapon(
-                id=1, name="Bronze Sword", description="Basic sword",
-                weapon_type=WeaponType.SWORD, price=100, icon_index=1,
+                id=1,
+                name="Bronze Sword",
+                description="Basic sword",
+                weapon_type=WeaponType.SWORD,
+                price=100,
+                icon_index=1,
                 params=[10, 0, 0, 0, 0, 0],  # ATK, DEF, MAT, MDF, AGI, LUK
-                animation_id=1
+                animation_id=1,
             ),
             Weapon(
-                id=2, name="Iron Sword", description="Standard sword",
-                weapon_type=WeaponType.SWORD, price=500, icon_index=2,
+                id=2,
+                name="Iron Sword",
+                description="Standard sword",
+                weapon_type=WeaponType.SWORD,
+                price=500,
+                icon_index=2,
                 params=[25, 0, 0, 0, 0, 0],
-                animation_id=1
+                animation_id=1,
             ),
             Weapon(
-                id=3, name="Steel Spear", description="Sturdy spear",
-                weapon_type=WeaponType.SPEAR, price=600, icon_index=10,
+                id=3,
+                name="Steel Spear",
+                description="Sturdy spear",
+                weapon_type=WeaponType.SPEAR,
+                price=600,
+                icon_index=10,
                 params=[28, 0, 0, 0, 0, 0],
-                animation_id=2
+                animation_id=2,
             ),
             Weapon(
-                id=4, name="War Axe", description="Heavy axe",
-                weapon_type=WeaponType.AXE, price=800, icon_index=20,
+                id=4,
+                name="War Axe",
+                description="Heavy axe",
+                weapon_type=WeaponType.AXE,
+                price=800,
+                icon_index=20,
                 params=[35, 0, 0, 0, -5, 0],  # High ATK, low AGI
-                animation_id=3
+                animation_id=3,
             ),
             Weapon(
-                id=5, name="Long Bow", description="Ranged bow",
-                weapon_type=WeaponType.BOW, price=700, icon_index=30,
+                id=5,
+                name="Long Bow",
+                description="Ranged bow",
+                weapon_type=WeaponType.BOW,
+                price=700,
+                icon_index=30,
                 params=[30, 0, 0, 0, 5, 0],  # Good ATK and AGI
-                animation_id=4
+                animation_id=4,
             ),
             Weapon(
-                id=6, name="Magic Staff", description="Staff for magic",
-                weapon_type=WeaponType.STAFF, price=900, icon_index=40,
+                id=6,
+                name="Magic Staff",
+                description="Staff for magic",
+                weapon_type=WeaponType.STAFF,
+                price=900,
+                icon_index=40,
                 params=[5, 0, 20, 10, 0, 0],  # Low ATK, high MAT and MDF
-                animation_id=5
+                animation_id=5,
             ),
         ]
         print(f"✓ Created {len(weapons)} default weapons")
@@ -298,34 +392,54 @@ class DatabaseIntegrator:
         """Create default armor for all types."""
         armors = [
             Armor(
-                id=1, name="Leather Shield", description="Basic shield",
-                armor_type=ArmorType.SHIELD, equip_type=EquipType.SHIELD,
-                price=150, icon_index=1,
-                params=[0, 5, 0, 3, 0, 0]  # DEF +5, MDF +3
+                id=1,
+                name="Leather Shield",
+                description="Basic shield",
+                armor_type=ArmorType.SHIELD,
+                equip_type=EquipType.SHIELD,
+                price=150,
+                icon_index=1,
+                params=[0, 5, 0, 3, 0, 0],  # DEF +5, MDF +3
             ),
             Armor(
-                id=2, name="Iron Helmet", description="Standard helmet",
-                armor_type=ArmorType.HELMET, equip_type=EquipType.HELMET,
-                price=200, icon_index=10,
-                params=[0, 8, 0, 5, 0, 0]  # DEF +8, MDF +5
+                id=2,
+                name="Iron Helmet",
+                description="Standard helmet",
+                armor_type=ArmorType.HELMET,
+                equip_type=EquipType.HELMET,
+                price=200,
+                icon_index=10,
+                params=[0, 8, 0, 5, 0, 0],  # DEF +8, MDF +5
             ),
             Armor(
-                id=3, name="Leather Armor", description="Light armor",
-                armor_type=ArmorType.BODY, equip_type=EquipType.BODY,
-                price=300, icon_index=20,
-                params=[0, 15, 0, 8, 0, 0]  # DEF +15, MDF +8
+                id=3,
+                name="Leather Armor",
+                description="Light armor",
+                armor_type=ArmorType.BODY,
+                equip_type=EquipType.BODY,
+                price=300,
+                icon_index=20,
+                params=[0, 15, 0, 8, 0, 0],  # DEF +15, MDF +8
             ),
             Armor(
-                id=4, name="Chain Mail", description="Medium armor",
-                armor_type=ArmorType.BODY, equip_type=EquipType.BODY,
-                price=800, icon_index=21,
-                params=[0, 30, 0, 15, -3, 0]  # DEF +30, MDF +15, AGI -3
+                id=4,
+                name="Chain Mail",
+                description="Medium armor",
+                armor_type=ArmorType.BODY,
+                equip_type=EquipType.BODY,
+                price=800,
+                icon_index=21,
+                params=[0, 30, 0, 15, -3, 0],  # DEF +30, MDF +15, AGI -3
             ),
             Armor(
-                id=5, name="Power Ring", description="Increases attack",
-                armor_type=ArmorType.ACCESSORY, equip_type=EquipType.ACCESSORY,
-                price=1000, icon_index=30,
-                params=[10, 0, 0, 0, 0, 5]  # ATK +10, LUK +5
+                id=5,
+                name="Power Ring",
+                description="Increases attack",
+                armor_type=ArmorType.ACCESSORY,
+                equip_type=EquipType.ACCESSORY,
+                price=1000,
+                icon_index=30,
+                params=[10, 0, 0, 0, 0, 5],  # ATK +10, LUK +5
             ),
         ]
         print(f"✓ Created {len(armors)} default armors")
@@ -335,34 +449,54 @@ class DatabaseIntegrator:
         """Create default enemies."""
         enemies = [
             Enemy(
-                id=1, name="Slime", description="A gelatinous blob",
+                id=1,
+                name="Slime",
+                description="A gelatinous blob",
                 params=[50, 10, 10, 5, 5, 5, 8, 10],  # HP, MP, ATK, DEF, MAT, MDF, AGI, LUK
-                exp=10, gold=20, icon_index=1,
-                drop_items=[DropItem(kind=1, item_id=101, drop_rate=0.5)]  # 50% Potion
+                exp=10,
+                gold=20,
+                icon_index=1,
+                drop_items=[DropItem(kind=1, item_id=101, drop_rate=0.5)],  # 50% Potion
             ),
             Enemy(
-                id=2, name="Goblin", description="Small aggressive creature",
+                id=2,
+                name="Goblin",
+                description="Small aggressive creature",
                 params=[80, 0, 15, 10, 0, 5, 12, 5],
-                exp=25, gold=40, icon_index=2,
+                exp=25,
+                gold=40,
+                icon_index=2,
                 drop_items=[
                     DropItem(kind=1, item_id=101, drop_rate=0.3),  # 30% Potion
-                    DropItem(kind=2, item_id=1, drop_rate=0.1)    # 10% weapon
-                ]
+                    DropItem(kind=2, item_id=1, drop_rate=0.1),  # 10% weapon
+                ],
             ),
             Enemy(
-                id=3, name="Wolf", description="Wild wolf",
+                id=3,
+                name="Wolf",
+                description="Wild wolf",
                 params=[120, 0, 20, 15, 0, 8, 18, 8],
-                exp=40, gold=50, icon_index=3
+                exp=40,
+                gold=50,
+                icon_index=3,
             ),
             Enemy(
-                id=4, name="Skeleton", description="Animated bones",
+                id=4,
+                name="Skeleton",
+                description="Animated bones",
                 params=[150, 20, 25, 12, 15, 10, 10, 5],
-                exp=60, gold=80, icon_index=4
+                exp=60,
+                gold=80,
+                icon_index=4,
             ),
             Enemy(
-                id=5, name="Dragon", description="Mighty dragon",
+                id=5,
+                name="Dragon",
+                description="Mighty dragon",
                 params=[500, 100, 50, 40, 40, 30, 15, 20],
-                exp=500, gold=1000, icon_index=5
+                exp=500,
+                gold=1000,
+                icon_index=5,
             ),
         ]
         print(f"✓ Created {len(enemies)} default enemies")
@@ -372,31 +506,53 @@ class DatabaseIntegrator:
         """Create default status states."""
         states = [
             State(
-                id=1, name="Poison", description="Loses HP each turn",
-                icon_index=1, restriction=StateRestriction.NONE,
-                priority=50, remove_at_battle_end=True, auto_removal_timing=2,
-                note="Damage each turn"
+                id=1,
+                name="Poison",
+                description="Loses HP each turn",
+                icon_index=1,
+                restriction=StateRestriction.NONE,
+                priority=50,
+                remove_at_battle_end=True,
+                auto_removal_timing=2,
+                note="Damage each turn",
             ),
             State(
-                id=2, name="Blind", description="Reduced hit rate",
-                icon_index=2, restriction=StateRestriction.NONE,
-                priority=60, remove_at_battle_end=True
+                id=2,
+                name="Blind",
+                description="Reduced hit rate",
+                icon_index=2,
+                restriction=StateRestriction.NONE,
+                priority=60,
+                remove_at_battle_end=True,
             ),
             State(
-                id=3, name="Silence", description="Cannot use magic",
-                icon_index=3, restriction=StateRestriction.NONE,
-                priority=70, remove_at_battle_end=True
+                id=3,
+                name="Silence",
+                description="Cannot use magic",
+                icon_index=3,
+                restriction=StateRestriction.NONE,
+                priority=70,
+                remove_at_battle_end=True,
             ),
             State(
-                id=4, name="Confusion", description="Attacks random targets",
-                icon_index=4, restriction=StateRestriction.ATTACK_ANYONE,
-                priority=80, remove_at_battle_end=True, auto_removal_timing=3
+                id=4,
+                name="Confusion",
+                description="Attacks random targets",
+                icon_index=4,
+                restriction=StateRestriction.ATTACK_ANYONE,
+                priority=80,
+                remove_at_battle_end=True,
+                auto_removal_timing=3,
             ),
             State(
-                id=5, name="Sleep", description="Cannot move",
-                icon_index=5, restriction=StateRestriction.CANNOT_MOVE,
-                priority=90, remove_at_battle_end=True,
-                remove_by_damage=True
+                id=5,
+                name="Sleep",
+                description="Cannot move",
+                icon_index=5,
+                restriction=StateRestriction.CANNOT_MOVE,
+                priority=90,
+                remove_at_battle_end=True,
+                remove_by_damage=True,
             ),
         ]
         print(f"✓ Created {len(states)} default states")
@@ -406,25 +562,43 @@ class DatabaseIntegrator:
         """Create default playable actors."""
         actors = [
             Actor(
-                id=1, name="Hero", description="Brave warrior",
-                class_id=1, initial_level=1, max_level=99,
-                icon_index=1, face_index=0, character_index=0,
+                id=1,
+                name="Hero",
+                description="Brave warrior",
+                class_id=1,
+                initial_level=1,
+                max_level=99,
+                icon_index=1,
+                face_index=0,
+                character_index=0,
                 equips=[1, 1, 2, 3, 0],  # weapon, shield, helmet, armor, accessory
-                note="Main protagonist"
+                note="Main protagonist",
             ),
             Actor(
-                id=2, name="Mage", description="Powerful spellcaster",
-                class_id=2, initial_level=1, max_level=99,
-                icon_index=2, face_index=1, character_index=1,
+                id=2,
+                name="Mage",
+                description="Powerful spellcaster",
+                class_id=2,
+                initial_level=1,
+                max_level=99,
+                icon_index=2,
+                face_index=1,
+                character_index=1,
                 equips=[6, 0, 2, 3, 0],  # staff, no shield, helmet, armor
-                note="Magic user"
+                note="Magic user",
             ),
             Actor(
-                id=3, name="Archer", description="Skilled marksman",
-                class_id=3, initial_level=1, max_level=99,
-                icon_index=3, face_index=2, character_index=2,
+                id=3,
+                name="Archer",
+                description="Skilled marksman",
+                class_id=3,
+                initial_level=1,
+                max_level=99,
+                icon_index=3,
+                face_index=2,
+                character_index=2,
                 equips=[5, 0, 2, 3, 0],  # bow
-                note="Ranged attacker"
+                note="Ranged attacker",
             ),
         ]
         print(f"✓ Created {len(actors)} default actors")
@@ -439,63 +613,69 @@ class DatabaseIntegrator:
 
         classes = [
             Class(
-                id=1, name="Warrior", description="Strong fighter",
+                id=1,
+                name="Warrior",
+                description="Strong fighter",
                 icon_index=1,
                 learnings=[
                     {"level": 1, "skill_id": 1},  # Power Attack at level 1
-                    {"level": 5, "skill_id": 2}   # Fire at level 5
+                    {"level": 5, "skill_id": 2},  # Fire at level 5
                 ],
                 exp_params=[30, 20, 30, 30],  # Base, extra, acc_a, acc_b
                 params=[
-                    generate_curve(100, 50),   # HP
-                    generate_curve(20, 5),     # MP
-                    generate_curve(15, 3),     # ATK
-                    generate_curve(12, 2),     # DEF
-                    generate_curve(5, 1),      # MAT
-                    generate_curve(8, 1),      # MDF
-                    generate_curve(10, 2),     # AGI
-                    generate_curve(10, 1),     # LUK
-                ]
+                    generate_curve(100, 50),  # HP
+                    generate_curve(20, 5),  # MP
+                    generate_curve(15, 3),  # ATK
+                    generate_curve(12, 2),  # DEF
+                    generate_curve(5, 1),  # MAT
+                    generate_curve(8, 1),  # MDF
+                    generate_curve(10, 2),  # AGI
+                    generate_curve(10, 1),  # LUK
+                ],
             ),
             Class(
-                id=2, name="Mage", description="Master of magic",
+                id=2,
+                name="Mage",
+                description="Master of magic",
                 icon_index=2,
                 learnings=[
-                    {"level": 1, "skill_id": 2},   # Fire
-                    {"level": 3, "skill_id": 3},   # Ice
-                    {"level": 5, "skill_id": 4},   # Thunder
-                    {"level": 7, "skill_id": 5}    # Heal
+                    {"level": 1, "skill_id": 2},  # Fire
+                    {"level": 3, "skill_id": 3},  # Ice
+                    {"level": 5, "skill_id": 4},  # Thunder
+                    {"level": 7, "skill_id": 5},  # Heal
                 ],
                 exp_params=[30, 20, 30, 30],
                 params=[
-                    generate_curve(60, 20),    # HP
-                    generate_curve(100, 15),   # MP
-                    generate_curve(8, 1),      # ATK
-                    generate_curve(6, 1),      # DEF
-                    generate_curve(20, 4),     # MAT
-                    generate_curve(15, 3),     # MDF
-                    generate_curve(8, 1),      # AGI
-                    generate_curve(12, 2),     # LUK
-                ]
+                    generate_curve(60, 20),  # HP
+                    generate_curve(100, 15),  # MP
+                    generate_curve(8, 1),  # ATK
+                    generate_curve(6, 1),  # DEF
+                    generate_curve(20, 4),  # MAT
+                    generate_curve(15, 3),  # MDF
+                    generate_curve(8, 1),  # AGI
+                    generate_curve(12, 2),  # LUK
+                ],
             ),
             Class(
-                id=3, name="Ranger", description="Swift archer",
+                id=3,
+                name="Ranger",
+                description="Swift archer",
                 icon_index=3,
                 learnings=[
-                    {"level": 1, "skill_id": 1},   # Power Attack
-                    {"level": 10, "skill_id": 6}   # Steal
+                    {"level": 1, "skill_id": 1},  # Power Attack
+                    {"level": 10, "skill_id": 6},  # Steal
                 ],
                 exp_params=[30, 20, 30, 30],
                 params=[
-                    generate_curve(80, 35),    # HP
-                    generate_curve(40, 8),     # MP
-                    generate_curve(12, 2),     # ATK
-                    generate_curve(8, 1),      # DEF
-                    generate_curve(8, 1),      # MAT
-                    generate_curve(10, 2),     # MDF
-                    generate_curve(15, 3),     # AGI
-                    generate_curve(15, 2),     # LUK
-                ]
+                    generate_curve(80, 35),  # HP
+                    generate_curve(40, 8),  # MP
+                    generate_curve(12, 2),  # ATK
+                    generate_curve(8, 1),  # DEF
+                    generate_curve(8, 1),  # MAT
+                    generate_curve(10, 2),  # MDF
+                    generate_curve(15, 3),  # AGI
+                    generate_curve(15, 2),  # LUK
+                ],
             ),
         ]
         print(f"✓ Created {len(classes)} default classes")
@@ -505,40 +685,58 @@ class DatabaseIntegrator:
         """Create default animations."""
         animations = [
             Animation(
-                id=1, name="Physical Attack", description="Basic attack animation",
-                icon_index=1, frame_max=1,
+                id=1,
+                name="Physical Attack",
+                description="Basic attack animation",
+                icon_index=1,
+                frame_max=1,
                 frames=[{"cell_id": 0, "pattern": 0}],
-                timings=[]
+                timings=[],
             ),
             Animation(
-                id=2, name="Fire Magic", description="Fire spell effect",
-                icon_index=10, frame_max=1,
+                id=2,
+                name="Fire Magic",
+                description="Fire spell effect",
+                icon_index=10,
+                frame_max=1,
                 frames=[{"cell_id": 1, "pattern": 0}],
-                timings=[]
+                timings=[],
             ),
             Animation(
-                id=3, name="Ice Magic", description="Ice spell effect",
-                icon_index=11, frame_max=1,
+                id=3,
+                name="Ice Magic",
+                description="Ice spell effect",
+                icon_index=11,
+                frame_max=1,
                 frames=[{"cell_id": 2, "pattern": 0}],
-                timings=[]
+                timings=[],
             ),
             Animation(
-                id=4, name="Thunder Magic", description="Thunder spell effect",
-                icon_index=12, frame_max=1,
+                id=4,
+                name="Thunder Magic",
+                description="Thunder spell effect",
+                icon_index=12,
+                frame_max=1,
                 frames=[{"cell_id": 3, "pattern": 0}],
-                timings=[]
+                timings=[],
             ),
             Animation(
-                id=5, name="Heal Magic", description="Healing effect",
-                icon_index=20, frame_max=1,
+                id=5,
+                name="Heal Magic",
+                description="Healing effect",
+                icon_index=20,
+                frame_max=1,
                 frames=[{"cell_id": 4, "pattern": 0}],
-                timings=[]
+                timings=[],
             ),
             Animation(
-                id=6, name="Special Effect", description="Special action effect",
-                icon_index=30, frame_max=1,
+                id=6,
+                name="Special Effect",
+                description="Special action effect",
+                icon_index=30,
+                frame_max=1,
                 frames=[{"cell_id": 5, "pattern": 0}],
-                timings=[]
+                timings=[],
             ),
         ]
         print(f"✓ Created {len(animations)} default animations")
@@ -567,10 +765,7 @@ class DatabaseIntegrator:
                 icon_index=(i % 100) + 1,
                 item_type=ItemType.REGULAR if i % 5 != 0 else ItemType.KEY,
                 consumable=i % 5 != 0,
-                effects=[Effect(
-                    effect_type=EffectType.RECOVER_HP,
-                    value1=10 + (i * 2)
-                )]
+                effects=[Effect(effect_type=EffectType.RECOVER_HP, value1=10 + (i * 2))],
             )
             items.append(item)
 
@@ -591,11 +786,7 @@ class DatabaseIntegrator:
                 icon_index=(i % 100) + 1,
                 damage_type=DamageType.HP_DAMAGE,
                 element_type=ElementType.NORMAL,
-                effects=[Effect(
-                    effect_type=EffectType.DAMAGE_HP,
-                    value1=10 + (i * 2),
-                    value2=5
-                )]
+                effects=[Effect(effect_type=EffectType.DAMAGE_HP, value1=10 + (i * 2), value2=5)],
             )
             skills.append(skill)
 
@@ -615,7 +806,7 @@ class DatabaseIntegrator:
                 price=100 + (i * 10),
                 params=[10 + i, 0, 0, 0, 0, 0],  # ATK increases with i
                 animation_id=1 + (i % 6),  # Cross-reference to animations
-                icon_index=(i % 100) + 1
+                icon_index=(i % 100) + 1,
             )
             weapons.append(weapon)
 
@@ -642,7 +833,7 @@ class DatabaseIntegrator:
                 equip_type=equip_type_map[atype],
                 price=100 + (i * 10),
                 params=[0, 5 + i, 0, 3 + (i // 2), 0, 0],  # DEF and MDF increase
-                icon_index=(i % 100) + 1
+                icon_index=(i % 100) + 1,
             )
             armors.append(armor)
 
@@ -659,20 +850,20 @@ class DatabaseIntegrator:
                 description=f"Test enemy number {i+1}",
                 params=[
                     50 + (i * 10),  # HP
-                    10 + (i * 2),   # MP
-                    10 + i,         # ATK
-                    5 + i,          # DEF
-                    5 + i,          # MAT
-                    5 + i,          # MDF
+                    10 + (i * 2),  # MP
+                    10 + i,  # ATK
+                    5 + i,  # DEF
+                    5 + i,  # MAT
+                    5 + i,  # MDF
                     10 + (i % 20),  # AGI
-                    10              # LUK
+                    10,  # LUK
                 ],
                 exp=10 + (i * 5),
                 gold=20 + (i * 10),
                 icon_index=(i % 100) + 1,
                 drop_items=[
                     DropItem(kind=1, item_id=1000 + (i % 10), drop_rate=0.3)
-                ]  # Cross-reference to items
+                ],  # Cross-reference to items
             )
             enemies.append(enemy)
 
@@ -757,8 +948,7 @@ class DatabaseIntegrator:
         for actor in self.db.get_all_entries("actors"):
             if actor.class_id not in class_ids:
                 actor_errors.append(
-                    f"Actor {actor.id} '{actor.name}' has non-existent "
-                    f"class {actor.class_id}"
+                    f"Actor {actor.id} '{actor.name}' has non-existent " f"class {actor.class_id}"
                 )
             # Check equipment IDs
             for equip_id in actor.equips:
@@ -877,40 +1067,34 @@ def main():
         description="Database integration script for NeonWorks game engine"
     )
     parser.add_argument(
-        "--migrate",
-        action="store_true",
-        help="Migrate legacy JSON data to new schema"
+        "--migrate", action="store_true", help="Migrate legacy JSON data to new schema"
     )
     parser.add_argument(
-        "--create-defaults",
-        action="store_true",
-        help="Create default entries for all categories"
+        "--create-defaults", action="store_true", help="Create default entries for all categories"
     )
     parser.add_argument(
         "--create-samples",
         action="store_true",
-        help="Create sample data for testing (100+ items per category)"
+        help="Create sample data for testing (100+ items per category)",
     )
     parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Validate cross-references in database"
+        "--validate", action="store_true", help="Validate cross-references in database"
     )
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Run all operations (migrate, defaults, samples, validate)"
+        help="Run all operations (migrate, defaults, samples, validate)",
     )
     parser.add_argument(
         "--output",
         type=str,
-        help="Output file path for database (default: data/integrated_database.json)"
+        help="Output file path for database (default: data/integrated_database.json)",
     )
     parser.add_argument(
         "--sample-count",
         type=int,
         default=100,
-        help="Number of sample items to create per category (default: 100)"
+        help="Number of sample items to create per category (default: 100)",
     )
 
     args = parser.parse_args()

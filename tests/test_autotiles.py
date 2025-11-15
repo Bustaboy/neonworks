@@ -273,9 +273,7 @@ class TestAutotileManager:
         self.layer.set_tile(6, 5, Tile(tile_id=1))  # Right
 
         # Get preview without actually placing
-        preview_tile_id = self.manager.get_preview_tile(
-            self.layer, 5, 5, self.water_autotile
-        )
+        preview_tile_id = self.manager.get_preview_tile(self.layer, 5, 5, self.water_autotile)
 
         # Should show the tile that would be placed (not isolated)
         assert preview_tile_id != 1  # Not isolated tile
