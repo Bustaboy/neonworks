@@ -22,6 +22,7 @@ from .building_ui import BuildingUI
 from .combat_ui import CombatUI
 from .debug_console_ui import DebugConsoleUI
 from .game_hud import GameHUD
+from .history_viewer_ui import HistoryViewerUI
 from .level_builder_ui import LevelBuilderUI
 from .navmesh_editor_ui import NavmeshEditorUI
 from .project_manager_ui import ProjectManagerUI
@@ -79,6 +80,10 @@ class MasterUIManager:
         # Workspace system and toolbar
         self.workspace_manager = get_workspace_manager()
         self.workspace_toolbar = WorkspaceToolbar(screen, master_ui_manager=self)
+
+        # History viewers for each editor
+        self.level_builder_history = HistoryViewerUI(screen, self.level_builder.undo_manager)
+        self.navmesh_history = HistoryViewerUI(screen, self.navmesh_editor.undo_manager)
 
         # UI state
         self.current_mode = "game"  # 'game', 'editor', 'menu'
@@ -162,6 +167,13 @@ class MasterUIManager:
         if self.ai_asset_inspector.visible:
             self.ai_asset_inspector.render(camera_offset, tile_size=32)
 
+        # Render history viewers if visible
+        if self.level_builder_history.visible:
+            self.level_builder_history.render()
+
+        if self.navmesh_history.visible:
+            self.navmesh_history.render()
+
         # Always render debug console last (on top of everything)
         if self.debug_console.visible:
             self.debug_console.render(fps)
@@ -175,17 +187,42 @@ class MasterUIManager:
         if self.workspace_toolbar.handle_event(event):
             return True
 
+        # Handle history viewer events first
+        if self.level_builder_history.visible:
+            if self.level_builder_history.handle_event(event):
+                return True
+
+        if self.navmesh_history.visible:
+            if self.navmesh_history.handle_event(event):
+                return True
+
         # Handle key presses
         if event.type == pygame.KEYDOWN:
+            ctrl_pressed = pygame.key.get_mods() & pygame.KMOD_CTRL
+            shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
+
             # Check for Shift+F7 (AI Animator)
-            if event.key == pygame.K_F7 and (pygame.key.get_mods() & pygame.KMOD_SHIFT):
+            if event.key == pygame.K_F7 and shift_pressed:
                 self.toggle_ai_animator()
                 return True
 
             # Check for Ctrl+Space (AI Assistant)
-            if event.key == pygame.K_SPACE and (pygame.key.get_mods() & pygame.KMOD_CTRL):
+            if event.key == pygame.K_SPACE and ctrl_pressed:
                 self.toggle_ai_assistant()
                 return True
+
+            # Ctrl+H: Toggle history viewer for active editor
+            if ctrl_pressed and event.key == pygame.K_h:
+                if self.level_builder.visible:
+                    self.level_builder_history.toggle()
+                    return True
+                elif self.navmesh_editor.visible:
+                    self.navmesh_history.toggle()
+                    return True
+
+            # Global undo/redo shortcuts (if no specific editor handles them)
+            # These will be caught by the level builder or navmesh editor if they're active
+            # Otherwise, route to the appropriate editor based on which is visible
 
             # Check for standard keybinds
             if event.key in self.keybinds:
@@ -230,6 +267,11 @@ class MasterUIManager:
         # Route events to AI Asset Inspector if visible
         if self.ai_asset_inspector.visible:
             if self.ai_asset_inspector.handle_event(event):
+                return True
+
+        # Route events to navmesh editor if visible
+        if self.navmesh_editor.visible:
+            if self.navmesh_editor.handle_event(event):
                 return True
 
         # Handle mouse clicks
@@ -428,6 +470,10 @@ class MasterUIManager:
         help_text += "F10 - Toggle HUD\n"
         help_text += "F11 - Autotile Editor\n"
         help_text += "F12 - Navmesh Editor\n"
+        help_text += "\nEdit Commands:\n"
+        help_text += "Ctrl+Z - Undo\n"
+        help_text += "Ctrl+Y / Ctrl+Shift+Z - Redo\n"
+        help_text += "Ctrl+H - History Viewer (in editors)\n"
         help_text += "\nClick the toolbar at the top to access all tools visually!\n"
         return help_text
 
