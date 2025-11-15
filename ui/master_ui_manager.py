@@ -12,6 +12,8 @@ from ..core.ecs import World
 from ..core.hotkey_manager import HotkeyContext, get_hotkey_manager
 from ..core.state import StateManager
 from ..engine.ui.event_editor_ui import EventEditorUI
+from ..engine.ui.database_editor_ui import DatabaseEditorUI
+from ..engine.ui.character_generator_ui import CharacterGeneratorUI
 from ..input.input_manager import InputManager
 from .ai_animator_ui import AIAnimatorUI
 from .ai_asset_editor import AIAssetEditor
@@ -67,6 +69,8 @@ class MasterUIManager:
         self.navmesh_editor = NavmeshEditorUI(screen, world)
         self.level_builder = LevelBuilderUI(screen, world)
         self.event_editor = EventEditorUI(screen)
+        self.database_editor = DatabaseEditorUI(screen)
+        self.character_generator = CharacterGeneratorUI(screen)
         self.settings_ui = SettingsUI(screen, audio_manager, input_manager)
         self.project_manager = ProjectManagerUI(screen, state_manager)
         self.debug_console = DebugConsoleUI(screen, world)
@@ -95,8 +99,40 @@ class MasterUIManager:
 
         # UI state
         self.current_mode = "game"  # 'game', 'editor', 'menu'
+        self.current_editor = None  # Currently active editor
+        self.previous_editor = None  # Previously active editor for transitions
 
-        # Key bindings (including Shift+F7 for AI Animator)
+        # Editor state management
+        self.all_editors = {
+            "event": self.event_editor,
+            "database": self.database_editor,
+            "character_gen": self.character_generator,
+            "level": self.level_builder,
+            "navmesh": self.navmesh_editor,
+            "quest": self.quest_editor,
+            "asset": self.asset_browser,
+            "autotile": self.autotile_editor,
+        }
+
+        # Editor transitions
+        self.transition_active = False
+        self.transition_progress = 0.0  # 0.0 to 1.0
+        self.transition_duration = 0.3  # seconds
+        self.transition_from = None
+        self.transition_to = None
+
+        # Auto-save functionality
+        self.auto_save_enabled = True
+        self.auto_save_interval = 60.0  # seconds
+        self.auto_save_timer = 0.0
+        self.last_auto_save_time = 0.0
+
+        # Status bar state
+        self.status_message = "Ready"
+        self.status_color = (200, 200, 200)
+        self.current_tool = "None"
+
+        # Key bindings (F5-F8 for main editors)
         # Note: These are kept for backward compatibility, but hotkey_manager is now preferred
         self.keybinds = {
             pygame.K_F1: self.toggle_debug_console,
@@ -104,9 +140,9 @@ class MasterUIManager:
             pygame.K_F3: self.toggle_building_ui,
             pygame.K_F4: self.toggle_level_builder,
             pygame.K_F5: self.toggle_event_editor,
-            pygame.K_F6: self.toggle_quest_editor,
-            pygame.K_F7: self.toggle_asset_browser,
-            pygame.K_F8: self.toggle_project_manager,
+            pygame.K_F6: self.toggle_database_editor,
+            pygame.K_F7: self.toggle_character_generator,
+            pygame.K_F8: self.toggle_quest_editor,
             pygame.K_F9: self.toggle_combat_ui,
             pygame.K_F10: self.toggle_game_hud,
             pygame.K_F11: self.toggle_autotile_editor,
@@ -124,6 +160,8 @@ class MasterUIManager:
         self.hotkey_manager.set_callback("toggle_building_ui", self.toggle_building_ui)
         self.hotkey_manager.set_callback("toggle_level_builder", self.toggle_level_builder)
         self.hotkey_manager.set_callback("toggle_event_editor", self.toggle_event_editor)
+        self.hotkey_manager.set_callback("toggle_database_editor", self.toggle_database_editor)
+        self.hotkey_manager.set_callback("toggle_character_generator", self.toggle_character_generator)
         self.hotkey_manager.set_callback("toggle_quest_editor", self.toggle_quest_editor)
         self.hotkey_manager.set_callback("toggle_asset_browser", self.toggle_asset_browser)
         self.hotkey_manager.set_callback("toggle_project_manager", self.toggle_project_manager)
@@ -169,6 +207,10 @@ class MasterUIManager:
         """
         Render all active UI systems.
         """
+        # Apply transition effect if active
+        if self.transition_active:
+            self._render_transition()
+
         # Render workspace toolbar first (at top)
         self.workspace_toolbar.render()
 
@@ -199,6 +241,14 @@ class MasterUIManager:
         # Render event editor if visible
         if self.event_editor.visible:
             self.event_editor.render()
+
+        # Render database editor if visible
+        if self.database_editor.visible:
+            self.database_editor.render()
+
+        # Render character generator if visible
+        if self.character_generator.visible:
+            self.character_generator.render()
 
         # Render asset browser if visible
         if self.asset_browser.visible:
@@ -246,6 +296,9 @@ class MasterUIManager:
         # Render shortcuts overlay on top of everything
         if self.shortcuts_overlay.visible:
             self.shortcuts_overlay.render()
+
+        # Render status bar at the bottom (on top of everything else)
+        self._render_status_bar()
 
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
@@ -361,6 +414,16 @@ class MasterUIManager:
             self.autotile_editor.handle_event(event)
             return True
 
+        # Route events to database editor if visible
+        if self.database_editor.visible:
+            if self.database_editor.handle_event(event):
+                return True
+
+        # Route events to character generator if visible
+        if self.character_generator.visible:
+            if self.character_generator.handle_event(event):
+                return True
+
         # Route events to AI Animator if visible
         if self.ai_animator.visible:
             self.ai_animator.handle_event(event)
@@ -432,6 +495,27 @@ class MasterUIManager:
         """
         Update UI systems that need per-frame updates.
         """
+        # Update transitions
+        if self.transition_active:
+            self.transition_progress += dt / self.transition_duration
+            if self.transition_progress >= 1.0:
+                self.transition_progress = 1.0
+                self.transition_active = False
+                # Finalize transition
+                if self.transition_from:
+                    self.transition_from = None
+                self.transition_to = None
+
+        # Update auto-save timer
+        if self.auto_save_enabled:
+            self.auto_save_timer += dt
+            if self.auto_save_timer >= self.auto_save_interval:
+                self._perform_auto_save()
+                self.auto_save_timer = 0.0
+
+        # Update current editor tracking
+        self._update_current_editor()
+
         # Update building placement preview
         if self.building_ui.visible and self.building_ui.placement_mode:
             grid_x = (mouse_pos[0] - camera_offset[0]) // self.building_ui.tile_size
@@ -447,6 +531,14 @@ class MasterUIManager:
         # Update autotile editor
         if self.autotile_editor.visible:
             self.autotile_editor.update(dt)
+
+        # Update database editor
+        if self.database_editor.visible:
+            self.database_editor.update(dt)
+
+        # Update character generator
+        if self.character_generator.visible:
+            self.character_generator.update(dt)
 
         # Update AI Animator
         if self.ai_animator.visible:
@@ -505,7 +597,15 @@ class MasterUIManager:
 
     def toggle_event_editor(self):
         """Toggle event editor."""
-        self.event_editor.toggle()
+        self._switch_editor("event", self.event_editor)
+
+    def toggle_database_editor(self):
+        """Toggle database editor."""
+        self._switch_editor("database", self.database_editor)
+
+    def toggle_character_generator(self):
+        """Toggle character generator."""
+        self._switch_editor("character_gen", self.character_generator)
 
     def toggle_asset_browser(self):
         """Toggle asset browser."""
@@ -612,3 +712,181 @@ class MasterUIManager:
 
         if "settings" in state:
             self.settings_ui.settings = state["settings"]
+
+    # =========================================================================
+    # Editor Management & Transitions
+    # =========================================================================
+
+    def _switch_editor(self, editor_name: str, editor_instance):
+        """
+        Switch to a specific editor with transition effect.
+
+        Args:
+            editor_name: Name of the editor
+            editor_instance: The editor instance to switch to
+        """
+        # If editor is already visible, close it
+        if editor_instance.visible:
+            editor_instance.toggle()
+            self.current_editor = None
+            self.status_message = "Editor closed"
+            return
+
+        # Close current editor if any
+        if self.current_editor and self.current_editor != editor_name:
+            current_ed = self.all_editors.get(self.current_editor)
+            if current_ed and current_ed.visible:
+                current_ed.toggle()
+
+        # Start transition
+        self.transition_active = True
+        self.transition_progress = 0.0
+        self.transition_from = self.current_editor
+        self.transition_to = editor_name
+
+        # Open new editor
+        editor_instance.toggle()
+        self.previous_editor = self.current_editor
+        self.current_editor = editor_name
+
+        # Update status
+        self._update_status_for_editor(editor_name)
+
+    def _update_current_editor(self):
+        """Update tracking of which editor is currently active."""
+        for name, editor in self.all_editors.items():
+            if editor.visible:
+                if self.current_editor != name:
+                    self.current_editor = name
+                    self._update_status_for_editor(name)
+                return
+
+        # No editor visible
+        if self.current_editor is not None:
+            self.current_editor = None
+            self.status_message = "Ready"
+            self.current_tool = "None"
+
+    def _update_status_for_editor(self, editor_name: str):
+        """Update status bar for the given editor."""
+        editor_info = {
+            "event": ("Event Editor", "Event"),
+            "database": ("Database Editor", "Database"),
+            "character_gen": ("Character Generator", "Character"),
+            "level": ("Level Builder", "Build"),
+            "navmesh": ("Navmesh Editor", "Navmesh"),
+            "quest": ("Quest Editor", "Quest"),
+            "asset": ("Asset Browser", "Assets"),
+            "autotile": ("Autotile Editor", "Autotile"),
+        }
+
+        if editor_name in editor_info:
+            message, tool = editor_info[editor_name]
+            self.status_message = f"{message} Active"
+            self.current_tool = tool
+            self.status_color = (100, 255, 100)
+        else:
+            self.status_message = "Ready"
+            self.current_tool = "None"
+            self.status_color = (200, 200, 200)
+
+    def _render_transition(self):
+        """Render transition effect between editors."""
+        if not self.transition_active:
+            return
+
+        # Simple fade effect
+        alpha = int(255 * abs(0.5 - self.transition_progress) * 2)
+        overlay = pygame.Surface(self.screen.get_size())
+        overlay.set_alpha(alpha)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+
+    def _render_status_bar(self):
+        """Render status bar at the bottom of the screen showing current editor and tool."""
+        # Status bar dimensions
+        bar_height = 30
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+        bar_y = screen_height - bar_height
+
+        # Draw background
+        pygame.draw.rect(
+            self.screen,
+            (40, 40, 45),
+            (0, bar_y, screen_width, bar_height)
+        )
+
+        # Draw separator line
+        pygame.draw.line(
+            self.screen,
+            (80, 80, 85),
+            (0, bar_y),
+            (screen_width, bar_y),
+            2
+        )
+
+        # Render status text
+        font = pygame.font.Font(None, 20)
+
+        # Left side: Status message
+        status_text = font.render(self.status_message, True, self.status_color)
+        self.screen.blit(status_text, (10, bar_y + 7))
+
+        # Center: Current editor
+        if self.current_editor:
+            editor_text = font.render(
+                f"Editor: {self.current_editor.replace('_', ' ').title()}",
+                True,
+                (200, 200, 255)
+            )
+            editor_x = (screen_width - editor_text.get_width()) // 2
+            self.screen.blit(editor_text, (editor_x, bar_y + 7))
+
+        # Right side: Current tool + auto-save indicator
+        tool_text = f"Tool: {self.current_tool}"
+        if self.auto_save_enabled:
+            time_until_save = int(self.auto_save_interval - self.auto_save_timer)
+            tool_text += f" | Auto-save: {time_until_save}s"
+
+        tool_surface = font.render(tool_text, True, (180, 180, 180))
+        tool_x = screen_width - tool_surface.get_width() - 10
+        self.screen.blit(tool_surface, (tool_x, bar_y + 7))
+
+    def _perform_auto_save(self):
+        """Perform auto-save for active editors."""
+        saved_something = False
+
+        # Save database editor if active and has changes
+        if self.database_editor.visible and hasattr(self.database_editor, "has_unsaved_changes"):
+            if self.database_editor.has_unsaved_changes:
+                try:
+                    if hasattr(self.database_editor.db, "save_to_file"):
+                        self.database_editor.db.save_to_file(self.database_editor.database_path)
+                        self.database_editor.has_unsaved_changes = False
+                        saved_something = True
+                except Exception as e:
+                    print(f"Auto-save failed for database: {e}")
+
+        # Save character generator if active
+        if self.character_generator.visible and hasattr(self.character_generator, "current_preset"):
+            try:
+                # Character generator auto-save would go here
+                # For now, just mark as attempted
+                pass
+            except Exception as e:
+                print(f"Auto-save failed for character generator: {e}")
+
+        # Save level builder if active
+        if self.level_builder.visible and hasattr(self.level_builder, "save_current_level"):
+            try:
+                # Level builder auto-save would go here
+                pass
+            except Exception as e:
+                print(f"Auto-save failed for level builder: {e}")
+
+        # Update status if we saved
+        if saved_something:
+            self.status_message = "Auto-saved"
+            self.status_color = (100, 255, 100)
+            self.last_auto_save_time = pygame.time.get_ticks() / 1000.0

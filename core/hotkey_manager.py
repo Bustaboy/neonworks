@@ -186,23 +186,24 @@ class HotkeyManager:
         )
         self.register(
             pygame.K_F6,
-            "toggle_quest_editor",
-            description="Toggle Quest Editor",
+            "toggle_database_editor",
+            description="Toggle Database Editor",
             category="UI",
             context=HotkeyContext.EDITOR,
         )
         self.register(
             pygame.K_F7,
-            "toggle_asset_browser",
-            description="Toggle Asset Browser",
+            "toggle_character_generator",
+            description="Toggle Character Generator",
             category="UI",
             context=HotkeyContext.EDITOR,
         )
         self.register(
             pygame.K_F8,
-            "toggle_project_manager",
-            description="Toggle Project Manager",
+            "toggle_quest_editor",
+            description="Toggle Quest Editor",
             category="UI",
+            context=HotkeyContext.EDITOR,
         )
         self.register(
             pygame.K_F9,
