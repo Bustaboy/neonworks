@@ -9,15 +9,33 @@ Provides a comprehensive undo/redo system using the Command pattern with:
 - Integration with all map and editing tools
 """
 
+from __future__ import annotations
+
 import gzip
 import json
 import pickle
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple
 
-from ..rendering.tilemap import Tile, Tilemap
+if TYPE_CHECKING:
+    from ..rendering.tilemap import Tile, Tilemap
+
+# Minimal Tile class for when rendering.tilemap is not available
+# (e.g., during testing without pygame)
+try:
+    from ..rendering.tilemap import Tile
+except ImportError:
+
+    class Tile:  # type: ignore
+        """Minimal Tile class for testing."""
+
+        def __init__(self, tile_type: str = "grass", walkable: bool = True):
+            self.tile_type = tile_type
+            self.walkable = walkable
+            self.tileset_id = None
+            self.tile_id = None
 
 
 class Command(ABC):
@@ -128,11 +146,14 @@ class CompositeCommand(Command):
 
     def execute(self) -> bool:
         """Execute all child commands in order."""
+        executed_commands = []
         for cmd in self.commands:
             if not cmd.execute():
-                # Rollback on failure
-                self.undo()
+                # Rollback only the commands that were executed
+                for executed_cmd in reversed(executed_commands):
+                    executed_cmd.undo()
                 return False
+            executed_commands.append(cmd)
         self.executed = True
         return True
 

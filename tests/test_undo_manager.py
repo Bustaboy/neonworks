@@ -12,6 +12,7 @@ Tests the comprehensive undo/redo system including:
 
 import os
 import tempfile
+from dataclasses import dataclass
 from typing import Set, Tuple
 
 import pytest
@@ -27,7 +28,37 @@ from neonworks.core.undo_manager import (
     UndoManager,
 )
 from neonworks.core.undo_persistence import UndoHistoryPersistence
-from neonworks.rendering.tilemap import Tile, Tilemap
+
+
+# Legacy Tile class for testing (backward compatibility)
+@dataclass
+class LegacyTile:
+    """Legacy tile format for testing."""
+
+    tile_type: str = "grass"
+    walkable: bool = True
+    tileset_id: str = None
+    tile_id: int = None
+
+
+# Mock Tilemap for testing
+class MockTilemap:
+    """Mock tilemap for testing."""
+
+    def __init__(self, width, height, layers=3):
+        self.width = width
+        self.height = height
+        self.layers = layers
+        self._tiles = {}
+
+    def get_tile(self, x, y, layer=0):
+        return self._tiles.get((x, y, layer))
+
+    def set_tile(self, x, y, layer, tile):
+        if tile is None:
+            self._tiles.pop((x, y, layer), None)
+        else:
+            self._tiles[(x, y, layer)] = tile
 
 
 class TestUndoManager:
@@ -45,7 +76,8 @@ class TestUndoManager:
 
     def test_undo_manager_no_limit(self):
         """Test that undo manager supports unlimited history."""
-        manager = UndoManager()
+        # Disable auto-compression for this test
+        manager = UndoManager(enable_compression=False)
 
         # Create a simple test command
         class TestCommand(Command):
@@ -167,10 +199,10 @@ class TestTileChangeCommand:
 
     def test_tile_change_basic(self):
         """Test basic tile change command."""
-        tilemap = Tilemap(width=10, height=10, tile_size=32, layers=3)
+        tilemap = MockTilemap(10, 10, 3)
 
-        old_tile = Tile("grass", walkable=True)
-        new_tile = Tile("water", walkable=False)
+        old_tile = LegacyTile("grass", walkable=True)
+        new_tile = LegacyTile("water", walkable=False)
 
         cmd = TileChangeCommand(tilemap, 5, 5, 0, old_tile, new_tile)
 
@@ -191,10 +223,10 @@ class TestTileChangeCommand:
 
     def test_tile_change_delta_compression(self):
         """Test that tile change uses delta compression."""
-        tilemap = Tilemap(width=10, height=10, tile_size=32, layers=3)
+        tilemap = MockTilemap(10, 10, 3)
 
-        old_tile = Tile("grass", walkable=True)
-        new_tile = Tile("water", walkable=False)
+        old_tile = LegacyTile("grass", walkable=True)
+        new_tile = LegacyTile("water", walkable=False)
 
         cmd = TileChangeCommand(tilemap, 5, 5, 0, old_tile, new_tile)
 
@@ -206,13 +238,13 @@ class TestTileChangeCommand:
 
     def test_tile_change_with_tileset(self):
         """Test tile change with tileset data."""
-        tilemap = Tilemap(width=10, height=10, tile_size=32, layers=3)
+        tilemap = MockTilemap(10, 10, 3)
 
-        old_tile = Tile("grass", walkable=True)
+        old_tile = LegacyTile("grass", walkable=True)
         old_tile.tileset_id = "basic_tiles"
         old_tile.tile_id = 5
 
-        new_tile = Tile("water", walkable=False)
+        new_tile = LegacyTile("water", walkable=False)
         new_tile.tileset_id = "water_tiles"
         new_tile.tile_id = 12
 
@@ -230,14 +262,14 @@ class TestBatchTileChangeCommand:
 
     def test_batch_tile_change(self):
         """Test batch tile change command."""
-        tilemap = Tilemap(width=10, height=10, tile_size=32, layers=3)
+        tilemap = MockTilemap(10, 10, 3)
 
         # Create batch of changes
         changes = []
         for x in range(5):
             for y in range(5):
                 old_tile = None
-                new_tile = Tile("grass", walkable=True)
+                new_tile = LegacyTile("grass", walkable=True)
                 changes.append((x, y, 0, old_tile, new_tile))
 
         cmd = BatchTileChangeCommand(tilemap, changes, "Fill with grass")
@@ -263,14 +295,14 @@ class TestBatchTileChangeCommand:
 
     def test_batch_efficiency(self):
         """Test that batch command is more efficient than individual commands."""
-        tilemap = Tilemap(width=100, height=100, tile_size=32, layers=3)
+        tilemap = MockTilemap(100, 100, 3)
 
         # Create 1000 changes
         changes = []
         for i in range(1000):
             x = i % 100
             y = i // 100
-            new_tile = Tile("grass", walkable=True)
+            new_tile = LegacyTile("grass", walkable=True)
             changes.append((x, y, 0, None, new_tile))
 
         batch_cmd = BatchTileChangeCommand(tilemap, changes, "Large fill")
@@ -622,14 +654,14 @@ class TestComplexEditingSequences:
     def test_complex_tile_editing(self):
         """Test complex tile editing sequence with undo/redo."""
         manager = UndoManager()
-        tilemap = Tilemap(width=20, height=20, tile_size=32, layers=3)
+        tilemap = MockTilemap(20, 20, 3)
 
         # Sequence of edits
         # 1. Fill area with grass
         changes = []
         for x in range(10):
             for y in range(10):
-                changes.append((x, y, 0, None, Tile("grass", walkable=True)))
+                changes.append((x, y, 0, None, LegacyTile("grass", walkable=True)))
 
         cmd1 = BatchTileChangeCommand(tilemap, changes, "Fill with grass")
         manager.execute(cmd1)
@@ -639,7 +671,7 @@ class TestComplexEditingSequences:
         for x in range(3, 7):
             for y in range(3, 7):
                 old_tile = tilemap.get_tile(x, y, 0)
-                changes.append((x, y, 0, old_tile, Tile("water", walkable=False)))
+                changes.append((x, y, 0, old_tile, LegacyTile("water", walkable=False)))
 
         cmd2 = BatchTileChangeCommand(tilemap, changes, "Paint water")
         manager.execute(cmd2)
@@ -649,7 +681,7 @@ class TestComplexEditingSequences:
         for x in [1, 8]:
             for y in [1, 8]:
                 old_tile = tilemap.get_tile(x, y, 0)
-                changes.append((x, y, 0, old_tile, Tile("rock", walkable=False)))
+                changes.append((x, y, 0, old_tile, LegacyTile("rock", walkable=False)))
 
         cmd3 = BatchTileChangeCommand(tilemap, changes, "Add rocks")
         manager.execute(cmd3)
@@ -682,13 +714,13 @@ class TestComplexEditingSequences:
     def test_mixed_edit_operations(self):
         """Test mixing different types of edit operations."""
         manager = UndoManager()
-        tilemap = Tilemap(width=10, height=10, tile_size=32, layers=3)
+        tilemap = MockTilemap(10, 10, 3)
 
         walkable_tiles: Set[Tuple[int, int]] = set()
         unwalkable_tiles: Set[Tuple[int, int]] = set()
 
         # 1. Tile edit
-        cmd1 = TileChangeCommand(tilemap, 5, 5, 0, None, Tile("grass", walkable=True))
+        cmd1 = TileChangeCommand(tilemap, 5, 5, 0, None, LegacyTile("grass", walkable=True))
         manager.execute(cmd1)
 
         # 2. Navmesh edit
@@ -698,7 +730,7 @@ class TestComplexEditingSequences:
         manager.execute(cmd2)
 
         # 3. Another tile edit
-        cmd3 = TileChangeCommand(tilemap, 6, 6, 0, None, Tile("water", walkable=False))
+        cmd3 = TileChangeCommand(tilemap, 6, 6, 0, None, LegacyTile("water", walkable=False))
         manager.execute(cmd3)
 
         # Verify
