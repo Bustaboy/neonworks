@@ -51,7 +51,7 @@ class TestCombatWorkflow:
         # Create player
         player = world.create_entity("Player")
         player.add_component(Transform(x=0, y=0))
-        player.add_component(GridPosition(grid_x=0, grid_y=grid_0))
+        player.add_component(GridPosition(grid_x=0, grid_y=0))
         player.add_component(Health(current=100, maximum=100))
         player.add_component(TurnActor(action_points=10, max_ap=10, initiative=15))
         player.add_tag("player")
@@ -59,7 +59,7 @@ class TestCombatWorkflow:
         # Create enemy
         enemy = world.create_entity("Enemy")
         enemy.add_component(Transform(x=10, y=10))
-        enemy.add_component(GridPosition(grid_x=5, grid_y=grid_5))
+        enemy.add_component(GridPosition(grid_x=5, grid_y=5))
         enemy.add_component(Health(current=50, maximum=50))
         enemy.add_component(TurnActor(action_points=10, max_ap=10, initiative=10))
         enemy.add_tag("enemy")
@@ -146,8 +146,8 @@ class TestBuildingWorkflow:
 
         # Place building
         building = world.create_entity("House")
-        building.add_component(GridPosition(grid_x=10, grid_y=grid_10))
-        building.add_component(Building(building_type="house",(10, 10), level=1))
+        building.add_component(GridPosition(grid_x=10, grid_y=10))
+        building.add_component(Building(building_type="house", level=1))
         building.add_component(ResourceStorage(resources={"wood": 0, "stone": 0}))
         building.add_tag("building")
 
@@ -211,12 +211,12 @@ class TestResourceWorkflow:
 
         # Create resource nodes
         tree = world.create_entity("Tree")
-        tree.add_component(GridPosition(grid_x=5, grid_y=grid_5))
+        tree.add_component(GridPosition(grid_x=5, grid_y=5))
         tree.add_component(ResourceStorage(resources={"wood": 100}))
         tree.add_tag("resource_node")
 
         rock = world.create_entity("Rock")
-        rock.add_component(GridPosition(grid_x=8, grid_y=grid_8))
+        rock.add_component(GridPosition(grid_x=8, grid_y=8))
         rock.add_component(ResourceStorage(resources={"stone": 75}))
         rock.add_tag("resource_node")
 
@@ -271,7 +271,7 @@ class TestMapWorkflow:
         for y in range(20):
             for x in range(20):
                 tile = world.create_entity(f"Tile_{x}_{y}")
-                tile.add_component(GridPosition(grid_x=x, y=grid_y))
+                tile.add_component(GridPosition(grid_x=x, grid_y=y))
                 tile.add_component(Transform(x=x * 32, y=y * 32))
                 tile.add_tag("tile")
 
@@ -284,7 +284,7 @@ class TestMapWorkflow:
         # Place entities on map
         # Player at (5, 5)
         player = world.create_entity("Player")
-        player.add_component(GridPosition(grid_x=5, grid_y=grid_5))
+        player.add_component(GridPosition(grid_x=5, grid_y=5))
         player.add_component(Transform(x=5 * 32, y=5 * 32))
         player.add_component(Health(current=100, maximum=100))
         player.add_tag("player")
@@ -294,7 +294,7 @@ class TestMapWorkflow:
         enemies = []
         for i, (x, y) in enumerate(enemy_positions):
             enemy = world.create_entity(f"Enemy_{i}")
-            enemy.add_component(GridPosition(grid_x=x, y=grid_y))
+            enemy.add_component(GridPosition(grid_x=x, grid_y=y))
             enemy.add_component(Transform(x=x * 32, y=y * 32))
             enemy.add_component(Health(current=50, maximum=50))
             enemy.add_tag("enemy")
@@ -305,8 +305,8 @@ class TestMapWorkflow:
         buildings = []
         for i, (x, y) in enumerate(building_positions):
             building = world.create_entity(f"Building_{i}")
-            building.add_component(GridPosition(grid_x=x, y=grid_y))
-            building.add_component(Building(building_type="house",(x, y), level=1))
+            building.add_component(GridPosition(grid_x=x, grid_y=y))
+            building.add_component(Building(building_type="house", level=1))
             building.add_tag("building")
             buildings.append(building)
 
@@ -340,7 +340,7 @@ class TestSerializationWorkflow:
         # Add player
         player = world1.create_entity("Player")
         player.add_component(Transform(x=100, y=200))
-        player.add_component(GridPosition(grid_x=5, grid_y=grid_10))
+        player.add_component(GridPosition(grid_x=5, grid_y=10))
         player.add_component(Health(current=85, maximum=100))
         player.add_component(ResourceStorage(resources={"wood": 50, "stone": 30}))
         player.add_tag("player")
@@ -354,8 +354,8 @@ class TestSerializationWorkflow:
 
         # Add building
         building = world1.create_entity("House")
-        building.add_component(GridPosition(grid_x=10, grid_y=grid_10))
-        building.add_component(Building(building_type="house",(10, 10), level=2))
+        building.add_component(GridPosition(grid_x=10, grid_y=10))
+        building.add_component(Building(building_type="house", level=2))
         building.add_tag("building")
 
         # Serialize world state
@@ -443,7 +443,7 @@ class TestComplexGameLoop:
         # Player
         player = world.create_entity("Player")
         player.add_component(Transform(x=0, y=0))
-        player.add_component(GridPosition(grid_x=0, grid_y=grid_0))
+        player.add_component(GridPosition(grid_x=0, grid_y=0))
         player.add_component(Health(current=100, maximum=100))
         player.add_component(ResourceStorage(resources={"wood": 10, "stone": 5}))
         player.add_tag("player")
@@ -456,7 +456,7 @@ class TestComplexGameLoop:
 
         # Resource node
         tree = world.create_entity("Tree")
-        tree.add_component(GridPosition(grid_x=5, grid_y=grid_5))
+        tree.add_component(GridPosition(grid_x=5, grid_y=5))
         tree.add_component(ResourceStorage(resources={"wood": 100}))
         tree.add_tag("resource_node")
 
@@ -487,8 +487,8 @@ class TestComplexGameLoop:
 
         # 4. Player places building
         building = world.create_entity("House")
-        building.add_component(GridPosition(grid_x=10, grid_y=grid_10))
-        building.add_component(Building(building_type="house",(10, 10), level=1))
+        building.add_component(GridPosition(grid_x=10, grid_y=10))
+        building.add_component(Building(building_type="house", level=1))
         player_resources.resources["wood"] -= 20
         events.emit(Event(EventType.BUILDING_PLACED, {"type": "house", "position": (10, 10)}))
 

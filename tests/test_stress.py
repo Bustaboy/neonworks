@@ -46,7 +46,7 @@ class TestMemoryStress:
             entity = world.create_entity(f"Entity_{i}")
             entity.add_component(Transform(x=i, y=i))
             entity.add_component(Health(current=100, maximum=100))
-            entity.add_component(GridPosition(grid_x=i % 100, y=grid_i // 100))
+            entity.add_component(GridPosition(grid_x=i % 100, grid_y=i // 100))
             entity.add_tag("test_entity")
 
         assert len(world.entities) == initial_entity_count + 10000
@@ -108,7 +108,7 @@ class TestMemoryStress:
             entity = world.create_entity(f"Entity_{i}")
             entity.add_component(Transform(x=i, y=i))
             entity.add_component(Health(current=100, maximum=100))
-            entity.add_component(GridPosition(grid_x=i % 50, y=grid_i // 50))
+            entity.add_component(GridPosition(grid_x=i % 50, grid_y=i // 50))
             entity.add_component(
                 ResourceStorage(resources={"wood": i, "stone": i * 2, "iron": i * 3})
             )
@@ -263,7 +263,7 @@ class TestCPUStress:
         # 1000 tiles
         for i in range(1000):
             tile = world.create_entity(f"Tile_{i}")
-            tile.add_component(GridPosition(grid_x=i % 100, y=grid_i // 100))
+            tile.add_component(GridPosition(grid_x=i % 100, grid_y=i // 100))
             tile.add_component(Transform(x=(i % 100) * 32, y=(i // 100) * 32))
             tile.add_tag("tile")
 
@@ -272,14 +272,14 @@ class TestCPUStress:
             char = world.create_entity(f"Character_{i}")
             char.add_component(Transform(x=i * 2, y=i * 2))
             char.add_component(Health(current=100 + i % 50, maximum=150))
-            char.add_component(GridPosition(grid_x=i % 50, y=grid_i // 50))
+            char.add_component(GridPosition(grid_x=i % 50, grid_y=i // 50))
             char.add_tag("character")
             char.add_tag(f"faction_{i % 5}")
 
         # 100 buildings
         for i in range(100):
             building = world.create_entity(f"Building_{i}")
-            building.add_component(GridPosition(grid_x=i % 20, y=grid_i // 20))
+            building.add_component(GridPosition(grid_x=i % 20, grid_y=i // 20))
             building.add_component(ResourceStorage(resources={"wood": i * 10, "stone": i * 5}))
             building.add_tag("building")
 

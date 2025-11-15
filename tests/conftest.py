@@ -80,7 +80,7 @@ def player_entity(world):
     entity = world.create_entity("Player")
     entity.add_component(Transform(x=0, y=0))
     entity.add_component(Health(current=100, maximum=100))
-    entity.add_component(GridPosition(grid_x=5, grid_y=grid_5))
+    entity.add_component(GridPosition(grid_x=5, grid_y=5))
     entity.add_tag("player")
     return entity
 
@@ -99,7 +99,7 @@ def enemy_entity(world):
     entity = world.create_entity("Enemy")
     entity.add_component(Transform(x=10, y=10))
     entity.add_component(Health(current=50, maximum=50))
-    entity.add_component(GridPosition(grid_x=8, grid_y=grid_8))
+    entity.add_component(GridPosition(grid_x=8, grid_y=8))
     entity.add_tag("enemy")
     return entity
 
@@ -178,8 +178,8 @@ def building_entity(world):
         Entity: Building entity with Building and GridPosition components
     """
     entity = world.create_entity("House")
-    entity.add_component(GridPosition(grid_x=10, grid_y=grid_10))
-    entity.add_component(Building(building_type="house",(10, 10), level=1))
+    entity.add_component(GridPosition(grid_x=10, grid_y=10))
+    entity.add_component(Building(building_type="house", level=1))
     entity.add_component(ResourceStorage(resources={"wood": 0, "stone": 0}))
     entity.add_tag("building")
     return entity
@@ -198,7 +198,7 @@ def turn_actor(world):
     """
     entity = world.create_entity("TurnActor")
     entity.add_component(Transform(x=5, y=5))
-    entity.add_component(GridPosition(grid_x=5, grid_y=grid_5))
+    entity.add_component(GridPosition(grid_x=5, grid_y=5))
     entity.add_component(TurnActor(action_points=10, max_ap=10, initiative=15))
     entity.add_component(Health(current=50, maximum=50))
     entity.add_tag("combatant")
@@ -349,7 +349,7 @@ def sample_entities(world):
     # Player
     player = world.create_entity("Player")
     player.add_component(Transform(x=0, y=0))
-    player.add_component(GridPosition(grid_x=0, grid_y=grid_0))
+    player.add_component(GridPosition(grid_x=0, grid_y=0))
     player.add_component(Health(current=100, maximum=100))
     player.add_component(Movement(speed=5.0, direction=(0, 0)))
     player.add_tag("player")
@@ -359,7 +359,7 @@ def sample_entities(world):
     for i in range(3):
         enemy = world.create_entity(f"Enemy_{i}")
         enemy.add_component(Transform(x=i * 10, y=i * 10))
-        enemy.add_component(GridPosition(grid_x=i * 2, y=grid_i * 2))
+        enemy.add_component(GridPosition(grid_x=i * 2, grid_y=i * 2))
         enemy.add_component(Health(current=50, maximum=50))
         enemy.add_tag("enemy")
         entities[f"enemy_{i}"] = enemy
@@ -367,9 +367,9 @@ def sample_entities(world):
     # Buildings
     for i in range(2):
         building = world.create_entity(f"Building_{i}")
-        building.add_component(GridPosition(grid_x=i * 5, y=grid_i * 5))
+        building.add_component(GridPosition(grid_x=i * 5, grid_y=i * 5))
         building.add_component(
-            Building(building_type="house",(i * 5, i * 5), level=1)
+            Building(building_type="house", level=1)
         )
         building.add_tag("building")
         entities[f"building_{i}"] = building
@@ -378,7 +378,7 @@ def sample_entities(world):
     for i in range(2):
         npc = world.create_entity(f"NPC_{i}")
         npc.add_component(Transform(x=i * 8, y=i * 8))
-        npc.add_component(GridPosition(grid_x=i * 3, y=grid_i * 3))
+        npc.add_component(GridPosition(grid_x=i * 3, grid_y=i * 3))
         npc.add_tag("npc")
         entities[f"npc_{i}"] = npc
 

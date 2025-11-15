@@ -32,7 +32,7 @@ class TestECSPerformance:
                 entity = world.create_entity(f"Entity_{i}")
                 entity.add_component(Transform(x=i * 10, y=i * 10))
                 entity.add_component(Health(current=100, maximum=100))
-                entity.add_component(GridPosition(grid_x=i, y=grid_i))
+                entity.add_component(GridPosition(grid_x=i, grid_y=i))
             return world
 
         if "benchmark" in dir():
@@ -129,7 +129,7 @@ class TestECSPerformance:
         for entity in entities:
             entity.add_component(Transform(x=0, y=0))
             entity.add_component(Health(current=100, maximum=100))
-            entity.add_component(GridPosition(grid_x=0, grid_y=grid_0))
+            entity.add_component(GridPosition(grid_x=0, grid_y=0))
         add_elapsed = time.perf_counter() - start
 
         # Benchmark removing components
@@ -227,7 +227,7 @@ class TestDatabasePerformance:
             entity = world.create_entity(f"Character_{i}")
             entity.add_component(Transform(x=i, y=i))
             entity.add_component(Health(current=100, maximum=100))
-            entity.add_component(GridPosition(grid_x=i % 100, y=grid_i // 100))
+            entity.add_component(GridPosition(grid_x=i % 100, grid_y=i // 100))
             entity.add_tag("character")
             entity.add_tag(f"faction_{i % 10}")  # 10 different factions
             characters.append(entity)
@@ -321,7 +321,7 @@ class TestMapPerformance:
         for y in range(500):
             for x in range(500):
                 entity = world.create_entity(f"Tile_{x}_{y}")
-                entity.add_component(GridPosition(grid_x=x, y=grid_y))
+                entity.add_component(GridPosition(grid_x=x, grid_y=y))
                 entity.add_component(Transform(x=x * 32, y=y * 32))
                 entity.add_tag("tile")
                 tiles.append(entity)
@@ -343,7 +343,7 @@ class TestMapPerformance:
         for y in range(500):
             for x in range(500):
                 entity = world.create_entity(f"Tile_{x}_{y}")
-                entity.add_component(GridPosition(grid_x=x, y=grid_y))
+                entity.add_component(GridPosition(grid_x=x, grid_y=y))
                 entity.add_tag("tile")
                 tile_grid[(x, y)] = entity
 
@@ -420,7 +420,7 @@ class TestIntegratedPerformance:
         # 1000 tiles
         for i in range(1000):
             tile = world.create_entity(f"Tile_{i}")
-            tile.add_component(GridPosition(grid_x=i % 100, y=grid_i // 100))
+            tile.add_component(GridPosition(grid_x=i % 100, grid_y=i // 100))
             tile.add_component(Transform(x=(i % 100) * 32, y=(i // 100) * 32))
             tile.add_tag("tile")
 
@@ -429,7 +429,7 @@ class TestIntegratedPerformance:
             char = world.create_entity(f"Character_{i}")
             char.add_component(Transform(x=i * 10, y=i * 10))
             char.add_component(Health(current=100, maximum=100))
-            char.add_component(GridPosition(grid_x=i % 10, y=grid_i // 10))
+            char.add_component(GridPosition(grid_x=i % 10, grid_y=i // 10))
             char.add_tag("character")
             if i % 2 == 0:
                 char.add_tag("enemy")
@@ -439,7 +439,7 @@ class TestIntegratedPerformance:
         # 50 buildings
         for i in range(50):
             building = world.create_entity(f"Building_{i}")
-            building.add_component(GridPosition(grid_x=i * 2, y=grid_i * 2))
+            building.add_component(GridPosition(grid_x=i * 2, grid_y=i * 2))
             building.add_tag("building")
 
         elapsed = time.perf_counter() - start

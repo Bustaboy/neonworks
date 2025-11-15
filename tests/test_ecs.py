@@ -60,7 +60,7 @@ class TestEntity:
         entity = Entity()
         transform = Transform(x=10, y=20)
         health = Health(current=100, maximum=100)
-        grid_pos = GridPosition(grid_x=5, grid_y=grid_5)
+        grid_pos = GridPosition(grid_x=5, grid_y=5)
 
         entity.add_component(transform)
         entity.add_component(health)
@@ -199,7 +199,7 @@ class TestGridPositionComponent:
 
     def test_create_grid_position(self):
         """Test creating a grid position component."""
-        grid_pos = GridPosition(grid_x=5, grid_y=grid_10)
+        grid_pos = GridPosition(grid_x=5, grid_y=10)
 
         assert grid_pos.x == 5
         assert grid_pos.y == 10
@@ -215,7 +215,7 @@ class TestGridPositionComponent:
     )
     def test_grid_position_values(self, x, y):
         """Test grid position with various values."""
-        grid_pos = GridPosition(grid_x=x, y=grid_y)
+        grid_pos = GridPosition(grid_x=x, grid_y=y)
 
         assert grid_pos.x == x
         assert grid_pos.y == y
