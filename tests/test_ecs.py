@@ -307,14 +307,14 @@ class TestBuildingComponent:
 
     def test_create_building(self):
         """Test creating a building component."""
-        building = Building(building_type="house", placed_at=(10, 15), level=1)
+        building = Building(building_type="house", 15), level=1)
 
         assert building.building_type == "house"
         assert building.level == 1
 
     def test_upgrade_building(self):
         """Test upgrading a building."""
-        building = Building(building_type="house", placed_at=(10, 15), level=1)
+        building = Building(building_type="house", 15), level=1)
 
         building.level += 1
 
@@ -331,7 +331,7 @@ class TestBuildingComponent:
     )
     def test_building_types(self, building_type, expected):
         """Test various building types."""
-        building = Building(building_type=building_type, placed_at=(0, 0), level=1)
+        building = Building(building_type=building_type, 0), level=1)
 
         assert building.building_type == expected
 
