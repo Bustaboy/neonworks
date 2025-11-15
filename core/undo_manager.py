@@ -201,14 +201,18 @@ class TileChangeData:
     x: int
     y: int
     layer: int
+    # Real Tile attributes (from rendering.tilemap)
+    old_tile_id: Optional[int] = None
+    old_flags: int = 0
+    new_tile_id: Optional[int] = None
+    new_flags: int = 0
+    # Legacy attributes (for backward compatibility)
     old_tile_type: Optional[str] = None
     old_walkable: bool = True
     old_tileset_id: Optional[str] = None
-    old_tile_id: Optional[int] = None
     new_tile_type: Optional[str] = None
     new_walkable: bool = True
     new_tileset_id: Optional[str] = None
-    new_tile_id: Optional[int] = None
 
 
 class TileChangeCommand(Command):
@@ -248,20 +252,32 @@ class TileChangeCommand(Command):
         self.delta = TileChangeData(x=x, y=y, layer=layer)
 
         if old_tile:
-            self.delta.old_tile_type = old_tile.tile_type
-            self.delta.old_walkable = old_tile.walkable
-            if hasattr(old_tile, "tileset_id"):
-                self.delta.old_tileset_id = old_tile.tileset_id
-            if hasattr(old_tile, "tile_id"):
+            # Handle real Tile (from rendering.tilemap)
+            if hasattr(old_tile, "tile_id") and not hasattr(old_tile, "tile_type"):
                 self.delta.old_tile_id = old_tile.tile_id
+                self.delta.old_flags = getattr(old_tile, "flags", 0)
+            # Handle legacy Tile (for backward compatibility)
+            else:
+                self.delta.old_tile_type = getattr(old_tile, "tile_type", None)
+                self.delta.old_walkable = getattr(old_tile, "walkable", True)
+                if hasattr(old_tile, "tileset_id"):
+                    self.delta.old_tileset_id = old_tile.tileset_id
+                if hasattr(old_tile, "tile_id"):
+                    self.delta.old_tile_id = old_tile.tile_id
 
         if new_tile:
-            self.delta.new_tile_type = new_tile.tile_type
-            self.delta.new_walkable = new_tile.walkable
-            if hasattr(new_tile, "tileset_id"):
-                self.delta.new_tileset_id = new_tile.tileset_id
-            if hasattr(new_tile, "tile_id"):
+            # Handle real Tile (from rendering.tilemap)
+            if hasattr(new_tile, "tile_id") and not hasattr(new_tile, "tile_type"):
                 self.delta.new_tile_id = new_tile.tile_id
+                self.delta.new_flags = getattr(new_tile, "flags", 0)
+            # Handle legacy Tile (for backward compatibility)
+            else:
+                self.delta.new_tile_type = getattr(new_tile, "tile_type", None)
+                self.delta.new_walkable = getattr(new_tile, "walkable", True)
+                if hasattr(new_tile, "tileset_id"):
+                    self.delta.new_tileset_id = new_tile.tileset_id
+                if hasattr(new_tile, "tile_id"):
+                    self.delta.new_tile_id = new_tile.tile_id
 
     def execute(self) -> bool:
         """Execute tile change."""
@@ -280,28 +296,68 @@ class TileChangeCommand(Command):
     def _create_tile_from_delta(self, use_new: bool) -> Optional[Tile]:
         """Create tile from delta data."""
         if use_new:
-            if self.delta.new_tile_type is None:
+            # Check if we have real Tile data (tile_id + flags)
+            if self.delta.new_tile_id is not None and self.delta.new_tile_type is None:
+                return Tile(tile_id=self.delta.new_tile_id, flags=self.delta.new_flags)
+            # Legacy Tile data (tile_type + walkable) - create a simple object
+            elif self.delta.new_tile_type is not None:
+                # Create a simple object with legacy attributes
+                from dataclasses import dataclass
+
+                @dataclass
+                class LegacyTile:
+                    tile_type: str
+                    walkable: bool
+                    tileset_id: Optional[str] = None
+                    tile_id: Optional[int] = None
+
+                tile = LegacyTile(
+                    tile_type=self.delta.new_tile_type,
+                    walkable=self.delta.new_walkable,
+                    tileset_id=self.delta.new_tileset_id,
+                    tile_id=self.delta.new_tile_id,
+                )
+                return tile  # type: ignore
+            else:
                 return None
-            tile = Tile(self.delta.new_tile_type, self.delta.new_walkable)
-            if self.delta.new_tileset_id:
-                tile.tileset_id = self.delta.new_tileset_id
-            if self.delta.new_tile_id is not None:
-                tile.tile_id = self.delta.new_tile_id
         else:
-            if self.delta.old_tile_type is None:
+            # Check if we have real Tile data (tile_id + flags)
+            if self.delta.old_tile_id is not None and self.delta.old_tile_type is None:
+                return Tile(tile_id=self.delta.old_tile_id, flags=self.delta.old_flags)
+            # Legacy Tile data (tile_type + walkable) - create a simple object
+            elif self.delta.old_tile_type is not None:
+                # Create a simple object with legacy attributes
+                from dataclasses import dataclass
+
+                @dataclass
+                class LegacyTile:
+                    tile_type: str
+                    walkable: bool
+                    tileset_id: Optional[str] = None
+                    tile_id: Optional[int] = None
+
+                tile = LegacyTile(
+                    tile_type=self.delta.old_tile_type,
+                    walkable=self.delta.old_walkable,
+                    tileset_id=self.delta.old_tileset_id,
+                    tile_id=self.delta.old_tile_id,
+                )
+                return tile  # type: ignore
+            else:
                 return None
-            tile = Tile(self.delta.old_tile_type, self.delta.old_walkable)
-            if self.delta.old_tileset_id:
-                tile.tileset_id = self.delta.old_tileset_id
-            if self.delta.old_tile_id is not None:
-                tile.tile_id = self.delta.old_tile_id
-        return tile
 
     def get_description(self) -> str:
         """Get description of tile change."""
-        action = "Placed" if self.delta.new_tile_type else "Erased"
-        tile_name = self.delta.new_tile_type or self.delta.old_tile_type or "tile"
-        return f"{action} {tile_name} at ({self.x}, {self.y})"
+        # For real Tiles (tile_id based)
+        if self.delta.new_tile_id is not None or self.delta.old_tile_id is not None:
+            action = "Placed" if self.delta.new_tile_id is not None else "Erased"
+            tile_id = self.delta.new_tile_id or self.delta.old_tile_id
+            return f"{action} tile #{tile_id} at ({self.x}, {self.y})"
+        # For legacy Tiles (tile_type based)
+        else:
+            action = "Placed" if self.delta.new_tile_type else "Erased"
+            tile_name = self.delta.new_tile_type or self.delta.old_tile_type or "tile"
+            return f"{action} {tile_name} at ({self.x}, {self.y})"
 
     def serialize(self) -> Dict[str, Any]:
         """Serialize tile change command."""
@@ -311,14 +367,16 @@ class TileChangeCommand(Command):
             "y": self.y,
             "layer": self.layer,
             "delta": {
+                "old_tile_id": self.delta.old_tile_id,
+                "old_flags": self.delta.old_flags,
+                "new_tile_id": self.delta.new_tile_id,
+                "new_flags": self.delta.new_flags,
                 "old_tile_type": self.delta.old_tile_type,
                 "old_walkable": self.delta.old_walkable,
                 "old_tileset_id": self.delta.old_tileset_id,
-                "old_tile_id": self.delta.old_tile_id,
                 "new_tile_type": self.delta.new_tile_type,
                 "new_walkable": self.delta.new_walkable,
                 "new_tileset_id": self.delta.new_tileset_id,
-                "new_tile_id": self.delta.new_tile_id,
             },
             "timestamp": self.timestamp.isoformat(),
         }
