@@ -390,6 +390,14 @@ class AIAssistantPanel:
         # Parse command intent
         message_lower = user_message.lower()
 
+        # MAP COMMANDS - Check first for map-related commands
+        from neonworks.data.ai_map_integration import get_ai_map_commands
+
+        ai_map_commands = get_ai_map_commands()
+        map_response = ai_map_commands.process_command(user_message)
+        if map_response is not None:
+            return map_response
+
         # Screen-aware commands
         if "in the middle" in message_lower or "center" in message_lower:
             if self.vision_context:
@@ -416,14 +424,40 @@ class AIAssistantPanel:
         if "color" in message_lower:
             return "I can change entity colors! Select an entity and tell me what color you want (e.g., 'change roof to red')."
 
+        # PROCEDURAL GENERATION commands
+        if "generate" in message_lower and (
+            "map" in message_lower or "dungeon" in message_lower or "level" in message_lower
+        ):
+            return self._handle_procedural_generation(user_message)
+
         # General help
         if "help" in message_lower or "what can you do" in message_lower:
+            if "maps" in message_lower:
+                # Show detailed map help
+                from neonworks.data.ai_map_integration import get_ai_map_commands
+
+                return get_ai_map_commands().get_help_text()
             return """I can help you build levels! Try commands like:
+
+**MAP MANAGEMENT:**
+• "Create map Town 50x50" - Create new map
+• "List maps" - Show all maps
+• "Switch to map NAME" - Switch maps
+• "Info about map NAME" - Map details
+• "Organize maps" - AI organization
+• Say "help maps" for all map commands
+
+**PROCEDURAL GENERATION:**
+• "Generate interior map 50x50" - Create dungeon
+• "Generate dungeon Crypt 60x40" - Named dungeon
+• "Generate exterior map 80x60" - Outdoor map
+• Say "generate map" for generation help
+
+**LEVEL EDITING:**
 • "Make a town in the middle"
 • "Create a market here"
 • "What do you see on screen?"
 • "Make this building bigger"
-• "Change the roof color to red"
 
 I can see what's on your map and understand spatial relationships!"""
 
@@ -452,6 +486,96 @@ I can see what's on your map and understand spatial relationships!"""
             description += f"Most common types: {types_str}."
 
         return description
+
+    def _handle_procedural_generation(self, user_message: str) -> str:
+        """Handle procedural map generation commands"""
+        import random
+        import re
+        from neonworks.data.ai_map_integration import get_procedural_integration
+
+        proc_integration = get_procedural_integration()
+        message_lower = user_message.lower()
+
+        # Parse: "generate interior map 50x50" or "generate dungeon Crypt 60x40"
+        # Patterns:
+        # - "generate TYPE map WIDTHxHEIGHT"
+        # - "generate TYPE map NAME WIDTHxHEIGHT"
+        # - "generate dungeon NAME WIDTHxHEIGHT"
+
+        match = re.search(
+            r"generate\s+(interior|exterior|competitive|dungeon)?\s*(?:map|dungeon|level)?\s+(\w+)?\s*(\d+)x(\d+)",
+            message_lower,
+            re.IGNORECASE,
+        )
+
+        if match:
+            map_type, name, width, height = match.groups()
+
+            # Default map type
+            if map_type is None:
+                if "dungeon" in message_lower:
+                    map_type = "interior"
+                elif "outdoor" in message_lower or "wilderness" in message_lower:
+                    map_type = "exterior"
+                elif "pvp" in message_lower or "battle" in message_lower:
+                    map_type = "competitive"
+                else:
+                    map_type = "interior"  # Default
+
+            # Generate name if not provided
+            if name is None or name.isdigit():
+                # Name was actually part of dimensions, generate random name
+                type_names = {
+                    "interior": ["Dungeon", "Crypt", "Catacomb", "Vault"],
+                    "exterior": ["Forest", "Plains", "Desert", "Swamp"],
+                    "competitive": ["Arena", "Battleground", "Ring"],
+                }
+                base_name = random.choice(type_names.get(map_type, ["Map"]))
+                name = f"{base_name}_{random.randint(100, 999)}"
+
+            # Determine folder based on type
+            folder_map = {"interior": "dungeons", "exterior": "wilderness", "competitive": "battle"}
+            folder = folder_map.get(map_type, "")
+
+            try:
+                # Generate the map
+                map_data = proc_integration.generate_and_save_map(
+                    map_name=name,
+                    map_type=map_type,
+                    width=int(width),
+                    height=int(height),
+                    seed=None,  # Random seed
+                    folder=folder,
+                )
+
+                response = f"✨ Generated {map_type} map '{name}' ({width}x{height})!"
+                response += f"\n📁 Saved to: {folder or 'root'}"
+                response += f"\n\n🎲 Procedurally generated with random seed"
+                response += f"\n🚀 Ready to edit! Say 'switch to map {name}' to load it"
+
+                return response
+            except Exception as e:
+                return f"❌ Failed to generate map: {e}\n\nTry: 'generate interior map 50x50'"
+        else:
+            return """🎲 **PROCEDURAL MAP GENERATION**
+
+Generate maps automatically! Try:
+
+**Basic:**
+• "Generate interior map 50x50" - Random dungeon
+• "Generate exterior map 80x60" - Outdoor map
+• "Generate competitive map 60x60" - PvP arena
+
+**Named:**
+• "Generate dungeon Crypt 60x40" - Named dungeon
+• "Generate map Town 50x50" - Custom name
+
+**Types:**
+• **interior** - Rooms + corridors (dungeons)
+• **exterior** - Natural terrain (forests, plains)
+• **competitive** - Symmetrical PvP maps
+
+All maps are saved automatically to appropriate folders!"""
 
     def _on_panel_opened(self):
         """Called when panel is opened"""
