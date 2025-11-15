@@ -17,12 +17,12 @@ from typing import Dict, List, Optional, Tuple
 import pygame
 
 from neonworks.engine.tools.face_generator import (
+    ColorTint,
+    Expression,
     FaceGenerator,
-    FacePreset,
     FaceLayer,
     FaceLayerType,
-    Expression,
-    ColorTint,
+    FacePreset,
 )
 
 
