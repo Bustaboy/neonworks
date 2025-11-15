@@ -36,6 +36,7 @@ def map_manager(temp_project_dir):
     return MapManager(temp_project_dir)
 
 
+@pytest.mark.smoke
 class TestMapData:
     """Test MapData class."""
 
@@ -168,6 +169,7 @@ class TestMapFolder:
         assert "map2" in folder.maps
 
 
+@pytest.mark.unit
 class TestMapManager:
     """Test MapManager class."""
 
@@ -477,6 +479,8 @@ class TestMapManager:
         assert "Map3" in towns.maps
 
 
+@pytest.mark.integration
+@pytest.mark.slow
 class TestMapIntegration:
     """Integration tests for the map system."""
 
