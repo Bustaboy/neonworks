@@ -12,6 +12,7 @@ import pygame
 from ...core.ecs import World
 from ...core.event_commands import GameEvent
 from ...rendering.tilemap import Tilemap
+from .settings import RenderSettings, ToolColors
 
 
 class MapTool(ABC):
@@ -106,7 +107,12 @@ class MapTool(ABC):
         screen_x = grid_x * tile_size + camera_offset[0]
         screen_y = grid_y * tile_size + camera_offset[1]
 
-        pygame.draw.rect(screen, (255, 255, 255), (screen_x, screen_y, tile_size, tile_size), 2)
+        pygame.draw.rect(
+            screen,
+            ToolColors.CURSOR_DEFAULT,
+            (screen_x, screen_y, tile_size, tile_size),
+            RenderSettings.CURSOR_OUTLINE_WIDTH,
+        )
 
 
 class ToolContext:

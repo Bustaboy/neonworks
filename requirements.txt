@@ -14,11 +14,11 @@ Pillow>=10.0.0
 
 # Configuration file format support
 # Provides YAML support for more readable game data files
-PyYAML>=6.0.1
+PyYAML>=6.0.3
 
 # Export system dependencies
 # Encryption for packaged games (IP protection)
-cryptography>=41.0.0
+cryptography>=46.0.0
 
 # Executable bundling for standalone distribution
 pyinstaller>=6.0.0
