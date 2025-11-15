@@ -24,7 +24,15 @@ from neonworks.data.map_manager import (
     get_map_manager,
     initialize_map_manager,
 )
+from neonworks.data.tileset_manager import get_tileset_manager
 from neonworks.rendering.ui import UI
+from engine.tools.map_importers import (
+    LegacyFormatConverter,
+    PNGExporter,
+    TiledTMXExporter,
+    TiledTMXImporter,
+    TilesetImageImporter,
+)
 
 
 class MapManagerUI:
@@ -67,6 +75,9 @@ class MapManagerUI:
         self.show_batch_dialog = False
         self.show_template_dialog = False
         self.show_delete_confirm = False
+        self.show_import_dialog = False
+        self.show_export_dialog = False
+        self.show_tileset_import_dialog = False
 
         # Input buffers
         self.new_map_name = ""
@@ -82,6 +93,24 @@ class MapManagerUI:
         # Filter
         self.search_filter = ""
         self.tag_filter = ""
+
+        # Import/Export tools
+        self.tileset_manager = get_tileset_manager()
+        self.png_exporter = PNGExporter(self.tileset_manager)
+        self.tmx_exporter = TiledTMXExporter()
+        self.tmx_importer = (
+            TiledTMXImporter(project_root, self.tileset_manager) if project_root else None
+        )
+        self.tileset_importer = TilesetImageImporter(self.tileset_manager)
+        self.legacy_converter = LegacyFormatConverter()
+
+        # Import/Export state
+        self.import_format = "tmx"  # tmx, legacy
+        self.export_format = "png"  # png, tmx, minimap
+        self.import_file_path = ""
+        self.export_file_path = ""
+        self.export_scale = "1.0"
+        self.minimap_size = "256"
 
     def toggle(self) -> None:
         """Toggle visibility of the map manager."""
@@ -460,8 +489,22 @@ class MapManagerUI:
         if self.ui.button(
             "Export", x + 2 * button_width + 30, action_y, button_width, 35, color=(100, 100, 150)
         ):
-            # TODO: Export single map
-            pass
+            self.show_export_dialog = True
+
+        # Import button (second row)
+        action_y += 40
+        if self.ui.button("Import Map", x + 10, action_y, button_width, 35, color=(0, 100, 150)):
+            self.show_import_dialog = True
+
+        if self.ui.button(
+            "Import Tileset",
+            x + button_width + 20,
+            action_y,
+            button_width,
+            35,
+            color=(150, 100, 0),
+        ):
+            self.show_tileset_import_dialog = True
 
     def _render_map_properties(self, x: int, y: int, width: int, height: int) -> None:
         """Render the map properties panel."""
@@ -847,6 +890,12 @@ class MapManagerUI:
             self._render_template_dialog(panel_x, panel_y, panel_width, panel_height)
         elif self.show_delete_confirm:
             self._render_delete_confirm(panel_x, panel_y, panel_width, panel_height)
+        elif self.show_import_dialog:
+            self._render_import_dialog(panel_x, panel_y, panel_width, panel_height)
+        elif self.show_export_dialog:
+            self._render_export_dialog(panel_x, panel_y, panel_width, panel_height)
+        elif self.show_tileset_import_dialog:
+            self._render_tileset_import_dialog(panel_x, panel_y, panel_width, panel_height)
 
     def _render_new_map_dialog(
         self, panel_x: int, panel_y: int, panel_width: int, panel_height: int
@@ -1082,6 +1131,401 @@ class MapManagerUI:
                 self.map_manager._build_folder_structure()
             self.show_delete_confirm = False
 
+    def _render_import_dialog(
+        self, panel_x: int, panel_y: int, panel_width: int, panel_height: int
+    ) -> None:
+        """Render import dialog."""
+        dialog_width = 500
+        dialog_height = 400
+        dialog_x = panel_x + (panel_width - dialog_width) // 2
+        dialog_y = panel_y + (panel_height - dialog_height) // 2
+
+        self.ui.panel(dialog_x, dialog_y, dialog_width, dialog_height, (30, 30, 50))
+
+        self.ui.label(
+            "Import Map",
+            dialog_x + 20,
+            dialog_y + 10,
+            size=20,
+            color=(100, 200, 255),
+        )
+
+        if self.ui.button(
+            "X", dialog_x + dialog_width - 45, dialog_y + 10, 35, 35, color=(150, 0, 0)
+        ):
+            self.show_import_dialog = False
+            return
+
+        form_y = dialog_y + 60
+
+        # Import format selection
+        self.ui.label("Import Format:", dialog_x + 20, form_y, size=16, color=(200, 200, 255))
+        form_y += 30
+
+        button_width = 150
+        tmx_color = (0, 120, 0) if self.import_format == "tmx" else (60, 60, 80)
+        if self.ui.button("Tiled TMX", dialog_x + 20, form_y, button_width, 35, color=tmx_color):
+            self.import_format = "tmx"
+
+        legacy_color = (0, 100, 120) if self.import_format == "legacy" else (60, 60, 80)
+        if self.ui.button(
+            "Legacy JSON",
+            dialog_x + button_width + 30,
+            form_y,
+            button_width,
+            35,
+            color=legacy_color,
+        ):
+            self.import_format = "legacy"
+
+        form_y += 50
+
+        # File path
+        self.ui.label("Import File:", dialog_x + 20, form_y, size=14)
+        form_y += 25
+        self.ui.panel(dialog_x + 20, form_y, dialog_width - 40, 30, (40, 40, 60))
+        self.ui.label(
+            self.import_file_path or "Click Browse...",
+            dialog_x + 30,
+            form_y + 8,
+            size=12,
+            color=(150, 150, 150),
+        )
+
+        form_y += 40
+        if self.ui.button("Browse...", dialog_x + 20, form_y, 120, 30):
+            # TODO: File browser dialog
+            pass
+
+        form_y += 50
+
+        # Info
+        if self.import_format == "tmx":
+            info_text = "Import maps from Tiled Map Editor (.tmx files)"
+        else:
+            info_text = "Convert legacy 3-layer format to enhanced format"
+
+        self.ui.label(info_text, dialog_x + 20, form_y, size=12, color=(180, 180, 180))
+
+        # Buttons
+        button_y = dialog_y + dialog_height - 50
+        button_width = (dialog_width - 60) // 2
+
+        if self.ui.button("Cancel", dialog_x + 20, button_y, button_width, 35):
+            self.show_import_dialog = False
+
+        if self.ui.button(
+            "Import", dialog_x + button_width + 40, button_y, button_width, 35, color=(0, 150, 0)
+        ):
+            self._perform_import()
+
+    def _render_export_dialog(
+        self, panel_x: int, panel_y: int, panel_width: int, panel_height: int
+    ) -> None:
+        """Render export dialog."""
+        dialog_width = 500
+        dialog_height = 450
+        dialog_x = panel_x + (panel_width - dialog_width) // 2
+        dialog_y = panel_y + (panel_height - dialog_height) // 2
+
+        self.ui.panel(dialog_x, dialog_y, dialog_width, dialog_height, (30, 30, 50))
+
+        self.ui.label(
+            "Export Map",
+            dialog_x + 20,
+            dialog_y + 10,
+            size=20,
+            color=(100, 200, 255),
+        )
+
+        if self.ui.button(
+            "X", dialog_x + dialog_width - 45, dialog_y + 10, 35, 35, color=(150, 0, 0)
+        ):
+            self.show_export_dialog = False
+            return
+
+        if not self.selected_map:
+            self.ui.label(
+                "No map selected",
+                dialog_x + 20,
+                dialog_y + 60,
+                size=14,
+                color=(200, 50, 50),
+            )
+            return
+
+        form_y = dialog_y + 60
+
+        # Export format selection
+        self.ui.label("Export Format:", dialog_x + 20, form_y, size=16, color=(200, 200, 255))
+        form_y += 30
+
+        button_width = 140
+        png_color = (0, 120, 0) if self.export_format == "png" else (60, 60, 80)
+        if self.ui.button("PNG Image", dialog_x + 20, form_y, button_width, 35, color=png_color):
+            self.export_format = "png"
+
+        minimap_color = (0, 100, 120) if self.export_format == "minimap" else (60, 60, 80)
+        if self.ui.button(
+            "Minimap", dialog_x + button_width + 20, form_y, button_width, 35, color=minimap_color
+        ):
+            self.export_format = "minimap"
+
+        tmx_color = (100, 80, 0) if self.export_format == "tmx" else (60, 60, 80)
+        if self.ui.button(
+            "Tiled TMX", dialog_x + 2 * button_width + 30, form_y, button_width, 35, color=tmx_color
+        ):
+            self.export_format = "tmx"
+
+        form_y += 50
+
+        # Format-specific options
+        if self.export_format in ["png", "minimap"]:
+            if self.export_format == "png":
+                self.ui.label("Scale Factor:", dialog_x + 20, form_y, size=14)
+                form_y += 25
+                self.ui.panel(dialog_x + 20, form_y, 100, 30, (40, 40, 60))
+                self.ui.label(
+                    self.export_scale,
+                    dialog_x + 30,
+                    form_y + 8,
+                    size=12,
+                    color=(200, 200, 200),
+                )
+            else:
+                self.ui.label("Max Size (pixels):", dialog_x + 20, form_y, size=14)
+                form_y += 25
+                self.ui.panel(dialog_x + 20, form_y, 100, 30, (40, 40, 60))
+                self.ui.label(
+                    self.minimap_size,
+                    dialog_x + 30,
+                    form_y + 8,
+                    size=12,
+                    color=(200, 200, 200),
+                )
+
+            form_y += 40
+
+        # Output path
+        self.ui.label("Output File:", dialog_x + 20, form_y, size=14)
+        form_y += 25
+        self.ui.panel(dialog_x + 20, form_y, dialog_width - 40, 30, (40, 40, 60))
+        self.ui.label(
+            self.export_file_path or "Click Browse...",
+            dialog_x + 30,
+            form_y + 8,
+            size=12,
+            color=(150, 150, 150),
+        )
+
+        form_y += 40
+        if self.ui.button("Browse...", dialog_x + 20, form_y, 120, 30):
+            # TODO: File browser dialog
+            pass
+
+        form_y += 50
+
+        # Info
+        if self.export_format == "png":
+            info_text = "Export map as PNG screenshot"
+        elif self.export_format == "minimap":
+            info_text = "Export scaled-down minimap image"
+        else:
+            info_text = "Export to Tiled Map Editor format"
+
+        self.ui.label(info_text, dialog_x + 20, form_y, size=12, color=(180, 180, 180))
+
+        # Buttons
+        button_y = dialog_y + dialog_height - 50
+        button_width = (dialog_width - 60) // 2
+
+        if self.ui.button("Cancel", dialog_x + 20, button_y, button_width, 35):
+            self.show_export_dialog = False
+
+        if self.ui.button(
+            "Export", dialog_x + button_width + 40, button_y, button_width, 35, color=(0, 150, 0)
+        ):
+            self._perform_export()
+
+    def _render_tileset_import_dialog(
+        self, panel_x: int, panel_y: int, panel_width: int, panel_height: int
+    ) -> None:
+        """Render tileset import dialog."""
+        dialog_width = 450
+        dialog_height = 400
+        dialog_x = panel_x + (panel_width - dialog_width) // 2
+        dialog_y = panel_y + (panel_height - dialog_height) // 2
+
+        self.ui.panel(dialog_x, dialog_y, dialog_width, dialog_height, (30, 30, 50))
+
+        self.ui.label(
+            "Import Tileset",
+            dialog_x + 20,
+            dialog_y + 10,
+            size=20,
+            color=(100, 200, 255),
+        )
+
+        if self.ui.button(
+            "X", dialog_x + dialog_width - 45, dialog_y + 10, 35, 35, color=(150, 0, 0)
+        ):
+            self.show_tileset_import_dialog = False
+            return
+
+        form_y = dialog_y + 60
+
+        # Tileset name
+        self.ui.label("Tileset Name:", dialog_x + 20, form_y, size=14)
+        form_y += 25
+        self.ui.panel(dialog_x + 20, form_y, dialog_width - 40, 30, (40, 40, 60))
+
+        form_y += 40
+
+        # Image path
+        self.ui.label("Tileset Image:", dialog_x + 20, form_y, size=14)
+        form_y += 25
+        self.ui.panel(dialog_x + 20, form_y, dialog_width - 40, 30, (40, 40, 60))
+
+        form_y += 40
+        if self.ui.button("Browse...", dialog_x + 20, form_y, 120, 30):
+            # TODO: File browser dialog
+            pass
+
+        form_y += 40
+
+        # Tile dimensions
+        self.ui.label("Tile Size:", dialog_x + 20, form_y, size=14)
+        form_y += 25
+
+        self.ui.label("Width:", dialog_x + 30, form_y, size=12)
+        self.ui.panel(dialog_x + 80, form_y, 80, 25, (40, 40, 60))
+        self.ui.label("32", dialog_x + 90, form_y + 5, size=12, color=(200, 200, 200))
+
+        self.ui.label("Height:", dialog_x + 180, form_y, size=12)
+        self.ui.panel(dialog_x + 235, form_y, 80, 25, (40, 40, 60))
+        self.ui.label("32", dialog_x + 245, form_y + 5, size=12, color=(200, 200, 200))
+
+        form_y += 40
+
+        # Auto-detect
+        if self.ui.button("Auto-Detect Grid", dialog_x + 20, form_y, 150, 30):
+            # TODO: Auto-detect tileset grid
+            pass
+
+        form_y += 50
+
+        # Info
+        self.ui.label(
+            "Import tileset images to use in maps",
+            dialog_x + 20,
+            form_y,
+            size=12,
+            color=(180, 180, 180),
+        )
+
+        # Buttons
+        button_y = dialog_y + dialog_height - 50
+        button_width = (dialog_width - 60) // 2
+
+        if self.ui.button("Cancel", dialog_x + 20, button_y, button_width, 35):
+            self.show_tileset_import_dialog = False
+
+        if self.ui.button(
+            "Import", dialog_x + button_width + 40, button_y, button_width, 35, color=(0, 150, 0)
+        ):
+            # TODO: Perform tileset import
+            self.show_tileset_import_dialog = False
+
+    def _perform_import(self) -> None:
+        """Perform map import based on current settings."""
+        if not self.import_file_path:
+            print("No import file specified")
+            return
+
+        try:
+            if self.import_format == "tmx":
+                # Import TMX
+                if self.tmx_importer:
+                    map_data = self.tmx_importer.import_tmx(self.import_file_path)
+                    if map_data:
+                        # Save imported map
+                        self.map_manager.save_map(map_data)
+                        self.map_manager._build_folder_structure()
+                        print(f"Successfully imported TMX map: {map_data.metadata.name}")
+                    else:
+                        print("Failed to import TMX map")
+            elif self.import_format == "legacy":
+                # Import legacy format
+                import json
+
+                with open(self.import_file_path, "r") as f:
+                    legacy_data = json.load(f)
+
+                map_data = self.legacy_converter.convert_legacy_map(legacy_data)
+                if map_data:
+                    # Save converted map
+                    self.map_manager.save_map(map_data)
+                    self.map_manager._build_folder_structure()
+                    print(f"Successfully converted legacy map: {map_data.metadata.name}")
+                else:
+                    print("Failed to convert legacy map")
+
+            self.show_import_dialog = False
+            self.import_file_path = ""
+
+        except Exception as e:
+            print(f"Error importing map: {e}")
+
+    def _perform_export(self) -> None:
+        """Perform map export based on current settings."""
+        if not self.selected_map:
+            print("No map selected")
+            return
+
+        if not self.export_file_path:
+            # Auto-generate filename
+            if self.export_format == "png":
+                self.export_file_path = f"{self.selected_map}.png"
+            elif self.export_format == "minimap":
+                self.export_file_path = f"{self.selected_map}_minimap.png"
+            elif self.export_format == "tmx":
+                self.export_file_path = f"{self.selected_map}.tmx"
+
+        try:
+            # Load map
+            map_data = self.map_manager.load_map(self.selected_map)
+            if not map_data:
+                print("Failed to load map")
+                return
+
+            success = False
+
+            if self.export_format == "png":
+                # Export as PNG
+                scale = float(self.export_scale) if self.export_scale else 1.0
+                success = self.png_exporter.export_map_to_png(
+                    map_data, self.export_file_path, scale=scale
+                )
+            elif self.export_format == "minimap":
+                # Export as minimap
+                max_size = int(self.minimap_size) if self.minimap_size else 256
+                success = self.png_exporter.export_minimap(
+                    map_data, self.export_file_path, max_size
+                )
+            elif self.export_format == "tmx":
+                # Export as TMX
+                success = self.tmx_exporter.export_to_tmx(map_data, self.export_file_path)
+
+            if success:
+                print(f"Successfully exported map to: {self.export_file_path}")
+                self.show_export_dialog = False
+                self.export_file_path = ""
+            else:
+                print("Export failed")
+
+        except Exception as e:
+            print(f"Error exporting map: {e}")
+
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
         Handle pygame events.
@@ -1105,12 +1549,18 @@ class MapManagerUI:
                         self.show_duplicate_dialog,
                         self.show_template_dialog,
                         self.show_delete_confirm,
+                        self.show_import_dialog,
+                        self.show_export_dialog,
+                        self.show_tileset_import_dialog,
                     ]
                 ):
                     self.show_new_map_dialog = False
                     self.show_duplicate_dialog = False
                     self.show_template_dialog = False
                     self.show_delete_confirm = False
+                    self.show_import_dialog = False
+                    self.show_export_dialog = False
+                    self.show_tileset_import_dialog = False
                     return True
                 else:
                     self.toggle()
