@@ -24,6 +24,7 @@ from .debug_console_ui import DebugConsoleUI
 from .game_hud import GameHUD
 from .history_viewer_ui import HistoryViewerUI
 from .level_builder_ui import LevelBuilderUI
+from .map_manager_ui import MapManagerUI
 from .navmesh_editor_ui import NavmeshEditorUI
 from .project_manager_ui import ProjectManagerUI
 from .quest_editor_ui import QuestEditorUI
@@ -68,6 +69,7 @@ class MasterUIManager:
         self.asset_browser = AssetBrowserUI(screen)
         self.autotile_editor = AutotileEditorUI(screen)
         self.ai_animator = AIAnimatorUI(world, renderer)
+        self.map_manager = MapManagerUI(screen)
 
         # AI Assistant System
         self.ai_assistant = AIAssistantPanel(screen, world)
@@ -159,6 +161,10 @@ class MasterUIManager:
         if self.autotile_editor.visible:
             self.autotile_editor.render(self.screen)
 
+        # Render map manager if visible
+        if self.map_manager.visible:
+            self.map_manager.render()
+
         # Render AI Assistant Panel if visible
         if self.ai_assistant.visible:
             self.ai_assistant.render()
@@ -206,6 +212,11 @@ class MasterUIManager:
                 self.toggle_ai_animator()
                 return True
 
+            # Check for Ctrl+M (Map Manager)
+            if event.key == pygame.K_m and ctrl_pressed:
+                self.toggle_map_manager()
+                return True
+
             # Check for Ctrl+Space (AI Assistant)
             if event.key == pygame.K_SPACE and ctrl_pressed:
                 self.toggle_ai_assistant()
@@ -247,6 +258,11 @@ class MasterUIManager:
 
             if self.asset_browser.visible:
                 self.asset_browser.handle_text_input(event.text)
+                return True
+
+        # Route events to map manager if visible
+        if self.map_manager.visible:
+            if self.map_manager.handle_event(event):
                 return True
 
         # Route events to autotile editor if visible
@@ -345,6 +361,10 @@ class MasterUIManager:
         if self.ai_animator.visible:
             self.ai_animator.update(dt)
 
+        # Update map manager
+        if self.map_manager.visible:
+            self.map_manager.update(dt)
+
         # Update AI Assistant (with vision context)
         if self.ai_assistant.visible:
             # Get tilemap from level builder if active
@@ -412,6 +432,10 @@ class MasterUIManager:
         """Toggle debug console."""
         self.debug_console.toggle()
 
+    def toggle_map_manager(self):
+        """Toggle map manager."""
+        self.map_manager.toggle()
+
     # Utility methods
 
     def set_mode(self, mode: str):
@@ -471,6 +495,7 @@ class MasterUIManager:
         help_text += "F11 - Autotile Editor\n"
         help_text += "F12 - Navmesh Editor\n"
         help_text += "\nEdit Commands:\n"
+        help_text += "Ctrl+M - Map Manager\n"
         help_text += "Ctrl+Z - Undo\n"
         help_text += "Ctrl+Y / Ctrl+Shift+Z - Redo\n"
         help_text += "Ctrl+H - History Viewer (in editors)\n"

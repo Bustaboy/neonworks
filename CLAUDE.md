@@ -86,10 +86,11 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── boss_ai.py           # Boss battle AI
 │   └── zone_system.py       # Zone management
 │
-├── ui/                      # Visual editor tools (16 files, ~5,900 LOC)
-│   ├── master_ui_manager.py # UI coordinator (F1-F10 hotkeys)
+├── ui/                      # Visual editor tools (17 files, ~7,100 LOC)
+│   ├── master_ui_manager.py # UI coordinator (F1-F12 hotkeys)
 │   ├── asset_browser_ui.py  # Asset management (F7)
 │   ├── level_builder_ui.py  # Level editor (F4)
+│   ├── map_manager_ui.py    # Map management (Ctrl+M)
 │   ├── navmesh_editor_ui.py # Navmesh editor (F5)
 │   ├── quest_editor_ui.py   # Quest/dialogue editor (F6)
 │   ├── project_manager_ui.py # Project management (F8)
@@ -129,9 +130,14 @@ neonworks/                    # Root directory (note: NOT "engine/")
 ├── input/                   # Input management (2 files, ~400 LOC)
 ├── audio/                   # Audio playback (2 files, ~700 LOC)
 ├── ai/                      # AI pathfinding (2 files, ~500 LOC)
-├── data/                    # Data management (2 files, ~800 LOC)
+├── data/                    # Data management (5 files, ~2,200 LOC)
+│   ├── config_loader.py     # JSON config loading
+│   ├── serialization.py     # Save/load utilities
+│   ├── map_layers.py        # Layer management system
+│   ├── tileset_manager.py   # Tileset management
+│   └── map_manager.py       # Map management system
 │
-├── tests/                   # Test suite (17 files, 8,700+ LOC)
+├── tests/                   # Test suite (18 files, 9,400+ LOC)
 │   └── test_*.py            # Comprehensive tests
 │
 ├── examples/                # Example projects (3 projects)
@@ -1004,7 +1010,7 @@ entry_points={
 
 ### 7.4 MasterUIManager Hotkeys
 
-**All visual editors are accessed via function keys (F1-F10):**
+**All visual editors are accessed via function keys (F1-F12) or modifier combos:**
 
 | Key | Editor | Mode | File |
 |-----|--------|------|------|
@@ -1018,6 +1024,11 @@ entry_points={
 | F8 | Project Manager | All | `ui/project_manager_ui.py` |
 | F9 | Combat UI | Game | `ui/combat_ui.py` |
 | F10 | Toggle HUD | Game | `ui/game_hud.py` |
+| F11 | Autotile Editor | Editor | `ui/autotile_editor_ui.py` |
+| F12 | Navmesh Editor | Editor | `ui/navmesh_editor_ui.py` |
+| Ctrl+M | Map Manager | Editor | `ui/map_manager_ui.py` |
+| Shift+F7 | AI Animator | Editor | `ui/ai_animator_ui.py` |
+| Ctrl+Space | AI Assistant | All | `ui/ai_assistant_panel.py` |
 
 **When adding new editors:**
 - Add to `MasterUIManager.__init__()`
