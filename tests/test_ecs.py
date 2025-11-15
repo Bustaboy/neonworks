@@ -455,7 +455,7 @@ class TestTurnActorComponent:
         actor = TurnActor(action_points=10, max_action_points=10, initiative=15)
 
         assert actor.action_points == 10
-        assert actor.max_ap == 10
+        assert actor.max_action_points == 10
         assert actor.initiative == 15
 
     def test_spend_action_points(self):
@@ -470,7 +470,7 @@ class TestTurnActorComponent:
         """Test restoring action points."""
         actor = TurnActor(action_points=5, max_action_points=10, initiative=15)
 
-        actor.action_points = actor.max_ap
+        actor.action_points = actor.max_action_points
 
         assert actor.action_points == 10
 
