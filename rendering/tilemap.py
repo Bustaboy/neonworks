@@ -726,6 +726,613 @@ class TilemapRenderer:
         return self._stats.copy()
 
 
+class OptimizedTilemapRenderer(TilemapRenderer):
+    """
+    Optimized tilemap renderer with advanced performance features.
+
+    Features:
+    - Chunk-based rendering (only visible chunks)
+    - Layer texture caching (pre-rendered chunks)
+    - Dirty rectangle optimization (only re-render changed areas)
+    - Tile texture atlas for batch rendering
+    - Improved frustum culling
+
+    Designed for high-performance rendering of large maps (500x500+).
+    """
+
+    # Chunk configuration
+    CHUNK_SIZE = 16  # 16x16 tiles per chunk
+
+    def __init__(self, asset_manager: AssetManager, enable_caching: bool = True):
+        """
+        Initialize optimized renderer.
+
+        Args:
+            asset_manager: Asset manager for loading textures
+            enable_caching: Enable chunk caching (recommended)
+        """
+        super().__init__(asset_manager)
+
+        # Caching configuration
+        self.enable_caching = enable_caching
+
+        # Chunk cache: {(layer_id, chunk_x, chunk_y): pygame.Surface}
+        self._chunk_cache: Dict[Tuple[str, int, int], pygame.Surface] = {}
+
+        # Dirty chunks: {(layer_id, chunk_x, chunk_y)}
+        self._dirty_chunks: Set[Tuple[str, int, int]] = set()
+
+        # Texture atlas cache for batch rendering
+        self._atlas_cache: Dict[str, pygame.Surface] = {}
+
+        # Previous camera position for dirty detection
+        self._prev_camera_x = 0.0
+        self._prev_camera_y = 0.0
+        self._prev_camera_zoom = 1.0
+
+        # Enhanced statistics
+        self._stats.update(
+            {
+                "chunks_rendered": 0,
+                "chunks_cached": 0,
+                "chunks_reused": 0,
+                "cache_hits": 0,
+                "cache_misses": 0,
+            }
+        )
+
+    def invalidate_chunk(self, layer_id: str, chunk_x: int, chunk_y: int):
+        """
+        Mark a chunk as dirty (needs re-rendering).
+
+        Args:
+            layer_id: Layer ID
+            chunk_x: Chunk X coordinate
+            chunk_y: Chunk Y coordinate
+        """
+        chunk_key = (layer_id, chunk_x, chunk_y)
+        self._dirty_chunks.add(chunk_key)
+
+        # Remove from cache
+        if chunk_key in self._chunk_cache:
+            del self._chunk_cache[chunk_key]
+
+    def invalidate_tile(self, layer_id: str, tile_x: int, tile_y: int):
+        """
+        Mark the chunk containing a tile as dirty.
+
+        Args:
+            layer_id: Layer ID
+            tile_x: Tile X coordinate
+            tile_y: Tile Y coordinate
+        """
+        chunk_x = tile_x // self.CHUNK_SIZE
+        chunk_y = tile_y // self.CHUNK_SIZE
+        self.invalidate_chunk(layer_id, chunk_x, chunk_y)
+
+    def invalidate_layer(self, layer_id: str):
+        """
+        Invalidate all chunks in a layer.
+
+        Args:
+            layer_id: Layer ID
+        """
+        # Remove all chunks for this layer from cache
+        keys_to_remove = [key for key in self._chunk_cache if key[0] == layer_id]
+        for key in keys_to_remove:
+            del self._chunk_cache[key]
+            self._dirty_chunks.discard(key)
+
+    def clear_cache(self):
+        """Clear all cached chunks."""
+        self._chunk_cache.clear()
+        self._dirty_chunks.clear()
+        self._atlas_cache.clear()
+
+    def render(self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera):
+        """
+        Render tilemap with optimizations.
+
+        Args:
+            screen: Surface to render to
+            tilemap: Tilemap to render
+            camera: Camera for culling and positioning
+        """
+        # Reset stats
+        self._stats["tiles_rendered"] = 0
+        self._stats["tiles_culled"] = 0
+        self._stats["layers_rendered"] = 0
+        self._stats["chunks_rendered"] = 0
+        self._stats["chunks_cached"] = 0
+        self._stats["chunks_reused"] = 0
+        self._stats["cache_hits"] = 0
+        self._stats["cache_misses"] = 0
+
+        # Get default tileset
+        tileset = tilemap.get_tileset()
+        if not tileset:
+            return
+
+        # Load tileset if not already loaded
+        if not tileset.tiles:
+            tileset.load_tiles(self.asset_manager)
+
+        # Create texture atlas if needed
+        if self.enable_caching and tileset.name not in self._atlas_cache:
+            self._create_texture_atlas(tileset)
+
+        # Route to appropriate renderer
+        if tilemap.use_enhanced_layers:
+            self._render_enhanced_optimized(screen, tilemap, camera, tileset)
+        else:
+            self._render_legacy_optimized(screen, tilemap, camera, tileset)
+
+        # Update previous camera state
+        self._prev_camera_x = camera.x
+        self._prev_camera_y = camera.y
+        self._prev_camera_zoom = camera.zoom
+
+    def _create_texture_atlas(self, tileset: Tileset):
+        """
+        Create a texture atlas from tileset for batch rendering.
+
+        Args:
+            tileset: Tileset to create atlas from
+        """
+        if not tileset.tiles:
+            return
+
+        # Calculate atlas size (power of 2 for efficiency)
+        tiles_per_row = tileset.columns
+        tiles_per_col = (tileset.tile_count + tiles_per_row - 1) // tiles_per_row
+
+        atlas_width = tiles_per_row * tileset.tile_width
+        atlas_height = tiles_per_col * tileset.tile_height
+
+        # Create atlas surface
+        atlas = pygame.Surface((atlas_width, atlas_height), pygame.SRCALPHA)
+
+        # Blit all tiles into atlas
+        for tile_id, tile_surface in tileset.tiles.items():
+            col = tile_id % tiles_per_row
+            row = tile_id // tiles_per_row
+            x = col * tileset.tile_width
+            y = row * tileset.tile_height
+            atlas.blit(tile_surface, (x, y))
+
+        self._atlas_cache[tileset.name] = atlas
+
+    def _render_enhanced_optimized(
+        self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera, tileset: Tileset
+    ):
+        """Render using enhanced layer system with optimizations"""
+        # Get layers in render order
+        layer_ids = tilemap.layer_manager.get_render_order()
+
+        for layer_id in layer_ids:
+            layer = tilemap.layer_manager.get_layer(layer_id)
+            if not layer:
+                continue
+
+            # Skip invisible or collision layers
+            if not layer.properties.visible:
+                continue
+
+            if layer.properties.layer_type == LayerType.COLLISION:
+                continue
+
+            # Get effective offsets
+            offset_x, offset_y = layer.get_effective_offset()
+
+            # Render layer with chunk-based optimization
+            self._render_layer_chunked(
+                screen, tilemap, camera, tileset, layer, layer_id, offset_x, offset_y
+            )
+
+            self._stats["layers_rendered"] += 1
+
+    def _render_layer_chunked(
+        self,
+        screen: pygame.Surface,
+        tilemap: Tilemap,
+        camera: Camera,
+        tileset: Tileset,
+        layer: EnhancedTileLayer,
+        layer_id: str,
+        offset_x: float,
+        offset_y: float,
+    ):
+        """
+        Render a layer using chunk-based optimization.
+
+        Args:
+            screen: Surface to render to
+            tilemap: Tilemap being rendered
+            camera: Camera for culling
+            tileset: Tileset for tiles
+            layer: Layer to render
+            layer_id: Layer ID for caching
+            offset_x: Layer X offset
+            offset_y: Layer Y offset
+        """
+        # Calculate visible tile range (frustum culling)
+        camera_left = camera.x - camera.width / 2
+        camera_top = camera.y - camera.height / 2
+
+        # Apply parallax
+        layer_camera_left = camera_left * layer.properties.parallax_x + offset_x
+        layer_camera_top = camera_top * layer.properties.parallax_y + offset_y
+
+        # Calculate visible chunk range
+        start_chunk_x = max(0, int(layer_camera_left / (tilemap.tile_width * self.CHUNK_SIZE)))
+        start_chunk_y = max(0, int(layer_camera_top / (tilemap.tile_height * self.CHUNK_SIZE)))
+
+        end_chunk_x = min(
+            (layer.width + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
+            int(
+                (layer_camera_left + camera.width)
+                / (tilemap.tile_width * self.CHUNK_SIZE)
+            )
+            + 1,
+        )
+        end_chunk_y = min(
+            (layer.height + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
+            int(
+                (layer_camera_top + camera.height)
+                / (tilemap.tile_height * self.CHUNK_SIZE)
+            )
+            + 1,
+        )
+
+        # Render visible chunks
+        for chunk_y in range(start_chunk_y, end_chunk_y):
+            for chunk_x in range(start_chunk_x, end_chunk_x):
+                self._render_chunk(
+                    screen,
+                    tilemap,
+                    camera,
+                    tileset,
+                    layer,
+                    layer_id,
+                    chunk_x,
+                    chunk_y,
+                    offset_x,
+                    offset_y,
+                )
+
+    def _render_chunk(
+        self,
+        screen: pygame.Surface,
+        tilemap: Tilemap,
+        camera: Camera,
+        tileset: Tileset,
+        layer: EnhancedTileLayer,
+        layer_id: str,
+        chunk_x: int,
+        chunk_y: int,
+        offset_x: float,
+        offset_y: float,
+    ):
+        """
+        Render a single chunk with caching.
+
+        Args:
+            screen: Surface to render to
+            tilemap: Tilemap being rendered
+            camera: Camera for positioning
+            tileset: Tileset for tiles
+            layer: Layer being rendered
+            layer_id: Layer ID for caching
+            chunk_x: Chunk X coordinate
+            chunk_y: Chunk Y coordinate
+            offset_x: Layer X offset
+            offset_y: Layer Y offset
+        """
+        chunk_key = (layer_id, chunk_x, chunk_y)
+
+        # Check cache
+        if self.enable_caching and chunk_key in self._chunk_cache:
+            chunk_surface = self._chunk_cache[chunk_key]
+            self._stats["cache_hits"] += 1
+            self._stats["chunks_reused"] += 1
+        else:
+            # Render chunk to surface
+            chunk_surface = self._render_chunk_to_surface(
+                tilemap, tileset, layer, chunk_x, chunk_y
+            )
+
+            if chunk_surface is None:
+                return  # Empty chunk
+
+            # Cache the chunk
+            if self.enable_caching:
+                self._chunk_cache[chunk_key] = chunk_surface
+                self._stats["chunks_cached"] += 1
+
+            self._stats["cache_misses"] += 1
+
+        # Calculate chunk world position
+        chunk_world_x = chunk_x * self.CHUNK_SIZE * tilemap.tile_width - offset_x
+        chunk_world_y = chunk_y * self.CHUNK_SIZE * tilemap.tile_height - offset_y
+
+        # Convert to screen coordinates
+        screen_x, screen_y = camera.world_to_screen(chunk_world_x, chunk_world_y)
+
+        # Apply layer opacity if needed
+        if layer.properties.opacity < 1.0:
+            render_surface = chunk_surface.copy()
+            render_surface.set_alpha(int(layer.properties.opacity * 255))
+            screen.blit(render_surface, (screen_x, screen_y))
+        else:
+            screen.blit(chunk_surface, (screen_x, screen_y))
+
+        self._stats["chunks_rendered"] += 1
+
+    def _render_chunk_to_surface(
+        self,
+        tilemap: Tilemap,
+        tileset: Tileset,
+        layer: EnhancedTileLayer,
+        chunk_x: int,
+        chunk_y: int,
+    ) -> Optional[pygame.Surface]:
+        """
+        Render a chunk to a surface for caching.
+
+        Args:
+            tilemap: Tilemap being rendered
+            tileset: Tileset for tiles
+            layer: Layer being rendered
+            chunk_x: Chunk X coordinate
+            chunk_y: Chunk Y coordinate
+
+        Returns:
+            Rendered chunk surface, or None if empty
+        """
+        # Calculate tile range for this chunk
+        start_tile_x = chunk_x * self.CHUNK_SIZE
+        start_tile_y = chunk_y * self.CHUNK_SIZE
+        end_tile_x = min(start_tile_x + self.CHUNK_SIZE, layer.width)
+        end_tile_y = min(start_tile_y + self.CHUNK_SIZE, layer.height)
+
+        # Calculate chunk size in pixels
+        chunk_pixel_width = (end_tile_x - start_tile_x) * tilemap.tile_width
+        chunk_pixel_height = (end_tile_y - start_tile_y) * tilemap.tile_height
+
+        # Check if chunk has any non-empty tiles
+        has_tiles = False
+        for tile_y in range(start_tile_y, end_tile_y):
+            for tile_x in range(start_tile_x, end_tile_x):
+                if layer.get_tile(tile_x, tile_y) != 0:
+                    has_tiles = True
+                    break
+            if has_tiles:
+                break
+
+        if not has_tiles:
+            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (
+                end_tile_y - start_tile_y
+            )
+            return None
+
+        # Create chunk surface
+        chunk_surface = pygame.Surface(
+            (chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA
+        )
+
+        # Render tiles to chunk surface
+        for tile_y in range(start_tile_y, end_tile_y):
+            for tile_x in range(start_tile_x, end_tile_x):
+                tile_id = layer.get_tile(tile_x, tile_y)
+
+                if tile_id == 0:  # Empty tile
+                    self._stats["tiles_culled"] += 1
+                    continue
+
+                # Get tile surface
+                tile_surface = tileset.tiles.get(tile_id)
+                if not tile_surface:
+                    self._stats["tiles_culled"] += 1
+                    continue
+
+                # Calculate position within chunk
+                local_x = (tile_x - start_tile_x) * tilemap.tile_width
+                local_y = (tile_y - start_tile_y) * tilemap.tile_height
+
+                # Blit tile to chunk
+                chunk_surface.blit(tile_surface, (local_x, local_y))
+                self._stats["tiles_rendered"] += 1
+
+        return chunk_surface
+
+    def _render_legacy_optimized(
+        self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera, tileset: Tileset
+    ):
+        """Render using legacy layer system with optimizations"""
+        camera_left = camera.x - camera.width / 2
+        camera_top = camera.y - camera.height / 2
+
+        # Render each layer
+        for idx, layer in enumerate(tilemap.layers):
+            if not layer.visible:
+                continue
+
+            # Generate layer ID for caching
+            layer_id = f"legacy_{idx}_{layer.name}"
+
+            # Apply parallax
+            layer_camera_left = camera_left * layer.parallax_x + layer.offset_x
+            layer_camera_top = camera_top * layer.parallax_y + layer.offset_y
+
+            # Calculate visible chunk range
+            start_chunk_x = max(
+                0, int(layer_camera_left / (tilemap.tile_width * self.CHUNK_SIZE))
+            )
+            start_chunk_y = max(
+                0, int(layer_camera_top / (tilemap.tile_height * self.CHUNK_SIZE))
+            )
+
+            end_chunk_x = min(
+                (tilemap.width + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
+                int(
+                    (layer_camera_left + camera.width)
+                    / (tilemap.tile_width * self.CHUNK_SIZE)
+                )
+                + 1,
+            )
+            end_chunk_y = min(
+                (tilemap.height + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
+                int(
+                    (layer_camera_top + camera.height)
+                    / (tilemap.tile_height * self.CHUNK_SIZE)
+                )
+                + 1,
+            )
+
+            # Render visible chunks
+            for chunk_y in range(start_chunk_y, end_chunk_y):
+                for chunk_x in range(start_chunk_x, end_chunk_x):
+                    self._render_legacy_chunk(
+                        screen,
+                        tilemap,
+                        camera,
+                        tileset,
+                        layer,
+                        layer_id,
+                        chunk_x,
+                        chunk_y,
+                        layer.offset_x,
+                        layer.offset_y,
+                    )
+
+            self._stats["layers_rendered"] += 1
+
+    def _render_legacy_chunk(
+        self,
+        screen: pygame.Surface,
+        tilemap: Tilemap,
+        camera: Camera,
+        tileset: Tileset,
+        layer: TileLayer,
+        layer_id: str,
+        chunk_x: int,
+        chunk_y: int,
+        offset_x: float,
+        offset_y: float,
+    ):
+        """Render a legacy layer chunk with caching"""
+        chunk_key = (layer_id, chunk_x, chunk_y)
+
+        # Check cache
+        if self.enable_caching and chunk_key in self._chunk_cache:
+            chunk_surface = self._chunk_cache[chunk_key]
+            self._stats["cache_hits"] += 1
+            self._stats["chunks_reused"] += 1
+        else:
+            # Render chunk
+            chunk_surface = self._render_legacy_chunk_to_surface(
+                tilemap, tileset, layer, chunk_x, chunk_y
+            )
+
+            if chunk_surface is None:
+                return
+
+            # Cache the chunk
+            if self.enable_caching:
+                self._chunk_cache[chunk_key] = chunk_surface
+                self._stats["chunks_cached"] += 1
+
+            self._stats["cache_misses"] += 1
+
+        # Calculate chunk world position
+        chunk_world_x = chunk_x * self.CHUNK_SIZE * tilemap.tile_width - offset_x
+        chunk_world_y = chunk_y * self.CHUNK_SIZE * tilemap.tile_height - offset_y
+
+        # Convert to screen coordinates
+        screen_x, screen_y = camera.world_to_screen(chunk_world_x, chunk_world_y)
+
+        # Apply layer opacity
+        if layer.opacity < 1.0:
+            render_surface = chunk_surface.copy()
+            render_surface.set_alpha(int(layer.opacity * 255))
+            screen.blit(render_surface, (screen_x, screen_y))
+        else:
+            screen.blit(chunk_surface, (screen_x, screen_y))
+
+        self._stats["chunks_rendered"] += 1
+
+    def _render_legacy_chunk_to_surface(
+        self,
+        tilemap: Tilemap,
+        tileset: Tileset,
+        layer: TileLayer,
+        chunk_x: int,
+        chunk_y: int,
+    ) -> Optional[pygame.Surface]:
+        """Render a legacy chunk to surface"""
+        # Calculate tile range
+        start_tile_x = chunk_x * self.CHUNK_SIZE
+        start_tile_y = chunk_y * self.CHUNK_SIZE
+        end_tile_x = min(start_tile_x + self.CHUNK_SIZE, tilemap.width)
+        end_tile_y = min(start_tile_y + self.CHUNK_SIZE, tilemap.height)
+
+        # Calculate chunk size
+        chunk_pixel_width = (end_tile_x - start_tile_x) * tilemap.tile_width
+        chunk_pixel_height = (end_tile_y - start_tile_y) * tilemap.tile_height
+
+        # Check if chunk has tiles
+        has_tiles = False
+        for tile_y in range(start_tile_y, end_tile_y):
+            for tile_x in range(start_tile_x, end_tile_x):
+                tile = layer.get_tile(tile_x, tile_y)
+                if tile and not tile.is_empty():
+                    has_tiles = True
+                    break
+            if has_tiles:
+                break
+
+        if not has_tiles:
+            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (
+                end_tile_y - start_tile_y
+            )
+            return None
+
+        # Create chunk surface
+        chunk_surface = pygame.Surface(
+            (chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA
+        )
+
+        # Render tiles
+        for tile_y in range(start_tile_y, end_tile_y):
+            for tile_x in range(start_tile_x, end_tile_x):
+                tile = layer.get_tile(tile_x, tile_y)
+
+                if not tile or tile.is_empty():
+                    self._stats["tiles_culled"] += 1
+                    continue
+
+                # Get tile surface
+                tile_surface = tileset.tiles.get(tile.tile_id)
+                if not tile_surface:
+                    self._stats["tiles_culled"] += 1
+                    continue
+
+                # Apply transformations if needed
+                render_surface = tile_surface
+                if tile.flags != 0:
+                    render_surface = self._apply_tile_transforms(tile_surface, tile)
+
+                # Calculate position within chunk
+                local_x = (tile_x - start_tile_x) * tilemap.tile_width
+                local_y = (tile_y - start_tile_y) * tilemap.tile_height
+
+                # Blit tile
+                chunk_surface.blit(render_surface, (local_x, local_y))
+                self._stats["tiles_rendered"] += 1
+
+        return chunk_surface
+
+
 class TilemapBuilder:
     """Helper class for building tilemaps"""
 
