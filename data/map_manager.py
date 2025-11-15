@@ -244,7 +244,7 @@ class MapData:
         """
         self.dimensions.width = new_width
         self.dimensions.height = new_height
-        self.layer_manager.resize(new_width, new_height)
+        self.layer_manager.resize_all_layers(new_width, new_height)
         self.update_modified_date()
 
 
@@ -336,9 +336,9 @@ class MapManager:
 
         # Build from all maps
         for map_name in self.list_maps():
-            map_data = self.get_map_metadata(map_name)
-            if map_data:
-                folder_path = map_data.get("metadata", {}).get("folder", "")
+            metadata = self.get_map_metadata(map_name)
+            if metadata:
+                folder_path = metadata.get("folder", "")
                 self._ensure_folder_path(folder_path)
                 self._add_map_to_folder(map_name, folder_path)
 
@@ -397,7 +397,8 @@ class MapManager:
         Raises:
             ValueError: If a map with this name already exists
         """
-        if self.map_exists(name):
+        # Check both in-memory cache and filesystem
+        if name in self.maps or self.map_exists(name):
             raise ValueError(f"Map '{name}' already exists")
 
         map_data = MapData(name, width, height, tile_size)
@@ -516,7 +517,8 @@ class MapManager:
         Raises:
             ValueError: If new name already exists or source doesn't exist
         """
-        if self.map_exists(new_name):
+        # Check both in-memory cache and filesystem
+        if new_name in self.maps or self.map_exists(new_name):
             raise ValueError(f"Map '{new_name}' already exists")
 
         source_map = self.load_map(source_name)
