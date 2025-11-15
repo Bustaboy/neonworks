@@ -24,7 +24,7 @@ class AutotileTool(MapTool):
 
     def __init__(self):
         """Initialize the autotile tool."""
-        super().__init__("Autotile", hotkey=6, color=(100, 200, 255))
+        super().__init__("Autotile", hotkey=8, color=(100, 200, 255))
         self.cursor_type = "brush"
 
         self.autotile_manager = get_autotile_manager()
@@ -155,7 +155,7 @@ class AutotileFillTool(MapTool):
 
     def __init__(self):
         """Initialize the autotile fill tool."""
-        super().__init__("Autotile Fill", hotkey=7, color=(150, 220, 255))
+        super().__init__("Autotile Fill", hotkey=0, color=(150, 220, 255))
         self.cursor_type = "fill"
 
         self.autotile_manager = get_autotile_manager()

@@ -184,11 +184,14 @@ class AILevelGenerator:
             f"⭐ Events: {num_events}\n"
             f"🗺️ Navmesh: Generated\n\n"
             f"💬 You can now:\n"
-            f"  • Add more buildings: 'add 5 houses'\n"
-            f"  • Place enemies: 'add 10 enemies'\n"
-            f"  • Add NPCs: 'add merchant npc'\n"
+            f"  • Add more: 'add 5 houses' or 'add 10 enemies'\n"
             f"  • Modify terrain: 'add water in center'\n"
-            f"  • Or manually edit with tools!"
+            f"  • Or manually edit with tools:\n"
+            f"    - Shape Tool (5): Draw rectangles, circles, lines\n"
+            f"    - Stamp Tool (6): Paint with custom patterns\n"
+            f"    - Eyedropper (7): Pick tiles from map\n"
+            f"    - Fill Tool (3): Flood fill areas\n"
+            f"    - Select Tool (4): Select & copy regions"
         )
 
         return response
@@ -229,7 +232,13 @@ class AILevelGenerator:
             f"  • 'add enemies'\n"
             f"  • 'add NPCs'\n"
             f"  • 'add trees and rocks'\n"
-            f"  • 'make it a dungeon'\n"
+            f"  • 'make it a dungeon'\n\n"
+            f"🔧 Or use manual tools:\n"
+            f"  • Shape Tool (5): Geometric shapes\n"
+            f"  • Stamp Tool (6): Custom patterns\n"
+            f"  • Eyedropper (7): Pick tiles\n"
+            f"  • Fill Tool (3): Flood fill\n"
+            f"  • Undo/Redo: Ctrl+Z / Ctrl+Y"
         )
 
         return response
@@ -489,7 +498,7 @@ class AIGeneratorTool(MapTool):
     """
 
     def __init__(self):
-        super().__init__("AI Gen", 5, (150, 0, 150))
+        super().__init__("AI Gen", 9, (150, 0, 150))
         self.cursor_type = "ai"
         self.generator = AILevelGenerator()
 
@@ -524,7 +533,12 @@ class AIGeneratorTool(MapTool):
                     "  • 'Generate a forest area'\n"
                     "  • 'Build a desert oasis'\n"
                     "  • 'Design a castle'\n\n"
-                    "I'll create a complete level with terrain, buildings, NPCs, events, and navmesh!",
+                    "I'll create a complete level with terrain, buildings, NPCs, events, and navmesh!\n\n"
+                    "🔧 New Tools Available:\n"
+                    "  • Shape Tool (5): Geometric shapes\n"
+                    "  • Stamp Tool (6): Custom patterns\n"
+                    "  • Eyedropper (7): Pick tiles\n"
+                    "  • Undo/Redo: Ctrl+Z / Ctrl+Y",
                 )
             )
 
