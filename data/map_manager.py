@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from neonworks.data.map_layers import LayerManager
-from neonworks.data.serialization import load_from_file, save_to_file
 
 
 @dataclass
@@ -428,7 +427,8 @@ class MapManager:
             return None
 
         try:
-            data = load_from_file(str(map_path))
+            with open(map_path, "r") as f:
+                data = json.load(f)
             map_data = MapData.from_dict(data)
 
             if cache:
@@ -456,7 +456,8 @@ class MapManager:
         map_path = self.get_map_path(map_data.metadata.name)
 
         try:
-            save_to_file(map_data.to_dict(), str(map_path))
+            with open(map_path, "w") as f:
+                json.dump(map_data.to_dict(), f, indent=2)
             self.maps[map_data.metadata.name] = map_data
             return True
         except Exception as e:
@@ -549,7 +550,8 @@ class MapManager:
         template_path = self.templates_dir / f"{template_name}.json"
 
         try:
-            save_to_file(map_data.to_dict(), str(template_path))
+            with open(template_path, "w") as f:
+                json.dump(map_data.to_dict(), f, indent=2)
             return True
         except Exception as e:
             print(f"Error saving template '{template_name}': {e}")
@@ -573,7 +575,8 @@ class MapManager:
             return None
 
         try:
-            data = load_from_file(str(template_path))
+            with open(template_path, "r") as f:
+                data = json.load(f)
             map_data = MapData.from_dict(data)
             map_data.metadata.name = new_name
             map_data.metadata.created_date = datetime.now().isoformat()
