@@ -26,12 +26,16 @@ from .ai_tileset_ui import AITilesetPanel
 from .autotile_tool import AutotileFillTool, AutotileTool
 from .map_tools import (
     EraserTool,
+    EyedropperTool,
     FillTool,
     MapTool,
     PencilTool,
     SelectTool,
+    ShapeTool,
+    StampTool,
     ToolContext,
     ToolManager,
+    UndoManager,
 )
 from .tileset_picker_ui import TilesetPickerUI
 
@@ -198,12 +202,23 @@ class LevelBuilderUI:
         self.show_grid = True
         self.show_layer_preview = True
 
+        # Undo/Redo manager
+        self.undo_manager = UndoManager(max_history=100)
+
     def _initialize_tools(self):
         """Initialize all map editing tools."""
+        # Basic tools
         self.tool_manager.register_tool("pencil", PencilTool())
         self.tool_manager.register_tool("eraser", EraserTool())
         self.tool_manager.register_tool("fill", FillTool())
         self.tool_manager.register_tool("select", SelectTool())
+
+        # Advanced tools (NEW)
+        self.tool_manager.register_tool("shape", ShapeTool())
+        self.tool_manager.register_tool("stamp", StampTool())
+        self.tool_manager.register_tool("eyedropper", EyedropperTool())
+
+        # AI tool
         self.tool_manager.register_tool("ai_gen", AIGeneratorTool())
 
         # Autotile tools (NEW - intelligent tile matching)
@@ -264,6 +279,7 @@ class LevelBuilderUI:
             grid_height=self.grid_height,
             tile_size=self.tile_size,
             event_editor=self.event_editor,
+            undo_manager=self.undo_manager,
         )
 
     def initialize_tilemap(self):
@@ -776,8 +792,24 @@ class LevelBuilderUI:
 
         # Handle keyboard shortcuts for tool switching
         if event.type == pygame.KEYDOWN:
+            # Check for Ctrl key modifier
+            ctrl_pressed = pygame.key.get_mods() & pygame.KMOD_CTRL
+            shift_pressed = pygame.key.get_mods() & pygame.KMOD_SHIFT
+
+            # Ctrl+Z: Undo
+            if ctrl_pressed and event.key == pygame.K_z and not shift_pressed:
+                if self.undo_manager.undo():
+                    return True
+
+            # Ctrl+Y or Ctrl+Shift+Z: Redo
+            if (ctrl_pressed and event.key == pygame.K_y) or (
+                ctrl_pressed and shift_pressed and event.key == pygame.K_z
+            ):
+                if self.undo_manager.redo():
+                    return True
+
             # 'C' key toggles AI chat
-            if event.key == pygame.K_c:
+            if event.key == pygame.K_c and not ctrl_pressed:
                 active_tool = self.tool_manager.get_active_tool()
                 if isinstance(active_tool, AIGeneratorTool):
                     active_tool.toggle_chat()
