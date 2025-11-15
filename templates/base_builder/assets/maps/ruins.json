@@ -1,0 +1,453 @@
+{
+  "name": "Ancient Ruins",
+  "width": 20,
+  "height": 20,
+  "tile_size": 32,
+  "background_music": "ruins_mystery.mp3",
+  "encounter_rate": 0.0,
+  "encounter_table": "",
+  "spawn_points": [
+    {
+      "name": "entrance",
+      "x": 10,
+      "y": 18,
+      "direction": "UP"
+    },
+    {
+      "name": "treasure_room",
+      "x": 10,
+      "y": 3,
+      "direction": "DOWN"
+    }
+  ],
+  "tilemap": {
+    "tilesets": [
+      {
+        "name": "ruins_tiles",
+        "image": "tilesets/ruins.png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "columns": 16,
+        "tile_count": 256,
+        "spacing": 0,
+        "margin": 0
+      }
+    ],
+    "layers": [
+      {
+        "name": "floor",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "RUINS_FLOOR_DATA"
+      },
+      {
+        "name": "walls",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "RUINS_WALLS_DATA"
+      },
+      {
+        "name": "decorations",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "RUINS_DECORATIONS_DATA"
+      }
+    ]
+  },
+  "collision": {
+    "blocked_tiles": [16, 17, 18, 19, 32, 33, 34, 35]
+  },
+  "objects": [
+    {
+      "id": "ancient_tablet",
+      "x": 10,
+      "y": 15,
+      "sprite": "objects/tablet.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "read_tablet"
+    },
+    {
+      "id": "guardian_statue_left",
+      "x": 8,
+      "y": 8,
+      "sprite": "objects/statue.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "examine_statue"
+    },
+    {
+      "id": "guardian_statue_right",
+      "x": 12,
+      "y": 8,
+      "sprite": "objects/statue.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "examine_statue"
+    },
+    {
+      "id": "treasure_chest",
+      "x": 10,
+      "y": 2,
+      "sprite": "objects/golden_chest.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "final_treasure"
+    }
+  ],
+  "triggers": [
+    {
+      "id": "to_home",
+      "x": 10,
+      "y": 19,
+      "target_zone": "home_base",
+      "target_spawn": "from_ruins",
+      "transition_type": "fade"
+    },
+    {
+      "id": "boss_trigger",
+      "x": 10,
+      "y": 10,
+      "trigger_type": "player_touch",
+      "event_id": "boss_battle",
+      "condition": {
+        "type": "switch",
+        "switch_id": "guardian_defeated",
+        "value": false
+      },
+      "once_only": true
+    }
+  ],
+  "events": [
+    {
+      "id": "read_tablet",
+      "trigger": "action_button",
+      "name": "Ancient Tablet",
+      "note": "TUTORIAL: Lore and hints",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "An ancient tablet with inscriptions...\\nReading the text..."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "\\\"Here lies the Ancient Guardian,\\nprotector of sacred relics.\\nOnly the worthy may claim\\nthe treasures within.\\\""
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Warning: A powerful enemy lies ahead!\\nMake sure you're well-prepared."
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "examine_statue",
+      "trigger": "action_button",
+      "name": "Guardian Statue",
+      "note": "TUTORIAL: Atmospheric flavor",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "A weathered stone statue.\\nIt depicts a mighty warrior\\nholding a sword and shield."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The eyes seem to follow you..."
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boss_battle",
+      "trigger": "player_touch",
+      "name": "Ancient Guardian Boss",
+      "note": "TUTORIAL: Boss battle encounter",
+      "pages": [
+        {
+          "conditions": {
+            "switch": "guardian_defeated",
+            "switch_value": false
+          },
+          "trigger": "player_touch",
+          "commands": [
+            {
+              "code": "fadeout_screen",
+              "parameters": {
+                "duration": 30
+              }
+            },
+            {
+              "code": "play_bgm",
+              "parameters": {
+                "name": "boss_battle.mp3",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The ground trembles...\\nSomething awakens!"
+              }
+            },
+            {
+              "code": "fadein_screen",
+              "parameters": {
+                "duration": 30
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The Ancient Guardian appears!\\nPrepare for battle!"
+              }
+            },
+            {
+              "code": "battle_processing",
+              "parameters": {
+                "troop_id": 5,
+                "can_escape": false,
+                "can_lose": false
+              }
+            },
+            {
+              "code": "if_win",
+              "parameters": {}
+            },
+            {
+              "code": "fadeout_bgm",
+              "parameters": {
+                "duration": 30
+              }
+            },
+            {
+              "code": "play_bgm",
+              "parameters": {
+                "name": "ruins_mystery.mp3",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Victory! The Ancient Guardian\\nhas been defeated!"
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The path to the treasure room\\nis now open!"
+              }
+            },
+            {
+              "code": "control_switches",
+              "parameters": {
+                "switch_id": "guardian_defeated",
+                "value": true
+              }
+            },
+            {
+              "code": "play_me",
+              "parameters": {
+                "name": "victory.mp3",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "if_escape",
+              "parameters": {}
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "You barely escaped!\\nRegroup and try again."
+              }
+            },
+            {
+              "code": "transfer_player",
+              "parameters": {
+                "map_id": "home_base",
+                "x": 15,
+                "y": 18,
+                "direction": 2,
+                "fade_type": 0
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "final_treasure",
+      "trigger": "action_button",
+      "name": "Final Treasure",
+      "note": "TUTORIAL: Boss reward - Ancient Relic",
+      "pages": [
+        {
+          "conditions": {
+            "switch": "guardian_defeated",
+            "switch_value": true,
+            "self_switch": "A"
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "A magnificent golden chest!\\nLet's see what's inside..."
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "treasure.wav",
+                "volume": 100,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 201,
+                "operation": "increase",
+                "operand": 1
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "★ OBTAINED: ANCIENT RELIC ★\\n\\nA mysterious artifact\\nradiating ancient power!"
+              }
+            },
+            {
+              "code": "change_gold",
+              "parameters": {
+                "operation": "increase",
+                "operand": 1000
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 102,
+                "operation": "increase",
+                "operand": 5
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Also found:\\n1000 Gold\\n5x Energy Drink"
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Congratulations!\\nYou've completed the\\nBase Builder Demo!"
+              }
+            },
+            {
+              "code": "control_self_switch",
+              "parameters": {
+                "self_switch": "A",
+                "value": true
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        },
+        {
+          "conditions": {
+            "switch": "guardian_defeated",
+            "switch_value": false
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The chest is sealed by magic.\\nDefeat the guardian to open it."
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        },
+        {
+          "conditions": {
+            "self_switch": "A",
+            "self_switch_value": true
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The chest is empty now."
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

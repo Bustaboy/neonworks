@@ -1,0 +1,298 @@
+{
+  "name": "Forest",
+  "width": 25,
+  "height": 25,
+  "tile_size": 32,
+  "background_music": "forest_ambience.mp3",
+  "encounter_rate": 0.05,
+  "encounter_table": "forest_encounters",
+  "spawn_points": [
+    {
+      "name": "from_base",
+      "x": 12,
+      "y": 24,
+      "direction": "UP"
+    },
+    {
+      "name": "clearing",
+      "x": 12,
+      "y": 12,
+      "direction": "DOWN"
+    }
+  ],
+  "tilemap": {
+    "tilesets": [
+      {
+        "name": "forest_tiles",
+        "image": "tilesets/forest.png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "columns": 16,
+        "tile_count": 256,
+        "spacing": 0,
+        "margin": 0
+      }
+    ],
+    "layers": [
+      {
+        "name": "ground",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "FOREST_GROUND_DATA"
+      },
+      {
+        "name": "trees",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "FOREST_TREES_DATA"
+      }
+    ]
+  },
+  "collision": {
+    "blocked_tiles": [16, 17, 32, 33, 48, 49]
+  },
+  "encounter_groups": {
+    "forest_encounters": [
+      {"enemy_id": 1, "weight": 50},
+      {"enemy_id": 4, "weight": 30}
+    ]
+  },
+  "objects": [
+    {
+      "id": "wood_pile_1",
+      "x": 8,
+      "y": 8,
+      "sprite": "objects/wood_pile.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "gather",
+      "event_id": "gather_wood"
+    },
+    {
+      "id": "wood_pile_2",
+      "x": 16,
+      "y": 10,
+      "sprite": "objects/wood_pile.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "gather",
+      "event_id": "gather_wood"
+    },
+    {
+      "id": "berry_bush",
+      "x": 10,
+      "y": 15,
+      "sprite": "objects/bush.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "gather",
+      "event_id": "gather_food"
+    },
+    {
+      "id": "hidden_chest",
+      "x": 5,
+      "y": 5,
+      "sprite": "objects/chest.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "forest_treasure"
+    }
+  ],
+  "triggers": [
+    {
+      "id": "to_home",
+      "x": 12,
+      "y": 25,
+      "target_zone": "home_base",
+      "target_spawn": "from_forest",
+      "transition_type": "fade"
+    }
+  ],
+  "events": [
+    {
+      "id": "gather_wood",
+      "trigger": "action_button",
+      "name": "Gather Wood",
+      "note": "TUTORIAL: Resource gathering - wood",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "You found a pile of wood!\\nGathering resources..."
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 1,
+                "operation": "increase",
+                "operand": 5
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Obtained 5x Wood!"
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "item_get.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "erase_event",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gather_food",
+      "trigger": "action_button",
+      "name": "Gather Food",
+      "note": "TUTORIAL: Resource gathering - food",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Ripe berries! Perfect for food.\\nPicking berries..."
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 3,
+                "operation": "increase",
+                "operand": 3
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Obtained 3x Food!"
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "item_get.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "erase_event",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "forest_treasure",
+      "trigger": "action_button",
+      "name": "Hidden Treasure",
+      "note": "TUTORIAL: Reward for exploration",
+      "pages": [
+        {
+          "conditions": {
+            "self_switch": "A"
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "A hidden chest! Let's see what's inside..."
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 101,
+                "operation": "increase",
+                "operand": 3
+              }
+            },
+            {
+              "code": "change_gold",
+              "parameters": {
+                "operation": "increase",
+                "operand": 100
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Found:\\n3x Health Potion\\n100 Gold"
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "treasure.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "control_self_switch",
+              "parameters": {
+                "self_switch": "A",
+                "value": true
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        },
+        {
+          "conditions": {
+            "self_switch": "A",
+            "self_switch_value": true
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "The chest is empty."
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

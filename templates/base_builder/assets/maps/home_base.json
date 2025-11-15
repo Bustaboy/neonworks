@@ -1,0 +1,943 @@
+{
+  "name": "Home Base",
+  "width": 30,
+  "height": 20,
+  "tile_size": 32,
+  "background_music": "peaceful_town.mp3",
+  "encounter_rate": 0.0,
+  "encounter_table": "",
+  "spawn_points": [
+    {
+      "name": "default",
+      "x": 15,
+      "y": 18,
+      "direction": "UP"
+    },
+    {
+      "name": "from_forest",
+      "x": 5,
+      "y": 1,
+      "direction": "DOWN"
+    },
+    {
+      "name": "from_mountains",
+      "x": 25,
+      "y": 1,
+      "direction": "DOWN"
+    },
+    {
+      "name": "from_ruins",
+      "x": 29,
+      "y": 10,
+      "direction": "LEFT"
+    }
+  ],
+  "tilemap": {
+    "tilesets": [
+      {
+        "name": "base_tiles",
+        "image": "tilesets/base_terrain.png",
+        "tile_width": 32,
+        "tile_height": 32,
+        "columns": 16,
+        "tile_count": 256,
+        "spacing": 0,
+        "margin": 0
+      }
+    ],
+    "layers": [
+      {
+        "name": "ground",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "GROUND_LAYER_DATA_PLACEHOLDER"
+      },
+      {
+        "name": "decoration",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "DECORATION_LAYER_DATA_PLACEHOLDER"
+      },
+      {
+        "name": "buildings",
+        "visible": true,
+        "opacity": 1.0,
+        "data": "BUILDINGS_LAYER_DATA_PLACEHOLDER"
+      }
+    ]
+  },
+  "collision": {
+    "blocked_tiles": [1, 16, 17, 18, 19, 20, 32, 33, 34, 35, 48, 49, 50]
+  },
+  "npcs": [
+    {
+      "id": "tutorial_guide",
+      "x": 15,
+      "y": 15,
+      "sprite": "characters/guide.png",
+      "behavior": "static",
+      "direction": "DOWN",
+      "dialogue_id": "tutorial_welcome",
+      "can_talk": true,
+      "event_id": "tutorial_start"
+    },
+    {
+      "id": "marcus_builder",
+      "x": 10,
+      "y": 10,
+      "sprite": "characters/builder.png",
+      "behavior": "static",
+      "direction": "RIGHT",
+      "dialogue_id": "marcus_intro",
+      "can_talk": true,
+      "event_id": "recruit_marcus"
+    },
+    {
+      "id": "sarah_guard",
+      "x": 20,
+      "y": 10,
+      "sprite": "characters/guard.png",
+      "behavior": "patrol",
+      "patrol_points": [[20, 10], [22, 10], [22, 12], [20, 12]],
+      "patrol_interval": 2.0,
+      "dialogue_id": "sarah_intro",
+      "can_talk": true,
+      "event_id": "recruit_sarah"
+    },
+    {
+      "id": "jake_scout",
+      "x": 5,
+      "y": 5,
+      "sprite": "characters/scout.png",
+      "behavior": "wander",
+      "wander_radius": 4,
+      "wander_interval": 3.0,
+      "dialogue_id": "jake_intro",
+      "can_talk": true,
+      "event_id": "recruit_jake"
+    },
+    {
+      "id": "resource_merchant",
+      "x": 12,
+      "y": 8,
+      "sprite": "characters/merchant.png",
+      "behavior": "static",
+      "direction": "DOWN",
+      "dialogue_id": "merchant_shop",
+      "can_talk": true,
+      "event_id": "open_shop"
+    }
+  ],
+  "objects": [
+    {
+      "id": "storage_chest",
+      "x": 14,
+      "y": 10,
+      "sprite": "objects/chest.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "open_storage"
+    },
+    {
+      "id": "town_sign",
+      "x": 15,
+      "y": 16,
+      "sprite": "objects/sign.png",
+      "is_solid": false,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "read_sign"
+    },
+    {
+      "id": "campfire",
+      "x": 15,
+      "y": 12,
+      "sprite": "objects/campfire.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "examine",
+      "event_id": "use_campfire"
+    },
+    {
+      "id": "crafting_bench",
+      "x": 18,
+      "y": 8,
+      "sprite": "objects/workbench.png",
+      "is_solid": true,
+      "can_interact": true,
+      "interaction_type": "use",
+      "event_id": "open_crafting"
+    }
+  ],
+  "triggers": [
+    {
+      "id": "to_forest",
+      "x": 5,
+      "y": 0,
+      "target_zone": "forest",
+      "target_spawn": "from_base",
+      "transition_type": "fade"
+    },
+    {
+      "id": "to_mountains",
+      "x": 25,
+      "y": 0,
+      "target_zone": "mountains",
+      "target_spawn": "from_base",
+      "transition_type": "fade"
+    },
+    {
+      "id": "to_ruins",
+      "x": 29,
+      "y": 10,
+      "target_zone": "ruins",
+      "target_spawn": "entrance",
+      "transition_type": "fade",
+      "condition": {
+        "type": "switch",
+        "switch_id": "ruins_unlocked",
+        "value": true
+      }
+    },
+    {
+      "id": "tutorial_trigger",
+      "x": 15,
+      "y": 17,
+      "trigger_type": "player_touch",
+      "event_id": "first_time_tutorial",
+      "condition": {
+        "type": "switch",
+        "switch_id": "tutorial_completed",
+        "value": false
+      },
+      "once_only": true
+    }
+  ],
+  "events": [
+    {
+      "id": "tutorial_start",
+      "trigger": "action_button",
+      "name": "Tutorial - Getting Started",
+      "note": "TUTORIAL: Welcome the player and explain basic controls",
+      "pages": [
+        {
+          "conditions": {
+            "switch1": null,
+            "switch2": null,
+            "variable": null,
+            "self_switch": null,
+            "item": null
+          },
+          "graphic": {
+            "character_name": "guide",
+            "character_index": 0,
+            "direction": 2,
+            "pattern": 0
+          },
+          "move_type": "static",
+          "move_speed": 3,
+          "move_frequency": 3,
+          "walk_anime": true,
+          "step_anime": false,
+          "direction_fix": false,
+          "through": false,
+          "priority_type": "normal",
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "face": "guide",
+                "face_index": 0,
+                "background": 0,
+                "position": 2,
+                "text": "Welcome to Base Builder Demo!\\nI'm here to help you get started."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "CONTROLS:\\nArrow Keys - Move\\nZ/Enter - Interact\\nX/Esc - Cancel\\nF-Keys - Open editors"
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Your goal is to build a thriving settlement.\\nGather resources, construct buildings,\\nand defend against threats!"
+              }
+            },
+            {
+              "code": "show_choices",
+              "parameters": {
+                "choices": ["Tell me more!", "I'm ready to start!", "What are the editors?"],
+                "cancel_type": -1
+              }
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Great! Let me explain the basics.\\n\\nFirst, talk to the NPCs around town.\\nThey'll join your settlement and help you."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Gather resources from the FOREST (north-west)\\nand MOUNTAINS (north-east).\\n\\nUse resources at the CRAFTING BENCH\\nto create tools and equipment."
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 1
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Excellent! Your adventure begins now.\\nGood luck, and may your settlement prosper!"
+              }
+            },
+            {
+              "code": "control_switches",
+              "parameters": {
+                "switch_id": "tutorial_completed",
+                "value": true
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 2
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "NeonWorks has powerful visual editors!\\n\\nF4 - Level Builder\\nF5 - Navmesh Editor\\nF6 - Quest Editor\\nF7 - Asset Browser"
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Use these editors to customize your game.\\nAdd new maps, quests, and content easily!"
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recruit_marcus",
+      "trigger": "action_button",
+      "name": "Recruit Marcus the Builder",
+      "note": "TUTORIAL: Recruit Marcus to unlock building features",
+      "pages": [
+        {
+          "conditions": {
+            "switch1": null,
+            "switch2": null,
+            "variable": null,
+            "self_switch": "A",
+            "item": null
+          },
+          "graphic": {
+            "character_name": "builder",
+            "character_index": 0,
+            "direction": 6,
+            "pattern": 0
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "face": "builder",
+                "face_index": 0,
+                "text": "Hey there! Name's Marcus.\\nI'm the best builder in these parts."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "I can help you construct buildings,\\nrepair structures, and expand your base.\\nWanna team up?"
+              }
+            },
+            {
+              "code": "show_choices",
+              "parameters": {
+                "choices": ["Yes, join us!", "Not yet"],
+                "cancel_type": 1
+              }
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Awesome! Let's build something great together!\\n\\nI've learned the QUICK BUILD skill.\\nIt'll speed up construction!"
+              }
+            },
+            {
+              "code": "change_party_member",
+              "parameters": {
+                "actor_id": 2,
+                "operation": "add",
+                "initialize": true
+              }
+            },
+            {
+              "code": "control_self_switch",
+              "parameters": {
+                "self_switch": "A",
+                "value": true
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "recruit_success.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 1
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "No worries! I'll be here when you need me."
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        },
+        {
+          "conditions": {
+            "switch1": null,
+            "switch2": null,
+            "variable": null,
+            "self_switch": "A",
+            "item": null,
+            "self_switch_value": true
+          },
+          "graphic": {
+            "character_name": "",
+            "character_index": 0,
+            "direction": 2,
+            "pattern": 0
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Marcus has joined your party!"
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open_storage",
+      "trigger": "action_button",
+      "name": "Storage Chest",
+      "note": "TUTORIAL: Access the item storage system",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "STORAGE CHEST\\n\\nStore and retrieve items here.\\nYour current resources are safe!"
+              }
+            },
+            {
+              "code": "comment",
+              "parameters": {
+                "text": "TODO: Open storage UI"
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "chest_open.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open_shop",
+      "trigger": "action_button",
+      "name": "Resource Merchant",
+      "note": "TUTORIAL: Buy and sell resources",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "face": "merchant",
+                "face_index": 0,
+                "text": "Welcome to my shop!\\nI buy and sell resources.\\nWhat do you need?"
+              }
+            },
+            {
+              "code": "shop_processing",
+              "parameters": {
+                "goods": [
+                  {"kind": 1, "id": 1, "price": 5},
+                  {"kind": 1, "id": 2, "price": 10},
+                  {"kind": 1, "id": 3, "price": 3},
+                  {"kind": 1, "id": 101, "price": 50},
+                  {"kind": 1, "id": 102, "price": 80},
+                  {"kind": 2, "id": 1, "price": 50},
+                  {"kind": 2, "id": 3, "price": 30}
+                ],
+                "purchase_only": false
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Thank you! Come back anytime!"
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open_crafting",
+      "trigger": "action_button",
+      "name": "Crafting Bench",
+      "note": "TUTORIAL: Craft items from resources",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "CRAFTING BENCH\\n\\nCombine resources to create new items.\\nWhat would you like to craft?"
+              }
+            },
+            {
+              "code": "show_choices",
+              "parameters": {
+                "choices": ["Iron Bar (2 Iron Ore)", "Tools (1 Iron Bar)", "Cancel"],
+                "cancel_type": 2
+              }
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 0
+              }
+            },
+            {
+              "code": "conditional_branch",
+              "parameters": {
+                "type": "has_item",
+                "item_id": 4,
+                "quantity": 2
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 4,
+                "operation": "decrease",
+                "operand": 2
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 5,
+                "operation": "increase",
+                "operand": 1
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Crafted 1x Iron Bar!"
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "craft_success.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "else",
+              "parameters": {}
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Not enough Iron Ore!\\nYou need 2x Iron Ore."
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 1
+              }
+            },
+            {
+              "code": "conditional_branch",
+              "parameters": {
+                "type": "has_item",
+                "item_id": 5,
+                "quantity": 1
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 5,
+                "operation": "decrease",
+                "operand": 1
+              }
+            },
+            {
+              "code": "change_items",
+              "parameters": {
+                "item_id": 6,
+                "operation": "increase",
+                "operand": 1
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Crafted 1x Tools!\\nWorker efficiency increased!"
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "craft_success.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "else",
+              "parameters": {}
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Not enough Iron Bars!\\nYou need 1x Iron Bar."
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read_sign",
+      "trigger": "action_button",
+      "name": "Town Sign",
+      "note": "TUTORIAL: Display settlement information",
+      "pages": [
+        {
+          "conditions": {},
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "★ WELCOME TO YOUR SETTLEMENT ★\\n\\nPopulation: 1\\nResources: Check storage\\nDefense: Build walls & recruit guards"
+              }
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recruit_sarah",
+      "trigger": "action_button",
+      "name": "Recruit Sarah the Guard",
+      "note": "TUTORIAL: Recruit Sarah for base defense",
+      "pages": [
+        {
+          "conditions": {
+            "self_switch": "A"
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "face": "guard",
+                "face_index": 0,
+                "text": "I'm Sarah, a trained warrior.\\nThis settlement needs protection."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Monsters and bandits roam the wilderness.\\nI can defend your base. Want my help?"
+              }
+            },
+            {
+              "code": "show_choices",
+              "parameters": {
+                "choices": ["Yes, we need you!", "Not right now"],
+                "cancel_type": 1
+              }
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Excellent! I'll protect this place\\nwith my life. Your base is safe with me!"
+              }
+            },
+            {
+              "code": "change_party_member",
+              "parameters": {
+                "actor_id": 3,
+                "operation": "add",
+                "initialize": true
+              }
+            },
+            {
+              "code": "control_self_switch",
+              "parameters": {
+                "self_switch": "A",
+                "value": true
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "recruit_success.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recruit_jake",
+      "trigger": "action_button",
+      "name": "Recruit Jake the Scout",
+      "note": "TUTORIAL: Recruit Jake for exploration",
+      "pages": [
+        {
+          "conditions": {
+            "self_switch": "A"
+          },
+          "trigger": "action_button",
+          "commands": [
+            {
+              "code": "show_text",
+              "parameters": {
+                "face": "scout",
+                "face_index": 0,
+                "text": "Hey! I'm Jake, fastest scout around!\\nI love exploring new places."
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "I can scout for resources, find secrets,\\nand map out the territory. Interested?"
+              }
+            },
+            {
+              "code": "show_choices",
+              "parameters": {
+                "choices": ["Join us!", "Maybe later"],
+                "cancel_type": 1
+              }
+            },
+            {
+              "code": "when_choice",
+              "parameters": {
+                "choice_index": 0
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Sweet! Let's discover what's out there!\\nI'll find all the best spots!"
+              }
+            },
+            {
+              "code": "change_party_member",
+              "parameters": {
+                "actor_id": 4,
+                "operation": "add",
+                "initialize": true
+              }
+            },
+            {
+              "code": "control_self_switch",
+              "parameters": {
+                "self_switch": "A",
+                "value": true
+              }
+            },
+            {
+              "code": "control_switches",
+              "parameters": {
+                "switch_id": "ruins_unlocked",
+                "value": true
+              }
+            },
+            {
+              "code": "show_text",
+              "parameters": {
+                "text": "Jake discovered the ANCIENT RUINS!\\nYou can now access them to the east."
+              }
+            },
+            {
+              "code": "play_se",
+              "parameters": {
+                "name": "recruit_success.wav",
+                "volume": 90,
+                "pitch": 100,
+                "pan": 0
+              }
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "branch_end",
+              "parameters": {}
+            },
+            {
+              "code": "end",
+              "parameters": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

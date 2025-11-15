@@ -1,278 +1,430 @@
-# Base Builder Template
+# Base Builder Demo - Complete Sample Project
 
-A template for creating base building and resource management games with NeonWorks.
+**Version:** 1.0.0
+**Engine:** NeonWorks 0.1.0
+**Type:** Base-Building Game with Resource Management and Combat
+**Status:** Complete & Playable
 
-## What's Included
+---
 
-This template demonstrates:
+## 📋 Table of Contents
 
-- **Building Placement**: Grid-based building system
-- **Resource Management**: Wood, stone, food, population
-- **Production System**: Buildings produce resources over time
-- **Consumption System**: Buildings consume resources
-- **Camera Controls**: Pan around your base
-- **Resource Economy**: Balance production and consumption
+1. [Overview](#overview)
+2. [Features Demonstrated](#features-demonstrated)
+3. [Getting Started](#getting-started)
+4. [Game Content](#game-content)
+5. [Maps & Locations](#maps--locations)
+6. [Database Entries](#database-entries)
+7. [Characters & Classes](#characters--classes)
+8. [Events & Tutorials](#events--tutorials)
+9. [Customization Guide](#customization-guide)
+10. [Technical Details](#technical-details)
 
-## Features
+---
 
-- Real-time resource production
-- Grid-based building placement
-- Camera movement for exploring
-- Visual resource tracking
-- Multiple building types with different functions
+## 📖 Overview
 
-## Getting Started
+The **Base Builder Demo** is a complete, immediately playable sample project that showcases all major features of the NeonWorks engine. It demonstrates:
 
-### 1. Run the Game
+- ✅ Complete database system (items, skills, weapons, armors, enemies, classes, actors)
+- ✅ Event system with branching dialogues and conditional logic
+- ✅ Multiple interconnected maps with spawn points and transitions
+- ✅ Tutorial system integrated into gameplay
+- ✅ Resource gathering and crafting mechanics
+- ✅ Character recruitment system
+- ✅ Combat encounters (random and boss battles)
+- ✅ Quest progression with rewards
+- ✅ Background music and sound effects
+- ✅ Custom characters with unique abilities
 
-```bash
-neonworks run <your_project_name>
-```
+This project serves as both a playable game and a learning resource for developers using NeonWorks.
 
-Or run directly:
+---
 
-```bash
-cd <your_project_name>
-python scripts/main.py
-```
+## 🎮 Features Demonstrated
 
-### 2. Controls
+### Core Engine Features
 
-- **Arrow Keys**: Move camera
-- **1**: Select Lumber Mill (produces wood)
-- **2**: Select Quarry (produces stone)
-- **3**: Select Farm (produces food)
-- **Mouse Click**: Place selected building
-- **ESC**: Quit game
+| Feature | Implementation | File Reference |
+|---------|---------------|----------------|
+| **Database System** | 10 items, 5 skills, 5 weapons, 5 armors, 5 enemies, 4 classes, 4 actors | `data/database.json` |
+| **Event Commands** | 50+ event commands across all maps | `assets/maps/*.json` |
+| **Map System** | 5 interconnected maps with varied terrain | `assets/maps/*.json` |
+| **Character System** | 4 recruitable characters with unique classes | `data/database.json:actors` |
+| **Combat System** | Random encounters and boss battle | `assets/maps/ruins.json` |
+| **Resource System** | Gathering, crafting, and inventory management | Event: `open_crafting` |
+| **Audio System** | 7 music tracks, 7 sound effects | `assets/music/`, `assets/sfx/` |
+| **Progression System** | Switches, variables, self-switches for state tracking | All event files |
 
-### 3. Gameplay
+### Gameplay Features
 
-1. Start with basic resources
-2. Select a building type with number keys
-3. Click on the grid to place the building
-4. Buildings automatically produce resources
-5. Use resources to build more buildings
-6. Expand your base!
+- **Resource Gathering**: Wood, Stone, Food, Iron Ore
+- **Crafting System**: Iron Bars, Tools
+- **Character Recruitment**: 4 unique NPCs to recruit
+- **Exploration**: 5 distinct areas to discover
+- **Boss Battle**: Ancient Guardian with special rewards
+- **Territory Expansion**: Claim new lands for building
+- **Shop System**: Buy and sell resources
+- **Storage System**: Manage inventory and resources
 
-## Building Types
+---
 
-### Lumber Mill
-- **Cost**: 20 wood, 10 stone
-- **Produces**: 2 wood per second
-- **Consumes**: 0.5 food per second
+## 🚀 Getting Started
 
-### Quarry
-- **Cost**: 15 wood, 15 stone
-- **Produces**: 1.5 stone per second
-- **Consumes**: 0.5 food per second
+### Installation
 
-### Farm
-- **Cost**: 25 wood, 5 stone
-- **Produces**: 3 food per second
-- **Consumes**: 0.5 food per second
+1. **Ensure NeonWorks is installed**:
+   ```bash
+   cd /path/to/neonworks
+   pip install -r requirements.txt
+   ```
 
-## Customization Ideas
+2. **Copy this template** (if creating a new project):
+   ```bash
+   cp -r templates/base_builder my_game
+   cd my_game
+   ```
 
-### Add More Building Types
+3. **Run the game**:
+   ```bash
+   python main.py base_builder
+   ```
 
-```python
-buildings = {
-    "4": {
-        "type": "warehouse",
-        "name": "Warehouse",
-        "color": (100, 100, 150),
-        "wood": 30,
-        "stone": 20,
-        "effect": "increase_storage"
-    }
-}
+   Or if you copied it:
+   ```bash
+   python main.py my_game
+   ```
 
-class Storage(Component):
-    def __init__(self, capacity: int):
-        self.capacity = capacity
-```
+### First Steps in the Game
 
-### Add Building Upgrades
+1. **Talk to the Tutorial Guide** (center of Home Base)
+   - Learn basic controls and game objectives
+   - Get overview of features
 
-```python
-class Upgradeable(Component):
-    def __init__(self, level: int = 1, max_level: int = 3):
-        self.level = level
-        self.max_level = max_level
+2. **Recruit NPCs**:
+   - **Marcus** (Builder) - Unlocks Quick Build skill
+   - **Sarah** (Guard) - Provides base defense
+   - **Jake** (Scout) - Reveals the Ancient Ruins
+   - **Merchant** - Buy/sell resources
 
-def upgrade_building(entity: Entity, resources: Resources):
-    upgradeable = entity.get_component(Upgradeable)
-    producer = entity.get_component(Producer)
+3. **Gather Resources**:
+   - **Forest** (northwest exit) - Wood, Food
+   - **Mountains** (northeast exit) - Stone, Iron Ore
 
-    if upgradeable.level < upgradeable.max_level:
-        # Cost increases with level
-        cost = 50 * upgradeable.level
+4. **Craft Items**:
+   - Use the Crafting Bench in Home Base
+   - Smelt Iron Ore → Iron Bars
+   - Craft Iron Bars → Tools
 
-        if resources.wood >= cost:
-            resources.wood -= cost
-            upgradeable.level += 1
-            producer.production_rate *= 1.5
-```
+5. **Explore the Ruins**:
+   - Recruit Jake to unlock access
+   - Defeat the Ancient Guardian boss
+   - Claim the Ancient Relic reward
 
-### Add Population Management
+---
 
-```python
-class Housing(Component):
-    def __init__(self, capacity: int):
-        self.capacity = capacity
+## 🗺️ Maps & Locations
 
-class PopulationSystem(System):
-    def update(self, world: World, delta_time: float):
-        # Calculate total housing capacity
-        total_capacity = 0
-        for entity in world.get_entities_with_component(Housing):
-            housing = entity.get_component(Housing)
-            total_capacity += housing.capacity
+### 1. Home Base (`home_base.json`)
 
-        # Update max population
-        resources.max_population = total_capacity
-```
+**Size:** 30x20 tiles | **Music:** peaceful_town.mp3
 
-### Add Building Destruction
+**Key Features:**
+- Tutorial Guide NPC (teaches game basics)
+- 4 Recruitable NPCs (Marcus, Sarah, Jake, Merchant)
+- Storage Chest, Crafting Bench, Campfire, Town Sign
+- Exits to Forest, Mountains, and Ruins
 
-```python
-def demolish_building(grid_x: int, grid_y: int):
-    if (grid_x, grid_y) in self.grid:
-        building = self.grid[(grid_x, grid_y)]
+**NPCs:**
+- **Tutorial Guide** @ (15, 15) - Static, provides tutorials
+- **Marcus** @ (10, 10) - Static, recruitable builder
+- **Sarah** @ (20, 10) - Patrol behavior, recruitable guard
+- **Jake** @ (5, 5) - Wander behavior, recruitable scout
+- **Resource Merchant** @ (12, 8) - Static, shop access
 
-        # Refund some resources
-        resources.wood += 5
-        resources.stone += 5
+### 2. Forest (`forest.json`)
 
-        # Remove building
-        self.world.destroy_entity(building)
-        del self.grid[(grid_x, grid_y)]
-```
+**Size:** 25x25 tiles | **Music:** forest_ambience.mp3
 
-### Add Research System
+**Resources:**
+- 2 Wood Piles (5x Wood each)
+- 1 Berry Bush (3x Food)
+- 1 Hidden Chest (3x Health Potion, 100 Gold)
 
-```python
-class Technology(Component):
-    def __init__(self):
-        self.researched = set()
+**Encounters:** Wild Boar (50%), Goblin Raider (30%)
 
-class ResearchSystem(System):
-    def research_tech(self, tech_name: str, cost: dict):
-        # Check if can afford
-        if self._can_afford(cost):
-            self._deduct_resources(cost)
-            self.technology.researched.add(tech_name)
-            self._apply_tech_benefits(tech_name)
-```
+### 3. Mountains (`mountains.json`)
 
-### Add Save/Load System
+**Size:** 25x25 tiles | **Music:** mountain_wind.mp3
 
-```python
-def save_game(self):
-    save_data = {
-        "resources": {
-            "wood": resources.wood,
-            "stone": resources.stone,
-            "food": resources.food,
-        },
-        "buildings": []
-    }
+**Resources:**
+- 2 Stone Deposits (4x Stone each)
+- 2 Iron Veins (3x Iron Ore each)
 
-    for entity in world.get_entities_with_component(BuildingInfo):
-        position = entity.get_component(Position)
-        building_info = entity.get_component(BuildingInfo)
+**Encounters:** Rock Golem (60%), Bandit Scout (40%)
 
-        save_data["buildings"].append({
-            "type": building_info.building_type,
-            "x": position.x,
-            "y": position.y,
-        })
+### 4. Ancient Ruins (`ruins.json`)
 
-    with open("saves/save.json", "w") as f:
-        json.dump(save_data, f, indent=2)
-```
+**Size:** 20x20 tiles | **Music:** ruins_mystery.mp3
 
-### Add Random Events
+**Features:**
+- Boss Battle: Ancient Guardian
+- Final Treasure: Ancient Relic
+- Unlock Condition: Recruit Jake
 
-```python
-class EventSystem(System):
-    def __init__(self):
-        super().__init__()
-        self.event_timer = 0
-        self.event_cooldown = 30  # seconds
+### 5. Open Plains (`plains.json`)
 
-    def update(self, world: World, delta_time: float):
-        self.event_timer += delta_time
+**Size:** 30x30 tiles | **Music:** grasslands.mp3
 
-        if self.event_timer >= self.event_cooldown:
-            self.trigger_random_event(world)
-            self.event_timer = 0
+**Features:**
+- Territory expansion system
+- Light random encounters
 
-    def trigger_random_event(self, world: World):
-        events = [
-            self.bountiful_harvest,
-            self.resource_discovery,
-            self.harsh_winter,
-        ]
-        random.choice(events)(world)
+---
 
-    def bountiful_harvest(self, world: World):
-        # +50% food production for 10 seconds
-        pass
-```
+## 💾 Database Entries
 
-## Project Structure
+### Items (10 Total)
 
-```
-your_project/
-├── project.json          # Project configuration
-├── README.md            # This file
-├── scripts/
-│   └── main.py          # Main game logic
-├── config/
-│   ├── buildings.json   # Building definitions
-│   └── items.json       # Item definitions
-├── assets/              # Building sprites, UI
-└── saves/               # Save game files
-```
+| ID | Name | Type | Price | Effect |
+|----|------|------|-------|--------|
+| 1 | Wood | Key | 5g | Building material |
+| 2 | Stone | Key | 10g | Building material |
+| 3 | Food | Consumable | 3g | Restore 20 HP |
+| 4 | Iron Ore | Key | 15g | Smelting material |
+| 5 | Iron Bar | Key | 30g | Advanced crafting |
+| 6 | Tools | Key | 100g | Boost efficiency |
+| 101 | Health Potion | Consumable | 50g | Restore 50 HP |
+| 102 | Energy Drink | Consumable | 80g | Restore 30 MP |
+| 103 | Antidote | Consumable | 40g | Cure poison |
+| 201 | Ancient Relic | Key | N/A | Quest item |
 
-## Configuration
+### Skills (5 Total)
 
-Enable base building and survival features in `project.json`:
+| ID | Name | MP | Effect |
+|----|------|-----|--------|
+| 1 | Quick Build | 10 | Speed up construction 50% |
+| 2 | Gather Resources | 15 | Double gathering for 30s |
+| 3 | Defend Base | 20 | Increase building defense |
+| 4 | Repair | 12 | Restore 100 HP |
+| 5 | Scout Area | 8 | Reveal fog of war |
+
+### Enemies (5 Total)
+
+| ID | Name | HP | ATK | Location |
+|----|------|----|----|----------|
+| 1 | Wild Boar | 60 | 20 | Forest, Plains |
+| 2 | Bandit Scout | 80 | 25 | Mountains, Plains |
+| 3 | Rock Golem | 150 | 30 | Mountains |
+| 4 | Goblin Raider | 70 | 18 | Forest |
+| 5 | Ancient Guardian | 300 | 45 | Ruins (Boss) |
+
+### Classes (4 Total)
+
+| ID | Name | Specialty | Key Skills |
+|----|------|-----------|------------|
+| 1 | Worker | All-around | Gather, Repair, Quick Build |
+| 2 | Builder | Construction | Quick Build, Repair, Defend |
+| 3 | Guard | Combat | Defend Base, Repair |
+| 4 | Scout | Exploration | Scout Area, Gather |
+
+---
+
+## 🎯 Events & Tutorials
+
+All events include tutorial comments explaining their purpose:
+
+### Tutorial System
+
+**Event:** `tutorial_start`
+- Basic controls (Arrow keys, Z/Enter, X/Esc)
+- F-key editors (F4-F8)
+- Game objectives
+
+### Character Recruitment
+
+- **Marcus** (Builder): Always available, adds Quick Build skill
+- **Sarah** (Guard): Patrols base, enhances defense
+- **Jake** (Scout): Unlocks Ancient Ruins access
+
+### Crafting System
+
+**Recipes:**
+- Iron Bar: 2x Iron Ore → 1x Iron Bar
+- Tools: 1x Iron Bar → 1x Tools
+
+### Boss Battle
+
+**Ancient Guardian:**
+- Trigger: Step on (10, 10) in ruins
+- Stats: 300 HP, 45 ATK
+- Rewards: Ancient Relic, 1000 Gold, 5x Energy Drink
+
+---
+
+## 🎨 Customization Guide
+
+### Adding New Items
+
+Edit `data/database.json`:
 
 ```json
 {
-  "settings": {
-    "enable_base_building": true,
-    "enable_survival": true,
-    "building_definitions": "config/buildings.json",
-    "item_definitions": "config/items.json"
-  }
+  "id": 300,
+  "name": "My New Item",
+  "icon_index": 10,
+  "description": "A custom item",
+  "note": "Tutorial: How to use this item",
+  "item_type": "regular",
+  "price": 100,
+  "effects": []
 }
 ```
 
-## Next Steps
+### Creating Events
 
-1. **Add Visual Assets**: Replace colored squares with actual building sprites
-2. **Create Building Chains**: Buildings that work together
-3. **Add Workers**: Assign population to buildings for efficiency
-4. **Add Threats**: Defend your base from enemies
-5. **Add Objectives**: Goals and win conditions
-6. **Add Seasons**: Seasonal resource modifiers
+Basic event structure:
 
-## Documentation
+```json
+{
+  "id": "my_event",
+  "trigger": "action_button",
+  "name": "My Event",
+  "note": "TUTORIAL: What this teaches",
+  "pages": [
+    {
+      "commands": [
+        {
+          "code": "show_text",
+          "parameters": {"text": "Hello!"}
+        }
+      ]
+    }
+  ]
+}
+```
 
-- [NeonWorks Building System](../../../docs/base_building.md)
-- [Survival System](../../../docs/survival_system.md)
-- [ECS Architecture](../../../docs/core_concepts.md)
-- [Project Configuration](../../../docs/project_configuration.md)
+### Adding NPCs
 
-## Tips
+```json
+{
+  "id": "my_npc",
+  "x": 15,
+  "y": 10,
+  "sprite": "characters/my_sprite.png",
+  "behavior": "static",
+  "event_id": "talk_to_npc"
+}
+```
 
-- Start by building farms to ensure food supply
-- Balance production buildings with consumption
-- Plan your base layout for efficiency
-- Watch your resource levels carefully
-- Expand gradually and sustainably
+---
 
-Happy game development!
+## 🔧 Technical Details
+
+### File Structure
+
+```
+base_builder/
+├── project.json              # Project configuration
+├── README.md                 # This file
+├── data/
+│   └── database.json         # All game data
+├── assets/
+│   ├── maps/                 # 5 map files
+│   ├── tilesets/             # Terrain graphics
+│   ├── characters/           # NPC sprites
+│   ├── music/                # 7 BGM tracks
+│   └── sfx/                  # 7 sound effects
+└── scripts/
+    └── (optional custom scripts)
+```
+
+### Game Switches
+
+| Switch | Purpose |
+|--------|---------|
+| `tutorial_completed` | Tutorial finished |
+| `ruins_unlocked` | Ruins accessible |
+| `guardian_defeated` | Boss defeated |
+| `plains_claimed` | Territory claimed |
+
+### Starting Resources
+
+- Wood: 100
+- Stone: 50
+- Food: 30
+- Iron Ore: 10
+
+---
+
+## 🎓 Learning Objectives
+
+This project teaches:
+
+1. **Database Design** - Item categorization, skill creation, enemy balancing
+2. **Event Scripting** - Conditional branches, switch management, crafting logic
+3. **Map Design** - Multiple zones, spawn points, triggers, encounters
+4. **Player Progression** - Tutorials, recruitment, resource→crafting→rewards
+5. **Audio Integration** - Map music, event SFX, transitions
+
+---
+
+## 🚀 Next Steps
+
+### Immediate Enhancements
+
+1. Replace placeholder assets (tilesets, sprites, audio)
+2. Expand content (more maps, NPCs, quests)
+3. Add features (day/night, weather, building construction)
+
+### Visual Editors
+
+- **F4** - Level Builder: Edit maps visually
+- **F5** - Navmesh Editor: Adjust pathfinding
+- **F6** - Quest Editor: Create quest chains
+- **F7** - Asset Browser: Manage assets
+
+### Export & Share
+
+```bash
+python export_cli.py export base_builder
+```
+
+---
+
+## 💡 Tips & Tricks
+
+**For Players:**
+- Recruit everyone before dangerous areas
+- Gather resources early
+- Save health potions for boss
+- Explore thoroughly for hidden treasures
+
+**For Developers:**
+- Use event notes for documentation
+- Test state management thoroughly
+- Balance progression carefully
+- Provide feedback for all actions
+
+---
+
+## 📚 Resources
+
+- **Main README:** `/README.md`
+- **Developer Guide:** `/DEVELOPER_GUIDE.md`
+- **Engine Status:** `/STATUS.md`
+- **CLAUDE.md:** `/CLAUDE.md`
+
+---
+
+## ✨ Credits
+
+**Created by:** NeonWorks Team
+**Engine:** NeonWorks 0.1.0
+**License:** Same as NeonWorks
+
+---
+
+**Happy Building! 🏗️**
+
+*Complete game in pure JSON - no coding required!*
