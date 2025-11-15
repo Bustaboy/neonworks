@@ -216,6 +216,16 @@ class WorkspaceManager:
                 toggle_method="toggle_event_editor",
             )
         )
+        level_editor_workspace.add_tool(
+            ToolDefinition(
+                id="ai_assistant",
+                name="AI Assistant",
+                description="AI-powered level editing",
+                icon="🤖",
+                hotkey="Ctrl+Space",
+                toggle_method="toggle_ai_assistant",
+            )
+        )
         self.workspaces[WorkspaceType.LEVEL_EDITOR] = level_editor_workspace
 
         # 🎨 CONTENT CREATION Workspace

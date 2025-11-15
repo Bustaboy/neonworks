@@ -13,6 +13,9 @@ from ..core.state import StateManager
 from ..engine.ui.event_editor_ui import EventEditorUI
 from ..input.input_manager import InputManager
 from .ai_animator_ui import AIAnimatorUI
+from .ai_asset_editor import AIAssetEditor
+from .ai_asset_inspector import AIAssetInspector
+from .ai_assistant_panel import AIAssistantPanel
 from .asset_browser_ui import AssetBrowserUI
 from .autotile_editor_ui import AutotileEditorUI
 from .building_ui import BuildingUI
@@ -64,6 +67,11 @@ class MasterUIManager:
         self.asset_browser = AssetBrowserUI(screen)
         self.autotile_editor = AutotileEditorUI(screen)
         self.ai_animator = AIAnimatorUI(world, renderer)
+
+        # AI Assistant System
+        self.ai_assistant = AIAssistantPanel(screen, world)
+        self.ai_asset_inspector = AIAssetInspector(screen, world)
+        self.ai_asset_editor = AIAssetEditor()
 
         # Connect level builder to event editor for event management
         self.level_builder.event_editor = self.event_editor
@@ -146,6 +154,14 @@ class MasterUIManager:
         if self.autotile_editor.visible:
             self.autotile_editor.render(self.screen)
 
+        # Render AI Assistant Panel if visible
+        if self.ai_assistant.visible:
+            self.ai_assistant.render()
+
+        # Render AI Asset Inspector if visible (shows entity properties)
+        if self.ai_asset_inspector.visible:
+            self.ai_asset_inspector.render(camera_offset, tile_size=32)
+
         # Always render debug console last (on top of everything)
         if self.debug_console.visible:
             self.debug_console.render(fps)
@@ -164,6 +180,11 @@ class MasterUIManager:
             # Check for Shift+F7 (AI Animator)
             if event.key == pygame.K_F7 and (pygame.key.get_mods() & pygame.KMOD_SHIFT):
                 self.toggle_ai_animator()
+                return True
+
+            # Check for Ctrl+Space (AI Assistant)
+            if event.key == pygame.K_SPACE and (pygame.key.get_mods() & pygame.KMOD_CTRL):
+                self.toggle_ai_assistant()
                 return True
 
             # Check for standard keybinds
@@ -201,6 +222,16 @@ class MasterUIManager:
             self.ai_animator.handle_event(event)
             return True
 
+        # Route events to AI Assistant Panel if visible
+        if self.ai_assistant.visible:
+            if self.ai_assistant.handle_event(event):
+                return True
+
+        # Route events to AI Asset Inspector if visible
+        if self.ai_asset_inspector.visible:
+            if self.ai_asset_inspector.handle_event(event):
+                return True
+
         # Handle mouse clicks
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
@@ -225,6 +256,25 @@ class MasterUIManager:
                     # Check if clicking on an entity
                     # (This would require collision detection)
                     pass
+
+                # Ctrl+Click for AI asset inspection
+                mods = pygame.key.get_mods()
+                if mods & pygame.KMOD_CTRL:
+                    # Find entity at click position (convert to grid)
+                    grid_x = mouse_pos[0] // 32  # TODO: Get tile_size from renderer
+                    grid_y = mouse_pos[1] // 32
+
+                    # Find entity at this grid position
+                    from ..core.ecs import GridPosition
+                    for entity in self.world.entities.values():
+                        grid_pos = entity.get_component(GridPosition)
+                        if grid_pos and grid_pos.x == grid_x and grid_pos.y == grid_y:
+                            # Found entity - inspect it
+                            self.ai_asset_inspector.select_entity(entity, (grid_x, grid_y))
+                            # Open AI assistant if not visible
+                            if not self.ai_assistant.visible:
+                                self.ai_assistant.toggle()
+                            return True
 
         return False
 
@@ -251,6 +301,15 @@ class MasterUIManager:
         # Update AI Animator
         if self.ai_animator.visible:
             self.ai_animator.update(dt)
+
+        # Update AI Assistant (with vision context)
+        if self.ai_assistant.visible:
+            # Get tilemap from level builder if active
+            tilemap = None
+            if self.level_builder.visible and hasattr(self.level_builder, 'tilemap'):
+                tilemap = self.level_builder.tilemap
+
+            self.ai_assistant.update(dt, tilemap, camera_offset)
 
     # Toggle methods for each UI system
 
@@ -281,6 +340,10 @@ class MasterUIManager:
     def toggle_ai_animator(self):
         """Toggle AI Animator."""
         self.ai_animator.toggle()
+
+    def toggle_ai_assistant(self):
+        """Toggle AI Assistant Panel."""
+        self.ai_assistant.toggle()
 
     def toggle_quest_editor(self):
         """Toggle quest editor."""
