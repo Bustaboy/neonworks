@@ -26,6 +26,7 @@ from .settings import (
 )
 from .shape_tool import ShapeTool
 from .stamp_tool import StampTool
+from .themes import Theme, ThemeManager, get_theme_manager
 from .undo_manager import UndoManager, UndoableAction
 
 __all__ = [
@@ -53,4 +54,8 @@ __all__ = [
     "get_tool_color",
     "get_cursor_color",
     "get_default_stamps",
+    # Themes
+    "Theme",
+    "ThemeManager",
+    "get_theme_manager",
 ]
