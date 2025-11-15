@@ -201,8 +201,8 @@ class TestGridPositionComponent:
         """Test creating a grid position component."""
         grid_pos = GridPosition(grid_x=5, grid_y=10)
 
-        assert grid_pos.x == 5
-        assert grid_pos.y == 10
+        assert grid_pos.grid_x == 5
+        assert grid_pos.grid_y == 10
 
     @pytest.mark.parametrize(
         "x,y",
@@ -217,8 +217,8 @@ class TestGridPositionComponent:
         """Test grid position with various values."""
         grid_pos = GridPosition(grid_x=x, grid_y=y)
 
-        assert grid_pos.x == x
-        assert grid_pos.y == y
+        assert grid_pos.grid_x == x
+        assert grid_pos.grid_y == y
 
 
 class TestHealthComponent:
