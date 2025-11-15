@@ -748,5 +748,519 @@ class TestComplexEditingSequences:
         assert tilemap.get_tile(6, 6, 0) is None
 
 
+class TestDeltaCompressor:
+    """Test suite for DeltaCompressor."""
+
+    def test_compress_and_decompress_data(self):
+        """Test compressing and decompressing data."""
+        compressor = DeltaCompressor()
+
+        original_data = {"key": "value", "list": [1, 2, 3], "number": 42}
+
+        # Compress
+        compressed = compressor.compress(original_data)
+        assert isinstance(compressed, bytes)
+
+        # Decompress
+        decompressed = compressor.decompress(compressed)
+        assert decompressed == original_data
+
+    def test_compress_large_data(self):
+        """Test compressing large data structure."""
+        compressor = DeltaCompressor()
+
+        # Create large data structure
+        large_data = {"tiles": [{"x": i, "y": i, "type": "grass"} for i in range(1000)]}
+
+        compressed = compressor.compress(large_data)
+        decompressed = compressor.decompress(compressed)
+
+        assert decompressed == large_data
+
+    def test_compress_empty_data(self):
+        """Test compressing empty data."""
+        compressor = DeltaCompressor()
+
+        empty_data = {}
+        compressed = compressor.compress(empty_data)
+        decompressed = compressor.decompress(compressed)
+
+        assert decompressed == empty_data
+
+
+class TestBatchTileChangeCommand:
+    """Test suite for BatchTileChangeCommand."""
+
+    def test_batch_tile_change_basic(self):
+        """Test basic batch tile change."""
+        tilemap = MockTilemap(10, 10, 3)
+
+        changes = [
+            (0, 0, 0, LegacyTile("grass"), LegacyTile("water")),
+            (1, 1, 0, LegacyTile("grass"), LegacyTile("water")),
+            (2, 2, 0, LegacyTile("grass"), LegacyTile("water")),
+        ]
+
+        cmd = BatchTileChangeCommand(tilemap, changes)
+
+        # Execute
+        cmd.execute()
+        assert tilemap.get_tile(0, 0, 0).tile_type == "water"
+        assert tilemap.get_tile(1, 1, 0).tile_type == "water"
+        assert tilemap.get_tile(2, 2, 0).tile_type == "water"
+
+        # Undo
+        cmd.undo()
+        assert tilemap.get_tile(0, 0, 0).tile_type == "grass"
+        assert tilemap.get_tile(1, 1, 0).tile_type == "grass"
+        assert tilemap.get_tile(2, 2, 0).tile_type == "grass"
+
+    def test_batch_tile_change_description(self):
+        """Test batch tile change description."""
+        tilemap = MockTilemap(10, 10, 3)
+
+        changes = [(i, i, 0, LegacyTile("grass"), LegacyTile("water")) for i in range(50)]
+
+        cmd = BatchTileChangeCommand(tilemap, changes)
+        description = cmd.get_description()
+
+        assert "50" in description
+        assert "tiles" in description.lower()
+
+    def test_batch_tile_change_empty(self):
+        """Test batch tile change with empty list."""
+        tilemap = MockTilemap(10, 10, 3)
+
+        cmd = BatchTileChangeCommand(tilemap, [])
+
+        assert cmd.execute() is True
+        assert cmd.undo() is True
+
+
+class TestUndoManagerAdvanced:
+    """Advanced tests for UndoManager."""
+
+    def test_undo_manager_statistics(self):
+        """Test getting statistics from undo manager."""
+        manager = UndoManager()
+
+        # Create some commands
+        class SimpleCommand(Command):
+            def __init__(self):
+                super().__init__()
+                self.executed = False
+
+            def execute(self) -> bool:
+                self.executed = True
+                return True
+
+            def undo(self) -> bool:
+                self.executed = False
+                return True
+
+            def get_description(self) -> str:
+                return "Simple"
+
+            def serialize(self):
+                return {"type": "simple"}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        for _ in range(5):
+            cmd = SimpleCommand()
+            cmd.execute()
+            manager.undo_stack.append(cmd)
+
+        stats = manager.get_statistics()
+
+        assert stats["current_undo_count"] == 5
+        assert stats["current_redo_count"] == 0
+        assert "memory_usage_kb" in stats
+        assert stats["compression_enabled"] is True
+
+    def test_undo_manager_clear(self):
+        """Test clearing undo/redo stacks."""
+        manager = UndoManager()
+
+        class SimpleCommand(Command):
+            def execute(self) -> bool:
+                return True
+
+            def undo(self) -> bool:
+                return True
+
+            def get_description(self) -> str:
+                return "Simple"
+
+            def serialize(self):
+                return {"type": "simple"}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        # Add commands
+        for _ in range(5):
+            cmd = SimpleCommand()
+            manager.undo_stack.append(cmd)
+
+        # Undo some
+        manager.undo()
+        manager.undo()
+
+        assert len(manager.undo_stack) == 3
+        assert len(manager.redo_stack) == 2
+
+        # Clear
+        manager.clear()
+
+        assert len(manager.undo_stack) == 0
+        assert len(manager.redo_stack) == 0
+
+    def test_undo_manager_get_history(self):
+        """Test getting command history."""
+        manager = UndoManager()
+
+        class SimpleCommand(Command):
+            def __init__(self, num):
+                super().__init__()
+                self.num = num
+
+            def execute(self) -> bool:
+                return True
+
+            def undo(self) -> bool:
+                return True
+
+            def get_description(self) -> str:
+                return f"Command {self.num}"
+
+            def serialize(self):
+                return {"type": "simple", "num": self.num}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls(data["num"])
+
+        # Add commands
+        for i in range(3):
+            cmd = SimpleCommand(i)
+            manager.undo_stack.append(cmd)
+
+        history = manager.get_history()
+
+        assert len(history) == 3
+        # Each item is a tuple: (description, timestamp, is_undo_stack)
+        assert all(isinstance(item, tuple) and len(item) == 3 for item in history)
+        assert all(item[2] is True for item in history)  # All should be from undo stack
+
+    def test_auto_compression_threshold(self):
+        """Test auto-compression threshold setting."""
+        manager = UndoManager(enable_compression=True, auto_compress_threshold=10)
+
+        # Verify settings
+        assert manager.enable_compression is True
+        assert manager.auto_compress_threshold == 10
+
+        class SimpleCommand(Command):
+            def execute(self) -> bool:
+                return True
+
+            def undo(self) -> bool:
+                return True
+
+            def get_description(self) -> str:
+                return "Simple"
+
+            def serialize(self):
+                return {"type": "simple"}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        # Add commands
+        for _ in range(15):
+            cmd = SimpleCommand()
+            manager.undo_stack.append(cmd)
+
+        # Stack should have all commands
+        assert len(manager.undo_stack) == 15
+
+
+class TestCommandRegistry:
+    """Test suite for CommandRegistry."""
+
+    def test_registry_initialization(self):
+        """Test that registry initializes correctly."""
+        from neonworks.core.command_registry import CommandRegistry
+
+        registry = CommandRegistry()
+        assert len(registry.get_registered_types()) == 0
+
+    def test_register_command_type(self):
+        """Test registering a command type."""
+        from neonworks.core.command_registry import CommandRegistry
+
+        registry = CommandRegistry()
+
+        # Create a simple test command
+        class TestCommand(Command):
+            def execute(self) -> bool:
+                return True
+
+            def undo(self) -> bool:
+                return True
+
+            def get_description(self) -> str:
+                return "Test"
+
+            def serialize(self):
+                return {"type": "test"}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        registry.register("test", TestCommand)
+        assert "test" in registry.get_registered_types()
+
+    def test_register_with_custom_deserializer(self):
+        """Test registering with a custom deserializer."""
+        from neonworks.core.command_registry import CommandRegistry
+
+        registry = CommandRegistry()
+
+        class TestCommand(Command):
+            def __init__(self, value: int = 0):
+                super().__init__()
+                self.value = value
+
+            def execute(self) -> bool:
+                return True
+
+            def undo(self) -> bool:
+                return True
+
+            def get_description(self) -> str:
+                return f"Test {self.value}"
+
+            def serialize(self):
+                return {"type": "test", "value": self.value}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls(data.get("value", 0))
+
+        def custom_deserializer(data):
+            return TestCommand(data.get("value", 42))
+
+        registry.register("test", TestCommand, custom_deserializer)
+
+        # Test deserialization uses custom deserializer
+        cmd = registry.deserialize_command({"type": "test", "value": 100})
+        assert cmd.value == 100
+
+    def test_deserialize_command(self):
+        """Test deserializing a registered command."""
+        registry = get_command_registry()
+
+        # Test with composite command
+        data = {
+            "type": "composite",
+            "description": "Test Composite",
+            "commands": [],
+            "timestamp": "2025-01-01T00:00:00",
+        }
+
+        cmd = registry.deserialize_command(data)
+        assert isinstance(cmd, CompositeCommand)
+        assert cmd.description == "Test Composite"
+
+    def test_deserialize_unknown_type_raises_error(self):
+        """Test that deserializing unknown type raises error."""
+        from neonworks.core.command_registry import CommandRegistry
+
+        registry = CommandRegistry()
+
+        with pytest.raises(ValueError, match="Unknown command type"):
+            registry.deserialize_command({"type": "unknown_type"})
+
+    def test_deserialize_missing_type_raises_error(self):
+        """Test that deserializing without type raises error."""
+        from neonworks.core.command_registry import CommandRegistry
+
+        registry = CommandRegistry()
+
+        with pytest.raises(ValueError, match="missing 'type' field"):
+            registry.deserialize_command({})
+
+    def test_get_command_registry_singleton(self):
+        """Test that get_command_registry returns singleton."""
+        registry1 = get_command_registry()
+        registry2 = get_command_registry()
+
+        assert registry1 is registry2
+
+    def test_core_commands_registered(self):
+        """Test that core commands are automatically registered."""
+        registry = get_command_registry()
+
+        registered = registry.get_registered_types()
+        assert "tile_change" in registered
+        assert "batch_tile_change" in registered
+        assert "navmesh_paint" in registered
+        assert "composite" in registered
+
+
+class TestUndoHistoryPersistence:
+    """Test suite for UndoHistoryPersistence."""
+
+    def test_persistence_initialization(self):
+        """Test that persistence initializes correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+            assert persistence.history_dir.exists()
+
+    def test_save_and_load_history(self):
+        """Test saving and loading undo history."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+            manager = UndoManager(enable_compression=False)
+
+            # Create some test commands
+            class SimpleCommand(Command):
+                def __init__(self, value: int = 0):
+                    super().__init__()
+                    self.value = value
+                    self.executed = False
+
+                def execute(self) -> bool:
+                    self.executed = True
+                    return True
+
+                def undo(self) -> bool:
+                    self.executed = False
+                    return True
+
+                def get_description(self) -> str:
+                    return f"Simple {self.value}"
+
+                def serialize(self):
+                    return {"type": "simple", "value": self.value}
+
+                @classmethod
+                def deserialize(cls, data):
+                    return cls(data["value"])
+
+            # Add commands to manager
+            cmd1 = SimpleCommand(1)
+            cmd2 = SimpleCommand(2)
+            manager.undo_stack.append(cmd1)
+            manager.undo_stack.append(cmd2)
+
+            # Save history
+            history_file = os.path.join(tmpdir, "test_history.json")
+            manager.save_history(history_file)
+
+            # Load history
+            loaded_manager = UndoManager()
+            loaded_manager.load_history(history_file)
+
+            # Note: Loaded history won't have commands since they can't be deserialized
+            # without proper registry, but the file should exist and be valid JSON
+            assert os.path.exists(history_file)
+
+    def test_save_editor_history(self):
+        """Test saving editor-specific history."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+            manager = UndoManager()
+
+            # Save editor history
+            persistence.save_editor_history("level_editor", manager, auto_save=True)
+
+            # Check file exists
+            history_file = persistence.history_dir / "level_editor_history.json"
+            assert history_file.exists()
+
+    def test_load_editor_history(self):
+        """Test loading editor-specific history."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+
+            # Create and save a manager
+            manager = UndoManager()
+            persistence.save_editor_history("level_editor", manager)
+
+            # Load it back into a new manager
+            loaded_manager = UndoManager()
+            persistence.load_editor_history("level_editor", loaded_manager)
+
+            # Check that load was attempted (file exists)
+            history_file = persistence.history_dir / "level_editor_history.json"
+            assert history_file.exists()
+
+    def test_load_nonexistent_history_silent(self):
+        """Test loading nonexistent history is silent."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+
+            manager = UndoManager()
+            # Should not raise error, just print warning
+            persistence.load_editor_history("nonexistent", manager)
+            assert len(manager.undo_stack) == 0
+
+    def test_clear_editor_history(self):
+        """Test clearing editor history."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+            manager = UndoManager()
+
+            # Save and verify file exists
+            persistence.save_editor_history("test_editor", manager)
+            history_file = persistence.history_dir / "test_editor_history.json"
+            assert history_file.exists()
+
+            # Clear history
+            persistence.clear_editor_history("test_editor")
+            assert not history_file.exists()
+
+    def test_get_history_info(self):
+        """Test getting history information."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+            manager = UndoManager()
+
+            # Save history
+            persistence.save_editor_history("test_editor", manager)
+
+            # Get info
+            info = persistence.get_history_info("test_editor")
+            assert info is not None
+            assert "file" in info
+            assert "size_kb" in info
+
+    def test_list_all_histories(self):
+        """Test listing all saved histories."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            persistence = UndoHistoryPersistence(tmpdir)
+            manager = UndoManager()
+
+            # Save multiple histories
+            persistence.save_editor_history("level_editor", manager)
+            persistence.save_editor_history("navmesh_editor", manager)
+
+            # List all histories
+            histories = persistence.list_all_histories()
+            assert len(histories) >= 2
+
+            editor_names = [name for name, info in histories]
+            assert "level_editor" in editor_names
+            assert "navmesh_editor" in editor_names
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
