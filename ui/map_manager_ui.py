@@ -16,6 +16,13 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pygame
 
+from engine.tools.map_importers import (
+    LegacyFormatConverter,
+    PNGExporter,
+    TiledTMXExporter,
+    TiledTMXImporter,
+    TilesetImageImporter,
+)
 from neonworks.data.map_manager import (
     MapConnection,
     MapData,
@@ -26,13 +33,6 @@ from neonworks.data.map_manager import (
 )
 from neonworks.data.tileset_manager import get_tileset_manager
 from neonworks.rendering.ui import UI
-from engine.tools.map_importers import (
-    LegacyFormatConverter,
-    PNGExporter,
-    TiledTMXExporter,
-    TiledTMXImporter,
-    TilesetImageImporter,
-)
 
 
 class MapManagerUI:

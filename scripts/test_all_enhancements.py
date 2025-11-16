@@ -50,10 +50,10 @@ def test_sd_sprite_generator():
             return
 
         from editor.sd_sprite_generator import (
+            DIFFUSERS_AVAILABLE,
             SDSpriteGenerator,
             SpriteGenerationConfig,
             generate_sprite,
-            DIFFUSERS_AVAILABLE,
         )
 
         if not DIFFUSERS_AVAILABLE:
@@ -100,7 +100,7 @@ def test_style_transfer():
             test_results.append(("Style Transfer", "SKIP", "torch not installed"))
             return
 
-        from editor.style_transfer import StyleTransferSystem, PaletteSwapper, transfer_style
+        from editor.style_transfer import PaletteSwapper, StyleTransferSystem, transfer_style
 
         # Note about torch availability
         print("✓ torch available - full testing enabled")
@@ -150,9 +150,9 @@ def test_multi_directional():
 
     try:
         from editor.multi_directional import (
-            MultiDirectionalGenerator,
-            DirectionalConfig,
             Direction,
+            DirectionalConfig,
+            MultiDirectionalGenerator,
             generate_4way_sprites,
             generate_8way_sprites,
         )
@@ -221,11 +221,11 @@ def test_physics_animation():
     try:
         from editor.physics_animation import (
             PhysicsAnimation,
-            Vector2D,
             PhysicsState,
             SpringSystem,
-            create_jump_animation,
+            Vector2D,
             create_bounce_animation,
+            create_jump_animation,
         )
 
         # Test Vector2D

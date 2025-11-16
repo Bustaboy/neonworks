@@ -14,7 +14,6 @@ import os
 from pathlib import Path
 from typing import Dict, Optional
 
-
 # Default preferences directory
 PREFERENCES_DIR = Path.home() / ".neonworks"
 PREFERENCES_FILE = PREFERENCES_DIR / "map_tools_prefs.json"

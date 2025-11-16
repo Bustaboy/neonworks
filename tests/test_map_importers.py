@@ -18,8 +18,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from neonworks.data.map_manager import MapData, MapManager
-from neonworks.data.tileset_manager import TilesetManager
 from engine.tools.map_importers import (
     LegacyFormatConverter,
     PNGExporter,
@@ -27,6 +25,8 @@ from engine.tools.map_importers import (
     TiledTMXImporter,
     TilesetImageImporter,
 )
+from neonworks.data.map_manager import MapData, MapManager
+from neonworks.data.tileset_manager import TilesetManager
 
 
 class TestPNGExporter:

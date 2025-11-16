@@ -32,12 +32,14 @@ class EventEditorUI:
 
     def new_event(self):
         event_id = f"event_{len(self.events) + 1}"
-        self.events.append({
-            "id": event_id,
-            "trigger": "on_enter",
-            "condition": "",
-            "actions": [{"type": "message", "text": "New event"}],
-        })
+        self.events.append(
+            {
+                "id": event_id,
+                "trigger": "on_enter",
+                "condition": "",
+                "actions": [{"type": "message", "text": "New event"}],
+            }
+        )
         self.selected_event_index = len(self.events) - 1
 
     def delete_event(self):

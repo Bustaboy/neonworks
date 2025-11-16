@@ -2,17 +2,6 @@
 Utility modules for NeonWorks engine
 """
 
-from .profiler import (
-    FPSCounter,
-    PerformanceMetrics,
-    PerformanceProfiler,
-    get_profiler,
-    measure,
-    profile,
-    profile_function,
-    print_profile_stats,
-    save_profile_stats,
-)
 from .performance_monitor import (
     FrameMetrics,
     PerformanceMonitor,
@@ -20,6 +9,17 @@ from .performance_monitor import (
     disable_performance_monitoring,
     enable_performance_monitoring,
     get_performance_monitor,
+)
+from .profiler import (
+    FPSCounter,
+    PerformanceMetrics,
+    PerformanceProfiler,
+    get_profiler,
+    measure,
+    print_profile_stats,
+    profile,
+    profile_function,
+    save_profile_stats,
 )
 
 __all__ = [

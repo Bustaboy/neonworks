@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pygame
 
-from neonworks.data.tileset_manager import TilesetManager, TileMetadata
+from neonworks.data.tileset_manager import TileMetadata, TilesetManager
 
 
 class AITilesetGenerator:

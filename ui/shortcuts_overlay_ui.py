@@ -114,9 +114,7 @@ class ShortcutsOverlayUI:
 
         # Scroll indicator
         if self.max_scroll > 0:
-            self._render_scroll_indicator(
-                panel_x + panel_width - 20, content_y, 10, content_height
-            )
+            self._render_scroll_indicator(panel_x + panel_width - 20, content_y, 10, content_height)
 
         # Footer help text
         footer_y = panel_y + panel_height - 30

@@ -139,9 +139,7 @@ class TestBuildingWorkflow:
 
         # Create player with resources
         player = world.create_entity("Player")
-        player.add_component(
-            ResourceStorage(resources={"wood": 100, "stone": 100, "iron": 50})
-        )
+        player.add_component(ResourceStorage(resources={"wood": 100, "stone": 100, "iron": 50}))
         player.add_tag("player")
 
         # Place building

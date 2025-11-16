@@ -401,9 +401,7 @@ class SettingsUI:
                 self.shortcuts_scroll_offset = 0
 
         # Reset to defaults button
-        if self.ui.button(
-            "Reset All", x + width - 120, filter_y, 100, 30, color=(150, 100, 0)
-        ):
+        if self.ui.button("Reset All", x + width - 120, filter_y, 100, 30, color=(150, 100, 0)):
             self.hotkey_manager.reset_to_defaults()
             self.has_unsaved_changes = True
 
@@ -420,9 +418,7 @@ class SettingsUI:
 
         # Get hotkeys grouped by category
         if self.shortcuts_category_filter:
-            hotkeys = self.hotkey_manager.get_hotkeys_by_category(
-                self.shortcuts_category_filter
-            )
+            hotkeys = self.hotkey_manager.get_hotkeys_by_category(self.shortcuts_category_filter)
             categories_to_show = {self.shortcuts_category_filter: hotkeys}
         else:
             categories_to_show = {}
@@ -504,9 +500,7 @@ class SettingsUI:
             context_x = button_x - 80
             self.ui.label(f"[{context_text}]", context_x, y, size=12, color=(150, 150, 150))
 
-    def _render_scroll_indicator(
-        self, x: int, y: int, width: int, height: int, scroll_offset: int
-    ):
+    def _render_scroll_indicator(self, x: int, y: int, width: int, height: int, scroll_offset: int):
         """Render a scroll indicator."""
         max_scroll = self.shortcuts_max_scroll
         if max_scroll <= 0:
@@ -645,9 +639,7 @@ class SettingsUI:
                 new_modifiers.add("alt")
 
             # Rebind the hotkey
-            self.hotkey_manager.rebind(
-                self.waiting_for_shortcut.action, key, new_modifiers
-            )
+            self.hotkey_manager.rebind(self.waiting_for_shortcut.action, key, new_modifiers)
             self.waiting_for_shortcut = None
             self.new_modifiers = set()
             self.has_unsaved_changes = True

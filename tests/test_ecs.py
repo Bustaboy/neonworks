@@ -386,7 +386,6 @@ class TestColliderComponent:
         """Test creating a circle collider (using width as diameter)."""
         collider = Collider(width=32, height=32)
 
-
     @pytest.mark.parametrize(
         "width,height",
         [
@@ -586,9 +585,7 @@ class TestWorld:
 
         # Entities with both Transform and Health
         entities_with_transform = world.get_entities_with_component(Transform)
-        entities_with_both = [
-            e for e in entities_with_transform if e.has_component(Health)
-        ]
+        entities_with_both = [e for e in entities_with_transform if e.has_component(Health)]
 
         assert len(entities_with_both) == 1
         assert entity1 in entities_with_both

@@ -1,9 +1,19 @@
 """
-AI Module
+AI Module for NeonWorks Game Engine
 
-Navigation, pathfinding, and AI behaviors.
+Provides AI-powered tools for game development including:
+- LLM backends for text generation
+- Navigation, pathfinding, and AI behaviors
 """
 
+from .backends import (
+    AnthropicBackend,
+    LlamaCppBackend,
+    LLMBackend,
+    LLMBackendConfig,
+    OpenAIBackend,
+    create_llm_backend,
+)
 from .pathfinding import (
     Heuristic,
     NavigationGrid,
@@ -12,4 +22,18 @@ from .pathfinding import (
     PathNode,
 )
 
-__all__ = ["NavigationGrid", "Pathfinder", "PathfindingSystem", "Heuristic", "PathNode"]
+__all__ = [
+    # LLM Backends
+    "LLMBackend",
+    "LLMBackendConfig",
+    "LlamaCppBackend",
+    "OpenAIBackend",
+    "AnthropicBackend",
+    "create_llm_backend",
+    # Pathfinding
+    "NavigationGrid",
+    "Pathfinder",
+    "PathfindingSystem",
+    "Heuristic",
+    "PathNode",
+]

@@ -304,7 +304,9 @@ class TestDatabasePerformance:
         start = time.perf_counter()
         characters = world.get_entities_with_tag("character")
         low_health = [
-            e for e in characters if e.get_component(Health) and e.get_component(Health).current < 50
+            e
+            for e in characters
+            if e.get_component(Health) and e.get_component(Health).current < 50
         ]
         elapsed = time.perf_counter() - start
 

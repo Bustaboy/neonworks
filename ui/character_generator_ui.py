@@ -69,6 +69,7 @@ class CharacterGeneratorUI:
 
     def randomize_stats(self):
         import random
+
         self.character["stats"]["hp"] = random.randint(60, 150)
         self.character["stats"]["max_hp"] = self.character["stats"]["hp"]
         self.character["stats"]["mp"] = random.randint(10, 100)

@@ -588,6 +588,7 @@ class TestSpellEvents:
         system = MagicSystem(event_manager)
 
         events = []
+
         def on_custom(event):
             if event.data.get("type") == "spell_cast":
                 events.append(event)
@@ -622,6 +623,7 @@ class TestSpellEvents:
         system = MagicSystem(event_manager)
 
         events = []
+
         def on_custom(event):
             if event.data.get("type") == "spell_damage":
                 events.append(event)
@@ -656,6 +658,7 @@ class TestSpellEvents:
         system = MagicSystem(event_manager)
 
         events = []
+
         def on_custom(event):
             if event.data.get("type") == "spell_heal":
                 events.append(event)

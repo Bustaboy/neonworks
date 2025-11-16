@@ -48,9 +48,7 @@ class Hotkey:
     category: str = "General"
     enabled: bool = True
 
-    def matches(
-        self, key: int, ctrl: bool = False, shift: bool = False, alt: bool = False
-    ) -> bool:
+    def matches(self, key: int, ctrl: bool = False, shift: bool = False, alt: bool = False) -> bool:
         """
         Check if this hotkey matches the given key combination.
 
