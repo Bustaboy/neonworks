@@ -251,12 +251,20 @@ class DiffusersBackend(ImageBackend):
         # Get base VRAM for model type
         base_vram = self.VRAM_ESTIMATES.get(self._model_type, 4.0)
 
-        # Adjust for resolution
+        # Define native resolution for each model type
+        native_resolutions = {
+            "sd-1.5": 512,  # SD 1.5 native: 512x512
+            "sdxl": 1024,  # SDXL native: 1024x1024
+            "sd-3": 1024,  # SD 3 native: 1024x1024
+        }
+        native_res = native_resolutions.get(self._model_type, 512)
+
+        # Adjust for resolution relative to model's native resolution
         pixels = self.config.width * self.config.height
-        base_pixels = 512 * 512  # SD 1.5 base resolution
+        base_pixels = native_res * native_res  # Use model's native resolution
         resolution_factor = pixels / base_pixels
 
-        # Add 30% overhead for higher resolutions
+        # Add 30% overhead for higher resolutions (>1.5x native)
         if resolution_factor > 1.5:
             base_vram *= 1.3
 
