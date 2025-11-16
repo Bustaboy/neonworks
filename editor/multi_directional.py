@@ -35,9 +35,9 @@ from PIL import Image, ImageDraw, ImageOps
 # Optional AI imports
 try:
     from editor.sd_sprite_generator import (
+        DIFFUSERS_AVAILABLE,
         SDSpriteGenerator,
         SpriteGenerationConfig,
-        DIFFUSERS_AVAILABLE,
     )
 except ImportError:
     DIFFUSERS_AVAILABLE = False

@@ -969,19 +969,11 @@ class OptimizedTilemapRenderer(TilemapRenderer):
 
         end_chunk_x = min(
             (layer.width + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
-            int(
-                (layer_camera_left + camera.width)
-                / (tilemap.tile_width * self.CHUNK_SIZE)
-            )
-            + 1,
+            int((layer_camera_left + camera.width) / (tilemap.tile_width * self.CHUNK_SIZE)) + 1,
         )
         end_chunk_y = min(
             (layer.height + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
-            int(
-                (layer_camera_top + camera.height)
-                / (tilemap.tile_height * self.CHUNK_SIZE)
-            )
-            + 1,
+            int((layer_camera_top + camera.height) / (tilemap.tile_height * self.CHUNK_SIZE)) + 1,
         )
 
         # Render visible chunks
@@ -1037,9 +1029,7 @@ class OptimizedTilemapRenderer(TilemapRenderer):
             self._stats["chunks_reused"] += 1
         else:
             # Render chunk to surface
-            chunk_surface = self._render_chunk_to_surface(
-                tilemap, tileset, layer, chunk_x, chunk_y
-            )
+            chunk_surface = self._render_chunk_to_surface(tilemap, tileset, layer, chunk_x, chunk_y)
 
             if chunk_surface is None:
                 return  # Empty chunk
@@ -1110,15 +1100,11 @@ class OptimizedTilemapRenderer(TilemapRenderer):
                 break
 
         if not has_tiles:
-            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (
-                end_tile_y - start_tile_y
-            )
+            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (end_tile_y - start_tile_y)
             return None
 
         # Create chunk surface
-        chunk_surface = pygame.Surface(
-            (chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA
-        )
+        chunk_surface = pygame.Surface((chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA)
 
         # Render tiles to chunk surface
         for tile_y in range(start_tile_y, end_tile_y):
@@ -1165,27 +1151,17 @@ class OptimizedTilemapRenderer(TilemapRenderer):
             layer_camera_top = camera_top * layer.parallax_y + layer.offset_y
 
             # Calculate visible chunk range
-            start_chunk_x = max(
-                0, int(layer_camera_left / (tilemap.tile_width * self.CHUNK_SIZE))
-            )
-            start_chunk_y = max(
-                0, int(layer_camera_top / (tilemap.tile_height * self.CHUNK_SIZE))
-            )
+            start_chunk_x = max(0, int(layer_camera_left / (tilemap.tile_width * self.CHUNK_SIZE)))
+            start_chunk_y = max(0, int(layer_camera_top / (tilemap.tile_height * self.CHUNK_SIZE)))
 
             end_chunk_x = min(
                 (tilemap.width + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
-                int(
-                    (layer_camera_left + camera.width)
-                    / (tilemap.tile_width * self.CHUNK_SIZE)
-                )
+                int((layer_camera_left + camera.width) / (tilemap.tile_width * self.CHUNK_SIZE))
                 + 1,
             )
             end_chunk_y = min(
                 (tilemap.height + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
-                int(
-                    (layer_camera_top + camera.height)
-                    / (tilemap.tile_height * self.CHUNK_SIZE)
-                )
+                int((layer_camera_top + camera.height) / (tilemap.tile_height * self.CHUNK_SIZE))
                 + 1,
             )
 
@@ -1292,15 +1268,11 @@ class OptimizedTilemapRenderer(TilemapRenderer):
                 break
 
         if not has_tiles:
-            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (
-                end_tile_y - start_tile_y
-            )
+            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (end_tile_y - start_tile_y)
             return None
 
         # Create chunk surface
-        chunk_surface = pygame.Surface(
-            (chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA
-        )
+        chunk_surface = pygame.Surface((chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA)
 
         # Render tiles
         for tile_y in range(start_tile_y, end_tile_y):

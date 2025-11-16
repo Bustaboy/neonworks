@@ -11,10 +11,11 @@ This package provides reusable UI components for the map editor:
 Import these components to build a comprehensive map editing interface.
 """
 
+from .map_properties import MapPropertiesDialog
+
 # Import components from this package
 from .minimap import MinimapUI
 from .tool_options import ToolOptionsPanel
-from .map_properties import MapPropertiesDialog
 
 # Re-export existing components from parent ui directory
 # These were already implemented and are being consolidated here

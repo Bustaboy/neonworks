@@ -114,9 +114,7 @@ def create_test_database(size: str = "small") -> dict:
                     "attack": 12 + i * 2,
                     "defense": 10 + i * 2,
                 },
-                "drops": [
-                    {"item_id": f"item_{j}", "chance": 0.1} for j in range(i % 5)
-                ],
+                "drops": [{"item_id": f"item_{j}", "chance": 0.1} for j in range(i % 5)],
             }
         )
 
@@ -147,11 +145,7 @@ def profile_database_query(data: dict, profiler: PerformanceProfiler):
 
     # Query with complex filter
     with profiler.measure("query_complex"):
-        items = [
-            i
-            for i in data["items"]
-            if i["type"] == "consumable" and i["price"] < 300
-        ]
+        items = [i for i in data["items"] if i["type"] == "consumable" and i["price"] < 300]
 
 
 def profile_database_save(data: dict, database_path: Path, profiler: PerformanceProfiler):

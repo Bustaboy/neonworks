@@ -2,26 +2,14 @@
 Tests for polish features (tooltips, loading indicators, themes, etc.)
 """
 
-import pytest
 import pygame
+import pytest
 
-from ui.ui_system import (
-    LoadingIndicator,
-    Tooltip,
-    TooltipManager,
-    UIButton,
-    KeyboardNavigator,
-    UIWidget,
-)
-from ui.themes import (
-    UITheme,
-    ThemeManager,
-    ColorPalette,
-    Spacing,
-    Typography,
-    get_theme_manager,
-    get_current_theme,
-    set_theme,
+from core.crash_recovery import (
+    AutoSaveManager,
+    CrashRecovery,
+    get_autosave_manager,
+    get_crash_recovery,
 )
 from core.error_handler import (
     EnhancedErrorHandler,
@@ -29,13 +17,24 @@ from core.error_handler import (
     get_error_handler,
     handle_error,
 )
-from core.crash_recovery import (
-    AutoSaveManager,
-    CrashRecovery,
-    get_autosave_manager,
-    get_crash_recovery,
+from ui.themes import (
+    ColorPalette,
+    Spacing,
+    ThemeManager,
+    Typography,
+    UITheme,
+    get_current_theme,
+    get_theme_manager,
+    set_theme,
 )
-
+from ui.ui_system import (
+    KeyboardNavigator,
+    LoadingIndicator,
+    Tooltip,
+    TooltipManager,
+    UIButton,
+    UIWidget,
+)
 
 # Initialize pygame for tests
 pygame.init()

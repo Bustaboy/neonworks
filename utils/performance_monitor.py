@@ -219,9 +219,7 @@ class PerformanceMonitor:
         # Calculate variance
         if len(valid_frame_times) > 1:
             mean = avg_frame_time
-            variance = sum((x - mean) ** 2 for x in valid_frame_times) / len(
-                valid_frame_times
-            )
+            variance = sum((x - mean) ** 2 for x in valid_frame_times) / len(valid_frame_times)
             frame_time_variance = variance**0.5 * 1000  # Convert to ms
         else:
             frame_time_variance = 0.0
@@ -243,15 +241,9 @@ class PerformanceMonitor:
             max_frame_time_ms=max_frame_time * 1000,
             frame_time_variance=frame_time_variance,
             dropped_frames=dropped_frames,
-            avg_update_time_ms=sum(update_times) / len(update_times) * 1000
-            if update_times
-            else 0,
-            avg_render_time_ms=sum(render_times) / len(render_times) * 1000
-            if render_times
-            else 0,
-            avg_event_time_ms=sum(event_times) / len(event_times) * 1000
-            if event_times
-            else 0,
+            avg_update_time_ms=sum(update_times) / len(update_times) * 1000 if update_times else 0,
+            avg_render_time_ms=sum(render_times) / len(render_times) * 1000 if render_times else 0,
+            avg_event_time_ms=sum(event_times) / len(event_times) * 1000 if event_times else 0,
             memory_used_mb=memory_used_mb,
             memory_percent=memory_percent,
             entity_count=self._entity_count,
@@ -296,17 +288,22 @@ class PerformanceMonitor:
         print("\n" + "=" * 60)
         print("PERFORMANCE STATISTICS")
         print("=" * 60)
-        print(f"FPS:              {stats.avg_fps:.1f} "
-              f"(min: {stats.min_fps:.1f}, max: {stats.max_fps:.1f})")
-        print(f"Frame Time:       {stats.avg_frame_time_ms:.2f}ms "
-              f"(±{stats.frame_time_variance:.2f}ms)")
+        print(
+            f"FPS:              {stats.avg_fps:.1f} "
+            f"(min: {stats.min_fps:.1f}, max: {stats.max_fps:.1f})"
+        )
+        print(
+            f"Frame Time:       {stats.avg_frame_time_ms:.2f}ms "
+            f"(±{stats.frame_time_variance:.2f}ms)"
+        )
         print(f"  Update:         {stats.avg_update_time_ms:.2f}ms")
         print(f"  Render:         {stats.avg_render_time_ms:.2f}ms")
         print(f"  Events:         {stats.avg_event_time_ms:.2f}ms")
-        print(f"Dropped Frames:   {stats.dropped_frames} "
-              f"({stats.dropped_frames / len(self.frame_history) * 100:.1f}%)")
-        print(f"Memory:           {stats.memory_used_mb:.1f} MB "
-              f"({stats.memory_percent:.1f}%)")
+        print(
+            f"Dropped Frames:   {stats.dropped_frames} "
+            f"({stats.dropped_frames / len(self.frame_history) * 100:.1f}%)"
+        )
+        print(f"Memory:           {stats.memory_used_mb:.1f} MB " f"({stats.memory_percent:.1f}%)")
         print(f"Entities:         {stats.entity_count}")
         print(f"Events/Frame:     {stats.event_count}")
         print("=" * 60)

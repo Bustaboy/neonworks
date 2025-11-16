@@ -158,9 +158,7 @@ class PerformanceProfiler:
             }
             sort_key = sort_key_map.get(sort_by, sort_key_map["total"])
 
-            sorted_metrics = sorted(
-                self.metrics.values(), key=sort_key, reverse=True
-            )
+            sorted_metrics = sorted(self.metrics.values(), key=sort_key, reverse=True)
 
             for metric in sorted_metrics:
                 f.write(str(metric) + "\n")

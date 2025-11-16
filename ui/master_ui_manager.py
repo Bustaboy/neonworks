@@ -12,9 +12,6 @@ from ..core.ecs import World
 from ..core.hotkey_manager import HotkeyContext, get_hotkey_manager
 from ..core.state import StateManager
 from ..input.input_manager import InputManager
-from .event_editor_ui import EventEditorUI
-from .database_manager_ui import DatabaseManagerUI
-from .character_generator_ui import CharacterGeneratorUI
 from .ai_animator_ui import AIAnimatorUI
 from .ai_asset_editor import AIAssetEditor
 from .ai_asset_inspector import AIAssetInspector
@@ -22,8 +19,11 @@ from .ai_assistant_panel import AIAssistantPanel
 from .asset_browser_ui import AssetBrowserUI
 from .autotile_editor_ui import AutotileEditorUI
 from .building_ui import BuildingUI
+from .character_generator_ui import CharacterGeneratorUI
 from .combat_ui import CombatUI
+from .database_manager_ui import DatabaseManagerUI
 from .debug_console_ui import DebugConsoleUI
+from .event_editor_ui import EventEditorUI
 from .game_hud import GameHUD
 from .history_viewer_ui import HistoryViewerUI
 from .level_builder_ui import LevelBuilderUI
@@ -161,7 +161,9 @@ class MasterUIManager:
         self.hotkey_manager.set_callback("toggle_level_builder", self.toggle_level_builder)
         self.hotkey_manager.set_callback("toggle_event_editor", self.toggle_event_editor)
         self.hotkey_manager.set_callback("toggle_database_editor", self.toggle_database_editor)
-        self.hotkey_manager.set_callback("toggle_character_generator", self.toggle_character_generator)
+        self.hotkey_manager.set_callback(
+            "toggle_character_generator", self.toggle_character_generator
+        )
         self.hotkey_manager.set_callback("toggle_quest_editor", self.toggle_quest_editor)
         self.hotkey_manager.set_callback("toggle_asset_browser", self.toggle_asset_browser)
         self.hotkey_manager.set_callback("toggle_project_manager", self.toggle_project_manager)
@@ -174,7 +176,9 @@ class MasterUIManager:
         self.hotkey_manager.set_callback("toggle_ai_animator", self.toggle_ai_animator)
         self.hotkey_manager.set_callback("toggle_map_manager", self.toggle_map_manager)
         self.hotkey_manager.set_callback("toggle_ai_assistant", self.toggle_ai_assistant)
-        self.hotkey_manager.set_callback("toggle_history_viewer", self._toggle_active_history_viewer)
+        self.hotkey_manager.set_callback(
+            "toggle_history_viewer", self._toggle_active_history_viewer
+        )
         self.hotkey_manager.set_callback("show_shortcuts_overlay", self.shortcuts_overlay.toggle)
 
         # Edit commands
@@ -816,20 +820,10 @@ class MasterUIManager:
         bar_y = screen_height - bar_height
 
         # Draw background
-        pygame.draw.rect(
-            self.screen,
-            (40, 40, 45),
-            (0, bar_y, screen_width, bar_height)
-        )
+        pygame.draw.rect(self.screen, (40, 40, 45), (0, bar_y, screen_width, bar_height))
 
         # Draw separator line
-        pygame.draw.line(
-            self.screen,
-            (80, 80, 85),
-            (0, bar_y),
-            (screen_width, bar_y),
-            2
-        )
+        pygame.draw.line(self.screen, (80, 80, 85), (0, bar_y), (screen_width, bar_y), 2)
 
         # Render status text
         font = pygame.font.Font(None, 20)
@@ -841,9 +835,7 @@ class MasterUIManager:
         # Center: Current editor
         if self.current_editor:
             editor_text = font.render(
-                f"Editor: {self.current_editor.replace('_', ' ').title()}",
-                True,
-                (200, 200, 255)
+                f"Editor: {self.current_editor.replace('_', ' ').title()}", True, (200, 200, 255)
             )
             editor_x = (screen_width - editor_text.get_width()) // 2
             self.screen.blit(editor_text, (editor_x, bar_y + 7))

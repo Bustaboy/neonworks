@@ -495,7 +495,9 @@ class TestStabilityUnderLoad:
                     world.remove_entity(entity.id)
 
         print(f"\nCompleted 30 iterations of mixed workload")
-        print(f"Final state: {len(list(world._entities.values()))} entities, {event_count[0]} events processed")
+        print(
+            f"Final state: {len(list(world._entities.values()))} entities, {event_count[0]} events processed"
+        )
 
 
 @pytest.mark.stress

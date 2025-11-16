@@ -38,9 +38,7 @@ def create_test_world(entity_count: int = 1000) -> World:
     return world
 
 
-def profile_rendering(
-    entity_count: int = 1000, frame_count: int = 300, show_display: bool = False
-):
+def profile_rendering(entity_count: int = 1000, frame_count: int = 300, show_display: bool = False):
     """
     Profile rendering performance.
 

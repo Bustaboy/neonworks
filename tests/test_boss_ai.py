@@ -95,21 +95,22 @@ class TestBossAISystem:
         system = BossAISystem(event_manager)
         boss = world.create_entity("TestBoss")
         boss.add_component(Health(hp=40, max_hp=100))  # 40% HP
-        boss.add_component(BossPhase(
-            current_phase=1,
-            max_phases=2,
-            phase_triggers=[50.0],
-            phases={
-                1: {"name": "Phase 1"},
-                2: {"name": "Phase 2"}
-            }
-        ))
+        boss.add_component(
+            BossPhase(
+                current_phase=1,
+                max_phases=2,
+                phase_triggers=[50.0],
+                phases={1: {"name": "Phase 1"}, 2: {"name": "Phase 2"}},
+            )
+        )
 
         # Track events
         events_received = []
+
         def track_event(event):
             if event.data.get("type") == "boss_phase_change":
                 events_received.append(event)
+
         event_manager.subscribe(EventType.CUSTOM, track_event)
 
         system.register_boss(boss)
@@ -148,17 +149,16 @@ class TestBossAISystem:
             current_phase=1,
             max_phases=2,
             phase_triggers=[50.0],
-            phases={
-                1: {"name": "Phase 1"},
-                2: {"name": "Phase 2", "dialogue": "Phase 2!"}
-            }
+            phases={1: {"name": "Phase 1"}, 2: {"name": "Phase 2", "dialogue": "Phase 2!"}},
         )
         boss.add_component(boss_phase)
 
         events_received = []
+
         def capture_event(event):
             if event.data.get("type") == "boss_phase_change":
                 events_received.append(event)
+
         event_manager.subscribe(EventType.CUSTOM, capture_event)
 
         system._trigger_phase_transition(world, boss, boss_phase)
@@ -177,12 +177,7 @@ class TestBossAISystem:
         stats = JRPGStats(attack=10, defense=10)
         boss.add_component(stats)
 
-        phase_data = {
-            "stat_changes": {
-                "attack": 5,
-                "defense": 3
-            }
-        }
+        phase_data = {"stat_changes": {"attack": 5, "defense": 3}}
 
         system._apply_phase_changes(world, boss, phase_data)
 
@@ -199,7 +194,7 @@ class TestBossAISystem:
         phase_data = {
             "ai_changes": {
                 "attack_pattern": ["spell", "spell", "attack"],
-                "preferred_spells": ["fireball", "lightning"]
+                "preferred_spells": ["fireball", "lightning"],
             }
         }
 
@@ -215,9 +210,7 @@ class TestBossAISystem:
         health = Health(hp=50, max_hp=100)
         boss.add_component(health)
 
-        phase_data = {
-            "heal_percentage": 20.0  # Heal 20% of max HP
-        }
+        phase_data = {"heal_percentage": 20.0}  # Heal 20% of max HP
 
         system._apply_phase_changes(world, boss, phase_data)
 
@@ -231,9 +224,7 @@ class TestBossAISystem:
         health = Health(hp=95, max_hp=100)
         boss.add_component(health)
 
-        phase_data = {
-            "heal_percentage": 20.0  # Would heal to 115, but should cap at 100
-        }
+        phase_data = {"heal_percentage": 20.0}  # Would heal to 115, but should cap at 100
 
         system._apply_phase_changes(world, boss, phase_data)
 
@@ -249,15 +240,17 @@ class TestBossAISystem:
         boss = world.create_entity("TestBoss")
 
         events_received = []
+
         def capture_event(event):
             if event.data.get("type") == "boss_summon_add":
                 events_received.append(event)
+
         event_manager.subscribe(EventType.CUSTOM, capture_event)
 
         phase_data = {
             "summon_enemies": [
                 {"enemy_id": "skeleton", "level": 5, "position": 0},
-                {"enemy_id": "skeleton", "level": 5, "position": 2}
+                {"enemy_id": "skeleton", "level": 5, "position": 2},
             ]
         }
 
@@ -279,14 +272,16 @@ class TestBossAISystem:
         boss = world.create_entity("TestBoss")
 
         events_received = []
+
         def capture_event(event):
             if event.data.get("type") == "boss_summon_add":
                 events_received.append(event)
+
         event_manager.subscribe(EventType.CUSTOM, capture_event)
 
         add_data = [
             {"enemy_id": "goblin", "level": 3, "position": 1},
-            {"enemy_id": "orc", "level": 5, "position": 3}
+            {"enemy_id": "orc", "level": 5, "position": 3},
         ]
 
         system._summon_adds(world, boss, add_data)
@@ -350,8 +345,8 @@ class TestCreateBossEntity:
         boss = create_boss_entity(world, template, level=10)
 
         # Check for required components
-        from neonworks.core.ecs import Transform, GridPosition, Sprite
-        from neonworks.gameplay.jrpg_combat import EnemyData, BattleRewards
+        from neonworks.core.ecs import GridPosition, Sprite, Transform
+        from neonworks.gameplay.jrpg_combat import BattleRewards, EnemyData
 
         assert boss.has_component(Transform)
         assert boss.has_component(GridPosition)
@@ -513,8 +508,9 @@ class TestBossTemplates:
             trigger_count = len(template["phase_triggers"])
 
             # Should have (max_phases - 1) triggers
-            assert trigger_count == max_phases - 1, \
-                f"{template_name} has {max_phases} phases but {trigger_count} triggers"
+            assert (
+                trigger_count == max_phases - 1
+            ), f"{template_name} has {max_phases} phases but {trigger_count} triggers"
 
 
 class TestBossAIIntegration:
@@ -536,9 +532,11 @@ class TestBossAIIntegration:
 
         # Track events
         phase_changes = []
+
         def track_phase_change(event):
             if event.data.get("type") == "boss_phase_change":
                 phase_changes.append(event)
+
         event_manager.subscribe(EventType.CUSTOM, track_phase_change)
 
         # Boss starts at full HP in phase 1
@@ -610,11 +608,11 @@ class TestBossAIIntegration:
                     "stat_changes": {"attack": 5, "defense": 3},
                     "ai_changes": {
                         "attack_pattern": ["spell", "attack"],
-                        "preferred_spells": ["fireball"]
+                        "preferred_spells": ["fireball"],
                     },
-                    "heal_percentage": 25.0
-                }
-            }
+                    "heal_percentage": 25.0,
+                },
+            },
         )
 
         boss.add_component(health)
