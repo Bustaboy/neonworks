@@ -1,7 +1,7 @@
 # CLAUDE.md - AI Assistant Guide for NeonWorks
 
-**Version:** 1.0
-**Last Updated:** 2025-11-14
+**Version:** 1.1
+**Last Updated:** 2025-11-16
 **Engine Version:** 0.1.0
 **Purpose:** Guide for AI assistants working on the NeonWorks 2D game engine
 
@@ -26,13 +26,20 @@
 
 NeonWorks is a **comprehensive, project-based 2D game engine** built with Python and Pygame, designed for creating turn-based strategy games, JRPGs, and base-building games with survival elements.
 
+**Note:** The codebase uses two main package namespaces:
+- `neonworks.*` - Core engine systems (ECS, rendering, systems, UI)
+- `neonworks.engine.*` - Specialized subsystems (event interpreter, database, character generator)
+
+See [engine/README.md](engine/README.md) for details on the engine subsystems.
+
 **Key Characteristics:**
-- **165 Python files**, ~40,000+ lines of production code
+- **280+ Python files**, ~50,000+ lines of production code
 - **Entity Component System (ECS)** architecture
 - **Project-based** design (engine separate from game content)
-- **Visual editor tools** (17 UI editors with F-key hotkeys)
+- **Visual editor tools** (30+ UI editors with F-key hotkeys)
 - **Complete JRPG framework** (battle system, magic, encounters, puzzles)
 - **Export pipeline** (standalone executables, encryption, licensing)
+- **Visual launcher** (Unity Hub-style project manager)
 - **Production-ready** status with comprehensive testing
 
 ### Project Philosophy
@@ -51,7 +58,7 @@ NeonWorks is a **comprehensive, project-based 2D game engine** built with Python
 
 ```
 neonworks/                    # Root directory (note: NOT "engine/")
-├── core/                     # Core engine systems (10 files, ~2,400 LOC)
+├── core/                     # Core engine systems (17 files, ~4,200 LOC)
 │   ├── ecs.py               # Entity Component System - HEART OF ENGINE
 │   ├── game_loop.py         # Fixed timestep game loop
 │   ├── events.py            # Event system (pub/sub)
@@ -61,7 +68,13 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── serialization.py     # Save/load system
 │   ├── validation.py        # Data validation
 │   ├── event_commands.py    # Event command system
-│   └── event_triggers.py    # Event trigger system
+│   ├── event_triggers.py    # Event trigger system
+│   ├── hotkey_manager.py    # Global hotkey management system
+│   ├── undo_manager.py      # Undo/redo system for editors
+│   ├── undo_persistence.py  # Undo history persistence
+│   ├── crash_recovery.py    # Automatic crash recovery
+│   ├── error_handler.py     # Global error handling
+│   └── command_registry.py  # Command pattern registry
 │
 ├── rendering/               # Graphics & visual systems (8 files, ~3,600 LOC)
 │   ├── renderer.py          # 2D tile-based renderer
@@ -86,7 +99,7 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── boss_ai.py           # Boss battle AI
 │   └── zone_system.py       # Zone management
 │
-├── ui/                      # Visual editor tools (17 files, ~7,100 LOC)
+├── ui/                      # Visual editor tools (40+ files, ~15,000+ LOC)
 │   ├── master_ui_manager.py # UI coordinator (F1-F12 hotkeys)
 │   ├── asset_browser_ui.py  # Asset management (F7)
 │   ├── level_builder_ui.py  # Level editor (F4)
@@ -103,7 +116,39 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── magic_menu_ui.py     # Magic spell menu
 │   ├── exploration_ui.py    # Exploration dialogue
 │   ├── battle_transitions.py # Battle transitions
-│   └── ui_system.py         # Widget framework
+│   ├── ui_system.py         # Widget framework
+│   ├── workspace_system.py  # Workspace/layout management
+│   ├── workspace_toolbar.py # Toolbar system
+│   ├── shortcuts_overlay_ui.py # Keyboard shortcuts overlay
+│   ├── themes.py            # Theme system
+│   ├── layer_panel_ui.py    # Layer management panel
+│   ├── history_viewer_ui.py # Undo/redo history viewer
+│   ├── tileset_picker_ui.py # Tileset selection UI
+│   ├── autotile_editor_ui.py # Autotile editor
+│   ├── autotile_tool.py     # Autotile tools
+│   ├── event_editor_ui.py   # Event editor
+│   ├── database_manager_ui.py # Database editor
+│   ├── character_generator_ui.py # Character generator
+│   ├── ai_animator_ui.py    # AI animation tool
+│   ├── ai_assistant_panel.py # AI assistant panel
+│   ├── ai_generator_tool.py # AI generation tools
+│   ├── ai_vision_context.py # AI vision integration
+│   ├── ai_asset_editor.py   # AI asset editing
+│   ├── ai_asset_inspector.py # AI asset inspection
+│   ├── ai_tileset_ui.py     # AI tileset tools
+│   ├── map_tools/           # Map editing tools (21 files)
+│   │   ├── pencil_tool.py   # Pencil drawing tool
+│   │   ├── eraser_tool.py   # Eraser tool
+│   │   ├── fill_tool.py     # Bucket fill tool
+│   │   ├── select_tool.py   # Selection tool
+│   │   ├── stamp_tool.py    # Stamp/clone tool
+│   │   ├── shape_tool.py    # Shape drawing tool
+│   │   ├── eyedropper_tool.py # Color picker tool
+│   │   └── ...              # Additional tools and settings
+│   └── map_components/      # Map UI components (4 files)
+│       ├── minimap.py       # Minimap widget
+│       ├── map_properties.py # Map properties panel
+│       └── tool_options.py  # Tool options panel
 │
 ├── gameplay/                # Game-specific systems (3 files, ~1,700 LOC)
 │   ├── character_controller.py
@@ -151,11 +196,28 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── turn_based_rpg/
 │   └── base_builder/
 │
+├── engine/                  # Engine subsystems (separate namespace)
+│   ├── core/                # Event interpreter & event data
+│   ├── data/                # Database management system
+│   ├── tools/               # Character generator, map importers
+│   ├── ui/                  # Specialized UIs (event, database, char gen)
+│   └── templates/           # Event command templates
+│
 ├── docs/                    # Documentation (~8,000+ LOC)
-├── scripts/                 # Utility scripts
+│   └── project/             # Project documentation (moved from root)
+│       ├── STATUS.md        # Implementation status
+│       ├── DEVELOPER_GUIDE.md
+│       ├── CHANGELOG.md
+│       └── ...              # Additional project docs
+│
+├── scripts/                 # Utility scripts & benchmarks
+├── examples/                # Example projects & demos
 └── backups/                 # Backup directory
 
 # Entry points
+├── launcher.py              # Visual launcher (Unity Hub-style)
+├── launch_neonworks.sh      # Launcher script (Linux/Mac)
+├── launch_neonworks.bat     # Launcher script (Windows)
 ├── main.py                  # Game launcher
 ├── cli.py                   # CLI interface
 ├── export_cli.py            # Export CLI
@@ -338,14 +400,36 @@ style: Apply black formatting to ui/ directory
 
 **Current Development Branch:**
 ```
-claude/claude-md-mhyrvqmj2v40kqlb-01Rb1jigvVWZZbBtfCM37twS
+claude/claude-md-mi1dk2gcjszbi0hi-01LsdSqUG3TJMGgMk9fHrAD8
 ```
 
 **Important:**
 - Always develop on feature branches starting with `claude/`
+- Branch name MUST match the session ID for push to succeed
 - Commit frequently with clear messages
 - Push with: `git push -u origin <branch-name>`
 - Create PR when ready for review
+
+### 3.5 Using the Visual Launcher
+
+**Starting the Launcher:**
+```bash
+# Recommended - Visual launcher (Unity Hub-style)
+python launcher.py
+
+# Or use convenience scripts
+./launch_neonworks.sh        # Linux/Mac
+launch_neonworks.bat         # Windows
+```
+
+**Launcher Features:**
+- Visual project browser with project cards
+- One-click project creation from templates
+- Recent projects tracking
+- Quick launch into editor mode
+- Template selection (4 built-in templates)
+
+See [LAUNCHER_README.md](LAUNCHER_README.md) for detailed documentation.
 
 ---
 
@@ -1028,13 +1112,30 @@ entry_points={
 | F11 | Autotile Editor | Editor | `ui/autotile_editor_ui.py` |
 | F12 | Navmesh Editor | Editor | `ui/navmesh_editor_ui.py` |
 | Ctrl+M | Map Manager | Editor | `ui/map_manager_ui.py` |
+| Ctrl+L | Layer Panel | Editor | `ui/layer_panel_ui.py` |
+| Ctrl+H | History Viewer | Editor | `ui/history_viewer_ui.py` |
+| Ctrl+T | Tileset Picker | Editor | `ui/tileset_picker_ui.py` |
+| Ctrl+E | Event Editor | Editor | `ui/event_editor_ui.py` |
+| Ctrl+D | Database Manager | Editor | `ui/database_manager_ui.py` |
+| Ctrl+G | Character Generator | Editor | `ui/character_generator_ui.py` |
 | Shift+F7 | AI Animator | Editor | `ui/ai_animator_ui.py` |
 | Ctrl+Space | AI Assistant | All | `ui/ai_assistant_panel.py` |
+| Ctrl+Shift+K | Shortcuts Overlay | All | `ui/shortcuts_overlay_ui.py` |
+
+**Map Tools (activated when in Map Editor):**
+- **P** - Pencil Tool (`ui/map_tools/pencil_tool.py`)
+- **E** - Eraser Tool (`ui/map_tools/eraser_tool.py`)
+- **F** - Fill Tool (`ui/map_tools/fill_tool.py`)
+- **S** - Select Tool (`ui/map_tools/select_tool.py`)
+- **B** - Stamp Tool (`ui/map_tools/stamp_tool.py`)
+- **R** - Shape Tool (`ui/map_tools/shape_tool.py`)
+- **I** - Eyedropper Tool (`ui/map_tools/eyedropper_tool.py`)
 
 **When adding new editors:**
 - Add to `MasterUIManager.__init__()`
 - Add hotkey handling in `MasterUIManager.handle_event()`
 - Document in this file and README
+- Update keyboard_shortcuts.md in docs/
 
 ### 7.5 Dependencies
 
@@ -1043,19 +1144,27 @@ entry_points={
 pygame==2.5.2
 numpy>=1.24.0
 Pillow>=10.0.0
-PyYAML>=6.0.1
-cryptography>=41.0.0
+PyYAML>=6.0.3
+cryptography>=46.0.0
 pyinstaller>=6.0.0
 ```
 
 **Development dependencies** (`requirements-dev.txt`):
 ```
-pytest>=7.4.0
-pytest-cov>=4.1.0
-black>=23.12.1
-isort>=5.13.0
-flake8>=7.0.0
-pre-commit>=3.6.0
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-xdist==3.5.0        # Parallel test execution
+pytest-timeout==2.2.0
+black==25.11.0
+isort==7.0.0
+flake8==7.3.0
+mypy==1.7.1
+pylint==4.0.3
+coverage==7.3.4
+pre-commit==3.5.0
+sphinx==7.1.2              # Documentation generation
+faker==21.0.0              # Test data generation
 ```
 
 **Installing dependencies:**
@@ -1293,27 +1402,73 @@ DEVELOPER_GUIDE.md             # Developer best practices
 ### Updating Documentation
 1. ✅ Update this file (CLAUDE.md) for AI-relevant changes
 2. ✅ Update README.md for user-facing changes
-3. ✅ Update STATUS.md if fixing TODOs or known issues
-4. ✅ Update DEVELOPER_GUIDE.md for workflow changes
+3. ✅ Update docs/project/STATUS.md if fixing TODOs or known issues
+4. ✅ Update docs/project/DEVELOPER_GUIDE.md for workflow changes
 5. ✅ Commit with `docs:` prefix
 
 ---
 
 ## Additional Resources
 
+### Core Documentation
 - **README.md** - Project overview and quick start
-- **STATUS.md** - Current implementation status (39,575+ LOC analysis)
+- **CLAUDE.md** - AI assistant guide (this file)
+- **JRPG_FEATURES.md** - JRPG system documentation
+
+### Project Documentation (docs/project/)
+- **STATUS.md** - Current implementation status (50,000+ LOC analysis)
 - **DEVELOPER_GUIDE.md** - Development best practices and standards
 - **NEONWORKS_ENGINE_OVERVIEW.md** - Comprehensive architecture overview
-- **JRPG_FEATURES.md** - JRPG system documentation
-- **docs/** - Full documentation directory
-- **examples/** - Example projects and demos
-- **templates/** - Project templates
+- **LAUNCHER_README.md** - Visual launcher documentation
+- **FEATURE_CHECKLIST.md** - Complete feature implementation status
+- **IMPLEMENTATION_SUMMARY.md** - Implementation summaries
+- **CHANGELOG.md** - Version history and changes
+- **KNOWN_ISSUES.md** - Known bugs and limitations
+- **DEPENDENCIES.md** - Dependency documentation
+- **FORMATTING.md** - Code formatting guide
+- **IMPORT_FIXES.md** - Import migration documentation
+- **ASSET_LIBRARY_UPDATE.md** - Asset library documentation
+
+### Testing & Quality (docs/project/)
+- **TEST_RESULTS.md** - Test execution results
+- **E2E_TEST_RESULTS.md** - End-to-end test results
+- **COVERAGE_SUMMARY.md** - Test coverage reports
+- **TEST_SUITE_ADDITIONS.md** - Test suite documentation
+
+### Guides & Tutorials
+- **docs/** - Full documentation directory (40+ files)
+- **docs/getting_started.md** - Getting started guide
+- **docs/keyboard_shortcuts.md** - Complete keyboard shortcuts
+- **docs/map_editor_guide.md** - Map editor tutorial
+- **docs/RECIPES.md** - Common patterns and solutions
+- **docs/tutorials/** - Step-by-step tutorials
+- **ui/map_tools/README.md** - Map tools documentation
+- **ui/WORKSPACE_SYSTEM.md** - Workspace system guide
+
+### Examples & Templates
+- **examples/** - Example projects and demos (3 projects)
+- **templates/** - Project templates (4 templates)
 
 ---
 
-**Last Updated:** 2025-11-14
+**Last Updated:** 2025-11-16
 **Maintainer:** NeonWorks Team
 **Status:** Production Ready
-**Questions?** Check STATUS.md or DEVELOPER_GUIDE.md
+**Version:** 1.1
+**Questions?** Check docs/project/STATUS.md or docs/project/DEVELOPER_GUIDE.md
+
+---
+
+## Repository Organization
+
+As of Version 1.1, the repository has been reorganized for better clarity:
+
+- **Root** - Only essential files (README.md, CLAUDE.md, JRPG_FEATURES.md, setup files)
+- **docs/project/** - All project documentation (moved from root)
+- **engine/** - Specialized engine subsystems (event interpreter, database, character gen)
+- **scripts/** - Utility scripts and benchmarks
+- **examples/** - Demo files and example projects
+- **tests/** - All test files
+
+This organization reduces root directory clutter and groups related files logically.
 
