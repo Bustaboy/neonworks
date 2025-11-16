@@ -128,3 +128,93 @@ class TestGPUMonitorInit:
                 keyword in error_msg.lower()
                 for keyword in ["install", "driver", "http", "guide"]
             )
+
+
+class TestNVIDIASMI:
+    """Test NVIDIA GPU monitoring via nvidia-smi."""
+
+    def test_query_free_vram_nvidia(self):
+        """Test querying free VRAM with nvidia-smi."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # Mock nvidia-smi output: 4096 MB free
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "4096\n"
+
+                free_gb = monitor.get_free_vram_gb()
+
+                assert free_gb == pytest.approx(4.0, abs=0.01)  # 4096 MB = 4.0 GB
+                mock_run.assert_called_once()
+                # Verify correct nvidia-smi command
+                args = mock_run.call_args[0][0]
+                assert args[0] == "nvidia-smi"
+                assert "--query-gpu=memory.free" in args
+                assert "--format=csv,nounits,noheader" in args
+
+    def test_query_total_vram_nvidia(self):
+        """Test querying total VRAM with nvidia-smi."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # Mock nvidia-smi output: 8192 MB total
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "8192\n"
+
+                total_gb = monitor.get_total_vram_gb()
+
+                assert total_gb == pytest.approx(8.0, abs=0.01)  # 8192 MB = 8.0 GB
+                # Verify correct nvidia-smi command
+                args = mock_run.call_args[0][0]
+                assert args[0] == "nvidia-smi"
+                assert "--query-gpu=memory.total" in args
+
+    def test_nvidia_smi_timeout(self):
+        """Test timeout handling for nvidia-smi."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("nvidia-smi", 5.0)):
+                with pytest.raises(RuntimeError, match="nvidia-smi timeout"):
+                    monitor.get_free_vram_gb()
+
+    def test_nvidia_smi_parse_error(self):
+        """Test handling of invalid nvidia-smi output."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # Invalid output (not a number)
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "invalid\n"
+
+                with pytest.raises(RuntimeError, match="Failed to parse nvidia-smi"):
+                    monitor.get_free_vram_gb()
+
+    def test_nvidia_smi_nonzero_exit(self):
+        """Test handling of nvidia-smi errors (non-zero exit code)."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value.returncode = 1
+                mock_run.return_value.stderr = "Error: No devices found"
+
+                with pytest.raises(RuntimeError, match="nvidia-smi failed"):
+                    monitor.get_free_vram_gb()
+
+    def test_nvidia_fractional_vram(self):
+        """Test parsing of fractional VRAM values."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # 2560 MB = 2.5 GB
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "2560\n"
+
+                free_gb = monitor.get_free_vram_gb()
+
+                assert free_gb == pytest.approx(2.5, abs=0.01)

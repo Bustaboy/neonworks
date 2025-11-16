@@ -145,8 +145,13 @@ class GPUMonitor:
             >>> print(f"Free VRAM: {free:.2f} GB")
             Free VRAM: 4.50 GB
         """
-        # Not implemented yet - will be done in iteration 3 (NVIDIA) and 4 (AMD)
-        raise NotImplementedError("VRAM querying not yet implemented")
+        # Query based on vendor
+        if self.vendor == GPUVendor.NVIDIA:
+            return self._query_nvidia_free_vram()
+        elif self.vendor == GPUVendor.AMD:
+            return self._query_amd_free_vram()
+        else:
+            raise RuntimeError("No GPU monitoring tool available")
 
     def get_total_vram_gb(self) -> float:
         """
@@ -166,8 +171,103 @@ class GPUMonitor:
             >>> print(f"Total VRAM: {total:.2f} GB")
             Total VRAM: 8.00 GB
         """
-        # Not implemented yet - will be done in iteration 3 (NVIDIA) and 4 (AMD)
-        raise NotImplementedError("VRAM querying not yet implemented")
+        # Query based on vendor
+        if self.vendor == GPUVendor.NVIDIA:
+            return self._get_nvidia_total_vram()
+        elif self.vendor == GPUVendor.AMD:
+            return self._get_amd_total_vram()
+        else:
+            raise RuntimeError("No GPU monitoring tool available")
+
+    def _query_nvidia_free_vram(self) -> float:
+        """
+        Query nvidia-smi for free VRAM.
+
+        Returns:
+            Free VRAM in GB
+
+        Raises:
+            RuntimeError: If query fails
+        """
+        try:
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=memory.free", "--format=csv,nounits,noheader"],
+                capture_output=True,
+                text=True,
+                timeout=5.0,
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"nvidia-smi failed: {result.stderr}")
+
+            # Parse output (MB)
+            free_mb = float(result.stdout.strip().split("\n")[0])
+            return free_mb / 1024.0  # Convert to GB
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("nvidia-smi timeout (5s)")
+        except (ValueError, IndexError) as e:
+            raise RuntimeError(f"Failed to parse nvidia-smi output: {e}")
+
+    def _get_nvidia_total_vram(self) -> float:
+        """
+        Query nvidia-smi for total VRAM.
+
+        Returns:
+            Total VRAM in GB
+
+        Raises:
+            RuntimeError: If query fails
+        """
+        try:
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=memory.total", "--format=csv,nounits,noheader"],
+                capture_output=True,
+                text=True,
+                timeout=5.0,
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"nvidia-smi failed: {result.stderr}")
+
+            # Parse output (MB)
+            total_mb = float(result.stdout.strip().split("\n")[0])
+            return total_mb / 1024.0  # Convert to GB
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("nvidia-smi timeout (5s)")
+        except (ValueError, IndexError) as e:
+            raise RuntimeError(f"Failed to parse nvidia-smi output: {e}")
+
+    def _query_amd_free_vram(self) -> float:
+        """
+        Query rocm-smi for free VRAM.
+
+        Returns:
+            Free VRAM in GB
+
+        Raises:
+            RuntimeError: If query fails
+
+        Note:
+            Not yet implemented - will be added in iteration 4
+        """
+        raise NotImplementedError("AMD VRAM querying not yet implemented (iteration 4)")
+
+    def _get_amd_total_vram(self) -> float:
+        """
+        Query rocm-smi for total VRAM.
+
+        Returns:
+            Total VRAM in GB
+
+        Raises:
+            RuntimeError: If query fails
+
+        Note:
+            Not yet implemented - will be added in iteration 4
+        """
+        raise NotImplementedError("AMD VRAM querying not yet implemented (iteration 4)")
 
     def invalidate_cache(self):
         """
