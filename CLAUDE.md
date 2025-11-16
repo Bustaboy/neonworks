@@ -24,7 +24,7 @@
 
 ### What is NeonWorks?
 
-NeonWorks is a **comprehensive, project-based 2D game engine** built with Python and Pygame, designed for creating turn-based strategy games, JRPGs, and base-building games with survival elements.
+NeonWorks is a **comprehensive, project-based 2D game engine** built with Python and Pygame, designed for creating turn-based strategy games, JRPGs, and base-building games with survival elements. The project is under active development, with new features continually being designed and added.
 
 **Note:** The codebase uses two main package namespaces:
 - `neonworks.*` - Core engine systems (ECS, rendering, systems, UI)
@@ -58,6 +58,9 @@ See [engine/README.md](engine/README.md) for details on the engine subsystems.
 
 ```
 neonworks/                    # Root directory (note: NOT "engine/")
+├── config/                  # Configuration files
+│   └── ai_config.py         # Auto-configuration for AI hardware
+│
 ├── core/                     # Core engine systems (17 files, ~4,200 LOC)
 │   ├── ecs.py               # Entity Component System - HEART OF ENGINE
 │   ├── game_loop.py         # Fixed timestep game loop
@@ -76,7 +79,7 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── error_handler.py     # Global error handling
 │   └── command_registry.py  # Command pattern registry
 │
-├── rendering/               # Graphics & visual systems (8 files, ~3,600 LOC)
+├── rendering/               # Graphics & visual systems (9 files, ~4,000 LOC)
 │   ├── renderer.py          # 2D tile-based renderer
 │   ├── camera.py            # Camera (pan, zoom, follow)
 │   ├── ui.py                # UI rendering
@@ -84,6 +87,7 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── asset_pipeline.py    # Asset processing
 │   ├── animation.py         # Animation system
 │   ├── tilemap.py           # Tilemap rendering
+│   ├── autotiles.py         # Autotile system for seamless tiles
 │   └── particles.py         # Particle effects
 │
 ├── systems/                 # Game logic systems (11 files, ~5,000 LOC)
@@ -136,7 +140,7 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   ├── ai_asset_editor.py   # AI asset editing
 │   ├── ai_asset_inspector.py # AI asset inspection
 │   ├── ai_tileset_ui.py     # AI tileset tools
-│   ├── map_tools/           # Map editing tools (21 files)
+│   ├── map_tools/           # Map editing tools (21+ files)
 │   │   ├── pencil_tool.py   # Pencil drawing tool
 │   │   ├── eraser_tool.py   # Eraser tool
 │   │   ├── fill_tool.py     # Bucket fill tool
@@ -144,22 +148,33 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   │   ├── stamp_tool.py    # Stamp/clone tool
 │   │   ├── shape_tool.py    # Shape drawing tool
 │   │   ├── eyedropper_tool.py # Color picker tool
-│   │   └── ...              # Additional tools and settings
+│   │   ├── settings_panel.py # Tool settings panel
+│   │   ├── themes.py        # Theming for map tools
+│   │   └── undo_manager.py  # Undo/redo for map tools
 │   └── map_components/      # Map UI components (4 files)
 │       ├── minimap.py       # Minimap widget
 │       ├── map_properties.py # Map properties panel
 │       └── tool_options.py  # Tool options panel
 │
-├── gameplay/                # Game-specific systems (3 files, ~1,700 LOC)
-│   ├── character_controller.py
-│   ├── jrpg_combat.py
-│   └── movement.py
+├── gameplay/                # Game-specific systems (4 files, ~2,000 LOC)
+│   ├── character_controller.py # Player character state
+│   ├── jrpg_combat.py       # JRPG combat logic
+│   ├── movement.py          # Grid-based movement
+│   └── puzzle_objects.py    # Components for dungeon puzzles
 │
-├── editor/                  # AI-powered editor tools (4 files, ~1,800 LOC)
-│   ├── ai_navmesh.py        # AI navmesh generation
-│   ├── ai_level_builder.py  # AI level generation
-│   ├── ai_writer.py         # AI quest/dialogue writing
-│   └── procedural_gen.py    # Procedural generation
+├── editor/                  # AI & procedural generation tools (12+ files, ~4,000+ LOC)
+│   ├── sd_sprite_generator.py # Stable Diffusion sprite generator
+│   ├── ai_tileset_generator.py # AI-powered tileset generation
+│   ├── ai_layer_generator.py  # AI map layer generation
+│   ├── ai_animator.py         # AI-assisted animation tools
+│   ├── ai_animation_interpreter.py # Interprets AI animation scripts
+│   ├── ai_navmesh.py          # AI navmesh generation
+│   ├── ai_level_builder.py    # AI level generation
+│   ├── ai_writer.py           # AI quest/dialogue writing
+│   ├── style_transfer.py      # Asset style transfer tools
+│   ├── procedural_gen.py      # Procedural content generation
+│   ├── physics_animation.py   # Physics-based animation
+│   └── animation_script_parser.py # Parses animation scripts
 │
 ├── export/                  # Build & packaging (7 files, ~2,100 LOC)
 │   ├── exporter.py
@@ -171,10 +186,30 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │   └── package_loader.py
 │
 ├── licensing/               # License validation (3 files, ~650 LOC)
+│   ├── license_key.py       # License key structure
+│   ├── hardware_id.py       # Generates hardware identifiers
+│   └── license_validator.py # Validates license keys
+│
 ├── physics/                 # Collision & rigidbody (3 files, ~900 LOC)
+│   ├── collision.py         # Collision detection system
+│   └── rigidbody.py         # Rigidbody physics
+│
 ├── input/                   # Input management (2 files, ~400 LOC)
+│   └── input_manager.py     # Handles keyboard/mouse/gamepad
+│
 ├── audio/                   # Audio playback (2 files, ~700 LOC)
-├── ai/                      # AI pathfinding (2 files, ~500 LOC)
+│   └── audio_manager.py     # Manages music and sound effects
+│
+├── ai/                      # AI systems (8+ files, ~2,000+ LOC)
+│   ├── pathfinding.py       # A* pathfinding
+│   └── backends/            # Pluggable AI backends
+│       ├── llm_backend.py   # LLM backend ABC
+│       ├── image_backend.py # Image backend ABC
+│       ├── openai_backend.py # OpenAI API integration
+│       ├── anthropic_backend.py # Anthropic API integration
+│       ├── llama_cpp_backend.py # Llama.cpp local inference
+│       └── diffusers_backend.py # Diffusers local inference
+│
 ├── data/                    # Data management (6 files, ~2,800 LOC)
 │   ├── config_loader.py     # JSON config loading
 │   ├── serialization.py     # Save/load utilities
@@ -211,6 +246,10 @@ neonworks/                    # Root directory (note: NOT "engine/")
 │       └── ...              # Additional project docs
 │
 ├── scripts/                 # Utility scripts & benchmarks
+├── utils/                   # Common utilities (3 files, ~300 LOC)
+│   ├── profiler.py          # Code profiling tools
+│   └── performance_monitor.py # Performance monitoring
+│
 ├── examples/                # Example projects & demos
 └── backups/                 # Backup directory
 
