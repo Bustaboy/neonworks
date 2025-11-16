@@ -359,3 +359,99 @@ class TestROCMSMI:
                 free_gb = monitor.get_free_vram_gb()
 
                 assert free_gb == pytest.approx(2.5, abs=0.01)
+
+
+class TestCaching:
+    """Test VRAM query caching."""
+
+    def test_cache_hit_nvidia(self):
+        """Test that cache is used within TTL (NVIDIA)."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "4096\n"
+
+                # First call - should query GPU
+                free1 = monitor.get_free_vram_gb()
+                assert mock_run.call_count == 1
+
+                # Second call within TTL - should use cache
+                free2 = monitor.get_free_vram_gb()
+                assert mock_run.call_count == 1  # Still only 1 call
+                assert free1 == free2
+
+    def test_cache_miss_after_ttl(self):
+        """Test that cache expires after TTL."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+            monitor._cache_ttl = 0.1  # 100ms TTL for testing
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "4096\n"
+
+                # First call
+                monitor.get_free_vram_gb()
+                assert mock_run.call_count == 1
+
+                # Wait for cache to expire
+                import time
+
+                time.sleep(0.15)
+
+                # Second call - cache expired, should query again
+                monitor.get_free_vram_gb()
+                assert mock_run.call_count == 2
+
+    def test_invalidate_cache(self):
+        """Test manual cache invalidation."""
+        with patch("shutil.which", return_value="/usr/bin/nvidia-smi"):
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "4096\n"
+
+                # First call
+                monitor.get_free_vram_gb()
+                assert mock_run.call_count == 1
+
+                # Invalidate cache
+                monitor.invalidate_cache()
+
+                # Second call - cache invalidated, should query again
+                monitor.get_free_vram_gb()
+                assert mock_run.call_count == 2
+
+    def test_cache_hit_amd(self):
+        """Test that cache is used within TTL (AMD)."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = json.dumps(
+                    {
+                        "card0": {
+                            "VRAM Total Memory (B)": 8589934592,
+                            "VRAM Total Used Memory (B)": 4294967296,
+                        }
+                    }
+                )
+
+                # First call - should query GPU
+                free1 = monitor.get_free_vram_gb()
+                assert mock_run.call_count == 1
+
+                # Second call within TTL - should use cache
+                free2 = monitor.get_free_vram_gb()
+                assert mock_run.call_count == 1  # Still only 1 call
+                assert free1 == free2

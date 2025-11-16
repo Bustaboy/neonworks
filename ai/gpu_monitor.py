@@ -146,13 +146,25 @@ class GPUMonitor:
             >>> print(f"Free VRAM: {free:.2f} GB")
             Free VRAM: 4.50 GB
         """
-        # Query based on vendor
+        now = time.time()
+
+        # Check cache validity
+        if self._vram_cache is not None and (now - self._vram_cache_time) < self._cache_ttl:
+            return self._vram_cache
+
+        # Cache miss or expired - query GPU
         if self.vendor == GPUVendor.NVIDIA:
-            return self._query_nvidia_free_vram()
+            free_vram = self._query_nvidia_free_vram()
         elif self.vendor == GPUVendor.AMD:
-            return self._query_amd_free_vram()
+            free_vram = self._query_amd_free_vram()
         else:
             raise RuntimeError("No GPU monitoring tool available")
+
+        # Update cache
+        self._vram_cache = free_vram
+        self._vram_cache_time = now
+
+        return free_vram
 
     def get_total_vram_gb(self) -> float:
         """
