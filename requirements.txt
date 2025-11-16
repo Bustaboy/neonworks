@@ -37,3 +37,6 @@ pyinstaller>=6.0.0
 
 # Optional: Cython compilation for maximum protection (Professional tier)
 # Uncomment for Cython support: Cython>=3.0.0
+
+# Multi-agent system dependencies
+llama-cpp-python>=0.2.0
