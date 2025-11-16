@@ -54,8 +54,7 @@ class ImageBackendConfig:
         valid_types = {"diffusers", "comfyui"}
         if self.backend_type not in valid_types:
             raise ValueError(
-                f"Invalid backend_type '{self.backend_type}'. "
-                f"Must be one of: {valid_types}"
+                f"Invalid backend_type '{self.backend_type}'. " f"Must be one of: {valid_types}"
             )
 
         # Validate dimensions

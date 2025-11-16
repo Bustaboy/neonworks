@@ -6,7 +6,6 @@ DiffusersBackend implementation, and factory function.
 """
 
 import pytest
-from PIL import Image
 
 from neonworks.ai.backends import (
     DiffusersBackend,

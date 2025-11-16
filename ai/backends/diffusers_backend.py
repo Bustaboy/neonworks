@@ -4,8 +4,6 @@ DiffusersBackend for Stable Diffusion Models
 Supports local image generation using Stable Diffusion models via diffusers library.
 """
 
-from typing import Optional
-
 from PIL import Image
 
 from .image_backend import ImageBackend, ImageBackendConfig

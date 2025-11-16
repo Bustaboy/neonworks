@@ -8,6 +8,14 @@ pygame==2.5.2
 # Used in pathfinding, physics, and particle systems
 numpy>=1.24.0
 
+# AI/ML backends for image and text generation
+# PyTorch for deep learning model inference
+torch>=2.0.0
+
+# Diffusers for Stable Diffusion image generation
+# Used in AI-powered asset creation tools
+diffusers>=0.25.0
+
 # Image processing and asset pipeline
 # Used for texture atlases, format conversions, and editor tools
 Pillow>=10.0.0
