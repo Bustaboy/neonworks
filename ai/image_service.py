@@ -4,7 +4,6 @@ Image Generation Service
 Service for managing image generation with VRAM integration and auto-unload.
 """
 
-import pygame
 import threading
 import time
 import uuid
@@ -136,7 +135,8 @@ class ImageService:
             self.is_loaded = True
             self.last_use_time = time.time()
 
-            # Emit event
+            # Emit event (lazy import to avoid pygame init during module import)
+            import pygame
             event = pygame.event.Event(
                 IMAGE_MODEL_LOADED,
                 {"service": "image_service", "vram": vram_required},
@@ -176,7 +176,8 @@ class ImageService:
             self.is_loaded = False
             self.last_use_time = None
 
-            # Emit event
+            # Emit event (lazy import to avoid pygame init during module import)
+            import pygame
             event = pygame.event.Event(
                 IMAGE_MODEL_UNLOADED, {"service": "image_service"}
             )
@@ -530,6 +531,7 @@ class ImageService:
             result_path: Path to generated image
         """
         from ai.events import IMAGE_GENERATION_COMPLETE
+        import pygame
 
         event = pygame.event.Event(
             IMAGE_GENERATION_COMPLETE,
@@ -546,6 +548,7 @@ class ImageService:
             error_message: Error description
         """
         from ai.events import IMAGE_GENERATION_ERROR
+        import pygame
 
         event = pygame.event.Event(
             IMAGE_GENERATION_ERROR,

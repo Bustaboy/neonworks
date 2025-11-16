@@ -57,8 +57,6 @@ import threading
 import time
 from typing import Dict, List, Optional
 
-import pygame
-
 from ai.gpu_monitor import GPUMonitor
 from ai.vram_priority import VRAMPriority
 
@@ -344,6 +342,7 @@ class SmartVRAMManager:
             priority: VRAMPriority level
         """
         from ai.events import VRAM_ALLOCATED
+        import pygame
 
         event = pygame.event.Event(
             VRAM_ALLOCATED,
@@ -372,6 +371,7 @@ class SmartVRAMManager:
             queued: Whether service was queued for later execution
         """
         from ai.events import VRAM_ALLOCATION_FAILED
+        import pygame
 
         event = pygame.event.Event(
             VRAM_ALLOCATION_FAILED,
@@ -456,6 +456,7 @@ class SmartVRAMManager:
             vram_freed: Amount of VRAM freed (GB)
         """
         from ai.events import VRAM_RELEASED
+        import pygame
 
         event = pygame.event.Event(
             VRAM_RELEASED,
