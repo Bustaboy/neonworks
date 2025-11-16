@@ -31,6 +31,29 @@ def mock_gpu_monitor():
         yield monitor
 
 
+@pytest.fixture
+def mock_gpu_monitor_stateful():
+    """Mock GPUMonitor that tracks allocations (for eviction tests)."""
+    with patch("ai.vram_manager.GPUMonitor") as MockGPUMonitor:
+        monitor = MagicMock(spec=GPUMonitor)
+        monitor.vendor = GPUVendor.NVIDIA
+        monitor.get_total_vram_gb.return_value = 8.0
+
+        # Track allocated VRAM
+        allocated = [0.0]  # Use list for mutability in closure
+
+        def get_free_side_effect():
+            # Return total minus allocated
+            return 8.0 - allocated[0]
+
+        monitor.get_free_vram_gb.side_effect = get_free_side_effect
+        monitor._allocated = allocated  # Expose for test manipulation
+
+        MockGPUMonitor.return_value = monitor
+
+        yield monitor
+
+
 class TestSmartVRAMManagerInit:
     """Test SmartVRAMManager initialization."""
 
@@ -296,3 +319,159 @@ class TestAllocationFailure:
         assert event.service == "image"
         assert event.required_vram == 4.0
         assert event.queued is False  # Not queued in this iteration
+
+
+class TestPriorityEviction:
+    """Test priority-based VRAM eviction."""
+
+    def test_evict_lower_priority_service(self, mock_gpu_monitor):
+        """Test that higher priority can evict lower priority."""
+        manager = SmartVRAMManager()
+
+        # Manually set up LLM as loaded (5.0GB, NORMAL priority)
+        manager.loaded_services["llm"] = {
+            "vram": 5.0,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        # Mock: 2.5GB before eviction, then 7.5GB after
+        # Need multiple values because get_available_vram is called multiple times
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [
+            2.5,  # Initial check (insufficient)
+            2.5,  # During eviction check
+            7.5,  # After eviction - recheck
+            3.5,  # After Image loaded
+        ]
+
+        # Try to load Image (4.0GB, USER_REQUESTED priority)
+        # USER_REQUESTED (8) > NORMAL (5) - can evict
+        success = manager.request_vram("image", 4.0, VRAMPriority.USER_REQUESTED)
+
+        # LLM should be evicted, Image should be loaded
+        assert success is True
+        assert "llm" not in manager.loaded_services
+        assert "image" in manager.loaded_services
+        assert manager.loaded_services["image"]["vram"] == 4.0
+
+    def test_cannot_evict_same_or_higher_priority(self, mock_gpu_monitor):
+        """Test that same/higher priority cannot evict."""
+        manager = SmartVRAMManager()
+
+        # Manually set up LLM as loaded (5.0GB, USER_REQUESTED priority)
+        manager.loaded_services["llm"] = {
+            "vram": 5.0,
+            "priority": VRAMPriority.USER_REQUESTED,
+            "loaded_at": time.time()
+        }
+
+        # Mock: Only 2.5GB free (8.0 - 5.0 LLM - 0.5 safety)
+        mock_gpu_monitor.get_free_vram_gb.return_value = 2.5
+
+        # Try to load Image (4.0GB, NORMAL priority)
+        # NORMAL (5) < USER_REQUESTED (8) - cannot evict
+        success = manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+
+        # Should fail (cannot evict)
+        assert success is False
+        assert "llm" in manager.loaded_services  # Still loaded
+        assert "image" not in manager.loaded_services  # Not loaded
+
+    def test_evict_multiple_lower_priority_services(self, mock_gpu_monitor):
+        """Test evicting multiple lower priority services (greedy eviction)."""
+        manager = SmartVRAMManager()
+
+        # Manually set up multiple BACKGROUND services (total 6.0GB)
+        manager.loaded_services["tts"] = {
+            "vram": 2.0,
+            "priority": VRAMPriority.BACKGROUND,
+            "loaded_at": time.time()
+        }
+        manager.loaded_services["translator"] = {
+            "vram": 2.0,
+            "priority": VRAMPriority.BACKGROUND,
+            "loaded_at": time.time()
+        }
+        manager.loaded_services["classifier"] = {
+            "vram": 2.0,
+            "priority": VRAMPriority.BACKGROUND,
+            "loaded_at": time.time()
+        }
+
+        # Mock: 1.5GB initially, then incrementally freed (each service adds 2GB back)
+        # Pattern: check, evict tts (+2GB), evict translator (+2GB), evict classifier (+2GB), final check
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [
+            1.5,  # Initial check
+            1.5,  # During eviction
+            7.5,  # After all evictions complete - plenty of VRAM now
+            2.5,  # After Image loaded
+        ]
+
+        # Load Image (5.0GB, USER_REQUESTED)
+        # USER_REQUESTED (8) > BACKGROUND (1) - can evict
+        success = manager.request_vram("image", 5.0, VRAMPriority.USER_REQUESTED)
+
+        # Image should be loaded (eviction successful)
+        assert success is True
+        assert "image" in manager.loaded_services
+        # At least some BACKGROUND services should be evicted
+        # (greedy eviction stops when enough VRAM freed)
+
+    def test_evict_only_necessary_services(self, mock_gpu_monitor):
+        """Test that only necessary services are evicted (greedy)."""
+        manager = SmartVRAMManager()
+
+        # Manually set up services: LLM (3GB, NORMAL), TTS (2GB, BACKGROUND)
+        manager.loaded_services["llm"] = {
+            "vram": 3.0,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+        manager.loaded_services["tts"] = {
+            "vram": 2.0,
+            "priority": VRAMPriority.BACKGROUND,
+            "loaded_at": time.time()
+        }
+
+        # Mock: 2.5GB initially, then enough after TTS evicted
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [2.5, 2.5, 4.5, 0.5]
+
+        # Request 4.0GB for Image (USER_REQUESTED)
+        success = manager.request_vram("image", 4.0, VRAMPriority.USER_REQUESTED)
+
+        # Image should load successfully
+        assert success is True
+        assert "image" in manager.loaded_services
+
+        # TTS (BACKGROUND) should be evicted (lowest priority)
+        assert "tts" not in manager.loaded_services
+
+    def test_eviction_emits_events(self, mock_gpu_monitor):
+        """Test that eviction emits VRAM_RELEASED events."""
+        manager = SmartVRAMManager()
+
+        # Manually set up LLM
+        manager.loaded_services["llm"] = {
+            "vram": 5.0,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        # Mock: 2.5GB initially, 7.5GB after LLM evicted
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [2.5, 2.5, 7.5, 3.5]
+
+        # Clear event queue
+        pygame.event.clear()
+
+        # Evict LLM by loading Image (higher priority)
+        manager.request_vram("image", 4.0, VRAMPriority.USER_REQUESTED)
+
+        # Check for VRAM_RELEASED event
+        events = pygame.event.get()
+        release_events = [e for e in events if e.type == pygame.USEREVENT + 10]
+
+        assert len(release_events) >= 1  # At least one release event
+        # Find LLM release event
+        llm_release = [e for e in release_events if e.service == "llm"]
+        assert len(llm_release) == 1
+        assert llm_release[0].vram_freed == 5.0

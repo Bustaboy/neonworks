@@ -259,15 +259,26 @@ class SmartVRAMManager:
 
             # Check if we have enough VRAM
             if required_vram_gb > available:
-                # Insufficient VRAM - emit failure event
-                # (Eviction logic will be added in iteration 8)
-                # (Queuing logic will be added in iteration 9)
-                self._emit_allocation_failed(
-                    service_name=service_name,
+                # Try to free VRAM by evicting lower priority services
+                freed_vram = self._free_lower_priority_services(
                     required_vram=required_vram_gb,
-                    queued=False
+                    requesting_priority=priority
                 )
-                return False
+
+                # Re-check available VRAM after eviction
+                available = self.get_available_vram()
+                if service_name in self.loaded_services:
+                    available += self.loaded_services[service_name]["vram"]
+
+                # If still insufficient, fail
+                if required_vram_gb > available:
+                    # Queuing logic will be added in iteration 9
+                    self._emit_allocation_failed(
+                        service_name=service_name,
+                        required_vram=required_vram_gb,
+                        queued=False
+                    )
+                    return False
 
             # Allocate VRAM
             self._allocate_service(
@@ -363,6 +374,89 @@ class SmartVRAMManager:
                 "service": service_name,
                 "required_vram": required_vram,
                 "queued": queued
+            }
+        )
+        pygame.event.post(event)
+
+    def _free_lower_priority_services(
+        self,
+        required_vram: float,
+        requesting_priority: int
+    ) -> float:
+        """
+        Free VRAM by evicting lower priority services.
+
+        Evicts services with priority < requesting_priority until
+        enough VRAM is freed to satisfy the request.
+
+        Args:
+            required_vram: Amount of VRAM needed (GB)
+            requesting_priority: Priority of requesting service
+
+        Returns:
+            Total VRAM freed (GB)
+
+        Note:
+            Must be called with self._lock held
+        """
+        # Find all lower priority services
+        lower_priority_services = [
+            (name, info)
+            for name, info in self.loaded_services.items()
+            if info["priority"] < requesting_priority
+        ]
+
+        # If no lower priority services, cannot evict
+        if not lower_priority_services:
+            return 0.0
+
+        # Sort by priority (lowest first) for greedy eviction
+        # This evicts lowest priority services first
+        lower_priority_services.sort(key=lambda x: x[1]["priority"])
+
+        # Evict services until we have enough VRAM
+        freed_vram = 0.0
+        current_available = self.get_available_vram()
+
+        for service_name, service_info in lower_priority_services:
+            # Check if we have enough VRAM now
+            if current_available + freed_vram >= required_vram:
+                break
+
+            # Evict this service
+            vram_freed = service_info["vram"]
+            del self.loaded_services[service_name]
+            freed_vram += vram_freed
+
+            # Emit VRAM_RELEASED event
+            self._emit_vram_released(
+                service_name=service_name,
+                vram_freed=vram_freed
+            )
+
+        return freed_vram
+
+    def _emit_vram_released(
+        self,
+        service_name: str,
+        vram_freed: float
+    ):
+        """
+        Emit VRAM_RELEASED event.
+
+        Posts Pygame event to notify UI of VRAM release.
+
+        Args:
+            service_name: Service that was unloaded
+            vram_freed: Amount of VRAM freed (GB)
+        """
+        from ai.events import VRAM_RELEASED
+
+        event = pygame.event.Event(
+            VRAM_RELEASED,
+            {
+                "service": service_name,
+                "vram_freed": vram_freed
             }
         )
         pygame.event.post(event)
