@@ -167,6 +167,47 @@ class TestGameEngine:
 
             assert not engine.running
 
+    def test_start_engine(self):
+        """Test starting the engine sets running flag"""
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager"),
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
+        ):
+            engine = GameEngine()
+            assert not engine.running
+
+            # Mock the run method to prevent infinite loop
+            engine.run = Mock()
+
+            engine.start()
+
+            assert engine.running
+            engine.run.assert_called_once()
+            assert engine._last_time > 0
+
+    def test_render_calls_state_manager(self):
+        """Test _render calls state manager render"""
+        with (
+            patch("neonworks.core.game_loop.World"),
+            patch("neonworks.core.game_loop.get_event_manager"),
+            patch("neonworks.core.game_loop.StateManager") as mock_state_mgr,
+            patch("neonworks.core.game_loop.InputManager"),
+            patch("neonworks.core.game_loop.AudioManager"),
+        ):
+            # Setup mocks
+            mock_state_mgr.return_value = Mock()
+
+            engine = GameEngine()
+
+            # Call render
+            engine._render()
+
+            # Verify state_manager.render was called
+            engine.state_manager.render.assert_called_once()
+
     def test_update_fps(self):
         """Test FPS counter update"""
         with (
