@@ -293,8 +293,8 @@ def create_boss_entity(world: World, boss_template: Dict[str, Any], level: int =
     Returns:
         Created boss entity
     """
-    from gameplay.jrpg_combat import EnemyData, MagicPoints, SpellList
     from neonworks.core.ecs import GridPosition, Sprite, Transform
+    from neonworks.gameplay.jrpg_combat import EnemyData, MagicPoints, SpellList
 
     boss = world.create_entity()
     boss.add_tag("enemy")
