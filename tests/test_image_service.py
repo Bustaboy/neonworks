@@ -467,3 +467,206 @@ class TestAsyncRequests:
         states = {r.state for r in all_requests}
         assert RequestState.PENDING in states
         assert RequestState.CANCELLED in states
+
+
+class TestWorkerThread:
+    """Test worker thread for background processing."""
+
+    def test_start_worker(self, mock_backend, mock_vram_manager):
+        """Test starting the worker thread."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        service.start_worker()
+
+        assert service._worker_running is True
+        assert service._worker_thread is not None
+        assert service._worker_thread.is_alive()
+
+        # Cleanup
+        service.stop_worker()
+
+    def test_stop_worker(self, mock_backend, mock_vram_manager):
+        """Test stopping the worker thread."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        service.start_worker()
+        assert service._worker_running is True
+
+        service.stop_worker()
+
+        assert service._worker_running is False
+        # Thread should eventually stop
+        service._worker_thread.join(timeout=2.0)
+        assert not service._worker_thread.is_alive()
+
+    def test_worker_processes_pending_request(self, mock_backend, mock_vram_manager):
+        """Test that worker processes pending requests."""
+        import time
+        from ai.image_request import RequestState
+
+        # Mock backend to generate image
+        mock_backend.generate.return_value = "/output/image.png"
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        # Start worker
+        service.start_worker()
+
+        # Submit request
+        request = service.submit_request(prompt="test")
+
+        # Wait for processing
+        time.sleep(0.5)
+
+        # Request should be complete
+        assert request.state == RequestState.COMPLETE
+        assert request.result_path == "/output/image.png"
+
+        # Cleanup
+        service.stop_worker()
+
+    def test_worker_loads_model_if_needed(self, mock_backend, mock_vram_manager):
+        """Test that worker loads model before processing."""
+        import time
+
+        mock_backend.generate.return_value = "/output/image.png"
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        # Model not loaded initially
+        assert service.is_loaded is False
+
+        service.start_worker()
+        request = service.submit_request(prompt="test")
+
+        # Wait for processing
+        time.sleep(0.5)
+
+        # Model should be loaded
+        assert service.is_loaded is True
+        mock_backend.load.assert_called_once()
+
+        service.stop_worker()
+
+    def test_worker_handles_generation_error(self, mock_backend, mock_vram_manager):
+        """Test that worker handles backend errors gracefully."""
+        import time
+        from ai.image_request import RequestState
+
+        # Mock backend to raise error
+        mock_backend.generate.side_effect = RuntimeError("CUDA out of memory")
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        service.start_worker()
+        request = service.submit_request(prompt="test")
+
+        # Wait for processing
+        time.sleep(0.5)
+
+        # Request should be failed
+        assert request.state == RequestState.FAILED
+        assert "CUDA out of memory" in request.error_message
+
+        service.stop_worker()
+
+    def test_worker_emits_completion_event(self, mock_backend, mock_vram_manager):
+        """Test that worker emits IMAGE_GENERATION_COMPLETE event."""
+        import time
+
+        mock_backend.generate.return_value = "/output/image.png"
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        pygame.event.clear()
+
+        service.start_worker()
+        request = service.submit_request(prompt="test")
+
+        # Wait for processing
+        time.sleep(0.5)
+
+        # Check for completion event
+        events = pygame.event.get()
+        completion_events = [e for e in events if e.type == pygame.USEREVENT + 1]
+
+        assert len(completion_events) >= 1
+        event = completion_events[0]
+        assert event.request_id == request.request_id
+        assert event.result_path == "/output/image.png"
+
+        service.stop_worker()
+
+    def test_worker_emits_error_event(self, mock_backend, mock_vram_manager):
+        """Test that worker emits IMAGE_GENERATION_ERROR event."""
+        import time
+
+        mock_backend.generate.side_effect = RuntimeError("CUDA error")
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        pygame.event.clear()
+
+        service.start_worker()
+        request = service.submit_request(prompt="test")
+
+        # Wait for processing
+        time.sleep(0.5)
+
+        # Check for error event
+        events = pygame.event.get()
+        error_events = [e for e in events if e.type == pygame.USEREVENT + 2]
+
+        assert len(error_events) >= 1
+        event = error_events[0]
+        assert event.request_id == request.request_id
+        assert "CUDA error" in event.error_message
+
+        service.stop_worker()
+
+    def test_worker_updates_last_use_time(self, mock_backend, mock_vram_manager):
+        """Test that worker updates last_use_time after generation."""
+        import time
+
+        mock_backend.generate.return_value = "/output/image.png"
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        service.start_worker()
+
+        old_time = service.last_use_time
+        service.submit_request(prompt="test")
+
+        # Wait for processing
+        time.sleep(0.5)
+
+        # last_use_time should be updated
+        assert service.last_use_time is not None
+        if old_time is not None:
+            assert service.last_use_time > old_time
+
+        service.stop_worker()

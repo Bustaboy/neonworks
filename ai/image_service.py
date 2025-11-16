@@ -86,6 +86,10 @@ class ImageService:
         # Request tracking
         self._requests: Dict[str, ImageGenerationRequest] = {}
 
+        # Worker thread
+        self._worker_thread: Optional[threading.Thread] = None
+        self._worker_running: bool = False
+
         # Thread safety
         self._lock = threading.Lock()
 
@@ -387,3 +391,164 @@ class ImageService:
         """
         with self._lock:
             return list(self._requests.values())
+
+    def start_worker(self):
+        """
+        Start background worker thread for processing requests.
+
+        Worker thread processes pending requests in the background,
+        automatically loading the model when needed and generating images.
+
+        Thread-safe (idempotent - safe to call multiple times).
+
+        Example:
+            >>> service = ImageService(backend, vram_manager)
+            >>> service.start_worker()
+            >>> # Submit requests...
+            >>> request = service.submit_request(prompt="A cat")
+            >>> # Worker processes automatically in background
+        """
+        with self._lock:
+            if self._worker_running:
+                return  # Already running
+
+            self._worker_running = True
+            self._worker_thread = threading.Thread(
+                target=self._worker_loop, daemon=True, name="ImageServiceWorker"
+            )
+            self._worker_thread.start()
+
+    def stop_worker(self):
+        """
+        Stop background worker thread.
+
+        Gracefully stops the worker thread. Waits for current generation
+        to complete before stopping.
+
+        Thread-safe.
+
+        Example:
+            >>> service.stop_worker()
+        """
+        with self._lock:
+            if not self._worker_running:
+                return  # Not running
+
+            self._worker_running = False
+
+        # Wait for worker thread to finish (outside lock to avoid deadlock)
+        if self._worker_thread is not None:
+            self._worker_thread.join(timeout=5.0)
+
+    def _worker_loop(self):
+        """
+        Main worker loop (runs in background thread).
+
+        Continuously processes pending requests until stopped.
+        Sleeps briefly between checks to reduce CPU usage.
+        """
+        while self._worker_running:
+            # Get next pending request
+            pending = self.list_pending_requests()
+
+            if pending:
+                # Process first pending request
+                request = pending[0]
+                self._process_request(request)
+            else:
+                # No pending requests - sleep briefly
+                time.sleep(0.1)
+
+            # Check for idle unload
+            self.check_idle_unload()
+
+    def _process_request(self, request: ImageGenerationRequest):
+        """
+        Process a single image generation request.
+
+        Loads model if needed, generates image, updates request state,
+        and emits appropriate events.
+
+        Args:
+            request: Request to process
+
+        Thread-safe.
+        """
+        from ai.events import IMAGE_GENERATION_COMPLETE, IMAGE_GENERATION_ERROR
+
+        try:
+            # Mark as processing
+            request.start_processing()
+
+            # Load model if not loaded
+            if not self.is_loaded:
+                success = self.load_model()
+                if not success:
+                    # VRAM allocation failed
+                    request.mark_failed("Failed to load model (insufficient VRAM)")
+                    self._emit_generation_error(
+                        request_id=request.request_id,
+                        error_message="Failed to load model (insufficient VRAM)",
+                    )
+                    return
+
+            # Generate image using backend
+            result_path = self.backend.generate(
+                prompt=request.prompt,
+                model=request.model,
+                width=request.width,
+                height=request.height,
+            )
+
+            # Mark as complete
+            request.mark_complete(result_path=result_path)
+
+            # Update last use time
+            self.update_last_use_time()
+
+            # Emit completion event
+            self._emit_generation_complete(
+                request_id=request.request_id, result_path=result_path
+            )
+
+        except Exception as e:
+            # Mark as failed
+            error_message = str(e)
+            request.mark_failed(error_message=error_message)
+
+            # Emit error event
+            self._emit_generation_error(
+                request_id=request.request_id, error_message=error_message
+            )
+
+    def _emit_generation_complete(self, request_id: str, result_path: str):
+        """
+        Emit IMAGE_GENERATION_COMPLETE event.
+
+        Args:
+            request_id: Request ID that completed
+            result_path: Path to generated image
+        """
+        from ai.events import IMAGE_GENERATION_COMPLETE
+
+        event = pygame.event.Event(
+            IMAGE_GENERATION_COMPLETE,
+            {"request_id": request_id, "result_path": result_path},
+        )
+        pygame.event.post(event)
+
+    def _emit_generation_error(self, request_id: str, error_message: str):
+        """
+        Emit IMAGE_GENERATION_ERROR event.
+
+        Args:
+            request_id: Request ID that failed
+            error_message: Error description
+        """
+        from ai.events import IMAGE_GENERATION_ERROR
+
+        event = pygame.event.Event(
+            IMAGE_GENERATION_ERROR,
+            {"request_id": request_id, "error_message": error_message},
+        )
+        pygame.event.post(event)
