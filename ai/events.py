@@ -122,7 +122,9 @@ def __getattr__(name):
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
-__all__ = [
+
+# Constants defined via __getattr__ (flake8 doesn't understand this pattern)
+__all__ = [  # noqa: F822
     # Image events
     "IMAGE_GENERATION_COMPLETE",
     "IMAGE_GENERATION_ERROR",
