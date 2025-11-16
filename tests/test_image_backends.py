@@ -3,9 +3,31 @@ Tests for Image Backend Abstraction Layer
 
 Tests for abstract ImageBackend class, ImageBackendConfig dataclass,
 DiffusersBackend implementation, and factory function.
+
+Note: These tests use mocks and do NOT require torch/diffusers to be installed.
+No models are downloaded or loaded during testing.
 """
 
+import sys
+from unittest.mock import MagicMock
+
 import pytest
+
+# Mock torch and diffusers BEFORE importing backends
+# This prevents CI from needing to install these heavy packages (2-4GB)
+torch_mock = MagicMock()
+torch_mock.cuda.is_available.return_value = True
+torch_mock.float16 = MagicMock()
+
+PIL_mock = MagicMock()
+PIL_mock.Image = MagicMock()
+
+diffusers_mock = MagicMock()
+
+sys.modules["torch"] = torch_mock
+sys.modules["PIL"] = PIL_mock
+sys.modules["PIL.Image"] = PIL_mock.Image
+sys.modules["diffusers"] = diffusers_mock
 
 from neonworks.ai.backends import (
     DiffusersBackend,

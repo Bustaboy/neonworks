@@ -1,0 +1,22 @@
+# Optional AI/ML dependencies for NeonWorks
+# Install with: pip install -r requirements-ai.txt
+#
+# These packages are LARGE (~4GB) and only needed for AI-powered features:
+# - Image generation (Stable Diffusion via diffusers)
+# - Text generation (LLMs via transformers)
+# - AI-assisted asset creation
+
+# PyTorch - Deep learning framework
+torch>=2.0.0
+
+# Diffusers - Stable Diffusion image generation
+diffusers>=0.25.0
+
+# Transformers - LLM text generation (optional)
+# transformers>=4.30.0
+
+# Accelerate - Faster model loading (optional)
+# accelerate>=0.20.0
+
+# Note: These packages are NOT required for core engine functionality.
+# The engine will work fine without them - you just won't have AI features.
