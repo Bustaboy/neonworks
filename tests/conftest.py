@@ -11,6 +11,10 @@ from pathlib import Path
 from typing import Dict, List
 from unittest.mock import MagicMock, Mock
 
+# Set headless mode BEFORE pygame import
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
+
 import pygame
 import pytest
 
@@ -38,7 +42,7 @@ from neonworks.gameplay.movement import Movement
 # Initialize Pygame for tests that need it
 @pytest.fixture(scope="session", autouse=True)
 def pygame_init():
-    """Initialize Pygame once for all tests."""
+    """Initialize Pygame once for all tests (headless mode for CI)."""
     pygame.init()
     yield
     pygame.quit()
