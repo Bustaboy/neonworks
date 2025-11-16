@@ -25,6 +25,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Neon Works Team",
+    license="CC BY-NC-SA 4.0",
     python_requires=">=3.11",
     packages=find_packages(exclude=["tests", "tests.*"]),
     install_requires=requirements,
@@ -48,6 +49,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
+        "License :: CC BY-NC-SA 4.0",
         "Topic :: Games/Entertainment",
         "Topic :: Software Development :: Libraries :: pygame",
         "Programming Language :: Python :: 3",
