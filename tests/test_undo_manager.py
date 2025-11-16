@@ -1262,5 +1262,350 @@ class TestUndoHistoryPersistence:
             assert "navmesh_editor" in editor_names
 
 
+class TestUndoManagerAdditionalCoverage:
+    """Additional tests for missing coverage"""
+
+    def test_get_undo_description_empty_stack(self):
+        """Test get_undo_description with empty stack returns None"""
+        manager = UndoManager()
+
+        description = manager.get_undo_description()
+
+        assert description is None
+
+    def test_get_redo_description_empty_stack(self):
+        """Test get_redo_description with empty stack returns None"""
+        manager = UndoManager()
+
+        description = manager.get_redo_description()
+
+        assert description is None
+
+    def test_get_undo_description_with_commands(self):
+        """Test get_undo_description with commands"""
+        manager = UndoManager()
+
+        class TestCmd(Command):
+            def execute(self):
+                return True
+
+            def undo(self):
+                return True
+
+            def get_description(self):
+                return "Test Command"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        cmd = TestCmd()
+        manager.undo_stack.append(cmd)
+
+        description = manager.get_undo_description()
+
+        assert description == "Test Command"
+
+    def test_get_redo_description_with_commands(self):
+        """Test get_redo_description with commands"""
+        manager = UndoManager()
+
+        class TestCmd(Command):
+            def execute(self):
+                return True
+
+            def undo(self):
+                return True
+
+            def get_description(self):
+                return "Redo Command"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        cmd = TestCmd()
+        manager.redo_stack.append(cmd)
+
+        description = manager.get_redo_description()
+
+        assert description == "Redo Command"
+
+    def test_get_full_history_with_redo_stack(self):
+        """Test get_full_history includes redo stack"""
+        manager = UndoManager()
+
+        class TestCmd(Command):
+            def __init__(self, num):
+                super().__init__()
+                self.num = num
+
+            def execute(self):
+                return True
+
+            def undo(self):
+                return True
+
+            def get_description(self):
+                return f"Command {self.num}"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls(0)
+
+        # Add to undo stack
+        for i in range(3):
+            manager.undo_stack.append(TestCmd(i))
+
+        # Add to redo stack
+        for i in range(2):
+            manager.redo_stack.append(TestCmd(i + 10))
+
+        history = manager.get_full_history()
+
+        # Should have 3 from undo + 2 from redo
+        assert len(history) == 5
+
+        # Check structure: (description, timestamp, index)
+        undo_items = [item for item in history if item[2] >= 0]
+        redo_items = [item for item in history if item[2] < 0]
+
+        assert len(undo_items) == 3
+        assert len(redo_items) == 2
+
+    def test_composite_command_execute_failure_rollback(self):
+        """Test CompositeCommand rolls back on failure"""
+        class SuccessCmd(Command):
+            def __init__(self):
+                super().__init__()
+                self.executed_count = 0
+                self.undone_count = 0
+
+            def execute(self):
+                self.executed_count += 1
+                return True
+
+            def undo(self):
+                self.undone_count += 1
+                return True
+
+            def get_description(self):
+                return "Success"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        class FailCmd(Command):
+            def execute(self):
+                return False
+
+            def undo(self):
+                return True
+
+            def get_description(self):
+                return "Fail"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        cmd1 = SuccessCmd()
+        cmd2 = SuccessCmd()
+        cmd3 = FailCmd()
+
+        composite = CompositeCommand([cmd1, cmd2, cmd3], "Test Composite")
+
+        result = composite.execute()
+
+        # Should fail
+        assert result is False
+
+        # First two should be executed then undone (rolled back)
+        assert cmd1.executed_count == 1
+        assert cmd2.executed_count == 1
+        assert cmd1.undone_count == 1
+        assert cmd2.undone_count == 1
+
+    def test_undo_manager_undo_failure(self):
+        """Test UndoManager.undo() when command.undo() fails"""
+        manager = UndoManager()
+
+        class FailUndoCmd(Command):
+            def __init__(self):
+                super().__init__()
+                self.executed = True
+
+            def execute(self):
+                return True
+
+            def undo(self):
+                return False  # Fail undo
+
+            def get_description(self):
+                return "Fail Undo"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        cmd = FailUndoCmd()
+        manager.undo_stack.append(cmd)
+
+        result = manager.undo()
+
+        # Should return False
+        assert result is False
+
+        # Command should still be in undo stack (not moved to redo)
+        assert len(manager.undo_stack) == 1
+        assert len(manager.redo_stack) == 0
+
+    def test_undo_manager_redo_failure(self):
+        """Test UndoManager.redo() when command.redo() fails"""
+        manager = UndoManager()
+
+        class FailRedoCmd(Command):
+            def execute(self):
+                return True
+
+            def undo(self):
+                return True
+
+            def redo(self):
+                return False  # Fail redo
+
+            def get_description(self):
+                return "Fail Redo"
+
+            def serialize(self):
+                return {}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls()
+
+        cmd = FailRedoCmd()
+        manager.redo_stack.append(cmd)
+
+        result = manager.redo()
+
+        # Should return False
+        assert result is False
+
+        # Command should still be in redo stack (not moved to undo)
+        assert len(manager.redo_stack) == 1
+        assert len(manager.undo_stack) == 0
+
+    def test_delta_compressor_zero_size(self):
+        """Test DeltaCompressor.get_compression_ratio with zero-size compressed"""
+        compressor = DeltaCompressor()
+
+        # Test with zero-size compressed (edge case for division by zero check)
+        data = b"test data"
+        compressed_zero = b""
+
+        # Should handle zero compressed size gracefully
+        ratio = compressor.get_compression_ratio(data, compressed_zero)
+
+        # With zero compressed size, should return 0.0 (lines 605-606)
+        assert ratio == 0.0
+
+    def test_undo_manager_auto_compress(self):
+        """Test UndoManager automatically compresses old commands"""
+        manager = UndoManager(enable_compression=True, auto_compress_threshold=5)
+
+        class TestCmd(Command):
+            def __init__(self, num):
+                super().__init__()
+                self.num = num
+
+            def execute(self):
+                return True
+
+            def undo(self):
+                return True
+
+            def get_description(self):
+                return f"Cmd {self.num}"
+
+            def serialize(self):
+                return {"type": "test", "num": self.num}
+
+            @classmethod
+            def deserialize(cls, data):
+                return cls(data["num"])
+
+        # Execute commands beyond threshold
+        for i in range(10):
+            cmd = TestCmd(i)
+            manager.execute(cmd)
+
+        # Should have compressed old commands
+        assert len(manager.compressed_history) > 0
+        # Active stack should be at threshold
+        assert len(manager.undo_stack) <= manager.auto_compress_threshold
+
+    def test_batch_tile_change_serialize(self):
+        """Test BatchTileChangeCommand serialization"""
+        tilemap = MockTilemap(10, 10)
+
+        old_tile = LegacyTile("grass", True)
+        new_tile = LegacyTile("stone", False)
+
+        changes = [
+            (0, 0, 0, old_tile, new_tile),
+            (1, 1, 0, old_tile, new_tile),
+        ]
+
+        cmd = BatchTileChangeCommand(tilemap, changes, "Test Batch")
+
+        serialized = cmd.serialize()
+
+        assert serialized["type"] == "batch_tile_change"
+        assert serialized["description"] == "Test Batch"
+        assert len(serialized["changes"]) == 2
+        assert "timestamp" in serialized
+
+    def test_tile_change_command_real_tile_description(self):
+        """Test TileChangeCommand.get_description() with tile_id"""
+        tilemap = MockTilemap(10, 10)
+
+        # Create tiles with tile_id attribute (simulating real Tile)
+        old_tile = LegacyTile()
+        old_tile.tile_id = 42
+        old_tile.tile_type = None  # Make it look like a "real" Tile
+
+        new_tile = LegacyTile()
+        new_tile.tile_id = 99
+        new_tile.tile_type = None
+
+        cmd = TileChangeCommand(tilemap, 5, 5, 0, old_tile, new_tile)
+
+        description = cmd.get_description()
+
+        # Should mention tile_id
+        assert "99" in description or "#99" in description
+        assert "(5, 5)" in description
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
