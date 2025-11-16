@@ -1,32 +1,81 @@
 # Making a Lufia-Style JRPG with NeonWorks
 
-Step-by-step guide to creating a classic JRPG like Lufia using the NeonWorks engine.
+**Version:** 2.0
+**Engine Version:** 0.1.0
+**Last Updated:** 2025-11-16
+
+Step-by-step guide to creating a classic JRPG like Lufia using the NeonWorks engine with its comprehensive visual editor suite.
 
 ## Table of Contents
 
 1. [Project Setup](#project-setup)
-2. [Creating Your First Town](#creating-your-first-town)
-3. [Adding Party Members](#adding-party-members)
-4. [Setting Up Combat](#setting-up-combat)
-5. [Creating a Dungeon](#creating-a-dungeon)
-6. [Implementing Puzzles](#implementing-puzzles)
-7. [Adding Boss Battles](#adding-boss-battles)
-8. [World Map and Travel](#world-map-and-travel)
-9. [Equipment and Shops](#equipment-and-shops)
-10. [Polishing Your Game](#polishing-your-game)
+2. [Using the Visual Launcher](#using-the-visual-launcher)
+3. [Using the Visual Editors](#using-the-visual-editors)
+4. [Creating Your First Town](#creating-your-first-town)
+5. [Using the Map Editor](#using-the-map-editor)
+6. [Creating the Database](#creating-the-database)
+7. [Adding Party Members](#adding-party-members)
+8. [Setting Up Combat](#setting-up-combat)
+9. [Creating Events and Dialogue](#creating-events-and-dialogue)
+10. [Creating a Dungeon](#creating-a-dungeon)
+11. [Implementing Puzzles](#implementing-puzzles)
+12. [Adding Boss Battles](#adding-boss-battles)
+13. [World Map and Travel](#world-map-and-travel)
+14. [Equipment and Shops](#equipment-and-shops)
+15. [Polishing Your Game](#polishing-your-game)
+16. [Advanced Features](#advanced-features)
 
 ---
 
 ## Project Setup
 
-### 1. Create Your Project Structure
+### Prerequisites
+
+Make sure you have NeonWorks installed:
 
 ```bash
-mkdir projects/lufia_clone
+# Clone the repository
+git clone https://github.com/Bustaboy/neonworks.git
+cd neonworks
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Quick Start with the Visual Launcher
+
+**Recommended Approach:** Use the visual launcher (Unity Hub-style) to create your project:
+
+```bash
+# Start the visual launcher
+python launcher.py
+
+# Or use convenience scripts
+./launch_neonworks.sh        # Linux/Mac
+launch_neonworks.bat         # Windows
+```
+
+Then:
+1. Click **"Create New Project"**
+2. Select **"Turn-Based RPG"** template
+3. Name it **"Lufia Clone"**
+4. Click **"Create"**
+
+The launcher will automatically create the complete project structure with all necessary files!
+
+### Manual Setup (Alternative)
+
+If you prefer manual setup:
+
+```bash
+# Create project using CLI
+python cli.py create-project lufia_clone --template turn_based_rpg
 cd projects/lufia_clone
 ```
 
-### 2. Create project.json
+### Project Configuration
+
+Your project.json will be automatically created with sensible defaults:
 
 ```json
 {
@@ -77,11 +126,162 @@ lufia_clone/
 
 ---
 
+## Using the Visual Launcher
+
+NeonWorks features a **Unity Hub-style visual launcher** that makes project management easy.
+
+### Launcher Features
+
+- **Visual Project Browser** - Browse all your projects with project cards
+- **Recent Projects** - Quick access to recently opened projects
+- **Template Selection** - Choose from 4 built-in templates:
+  - Basic Game
+  - Turn-Based RPG ⭐ (Recommended for Lufia clone)
+  - Base Builder
+  - JRPG Demo
+- **One-Click Launch** - Launch directly into editor mode
+
+### Using the Launcher
+
+1. **Start the launcher:**
+   ```bash
+   python launcher.py
+   ```
+
+2. **Create new project:**
+   - Click "Create New Project"
+   - Select "Turn-Based RPG" template
+   - Enter project name
+   - Click "Create"
+
+3. **Open existing project:**
+   - Click on project card in browser
+   - Or select from recent projects list
+
+4. **Launch into editor:**
+   - Select your project
+   - Click "Launch"
+   - Engine starts with all visual editors available
+
+See [LAUNCHER_README.md](../LAUNCHER_README.md) for detailed documentation.
+
+---
+
+## Using the Visual Editors
+
+NeonWorks includes **30+ visual editors** accessible via hotkeys. You don't need to write JSON files manually!
+
+### Essential Editors for JRPG Development
+
+| Hotkey | Editor | Purpose |
+|--------|--------|---------|
+| **F4** | **Level Builder** | Design maps, place tiles, create layouts |
+| **Ctrl+M** | **Map Manager** | Manage multiple maps, switch between them |
+| **Ctrl+L** | **Layer Panel** | Manage map layers (ground, objects, overhead) |
+| **Ctrl+T** | **Tileset Picker** | Select tilesets and tiles |
+| **F11** | **Autotile Editor** | Configure autotiling for walls, water, etc. |
+| **Ctrl+E** | **Event Editor** | Create NPCs, dialogues, triggers |
+| **Ctrl+D** | **Database Manager** | Define characters, enemies, items, skills |
+| **Ctrl+G** | **Character Generator** | Generate character sprites and stats |
+| **F6** | **Quest Editor** | Create quests and dialogue trees |
+| **F5** | **Navmesh Editor** | Define walkable areas |
+| **F7** | **Asset Browser** | Manage all project assets |
+| **F2** | **Settings** | Configure project settings |
+
+### Map Editing Tools (When in Map Editor)
+
+| Key | Tool | Purpose |
+|-----|------|---------|
+| **P** | Pencil Tool | Draw individual tiles |
+| **E** | Eraser Tool | Erase tiles |
+| **F** | Fill Tool | Bucket fill areas |
+| **S** | Select Tool | Select regions |
+| **B** | Stamp Tool | Stamp/clone tile patterns |
+| **R** | Shape Tool | Draw rectangles, circles |
+| **I** | Eyedropper | Pick tiles from map |
+
+### Additional Tools
+
+| Hotkey | Editor | Purpose |
+|--------|--------|---------|
+| **F1** | Debug Console | View logs, run commands |
+| **F8** | Project Manager | Manage project files |
+| **Ctrl+H** | History Viewer | View undo/redo history |
+| **Ctrl+Space** | AI Assistant | AI-powered assistance |
+| **Shift+F7** | AI Animator | AI animation generation |
+| **Ctrl+Shift+K** | Shortcuts Overlay | View all keyboard shortcuts |
+
+### Workspace System
+
+NeonWorks includes a workspace management system:
+
+- Save custom layouts
+- Arrange editor panels
+- Create tool presets
+- Quick workspace switching
+
+See [ui/WORKSPACE_SYSTEM.md](../ui/WORKSPACE_SYSTEM.md) for details.
+
+---
+
 ## Creating Your First Town
 
-### 1. Design the Town Map
+### Using the Visual Map Editor (Recommended)
 
-Create `assets/maps/starting_town.json`:
+Instead of writing JSON manually, use the visual editors:
+
+#### 1. Open Map Manager (Ctrl+M)
+
+1. Press **Ctrl+M** to open Map Manager
+2. Click **"Create New Map"**
+3. Enter map details:
+   - Name: "Alekia Village"
+   - Width: 30 tiles
+   - Height: 20 tiles
+   - Tile Size: 32 pixels
+4. Click **"Create"**
+
+#### 2. Select Tileset (Ctrl+T)
+
+1. Press **Ctrl+T** to open Tileset Picker
+2. Click **"Add Tileset"**
+3. Browse to `assets/sprites/tilesets/town.png`
+4. Configure:
+   - Tile Width: 32
+   - Tile Height: 32
+   - Columns: 10
+5. Click **"Load Tileset"**
+
+#### 3. Create Layers (Ctrl+L)
+
+1. Press **Ctrl+L** to open Layer Panel
+2. Create three layers:
+   - **"ground"** - Base ground tiles
+   - **"buildings"** - Buildings and obstacles
+   - **"overhead"** - Trees, roofs (rendered above player)
+3. Set ground layer as active
+
+#### 4. Draw the Map (F4)
+
+1. Press **F4** to open Level Builder
+2. Select ground layer
+3. Use **Pencil Tool (P)** to draw grass tiles
+4. Use **Fill Tool (F)** to fill large areas
+5. Switch to buildings layer
+6. Draw building walls and roofs
+7. Use **Stamp Tool (B)** to copy/paste building patterns
+8. Use **Shape Tool (R)** for rectangular buildings
+
+#### 5. Configure Map Properties
+
+In the Map Manager (Ctrl+M), set:
+- Background Music: "music/town_theme.mp3"
+- Encounter Rate: 0.0 (no battles in town)
+- Default Spawn Point: (15, 18)
+
+### Manual Map Creation (Alternative)
+
+If you prefer to work with JSON directly, create `assets/maps/starting_town.json`:
 
 ```json
 {
@@ -199,24 +399,353 @@ Create `assets/maps/starting_town.json`:
 }
 ```
 
+---
+
+## Using the Map Editor
+
+The Map Editor is one of the most powerful tools in NeonWorks. Here's a detailed workflow:
+
+### Creating Your Town Layout
+
+#### Step 1: Plan Your Town
+
+Before opening the editor, sketch out:
+- Town entrances/exits
+- Building locations (houses, shops, inn)
+- NPC positions
+- Important landmarks (fountain, statue, well)
+- Trigger zones (transitions to other maps)
+
+#### Step 2: Layer Strategy
+
+Use layers effectively:
+1. **Ground Layer** - Base terrain (grass, dirt paths, stones)
+2. **Buildings Layer** - Walls, doors, fences (set collision here)
+3. **Details Layer** - Flowers, signs, small decorations
+4. **Overhead Layer** - Tree foliage, roof overhangs
+
+#### Step 3: Drawing Workflow
+
+1. **Fill ground layer** with base terrain using Fill Tool (F)
+2. **Draw paths** using Pencil Tool (P) or Shape Tool (R)
+3. **Place buildings** using Stamp Tool (B) for repeated patterns
+4. **Add details** like flowers, barrels, signs
+5. **Configure collision** by marking solid tiles in buildings layer
+
+#### Step 4: Configure Autotiling (F11)
+
+1. Press **F11** to open Autotile Editor
+2. Configure autotile rules for:
+   - Water edges
+   - Cliff edges
+   - Building walls
+   - Fence connections
+3. The editor will automatically connect tiles based on neighbors
+
+### Map Editor Tips
+
+- **Grid Snapping**: Hold Shift while drawing to snap to grid
+- **Multi-Select**: Hold Ctrl and drag to select multiple tiles
+- **Copy/Paste**: Ctrl+C to copy, Ctrl+V to paste selections
+- **Undo/Redo**: Ctrl+Z to undo, Ctrl+Y to redo (persistent across sessions!)
+- **Minimap**: View entire map at once for better overview
+- **Zoom**: Mouse wheel to zoom in/out
+- **Pan**: Middle mouse button to pan camera
+
+See [docs/map_editor_guide.md](map_editor_guide.md) for complete tutorial.
+
+---
+
+## Creating the Database
+
+The Database Manager (Ctrl+D) is where you define all game data: characters, enemies, items, skills, and more.
+
+### Setting Up Your JRPG Database
+
+#### 1. Open Database Manager (Ctrl+D)
+
+Press **Ctrl+D** to open the Database Manager.
+
+#### 2. Create Character Classes
+
+1. Switch to **"Classes"** tab
+2. Click **"New Class"**
+3. Define classes:
+   - **Hero** - Balanced stats, can use swords
+   - **Mage** - High magic, low defense
+   - **Warrior** - High HP/attack, low magic
+   - **Priest** - High magic defense, healing spells
+
+For each class, configure:
+- Base stats (HP, MP, Attack, Defense, etc.)
+- Stat growth per level
+- Equipment restrictions
+- Learnable skills
+
+#### 3. Create Characters
+
+1. Switch to **"Characters"** tab
+2. Click **"New Character"**
+3. Create Maxim (Hero):
+   - Name: "Maxim"
+   - Class: Hero
+   - Initial Level: 1
+   - Portrait: `assets/sprites/portraits/maxim.png`
+   - Sprite: `assets/sprites/characters/hero.png`
+   - Starting Skills: ["Attack", "Defend"]
+   - Stat Distribution: Balanced
+
+4. Repeat for party members:
+   - **Selan** (Mage) - High magic attack
+   - **Guy** (Warrior) - High physical attack
+   - **Artea** (Priest) - Healing specialist
+
+#### 4. Create Enemies
+
+1. Switch to **"Enemies"** tab
+2. Click **"New Enemy"**
+3. Create basic enemies:
+
+**Slime:**
+- HP: 20
+- MP: 0
+- Attack: 5
+- Defense: 3
+- Speed: 4
+- EXP: 5
+- Gold: 3
+- Weak to: Fire
+- Sprite: `assets/sprites/enemies/slime.png`
+
+**Goblin:**
+- HP: 35
+- MP: 5
+- Attack: 8
+- Defense: 5
+- Speed: 6
+- EXP: 10
+- Gold: 7
+- Weak to: Lightning
+- Skills: ["Slash"]
+
+#### 5. Create Skills/Spells
+
+1. Switch to **"Skills"** tab
+2. Click **"New Skill"**
+
+Create basic spells:
+
+**Fire:**
+- Type: Magic
+- Element: Fire
+- MP Cost: 8
+- Power: 30
+- Target: Single Enemy
+- Animation: Fire burst effect
+
+**Heal:**
+- Type: Magic
+- Element: Light
+- MP Cost: 5
+- Power: 30 (healing)
+- Target: Single Ally
+- Animation: Sparkle effect
+
+**Ice Storm:**
+- Type: Magic
+- Element: Ice
+- MP Cost: 15
+- Power: 50
+- Target: All Enemies
+- Animation: Ice shard rain
+
+#### 6. Create Items
+
+1. Switch to **"Items"** tab
+2. Create consumables:
+
+**Potion:**
+- Type: Consumable
+- Effect: Restore 50 HP
+- Target: Single Ally
+- Price: 10 Gold
+- Can use in battle: Yes
+
+**Hi-Potion:**
+- Type: Consumable
+- Effect: Restore 150 HP
+- Price: 50 Gold
+
+**Magic Water:**
+- Type: Consumable
+- Effect: Restore 30 MP
+- Price: 40 Gold
+
+3. Create equipment:
+
+**Bronze Sword:**
+- Type: Weapon
+- Attack: +10
+- Equip: Hero, Warrior
+- Price: 100 Gold
+
+**Leather Armor:**
+- Type: Armor
+- Defense: +8
+- Equip: All
+- Price: 80 Gold
+
+### Database Manager Features
+
+- **Import/Export** - Share database across projects
+- **Bulk Edit** - Edit multiple entries at once
+- **Formula Editor** - Create custom stat calculation formulas
+- **Preview** - Preview how characters/enemies will look in battle
+- **Search** - Quickly find entries by name or property
+
+---
+
+## Creating Events and Dialogue
+
+The Event Editor (Ctrl+E) lets you create NPCs, dialogue trees, and scripted events visually.
+
+### Creating Your First NPC
+
+#### 1. Open Event Editor (Ctrl+E)
+
+1. Open the map in Map Manager (Ctrl+M)
+2. Press **Ctrl+E** to open Event Editor
+3. Click **"New Event"** or click on map where you want NPC
+
+#### 2. Configure NPC Appearance
+
+- **Name**: "Town Guard"
+- **Sprite**: `assets/sprites/characters/guard.png`
+- **Position**: (15, 10)
+- **Facing**: Down
+- **Movement**: Static
+- **Through**: No (blocks player)
+
+#### 3. Create Dialogue
+
+Click **"Edit Dialogue"** to open the dialogue tree editor:
+
+1. **Add greeting node:**
+   ```
+   "Welcome to Alekia Village, traveler!"
+   ```
+
+2. **Add choice node:**
+   ```
+   "Can I help you?"
+   → "Where is the inn?" → [Show inn location on map]
+   → "Any trouble lately?" → [Quest hook dialogue]
+   → "No thanks." → [End dialogue]
+   ```
+
+3. **Add conditional dialogue:**
+   - If quest "Find Lost Cat" active:
+     ```
+     "Did you find Mrs. Henderson's cat yet?"
+     ```
+   - If quest completed:
+     ```
+     "Thanks for finding that cat!"
+     ```
+
+#### 4. Add Event Commands
+
+Events can execute commands when triggered:
+
+**Event Page 1** (Before quest):
+```
+Trigger: Action Button
+Commands:
+  - Show Text: "Welcome to Alekia Village!"
+  - Show Choices: ["Where's the inn?", "Goodbye"]
+    → Choice 0: Show Text: "The inn is north of here."
+    → Choice 1: End
+```
+
+**Event Page 2** (During quest):
+```
+Condition: Quest "Find Lost Cat" active
+Trigger: Action Button
+Commands:
+  - Show Text: "Any luck finding that cat?"
+```
+
+**Event Page 3** (Quest complete):
+```
+Condition: Quest "Find Lost Cat" complete
+Trigger: Player Touch
+Commands:
+  - Show Text: "Thanks again for your help!"
+```
+
+### Event Editor Features
+
+- **Visual Node Editor** - Drag-and-drop dialogue flow
+- **Event Pages** - Multiple conditional states per NPC
+- **Command Library** - 50+ built-in commands:
+  - Show Text
+  - Show Choices
+  - Transfer Player
+  - Start Battle
+  - Change Gold
+  - Change Items
+  - Play Sound
+  - Show Animation
+  - Conditional Branch
+  - Set Variable
+  - Control Switches
+- **Preview Mode** - Test events in-editor
+- **Copy/Paste Events** - Reuse event logic
+- **Event Templates** - Pre-made event patterns
+
+### Creating Shops
+
+Use the Event Editor to create shops:
+
+1. Create NPC shopkeeper
+2. Add dialogue: "Welcome to my shop!"
+3. Add command: **"Open Shop"**
+4. Configure shop inventory:
+   - Potion (10 Gold)
+   - Hi-Potion (50 Gold)
+   - Magic Water (40 Gold)
+   - Bronze Sword (100 Gold)
+   - Leather Armor (80 Gold)
+5. Set buy/sell ratio (default 50% sell price)
+
+### Creating Inns
+
+1. Create NPC innkeeper
+2. Add dialogue: "Rest here for 10 Gold?"
+3. Add choice command:
+   - Yes → Charge 10 Gold → Heal Party → Play jingle → Show Text: "Have a good night!"
+   - No → End
+
+---
+
 ### 2. Create the Main Game Script
 
 Create `scripts/game.py`:
 
 ```python
 import pygame
-from engine.core.ecs import World
-from engine.core.events import EventManager
-from engine.input.input_manager import InputManager
-from engine.rendering.renderer import Renderer
-from engine.rendering.camera import Camera
-from systems.exploration import ExplorationSystem
-from systems.zone_system import ZoneSystem
-from systems.jrpg_battle_system import JRPGBattleSystem
-from systems.magic_system import MagicSystem
-from systems.random_encounters import RandomEncounterSystem
-from systems.puzzle_system import PuzzleSystem
-from systems.boss_ai import BossAISystem
+from neonworks.core.ecs import World
+from neonworks.core.events import get_event_manager
+from neonworks.input.input_manager import InputManager
+from neonworks.rendering.renderer import Renderer
+from neonworks.rendering.camera import Camera
+from neonworks.systems.exploration import ExplorationSystem
+from neonworks.systems.zone_system import ZoneSystem
+from neonworks.systems.jrpg_battle_system import JRPGBattleSystem
+from neonworks.systems.magic_system import MagicSystem
+from neonworks.systems.random_encounters import RandomEncounterSystem
+from neonworks.systems.puzzle_system import PuzzleSystem
+from neonworks.systems.boss_ai import BossAISystem
 
 class LufiaGame:
     def __init__(self):
@@ -264,10 +793,10 @@ class LufiaGame:
 
     def create_player(self):
         """Create player character"""
-        from engine.core.ecs import Transform, GridPosition, Sprite
-        from gameplay.movement import Movement, Direction, AnimationState
-        from gameplay.combat import Health
-        from gameplay.jrpg_combat import (
+        from neonworks.core.ecs import Transform, GridPosition, Sprite
+        from neonworks.gameplay.movement import Movement, Direction, AnimationState
+        from neonworks.gameplay.combat import Health
+        from neonworks.gameplay.jrpg_combat import (
             JRPGStats, MagicPoints, SpellList, PartyMember
         )
 
@@ -351,7 +880,77 @@ if __name__ == "__main__":
 
 ## Adding Party Members
 
-### Creating Party Members
+### Using the Character Generator (Ctrl+G)
+
+NeonWorks includes an AI-powered Character Generator that can create complete character definitions including stats, skills, and even generate sprite concepts!
+
+#### 1. Open Character Generator (Ctrl+G)
+
+Press **Ctrl+G** to open the Character Generator.
+
+#### 2. Generate Characters
+
+For each party member:
+
+**Maxim (Hero):**
+1. Click **"New Character"**
+2. Enter name: "Maxim"
+3. Select archetype: "Balanced Hero"
+4. AI will suggest:
+   - Base stats distribution
+   - Starting equipment
+   - Skill progression
+   - Sprite style recommendations
+5. Customize as needed
+6. Click **"Generate"**
+
+**Selan (Mage):**
+1. New Character → "Selan"
+2. Archetype: "Offensive Mage"
+3. AI suggests:
+   - High Magic Attack, low Defense
+   - Fire/Ice/Lightning spell progression
+   - Staff weapon proficiency
+4. Adjust stat ratios to your preference
+5. Generate
+
+**Guy (Warrior):**
+1. New Character → "Guy"
+2. Archetype: "Tank Warrior"
+3. AI suggests:
+   - High HP and Defense
+   - Sword/Axe skills
+   - Physical damage focus
+4. Generate
+
+**Artea (Priest):**
+1. New Character → "Artea"
+2. Archetype: "Healer/Support"
+3. AI suggests:
+   - High Magic Defense
+   - Healing and buff spells
+   - Support skill progression
+4. Generate
+
+#### 3. Export to Database
+
+After generating characters:
+1. Click **"Export to Database"**
+2. Characters are automatically added to the Database Manager
+3. You can further edit them in Database Manager (Ctrl+D)
+
+#### 4. Generate Sprite Concepts (Optional)
+
+The Character Generator can create sprite mockups:
+1. Select character
+2. Click **"Generate Sprite Concept"**
+3. AI creates a pixelart-style concept based on character description
+4. Export as template for your pixel artist
+5. Or use built-in sprite from templates
+
+### Manual Character Creation
+
+If you prefer to code characters manually:
 
 ```python
 def create_party_member(self, character_data):
@@ -469,8 +1068,8 @@ for member_data in party_members:
 ```python
 def create_enemy(world, enemy_id, level):
     """Create an enemy entity"""
-    from engine.core.ecs import Sprite
-    from gameplay.jrpg_combat import (
+    from neonworks.core.ecs import Sprite
+    from neonworks.gameplay.jrpg_combat import (
         EnemyData, ElementalResistances, BattleRewards, BattleAI
     )
 
@@ -636,7 +1235,7 @@ def create_four_switch_puzzle(world):
     """
     Classic Lufia-style puzzle: Four switches must be in correct positions.
     """
-    from gameplay.puzzle_objects import Switch, Door, PuzzleController
+    from neonworks.gameplay.puzzle_objects import Switch, Door, PuzzleController
 
     # Create switches
     switch_positions = [(5, 5), (15, 5), (5, 15), (15, 15)]
@@ -675,7 +1274,7 @@ def create_four_switch_puzzle(world):
 ```python
 def create_block_puzzle(world):
     """Push blocks onto pressure plates to open doors"""
-    from gameplay.puzzle_objects import PushableBlock, PressurePlate, Door
+    from neonworks.gameplay.puzzle_objects import PushableBlock, PressurePlate, Door
 
     # Create pressure plates
     plate1 = world.create_entity()
@@ -719,7 +1318,7 @@ def create_block_puzzle(world):
 ### Creating a Dungeon Boss
 
 ```python
-from systems.boss_ai import create_boss_entity, BOSS_TEMPLATES
+from neonworks.systems.boss_ai import create_boss_entity, BOSS_TEMPLATES
 
 def setup_boss_encounter(world, boss_id="skeleton_king"):
     """Setup a boss encounter"""
@@ -746,7 +1345,7 @@ def setup_boss_encounter(world, boss_id="skeleton_king"):
 ```python
 def trigger_boss_battle(world, player, boss):
     """Trigger a boss battle with cutscene"""
-    from systems.jrpg_battle_system import JRPGBattleSystem
+    from neonworks.systems.jrpg_battle_system import JRPGBattleSystem
 
     # Get party
     party = world.get_entities_with_tag("party_member")
@@ -882,4 +1481,383 @@ class Equipment(Component):
 
 ---
 
-For more detailed API documentation, see [JRPG_SYSTEMS.md](./JRPG_SYSTEMS.md).
+## Advanced Features
+
+NeonWorks includes many advanced features to enhance your JRPG development workflow.
+
+### AI-Powered Tools
+
+#### AI Assistant (Ctrl+Space)
+
+The AI Assistant can help with:
+- **Code Generation** - Generate scripts, systems, components
+- **Asset Creation** - Suggest asset names and organization
+- **Balance Advice** - Recommend stat distributions
+- **Bug Fixing** - Analyze and suggest fixes for issues
+- **Documentation** - Generate documentation for your game
+
+**Example Usage:**
+1. Press **Ctrl+Space** to open AI Assistant
+2. Ask: "Balance the stats for a level 10 boss"
+3. AI suggests HP, Attack, Defense values
+4. Apply suggestions to Database
+
+#### AI Animator (Shift+F7)
+
+Create animations without manual sprite work:
+1. Open AI Animator
+2. Upload character base sprite
+3. Select animation type (walk, attack, cast, hurt, death)
+4. AI generates frame-by-frame animation
+5. Export as sprite sheet
+6. Use in your game
+
+#### AI Asset Tools
+
+- **AI Asset Editor** - Edit sprites with AI assistance
+- **AI Asset Inspector** - Analyze asset usage and optimization
+- **AI Tileset Generator** - Generate tileset variations
+- **AI Vision Context** - Understand sprite layouts visually
+
+### Undo/Redo System (Ctrl+Z / Ctrl+Y)
+
+NeonWorks features a **persistent undo/redo system** that:
+- Saves across sessions (survives crashes!)
+- Unlimited undo history
+- Works in all editors
+- Visual history viewer (Ctrl+H)
+
+**History Viewer Features:**
+- Browse full undo history
+- Jump to any previous state
+- Branch history (create alternate timelines)
+- Search through changes
+- Annotate important states
+
+### Crash Recovery
+
+If the editor crashes:
+1. Restart NeonWorks
+2. You'll see: "Recover from crash?"
+3. Click "Yes" to restore your work
+4. All unsaved changes are restored!
+
+Auto-saves occur:
+- Every 5 minutes (configurable)
+- Before running tests
+- Before major operations
+- When switching maps
+
+### Asset Management
+
+#### Asset Browser (F7)
+
+Organize all project assets:
+- **Smart Folders** - Auto-categorize by type
+- **Tags** - Tag assets for quick finding
+- **Search** - Full-text search across assets
+- **Preview** - Preview images, sounds, maps
+- **Bulk Operations** - Rename, move, delete multiple assets
+- **Import Wizard** - Import external assets with metadata
+- **Asset Pipeline** - Automatic processing (resize, optimize)
+
+#### Asset Library
+
+Access built-in asset library:
+- 1000+ free sprites
+- 500+ sound effects
+- 100+ music tracks
+- 50+ tilesets
+- Pre-made character templates
+- Enemy sprites
+- UI elements
+
+### Quest Editor (F6)
+
+Create complex quest systems:
+
+**Quest Types:**
+- **Main Quests** - Story progression
+- **Side Quests** - Optional content
+- **Repeatable Quests** - Daily/weekly quests
+- **Collection Quests** - Gather items
+- **Defeat Quests** - Kill X enemies
+- **Escort Quests** - Protect NPCs
+- **Delivery Quests** - Transport items
+
+**Quest Features:**
+- Visual quest graph editor
+- Multiple objectives per quest
+- Branching outcomes
+- Quest chains
+- Prerequisites and dependencies
+- Reward configuration
+- Journal integration
+- Quest markers on map
+
+### Debugging Tools
+
+#### Debug Console (F1)
+
+Powerful debugging features:
+- **Command Line** - Execute Python commands live
+- **Variable Inspector** - Inspect game state
+- **Entity Browser** - Browse all entities
+- **Component Viewer** - View component values
+- **Event Log** - See all events in real-time
+- **Performance Monitor** - FPS, memory, CPU usage
+- **Profiler** - Find performance bottlenecks
+
+**Useful Commands:**
+```python
+# Teleport player
+player.position = (100, 100)
+
+# Give items
+inventory.add("potion", 99)
+
+# Change stats
+player.hp = 9999
+
+# Start battle
+start_battle(["slime", "goblin"])
+
+# Toggle god mode
+god_mode = True
+```
+
+#### Combat UI (F9)
+
+Test battles in isolation:
+- Select party composition
+- Choose enemies
+- Configure battle settings
+- Run battle simulation
+- View detailed combat log
+- Analyze damage calculations
+- Test AI behavior
+
+### Workspace System
+
+Save custom layouts for different tasks:
+
+**Pre-configured Workspaces:**
+1. **Map Design** - Map editor + tileset + layers
+2. **Event Scripting** - Event editor + database + quest editor
+3. **Combat Balancing** - Database + combat UI + debug console
+4. **Asset Management** - Asset browser + asset editor
+5. **Full Production** - All panels visible
+
+**Custom Workspaces:**
+1. Arrange panels as you like
+2. Click **"Save Workspace"**
+3. Name it (e.g., "Boss Design")
+4. Quick-switch with toolbar dropdown
+
+### Testing & Playtesting
+
+#### Playtest Mode
+
+Test your game without leaving the editor:
+1. Click **"Playtest"** in toolbar
+2. Game launches in window alongside editor
+3. Make changes in editor
+4. Click **"Reload"** to see changes instantly
+5. No need to restart!
+
+#### Automated Testing
+
+Run automated tests:
+- **Unit Tests** - Test individual systems
+- **Integration Tests** - Test system interactions
+- **Balance Tests** - Verify stat distributions
+- **Content Tests** - Ensure all maps/events work
+
+### Localization (Future Feature)
+
+Prepare for multiple languages:
+- String table editor
+- Export/import translation files
+- Test different languages in-editor
+- Font support for various scripts
+
+### Export & Distribution
+
+#### Export Project (Ctrl+Shift+E)
+
+Export your game as:
+- **Standalone Executable** (Windows/Linux/Mac)
+- **Encrypted Package** - Protect assets
+- **Steam-ready Build** - With achievements, cloud saves
+- **Web Build** - Play in browser
+- **Mobile Build** - Android/iOS (future)
+
+#### Package Builder
+
+Configure your build:
+- Icon and splash screen
+- Version information
+- Required DLLs
+- Data compression
+- Encryption strength
+- License validation
+
+#### Installer Builder
+
+Create installers:
+- Windows MSI installer
+- Linux .deb package
+- Mac .dmg
+- Auto-updater integration
+- Custom EULA
+- Registry settings
+
+### Performance Optimization
+
+#### Built-in Profiler
+
+Identify bottlenecks:
+- System performance breakdown
+- Render time analysis
+- Memory usage tracking
+- Entity count monitoring
+- Asset loading times
+
+**Optimization Tips:**
+- Use object pooling for particles
+- Enable layer caching
+- Optimize tileset sizes
+- Batch sprite rendering
+- Use compressed audio
+
+### Community Features
+
+#### Share Your Project
+
+Export project for sharing:
+- Export as template
+- Share on NeonWorks community
+- Include custom systems
+- Publish to asset store
+
+#### Import Community Content
+
+Browse community contributions:
+- Character packs
+- Enemy templates
+- Map templates
+- System extensions
+- Custom editors
+
+---
+
+## Tips for Lufia-Style Games
+
+### Capturing the Lufia Feel
+
+1. **Exploration** - Make exploration rewarding with hidden chests and secrets
+2. **Puzzles** - Every dungeon should have unique puzzle mechanics
+3. **Boss Variety** - Each boss needs unique attack patterns
+4. **Character Growth** - Meaningful stat progression and skill learning
+5. **Story Pacing** - Balance combat, exploration, and story beats
+
+### Recommended Settings
+
+```json
+{
+  "encounter_rate": 25.0,
+  "battle_difficulty": "moderate",
+  "save_points": "towns_and_dungeons",
+  "exp_curve": "moderate",
+  "gold_multiplier": 1.0,
+  "item_drop_rate": 20.0
+}
+```
+
+### Battle Balance
+
+**Early Game (Levels 1-10):**
+- Encounters: 2-3 enemies
+- Boss HP: 200-500
+- Damage: 5-15 per hit
+
+**Mid Game (Levels 10-20):**
+- Encounters: 3-4 enemies
+- Boss HP: 1000-2000
+- Damage: 20-40 per hit
+
+**Late Game (Levels 20-30):**
+- Encounters: 4-5 enemies
+- Boss HP: 3000-5000
+- Damage: 50-100 per hit
+
+**Final Boss:**
+- HP: 8000-10000
+- Multiple forms
+- Unique mechanics
+- All elements required
+
+### Dungeon Design
+
+1. **Length**: 15-30 minutes per dungeon
+2. **Puzzles**: 2-3 unique puzzles per dungeon
+3. **Treasures**: 5-10 chests per dungeon
+4. **Boss**: One boss at the end
+5. **Save Point**: Before boss room
+
+---
+
+## Keyboard Shortcuts Reference
+
+### Essential Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| **Ctrl+S** | Save project |
+| **Ctrl+Shift+S** | Save all |
+| **Ctrl+Z** | Undo |
+| **Ctrl+Y** | Redo |
+| **Ctrl+C** | Copy |
+| **Ctrl+V** | Paste |
+| **Ctrl+X** | Cut |
+| **Delete** | Delete selection |
+| **Space** | Play/Pause |
+| **F5** | Run game |
+| **Shift+F5** | Stop game |
+
+### View All Shortcuts
+
+Press **Ctrl+Shift+K** to open the Shortcuts Overlay showing all available keyboard shortcuts.
+
+---
+
+## Next Steps
+
+Now that you understand all the tools available, you can:
+
+1. **Create your first town** using the Map Editor
+2. **Populate the database** with characters, enemies, items
+3. **Add NPCs and dialogue** with the Event Editor
+4. **Build your first dungeon** with puzzles and encounters
+5. **Design a boss battle** using the boss AI system
+6. **Create a world map** connecting all locations
+7. **Add quests** using the Quest Editor
+8. **Balance the game** using the Combat UI
+9. **Test thoroughly** with the Debug Console
+10. **Export your game** and share it!
+
+---
+
+## Additional Resources
+
+- **[JRPG_FEATURES.md](../JRPG_FEATURES.md)** - Complete JRPG system reference
+- **[DEVELOPER_GUIDE.md](project/DEVELOPER_GUIDE.md)** - Development best practices
+- **[docs/map_editor_guide.md](map_editor_guide.md)** - Map editor tutorial
+- **[docs/keyboard_shortcuts.md](keyboard_shortcuts.md)** - All keyboard shortcuts
+- **[ui/WORKSPACE_SYSTEM.md](../ui/WORKSPACE_SYSTEM.md)** - Workspace guide
+- **[LAUNCHER_README.md](../LAUNCHER_README.md)** - Launcher documentation
+- **[engine/README.md](../engine/README.md)** - Engine subsystems guide
+
+---
+
+**Happy Game Making! May your Lufia clone be legendary!** 🎮✨
