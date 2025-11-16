@@ -59,29 +59,68 @@ Notes:
     - Events use pygame.USEREVENT + offset (valid range: 0-20)
     - Gaps left for future expansion
     - Image data transmitted as bytes (thread-safe), not PIL.Image objects
+    - Event constants are lazily evaluated to avoid importing pygame at module load time
 """
 
-import pygame
+# Define raw offset values (no pygame import needed)
+# These are lazily computed when accessed via __getattr__
 
 # Image generation events (1-4)
-IMAGE_GENERATION_COMPLETE = pygame.USEREVENT + 1
-IMAGE_GENERATION_ERROR = pygame.USEREVENT + 2
-IMAGE_MODEL_LOADED = pygame.USEREVENT + 3
-IMAGE_MODEL_UNLOADED = pygame.USEREVENT + 4
+_IMAGE_GENERATION_COMPLETE_OFFSET = 1
+_IMAGE_GENERATION_ERROR_OFFSET = 2
+_IMAGE_MODEL_LOADED_OFFSET = 3
+_IMAGE_MODEL_UNLOADED_OFFSET = 4
 
 # Reserved for LLM events (5-8)
-# LLM_GENERATION_COMPLETE = pygame.USEREVENT + 5
-# LLM_GENERATION_ERROR = pygame.USEREVENT + 6
-# LLM_MODEL_LOADED = pygame.USEREVENT + 7
-# LLM_MODEL_UNLOADED = pygame.USEREVENT + 8
+# _LLM_GENERATION_COMPLETE_OFFSET = 5
+# _LLM_GENERATION_ERROR_OFFSET = 6
+# _LLM_MODEL_LOADED_OFFSET = 7
+# _LLM_MODEL_UNLOADED_OFFSET = 8
 
 # VRAM management events (9-12)
-VRAM_ALLOCATED = pygame.USEREVENT + 9
-VRAM_RELEASED = pygame.USEREVENT + 10
-VRAM_ALLOCATION_FAILED = pygame.USEREVENT + 11
-VRAM_UNLOAD_REQUESTED = pygame.USEREVENT + 12
+_VRAM_ALLOCATED_OFFSET = 9
+_VRAM_RELEASED_OFFSET = 10
+_VRAM_ALLOCATION_FAILED_OFFSET = 11
+_VRAM_UNLOAD_REQUESTED_OFFSET = 12
 
 # Reserved for future AI services (13-20)
+
+# Mapping of public constant names to their offsets
+_EVENT_OFFSETS = {
+    "IMAGE_GENERATION_COMPLETE": _IMAGE_GENERATION_COMPLETE_OFFSET,
+    "IMAGE_GENERATION_ERROR": _IMAGE_GENERATION_ERROR_OFFSET,
+    "IMAGE_MODEL_LOADED": _IMAGE_MODEL_LOADED_OFFSET,
+    "IMAGE_MODEL_UNLOADED": _IMAGE_MODEL_UNLOADED_OFFSET,
+    "VRAM_ALLOCATED": _VRAM_ALLOCATED_OFFSET,
+    "VRAM_RELEASED": _VRAM_RELEASED_OFFSET,
+    "VRAM_ALLOCATION_FAILED": _VRAM_ALLOCATION_FAILED_OFFSET,
+    "VRAM_UNLOAD_REQUESTED": _VRAM_UNLOAD_REQUESTED_OFFSET,
+}
+
+
+def __getattr__(name):
+    """
+    Lazily compute pygame event constants when accessed.
+
+    This allows the module to be imported without initializing pygame,
+    which is critical for headless testing where SDL environment variables
+    must be set before pygame is imported.
+
+    Args:
+        name: Attribute name being accessed
+
+    Returns:
+        Computed pygame event ID (pygame.USEREVENT + offset)
+
+    Raises:
+        AttributeError: If attribute is not a known event constant
+    """
+    if name in _EVENT_OFFSETS:
+        import pygame
+
+        return pygame.USEREVENT + _EVENT_OFFSETS[name]
+
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 __all__ = [
     # Image events
