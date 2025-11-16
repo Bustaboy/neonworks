@@ -661,3 +661,202 @@ class TestPendingQueue:
         # Find image allocation
         image_alloc = [e for e in allocated_events if e.service == "image"]
         assert len(image_alloc) == 1
+
+
+class TestThreadSafety:
+    """Test thread safety of VRAM Manager."""
+
+    def test_concurrent_allocations(self, mock_gpu_monitor):
+        """Test multiple threads requesting VRAM concurrently."""
+        import threading
+
+        manager = SmartVRAMManager()
+        mock_gpu_monitor.get_free_vram_gb.return_value = 8.0
+
+        results = []
+        errors = []
+
+        def allocate_service(service_name, vram_gb):
+            try:
+                success = manager.request_vram(service_name, vram_gb, VRAMPriority.NORMAL)
+                results.append((service_name, success))
+            except Exception as e:
+                errors.append((service_name, e))
+
+        # Create 5 threads requesting VRAM
+        threads = [
+            threading.Thread(target=allocate_service, args=(f"service_{i}", 1.0))
+            for i in range(5)
+        ]
+
+        # Start all threads
+        for t in threads:
+            t.start()
+
+        # Wait for completion
+        for t in threads:
+            t.join()
+
+        # No errors should occur
+        assert len(errors) == 0
+
+        # All allocations should succeed
+        assert len(results) == 5
+        assert all(success for _, success in results)
+
+        # All services should be loaded
+        assert len(manager.loaded_services) == 5
+
+    def test_concurrent_releases(self, mock_gpu_monitor):
+        """Test multiple threads releasing VRAM concurrently."""
+        import threading
+
+        manager = SmartVRAMManager()
+        mock_gpu_monitor.get_free_vram_gb.return_value = 8.0
+
+        # Pre-load 5 services
+        for i in range(5):
+            manager.loaded_services[f"service_{i}"] = {
+                "vram": 1.0,
+                "priority": VRAMPriority.NORMAL,
+                "loaded_at": time.time()
+            }
+
+        results = []
+        errors = []
+
+        def release_service(service_name):
+            try:
+                success = manager.release_vram(service_name)
+                results.append((service_name, success))
+            except Exception as e:
+                errors.append((service_name, e))
+
+        # Create 5 threads releasing VRAM
+        threads = [
+            threading.Thread(target=release_service, args=(f"service_{i}",))
+            for i in range(5)
+        ]
+
+        # Start all threads
+        for t in threads:
+            t.start()
+
+        # Wait for completion
+        for t in threads:
+            t.join()
+
+        # No errors should occur
+        assert len(errors) == 0
+
+        # All releases should succeed
+        assert len(results) == 5
+        assert all(success for _, success in results)
+
+        # All services should be unloaded
+        assert len(manager.loaded_services) == 0
+
+    def test_mixed_concurrent_operations(self, mock_gpu_monitor):
+        """Test concurrent allocations and releases."""
+        import threading
+
+        manager = SmartVRAMManager()
+        mock_gpu_monitor.get_free_vram_gb.return_value = 8.0
+
+        # Pre-load 3 services
+        for i in range(3):
+            manager.loaded_services[f"existing_{i}"] = {
+                "vram": 1.0,
+                "priority": VRAMPriority.NORMAL,
+                "loaded_at": time.time()
+            }
+
+        errors = []
+
+        def allocate_service(service_name, vram_gb):
+            try:
+                manager.request_vram(service_name, vram_gb, VRAMPriority.NORMAL)
+            except Exception as e:
+                errors.append(("allocate", service_name, e))
+
+        def release_service(service_name):
+            try:
+                manager.release_vram(service_name)
+            except Exception as e:
+                errors.append(("release", service_name, e))
+
+        # Create mixed threads
+        threads = []
+        threads.extend([
+            threading.Thread(target=allocate_service, args=(f"new_{i}", 1.0))
+            for i in range(3)
+        ])
+        threads.extend([
+            threading.Thread(target=release_service, args=(f"existing_{i}",))
+            for i in range(3)
+        ])
+
+        # Start all threads
+        for t in threads:
+            t.start()
+
+        # Wait for completion
+        for t in threads:
+            t.join()
+
+        # No errors should occur
+        assert len(errors) == 0
+
+        # Should have 3 new services loaded (3 released, 3 added)
+        assert len(manager.loaded_services) == 3
+        assert all(f"new_{i}" in manager.loaded_services for i in range(3))
+
+    def test_get_status_thread_safe(self, mock_gpu_monitor):
+        """Test that get_status() is thread-safe during concurrent operations."""
+        import threading
+
+        manager = SmartVRAMManager()
+        mock_gpu_monitor.get_free_vram_gb.return_value = 8.0
+
+        errors = []
+        status_snapshots = []
+
+        def allocate_service(service_name, vram_gb):
+            try:
+                manager.request_vram(service_name, vram_gb, VRAMPriority.NORMAL)
+            except Exception as e:
+                errors.append(("allocate", service_name, e))
+
+        def get_status_snapshot():
+            try:
+                status = manager.get_status()
+                status_snapshots.append(status)
+            except Exception as e:
+                errors.append(("status", e))
+
+        # Create threads: 5 allocations + 5 status queries
+        threads = []
+        for i in range(5):
+            threads.append(threading.Thread(target=allocate_service, args=(f"service_{i}", 1.0)))
+            threads.append(threading.Thread(target=get_status_snapshot))
+
+        # Start all threads
+        for t in threads:
+            t.start()
+
+        # Wait for completion
+        for t in threads:
+            t.join()
+
+        # No errors should occur
+        assert len(errors) == 0
+
+        # Should have captured some status snapshots
+        assert len(status_snapshots) >= 5
+
+        # All status snapshots should be valid dicts
+        for status in status_snapshots:
+            assert isinstance(status, dict)
+            assert "total_vram" in status
+            assert "allocated_vram" in status
+            assert "loaded_services" in status
