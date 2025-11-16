@@ -191,14 +191,21 @@ class TestLlamaCppBackend:
         backend = LlamaCppBackend(config)
         assert backend.backend_type == "llama-cpp"
 
-    @patch("neonworks.ai.backends.llama_cpp_backend.Llama")
-    def test_load_success(self, mock_llama_class, tmp_path):
+    def test_load_success(self, tmp_path, monkeypatch):
         """Test successful model loading"""
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
+        # Mock the Llama class
+        mock_llama_class = Mock()
         mock_model = Mock()
         mock_llama_class.return_value = mock_model
+
+        # Patch the import
+        import sys
+        mock_llama_cpp = Mock()
+        mock_llama_cpp.Llama = mock_llama_class
+        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
 
         config = LLMBackendConfig(
             backend_type="llama-cpp", model_path=str(model_file)
@@ -214,14 +221,19 @@ class TestLlamaCppBackend:
             verbose=False,
         )
 
-    @patch("neonworks.ai.backends.llama_cpp_backend.Llama")
-    def test_load_already_loaded(self, mock_llama_class, tmp_path):
+    def test_load_already_loaded(self, tmp_path, monkeypatch):
         """Test loading when already loaded does nothing"""
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
+        mock_llama_class = Mock()
         mock_model = Mock()
         mock_llama_class.return_value = mock_model
+
+        import sys
+        mock_llama_cpp = Mock()
+        mock_llama_cpp.Llama = mock_llama_class
+        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
 
         config = LLMBackendConfig(
             backend_type="llama-cpp", model_path=str(model_file)
@@ -233,14 +245,19 @@ class TestLlamaCppBackend:
         # Should only call once
         assert mock_llama_class.call_count == 1
 
-    @patch("neonworks.ai.backends.llama_cpp_backend.Llama")
-    def test_unload(self, mock_llama_class, tmp_path):
+    def test_unload(self, tmp_path, monkeypatch):
         """Test unloading model"""
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
+        mock_llama_class = Mock()
         mock_model = Mock()
         mock_llama_class.return_value = mock_model
+
+        import sys
+        mock_llama_cpp = Mock()
+        mock_llama_cpp.Llama = mock_llama_class
+        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
 
         config = LLMBackendConfig(
             backend_type="llama-cpp", model_path=str(model_file)
@@ -292,15 +309,20 @@ class TestLlamaCppBackend:
         with pytest.raises(ValueError, match="cannot be empty"):
             backend.generate("")
 
-    @patch("neonworks.ai.backends.llama_cpp_backend.Llama")
-    def test_generate_success(self, mock_llama_class, tmp_path):
+    def test_generate_success(self, tmp_path, monkeypatch):
         """Test successful text generation"""
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
         mock_model = Mock()
         mock_model.return_value = {"choices": [{"text": "Generated text"}]}
+        mock_llama_class = Mock()
         mock_llama_class.return_value = mock_model
+
+        import sys
+        mock_llama_cpp = Mock()
+        mock_llama_cpp.Llama = mock_llama_class
+        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
 
         config = LLMBackendConfig(
             backend_type="llama-cpp", model_path=str(model_file)
@@ -311,15 +333,20 @@ class TestLlamaCppBackend:
         result = backend.generate("Once upon a time")
         assert result == "Generated text"
 
-    @patch("neonworks.ai.backends.llama_cpp_backend.Llama")
-    def test_generate_with_kwargs(self, mock_llama_class, tmp_path):
+    def test_generate_with_kwargs(self, tmp_path, monkeypatch):
         """Test generation with custom kwargs"""
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
         mock_model = Mock()
         mock_model.return_value = {"choices": [{"text": "Generated text"}]}
+        mock_llama_class = Mock()
         mock_llama_class.return_value = mock_model
+
+        import sys
+        mock_llama_cpp = Mock()
+        mock_llama_cpp.Llama = mock_llama_class
+        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
 
         config = LLMBackendConfig(
             backend_type="llama-cpp", model_path=str(model_file), temperature=0.7
@@ -378,11 +405,16 @@ class TestOpenAIBackend:
         backend = OpenAIBackend(config)
         assert backend.backend_type == "openai"
 
-    @patch("neonworks.ai.backends.openai_backend.openai")
-    def test_load_success(self, mock_openai):
+    def test_load_success(self, monkeypatch):
         """Test successful client initialization"""
         mock_client = Mock()
-        mock_openai.OpenAI.return_value = mock_client
+        mock_openai_class = Mock()
+        mock_openai_class.return_value = mock_client
+
+        import sys
+        mock_openai = Mock()
+        mock_openai.OpenAI = mock_openai_class
+        monkeypatch.setitem(sys.modules, 'openai', mock_openai)
 
         config = LLMBackendConfig(
             backend_type="openai", model_id="gpt-4", api_key="test-key"
@@ -391,7 +423,7 @@ class TestOpenAIBackend:
         backend.load()
 
         assert backend.is_loaded()
-        mock_openai.OpenAI.assert_called_once_with(api_key="test-key")
+        mock_openai_class.assert_called_once_with(api_key="test-key")
 
     def test_unload(self):
         """Test unloading client"""
@@ -428,14 +460,19 @@ class TestOpenAIBackend:
         with pytest.raises(ValueError, match="cannot be empty"):
             backend.generate("")
 
-    @patch("neonworks.ai.backends.openai_backend.openai")
-    def test_generate_success(self, mock_openai):
+    def test_generate_success(self, monkeypatch):
         """Test successful text generation"""
         mock_client = Mock()
         mock_response = Mock()
         mock_response.choices = [Mock(message=Mock(content="Generated text"))]
         mock_client.chat.completions.create.return_value = mock_response
-        mock_openai.OpenAI.return_value = mock_client
+        mock_openai_class = Mock()
+        mock_openai_class.return_value = mock_client
+
+        import sys
+        mock_openai = Mock()
+        mock_openai.OpenAI = mock_openai_class
+        monkeypatch.setitem(sys.modules, 'openai', mock_openai)
 
         config = LLMBackendConfig(
             backend_type="openai", model_id="gpt-4", api_key="test-key"
@@ -493,18 +530,23 @@ class TestAnthropicBackend:
         backend = AnthropicBackend(config)
         assert backend.backend_type == "anthropic"
 
-    @patch("neonworks.ai.backends.anthropic_backend.anthropic")
-    def test_load_success(self, mock_anthropic):
+    def test_load_success(self, monkeypatch):
         """Test successful client initialization"""
         mock_client = Mock()
-        mock_anthropic.Anthropic.return_value = mock_client
+        mock_anthropic_class = Mock()
+        mock_anthropic_class.return_value = mock_client
+
+        import sys
+        mock_anthropic = Mock()
+        mock_anthropic.Anthropic = mock_anthropic_class
+        monkeypatch.setitem(sys.modules, 'anthropic', mock_anthropic)
 
         config = LLMBackendConfig(backend_type="anthropic", api_key="test-key")
         backend = AnthropicBackend(config)
         backend.load()
 
         assert backend.is_loaded()
-        mock_anthropic.Anthropic.assert_called_once_with(api_key="test-key")
+        mock_anthropic_class.assert_called_once_with(api_key="test-key")
 
     def test_unload(self):
         """Test unloading client"""
@@ -535,14 +577,19 @@ class TestAnthropicBackend:
         with pytest.raises(ValueError, match="cannot be empty"):
             backend.generate("")
 
-    @patch("neonworks.ai.backends.anthropic_backend.anthropic")
-    def test_generate_success(self, mock_anthropic):
+    def test_generate_success(self, monkeypatch):
         """Test successful text generation"""
         mock_client = Mock()
         mock_response = Mock()
         mock_response.content = [Mock(text="Generated text")]
         mock_client.messages.create.return_value = mock_response
-        mock_anthropic.Anthropic.return_value = mock_client
+        mock_anthropic_class = Mock()
+        mock_anthropic_class.return_value = mock_client
+
+        import sys
+        mock_anthropic = Mock()
+        mock_anthropic.Anthropic = mock_anthropic_class
+        monkeypatch.setitem(sys.modules, 'anthropic', mock_anthropic)
 
         config = LLMBackendConfig(backend_type="anthropic", api_key="test-key")
         backend = AnthropicBackend(config)
