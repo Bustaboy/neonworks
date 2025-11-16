@@ -4,6 +4,7 @@ import gc
 from pathlib import Path
 from llama_cpp import Llama
 
+
 class Director:
     """
     The Director agent is the master orchestrator of the multi-agent system.
@@ -45,7 +46,7 @@ class Director:
         model_filename = self.agent_model_map.get(agent_name)
         if not model_filename:
             raise ValueError(f"No model is configured for agent: {agent_name}")
-        
+
         model_path = self.models_path / model_filename
         if not model_path.exists():
             raise FileNotFoundError(
@@ -66,8 +67,10 @@ class Director:
         """
         persona_path = self.personas_path / f"{agent_name.lower()}.md"
         if not persona_path.exists():
-            raise FileNotFoundError(f"Persona file not found for agent {agent_name}: {persona_path}")
-        
+            raise FileNotFoundError(
+                f"Persona file not found for agent {agent_name}: {persona_path}"
+            )
+
         with open(persona_path, "r", encoding="utf-8") as f:
             return f.read()
 
@@ -84,17 +87,17 @@ class Director:
             The text response from the agent.
         """
         print(f"--- Director: Initiating task for agent: {agent_name} ---")
-        
+
         try:
             # 1. Load Agent and Model into VRAM
             print(f"Loading {agent_name} agent and model...")
             model_path = self._get_agent_model_path(agent_name)
             persona_prompt = self._get_agent_persona(agent_name)
-            
+
             self.loaded_model = Llama(
                 model_path=str(model_path),
                 n_gpu_layers=-1,  # Offload all possible layers to GPU
-                verbose=False
+                verbose=False,
             )
             self.loaded_agent_name = agent_name
             print(f"Agent {agent_name} loaded successfully.")
@@ -107,12 +110,12 @@ class Director:
             ]
 
             completion = self.loaded_model.create_chat_completion(messages=messages)
-            response_text = completion['choices'][0]['message']['content']
+            response_text = completion["choices"][0]["message"]["content"]
             print("Task executed.")
 
             return response_text
 
-finally:
+        finally:
             # 3. Unload Agent and Model from VRAM
             if self.loaded_model is not None:
                 print(f"Unloading {self.loaded_agent_name} agent to free VRAM...")
@@ -123,14 +126,15 @@ finally:
                 print("Agent unloaded. VRAM freed.")
             print(f"--- Director: Task for agent {agent_name} concluded. ---")
 
+
 # Example usage:
-if __name__ == '__main__':
+if __name__ == "__main__":
     # This block demonstrates how the Director would be used.
     # It requires the models and prompts to be in the correct directories.
-    
+
     # Create a dummy model and prompt file for testing purposes
     # In a real scenario, these files would already exist.
-    
+
     # Create dummy directories
     Path("models").mkdir(exist_ok=True)
     Path("prompts").mkdir(exist_ok=True)
@@ -145,7 +149,7 @@ if __name__ == '__main__':
 
     # To make this example runnable without a real model, we can't create a dummy GGUF.
     # We will catch the FileNotFoundError and print a helpful message.
-    
+
     try:
         director = Director()
         task_prompt = "Write a short description for a mythical sword named 'Starfire'."
