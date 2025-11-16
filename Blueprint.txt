@@ -1,0 +1,471 @@
+﻿Generative 2D Engine: Implementation Plan
+
+
+This document outlines the phased, prompt-driven plan to build the multi-agent generative game engine. Each task is formulated as a prompt for a Gemini 2.5 Pro-level coding assistant.
+
+
+Phase 1: Core Framework & System Setup
+
+
+Objective: Build the "brain" and "skeleton" of the system. This phase focuses on setting up the agentic framework, the VRAM-aware model loader, and the "World Bible" database.
+________________
+
+
+Task 1.1: Environment & Tooling Setup
+
+
+Prompt:
+You are a senior Python developer. Your task is to generate a requirements.txt file and a setup_env.sh script to prepare the development environment for our generative game engine.
+Requirements:
+1. Python: Must use Python 3.10+.
+2. Game Engine: pygame.
+3. Graph Database: neo4j (the Python driver).
+4. Local LLM Host: ollama. The setup script should check if Ollama is installed and, if not, provide the command to install it.
+5. LLM Interaction: llama-cpp-python (for GGUF models) and ollama (Python client).
+6. Multimodal (Assets): torch, transformers, opencv-python, Pillow (for the Artificer agent's asset tagging).
+7. DevOps: dvc[s3] (Data Version Control) 5 and git.
+Output:
+1. A requirements.txt file.
+2. A setup_env.sh bash script to create a virtual environment, install the requirements, and check for Ollama.
+________________
+
+
+Task 1.2: Multi-Agent Persona Definitions
+
+
+Prompt:
+You are a multi-agent systems architect. Based on our project blueprint, generate the five core "Agent Persona" system prompts. These will be saved as configuration files (e.g., director.md) and loaded by the Director agent to define each agent's behavior, expertise, and boundaries.
+Constraint: All agents must be VRAM-aware and optimized for 8GB VRAM (e.g., 7B-13B GGUF models).
+Generate the following 5 persona prompts:
+1. director.md: The "Director" (Orchestrator). Role: Project manager. Decomposes tasks, manages the task graph 7, and loads/unloads other agents from VRAM.
+2. loremaster.md: The "Loremaster" (Narrative). Role: Narrative designer. Writes dialogue, quests, and lore by querying the World Bible. Crucially, it must prompt the user for approval on generated dialogue.
+3. architect.md: The "Architect" (Coder). Role: Senior Pygame Developer. Translates World Bible mechanics into clean, modular, object-oriented Python code. Must only write code for the Pygame framework.
+4. artificer.md: The "Artificer" (Librarian). Role: Asset Librarian. Does NOT generate art. Its job is to perform semantic search on the existing asset library, add tags, and link asset paths to the World Bible.
+5. auditor.md: The "Auditor" (QA). Role: Autonomous QA tester. Plays the game using vision, reports bugs, and runs balancing simulations.
+________________
+
+
+Task 1.3: VRAM-Aware Orchestrator (Director) Agent
+
+
+Prompt:
+You are the "Architect," an expert Python developer. Your task is to create the core Director agent class. This class is the "brain" of the multi-agent system.
+Core Requirements (8GB VRAM Constraint):
+1. The Director class must manage a pool of specialized agents (Loremaster, Architect, etc.).
+2. It must not load all agents into VRAM at once.
+3. Create a run_task(agent_name, prompt_text) method.
+4. This method must:
+a. Call an internal _load_agent_to_vram(agent_name) method. This method will:
+i. Read the corresponding persona (e.g., architect.md).
+ii. Load the specified GGUF model (e.g., deepseek-coder-7b.gguf) into VRAM using llama-cpp-python.
+b. Execute the task by sending the system prompt (persona) and user prompt (task) to the loaded model.
+c. Call an internal _unload_agent_from_vram(agent_name) method to free all VRAM.
+5. Include a _get_agent_model(agent_name) helper that maps agent names to their specific GGUF model files (e.g., 'Architect' -> 'deepseek-r1-8b.gguf', 'Loremaster' -> 'nous-hermes-3-8b.gguf' 11).
+Generate the Python file director.py containing this Director class.
+________________
+
+
+Task 1.4: World Bible (GraphDB) Manager
+
+
+Prompt:
+You are the "Architect," an expert Python developer specializing in databases. Your task is to create the "World Bible" database connection manager. This module is the Single Source of Truth (SSOT) 12 for the entire application.
+Requirements:
+   1. Create a Python file named bible_manager.py.
+   2. Implement a BibleManager class that connects to a Neo4j database.
+   3. The class must provide clear, high-level functions that abstract away all Cypher queries.
+   4. Implement the following methods:
+   * add_node(label, properties): (e.g., add_node("Character", {"name": "Max", "class": "Warrior"}))
+   * add_relationship(from_node_id, relationship_type, to_node_id): (e.g., add_relationship(max_id, "LIVES_IN", oakhaven_id))
+   * get_node(node_id): Returns all properties for a node.
+   * get_related_nodes(node_id, relationship_type): (e.g., get_related_nodes(max_id, "HAS_ITEM"))
+   * find_nodes(label, properties): (e.g., find_nodes("Item", {"type": "Weapon"}))
+   * update_node(node_id, new_properties)
+This module ensures that no other part of the system writes direct Cypher, maintaining data integrity.
+________________
+
+
+Task 1.5: Initial Q&A (ETL Pipeline)
+
+
+Prompt:
+You are the "Director" agent. Your goal is to orchestrate the initial user Q&A to populate the World Bible. This is a prompt chain.17
+Generate a Python script initial_setup.py that uses the Director class to perform the following 3 steps:
+   1. Chain 1 (Interview):
+   * Load and run the Loremaster agent.
+   * Prompt it with: "You are a friendly game designer. Interview the user to get their high-level vision. Ask them one question at a time about the: 1. Main Hero, 2. Starting Town, 3. Main Goal (e.g., 'slay a dragon'). Store the user's free-text answers."
+   2. Chain 2 (Extract):
+   * Take the unstructured text from Chain 1.
+   * Load and run the Loremaster agent again with its persona.
+   * Prompt it with: "Analyze the following user interview transcript. Extract all named entities (Character, Location, Quest) and their relationships. Output ONLY a valid JSON list of graph operations (add_node, add_relationship) adhering to the Bible schema.25"
+   3. Chain 3 (Load):
+   * The Python script will parse the JSON output from Chain 2.
+   * It will then loop through the list and call the appropriate methods on a BibleManager instance (e.g., bible.add_node(...)) to populate the graph.
+________________
+
+
+Phase 2: Core Content Pipelines (Code, Narrative, Assets)
+
+
+Objective: Implement the specialized agents (Artificer, Architect, Loremaster) to generate the game's code, link assets, and write the story.
+________________
+
+
+Task 2.1: Artificer (Asset Librarian) Pipeline
+
+
+Prompt:
+You are the "Director" agent. Your goal is to orchestrate the implementation of the Artificer (Librarian) agent. This is a 3-step prompt chain.
+Generate three Python scripts to: 1. Pre-tag the library, 2. Index the tags, 3. Create the search tool.
+Chain 1: tag_assets.py (Pre-processing Script)
+   * You are the "Architect." Write a Python script that scans a directory (e.g., assets/library/).
+   * For each .png file, use a multimodal vision model (e.g., Gemma 3 12B QAT or a CLIP model) to analyze the image.
+   * Prompt (for the multimodal model): "Analyze this image. Output a JSON list of descriptive tags. Tags must include: style (e.g., 'pixelart', '16bit'), object (e.g., 'tree', 'sword', 'house'), and category (e.g., 'sprite', 'tileset', 'icon')."
+   * Save all results to a single asset_tags.json file.
+Chain 2: index_assets.py (Indexing Script)
+   * You are the "Architect." Write a Python script that:
+   *    1. Connects to the BibleManager.
+   *    2. Reads asset_tags.json.
+   *    3. For each asset, creates a new node in the World Bible:
+bible.add_node("Asset", {"name": "pine_tree.png", "path": "assets/library/pine_tree.png", "tags": ['pixelart', 'tree', 'forest']})
+      * This script maps the file system to our SSOT.
+Chain 3: artificer_tools.py (Search Tool)
+      * You are the "Architect." Create a Python file artificer_tools.py.
+      * Inside, write a function find_asset(bible: BibleManager, required_tags: list) -> str.
+      * This function must:
+      *       1. Construct a Cypher query to find Asset nodes that contain ALL tags in the required_tags list.
+      *       2. Execute the query via the BibleManager.
+      *       3. Return the path property of the best-matching asset.
+      * This function will be the primary tool used by the Artificer agent.
+________________
+
+
+Task 2.2: Architect - Core Pygame Framework
+
+
+Prompt:
+You are the "Architect," an expert Pygame developer. Your task is to generate the foundational, modular framework for the entire game. Pygame is low-level, so we must build a robust, object-oriented structure from scratch.
+Generate the following Python files:
+      1. main.py:
+      * Contains the main game class (Game).
+      * Initializes Pygame, the screen, and the clock.
+      * Contains the main game loop (while self.running).
+      * Calls self.events(), self.update(), self.draw().
+      * Manages a SceneManager.
+      2. scene_manager.py:
+      * Manages a dictionary of "scenes" (e.g., {"menu": MainMenuScene(), "game": GameplayScene()}).
+      * Has a go_to(scene_name) method.
+      * The Game class will call self.scene_manager.current_scene.update() and ...draw(). This is critical for switching between the overworld, combat, and menus.
+      3. entity_manager.py:
+      * A class that manages all game sprites.
+      * Uses pygame.sprite.Group for different collision layers (e.g., self.players, self.enemies, self.solids).
+      * Provides methods like add_entity(entity, group_name) and update_all(), draw_all(screen).
+      4. camera.py:
+      * A Camera class that manages a pygame.Rect for the viewport.
+      * Has an apply(entity) method that returns the entity's rect offset by the camera's position.
+      * Has an update(target_entity) method to follow the player.
+________________
+
+
+Task 2.3: Loremaster - Interactive Dialogue System
+
+
+Prompt:
+You are the "Architect." Your task is to create the interactive dialogue system that the Loremaster agent will use. This system must allow for user correction, as specified in the project plan.
+Generate two files:
+      1. dialogue_manager.py:
+      * Create a DialogueManager class.
+      * It must have a method get_dialogue(director: Director, user: Player, npc: NPC).
+      * This method performs a prompt chain:
+      *       1. Queries the BibleManager for context: npc.properties['personality'], player.quest_status.
+      *       2. Calls director.run_task('Loremaster',...) with a prompt: "Generate a line of dialogue from this NPC ({npc.name}, {npc.personality}) to this Player ({player.name}) based on this game state: {quest_status}."
+      *       3. Crucially: It must then print() the generated dialogue to the user's console and input("Do you want to [A]pprove this dialogue,ewrite it, or [G]ive new guidance?").
+      *       4. If [A], it returns the text. If or [G], it takes user input and re-runs the Loremaster prompt with the new guidance.
+      2. dialogue_ui.py:
+      * A Pygame class DialogueBox that:
+      *       1. Takes text as input.
+      *       2. Draws a 9-patch "text-box" asset at the bottom of the screen.
+      *       3. Renders the text (word-wrapped).
+      *       4. Waits for the user to press a key to dismiss.
+________________
+
+
+Task 2.4: Architect - JRPG Combat System (Lufia-style)
+
+
+Prompt:
+You are the "Architect," an expert in JRPG mechanics. Your task is to generate the JRPG (Lufia-style) turn-based combat system as a modular, data-driven framework.
+This is a 3-part prompt chain. Generate three Python files:
+      1. combat_data_models.py (Data):
+      * Create Python @dataclass definitions for:
+      * CharacterStats: (Properties: name, hp, max_hp, mp, strength, defense).
+      * CombatMove: (Properties: name, power, cost_mp).
+      * All data must be simple types (int, str), loaded from the World Bible.
+      2. combat_manager.py (Logic):
+      * Create a CombatManager class.
+      * This class must not draw anything. It is a pure logic state machine.
+      * States: START, PLAYER_TURN, ENEMY_TURN, VICTORY, DEFEAT.
+      * Methods:
+      * start_combat(player_stats, enemy_stats)
+      * update(): Contains the core state machine logic.
+      * handle_player_action(action, target): (e.g., action="ATTACK", target=enemy_stats). This calculates damage.
+      * run_enemy_ai(): A simple AI (e.g., "always attack player").
+      * It should manage the turn order and all HP/MP calculations.
+      3. combat_scene.py (View):
+      * Create a CombatScene class (for the SceneManager).
+      * It contains an instance of CombatManager.
+      * In its update() loop, it checks combat_manager.state.
+      * In its draw(screen) method, it visually renders the state:
+      * If PLAYER_TURN, draw the "Attack / Magic / Item" menu.
+      * Draws the player and enemy sprites (from Artificer).
+      * Draws HP/MP bars for all combatants.
+________________
+
+
+Task 2.5: Architect - Farm Sim System (Stardew-style)
+
+
+Prompt:
+You are the "Architect," an expert in farming sim mechanics. Your task is to generate the Farming System (Stardew Valley-style) as a modular framework.
+This is a 3-part prompt chain. Generate three Python files:
+      1. farming_data_models.py (Data):
+      * Create Python @dataclass definitions for:
+      * SoilData: (Properties: state (enum: 'DEFAULT', 'TILLED', 'WATERED'), plant (PlantData or None)).
+      * PlantData: (Properties: name, growth_stage (int), max_growth_stage (int), harvest_item_id (str)).
+      2. farming_manager.py (Logic):
+      * Create a FarmingManager class.
+      * It manages a 2D grid (dictionary) of SoilData objects: self.soil_grid = {}.
+      * Methods:
+      * get_soil_tile(x, y)
+      * on_player_action(x, y, tool_name): (e.g., if tool_name == "hoe", change state to 'TILLED').
+      * on_new_day(): Iterates over the entire soil_grid. Dries all 'WATERED' soil to 'TILLED'. Increments growth_stage for all plants on watered soil.
+      3. farming_view.py (View):
+      * Create a FarmingView class.
+      * Methods:
+      * draw(screen, camera, bible_manager, farming_manager):
+      * It iterates over all visible tiles in farming_manager.soil_grid.
+      * For each tile, it queries the Artificer (via bible_manager) to get the correct asset path.
+      * Example Query: artificer.find_asset(bible, ["tileset", "soil", "tilled"]).
+      * Blits the correct tile to the screen.
+________________
+
+
+Phase 3: Validation & Balancing Loop
+
+
+Objective: Implement the Auditor agent to autonomously test the game for bugs and balance, ensuring the generated content is playable and fun.
+________________
+
+
+Task 3.1: Auditor (QA Agent) Framework
+
+
+Prompt:
+You are the "Architect." Your task is to create the core framework for the Auditor (QA) agent. This agent must be able to "see" the Pygame window and "play" the game to find bugs.
+Generate the file auditor.py.
+Requirements:
+      1. Create an Auditor class.
+      2. Implement a _get_screen_state() method that:
+      * Grabs the current Pygame display surface.
+      * Uses pygame.surfarray.array3d() to get a numpy array of pixels.
+      * Saves this array as screenshot.png.
+      3. Implement a _send_input(action) method that:
+      * Uses a library like pyautogui to simulate key presses (e.g., action="W_PRESS").
+      4. Implement a run_test(director: Director, bible: BibleManager, test_quest_id) method. This method runs a loop:
+      * a. Get quest objective from bible.get_node(test_quest_id).
+      * b. Get screenshot.png from _get_screen_state().
+      * c. Call director.run_task('Auditor',...) with a multimodal prompt: "You are a QA tester. Your goal is: {objective}. Based on this screenshot, what key should you press next? (Options: 'w', 'a', 's', 'd', 'e'). Output only the key."
+      * d. _send_input() with the returned key.
+      * e.Detect failure (e.g., if stuck in the same place for 100 frames) and log a bug report.28
+________________
+
+
+Task 3.2: Automated Balancing (RL) Framework
+
+
+Prompt:
+You are the "Architect," with experience in game balancing and reinforcement learning.
+Your task is to create a "headless" simulation environment for auto-balancing the JRPG combat. This allows the Auditor to run thousands of fights quickly.
+Generate the file balance_simulator.py.
+Requirements:
+      1. Import the CombatManager and CharacterStats from Phase 2.
+      2. Create a function run_simulation(player_stats, enemy_stats) -> bool:
+      * This function must not use Pygame or any graphics.
+      * It creates a CombatManager instance.
+      * It runs a loop (while state!= "VICTORY" and state!= "DEFEAT").
+      * In the loop, it simulates both player and enemy AI (e.g., "always use basic attack").
+      * It returns True if the player wins, False if they lose.
+      3. Create a main script block that:
+      * Loads player_stats and boss_stats from the World Bible.
+      * Runs run_simulation 1000 times.
+      * Calculates the player's win rate (e.g., 58.3%).
+      * Orchestration Logic:
+      * If win rate > 70%, print("Director, boss is too easy. Suggest increasing boss HP.")
+      * If win rate < 30%, print("Director, boss is too hard. Suggest decreasing boss HP.")
+________________
+
+
+Phase 4: Advanced Multimodal Interface
+
+
+Objective: Implement the "Shared View" editor, allowing the user to modify the game by typing natural language commands over a live view.
+________________
+
+
+Task 4.1: "Shared View" Multimodal RAG Pipeline
+
+
+Prompt:
+You are the "Architect," an expert in multimodal AI systems. Your task is to generate the core multimodal prompt for the "Shared View" editor. This prompt will be used by the Director to translate user commands into engine actions.
+This prompt must use a "Chain of Thought" or "Step-by-Step" reasoning structure.29
+Generate a file shared_view_prompt.md containing the following template:
+________________
+You are a "Level Designer" AI agent. Your goal is to translate a user's natural language request into a precise list of JSON commands to modify the game world.
+You will be given three inputs:
+      1. ``: The user's text command.
+      2. ``: A screenshot of the current game editor.
+      3. ``: A JSON list of all objects currently in the scene and their (x, y) coordinates.
+You must follow this exact step-by-step reasoning process:
+Step 1. Analyze Intent:
+Analyze the ``. What does the user want to do? (e.g., "Spawn asset", "Delete asset", "Modify property"). What is the asset? (e.g., "pine trees"). What is the quantity? (e.g., "two").
+Step 2. Visual Analysis:
+Examine ``. Where is the user pointing? (e.g., "that empty patch of grass", "to the left of the road"). Identify the pixel (x, y) coordinates of this target area.
+Step 3. Data Cross-Reference:
+Examine ``. Cross-reference the (x, y) coordinates from Step 2 with the existing object locations. Is the area truly "empty"? What are the coordinates of the "road"?
+Step 4. Formulate Plan:
+Based on the intent, visual analysis, and data, create a concrete plan.
+      * (Example: "User wants 2 'pine trees'. I will query the Artificer for find_asset(['tree', 'pine']). The Artificer returns 'assets/lib/tree_pine.png'. The 'empty patch' is at (150, 300). I will spawn two trees there.")
+Step 5. Generate Commands:
+Translate your plan into a valid JSON list of commands. The available commands are: spawn_asset, delete_asset, modify_property.
+Your final output MUST be only the JSON command list and nothing else.
+________________
+
+
+EXAMPLE
+
+
+: "add two pine trees to that empty patch of grass" : (Image data)
+``: [{"id": "obj1", "asset": "road.png", "x": 100, "y": 300}]
+(Your Internal Reasoning):
+      * Step 1. Intent: spawn_asset, asset="pine tree", quantity=2.
+      * Step 2. Visual: "empty patch of grass" is at pixel coordinates (150, 300).
+      * Step 3. Data: Scene graph confirms no objects are at (150, 300).
+      * Step 4. Plan: Query Artificer for find_asset(['tree', 'pine']). It returns "assets/lib/trees/pine_01.png". I will spawn two instances at (150, 300) and (160, 300).
+      * Step 5. Generate.
+**(Your Final Output):**json
+[
+{"command": "spawn_asset", "asset_path": "assets/lib/trees/pine_01.png", "position": , "properties": {"solid": true}},
+{"command": "spawn_asset", "asset_path": "assets/lib/trees/pine_01.png", "position": , "properties": {"solid": true}}
+]
+
+
+
+
+
+
+---
+
+________________
+
+
+Task 4.2: "Shared View" Pygame Integration
+
+
+Prompt:
+You are the "Architect." Your task is to write the Pygame-side script that integrates with the "Shared View" multimodal prompt.
+Generate the file shared_view_editor.py.
+Requirements:
+      1. Create a SharedViewEditor class.
+      2. Implement a method activate(director: Director, entity_manager: EntityManager):
+      * a. Pauses the game loop.
+      * b. Captures the screen: pygame.image.save(screen, "screenshot.png").
+      * c. Serializes scene state: Iterates entity_manager.all_sprites and saves their id, asset_path, and rect.topleft to scene_graph.json.
+      * d. Prompts the user: user_command = input("Enter your command: ").
+      * e. Loads the shared_view_prompt.md template.
+      * f. Injects the user_command, screenshot.png (as bytes), and scene_graph.json into the prompt.
+      * g. Calls director.run_task('Director', multimodal_prompt). (The 'Director' persona is used for this complex reasoning task).
+      * h. Parses the returned JSON command list.
+      * i. Executes the commands (e.g., creates new sprites and adds them to the entity_manager).
+      * j. Resumes the game.
+________________
+
+
+Phase 5: DevOps & Export Pipeline
+
+
+Objective: Implement the version control structure and the final export process, including platform compliance checks.
+________________
+
+
+Task 5.1: Version Control (DVC + Git) Setup
+
+
+Prompt:
+You are a DevOps Engineer, expert in MLOps and game development. Your task is to create the version control initialization script for new projects, using DVC for large assets and Git for code.
+Generate a file setup_project.sh.
+Requirements:
+The script must perform these commands in order:
+      1. git init
+      2. dvc init
+      3. mkdir -p code assets/library models prompts
+      4. Create a .gitignore file and add *.gguf, *.pth, .dvc/cache to it.
+      5. dvc add assets/library models (This versions the large files)
+      6. git add.
+      7. git add.dvc.gitignore (This ensures the DVC pointer files are tracked by Git)
+      8. git commit -m "Initial project structure"
+      9. The script should also move the agent persona .md files (from Task 1.2) into the prompts/ directory and git add them, ensuring our prompts are versioned.32
+________________
+
+
+Task 5.2: Export & Compliance Pipeline
+
+
+Prompt:
+You are the "Architect." Your task is to create the final "Export" script. This script's most important job is to enforce platform compliance before building the game executable.
+Background: We are using uncensored models for development, but we cannot ship live-generative uncensored AI to the public, per Steam, Google, and Apple policies.
+Generate a Python script export.py.
+Requirements:
+      1. Connect to the BibleManager.
+      2. Compliance Scan (Pre-Generated):
+      * Scan all Quest, Item, and Character nodes in the Bible for a mature_content_flag: true property.
+      * If found, generate a steam_disclosure.txt file stating: "This game contains pre-generated mature content (e.g., violence, mature themes) created with AI assistance".36
+      3. Compliance Scan (Live-Generative):
+      * Scan the Mechanic nodes in the Bible.
+      * If any mechanic (like DialogueManager) is found that is flagged as uses_live_generative_model: true AND is_uncensored: true:
+      * CRITICAL: The script MUST raise Exception() and print: "EXPORT FAILED: Live, uncensored AI features (e.g., NPC chatbots) detected. You must disable these or replace them with a safety-aligned model to comply with Steam/Apple/Google policies."
+      4. Build Process:
+      * If all checks pass, proceed to call a (placeholder) build_pygame_executable() function.
+Works cited
+      1. Data Version Control · DVC, accessed on November 16, 2025, https://dvc.org/
+      2. Get Started with DVC | Data Version Control, accessed on November 16, 2025, https://dvc.org/doc/start
+      3. Dependency Graphs : r/gamedev - Reddit, accessed on November 16, 2025, https://www.reddit.com/r/gamedev/comments/9kqk58/dependency_graphs/
+      4. Puzzle Dependency Charts - Grumpy Gamer, accessed on November 16, 2025, https://grumpygamer.com/puzzle_dependency_charts/
+      5. Generated game progression dependency graphs and spatial placement graphs : r/proceduralgeneration - Reddit, accessed on November 16, 2025, https://www.reddit.com/r/proceduralgeneration/comments/u1uuzh/generated_game_progression_dependency_graphs_and/
+      6. Procedural game progression dependency graphs - runevision - Blog, accessed on November 16, 2025, https://blog.runevision.com/2024/10/procedural-game-progression-dependency.html
+      7. Top 10 LLMs with No Restrictions in 2025 - Apidog, accessed on November 16, 2025, https://apidog.com/blog/llms-no-restrictions/
+      8. Single Source of Truth (SSOT): What It Is and Why It Matters - ThoughtSpot, accessed on November 16, 2025, https://www.thoughtspot.com/data-trends/best-practices/single-source-of-truth
+      9. Building a Single Source of Truth (SSOT): 8 Best Practices for Data Integration - Datablast, accessed on November 16, 2025, https://www.datablast.io/post/building-a-ssot-8-best-practices-for-data-integration
+      10. Creating A Single Source Of Truth For Data Strategy: Tips & Tricks - Sigma Computing, accessed on November 16, 2025, https://www.sigmacomputing.com/blog/data-centralization-single-source-of-truth
+      11. A Beginner's Guide to Single Source of Truth SSOT - CelerData, accessed on November 16, 2025, https://celerdata.com/glossary/a-beginners-guide-to-single-source-of-truth-ssot
+      12. Building a true Single Source of Truth (SSoT) for your team - Atlassian, accessed on November 16, 2025, https://www.atlassian.com/work-management/knowledge-sharing/documentation/building-a-single-source-of-truth-ssot-for-your-team
+      13. Prompt Chaining | Prompt Engineering Guide, accessed on November 16, 2025, https://www.promptingguide.ai/techniques/prompt_chaining
+      14. What is prompt chaining? - IBM, accessed on November 16, 2025, https://www.ibm.com/think/topics/prompt-chaining
+      15. Prompt Chaining. Large Language Models (LLMs) are… | by Satoru_gojo - Medium, accessed on November 16, 2025, https://medium.com/@kgang6434/prompt-chaining-e3ec6bb4cc1a
+      16. Break down complex tasks into simpler prompts | Generative AI on Vertex AI, accessed on November 16, 2025, https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/break-down-prompts
+      17. Workflow for prompt chaining - AWS Prescriptive Guidance, accessed on November 16, 2025, https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-patterns/workflow-for-prompt-chaining.html
+      18. Prompt Chaining Langchain | IBM, accessed on November 16, 2025, https://www.ibm.com/think/tutorials/prompt-chaining-langchain
+      19. I build a free tool which helps in Prompt Chaining and saves lot of time, Explore Prompt Chains & Guide : r/ChatGPTPromptGenius - Reddit, accessed on November 16, 2025, https://www.reddit.com/r/ChatGPTPromptGenius/comments/1iburmz/i_build_a_free_tool_which_helps_in_prompt/
+      20. [2203.08745] Multi-Stage Prompting for Knowledgeable Dialogue Generation - arXiv, accessed on November 16, 2025, https://arxiv.org/abs/2203.08745
+      21. Bible Verses Api - Apify, accessed on November 16, 2025, https://apify.com/jonascarmo/bible-verses-api
+      22. The World English Bible translation in JSON - GitHub, accessed on November 16, 2025, https://github.com/TehShrike/world-english-bible
+      23. Religions, please migrate your Holy texts to JSON : r/programming - Reddit, accessed on November 16, 2025, https://www.reddit.com/r/programming/comments/wv6q6r/religions_please_migrate_your_holy_texts_to_json/
+      24. Automatic Bug Detection in LLM-Powered Text-Based Games Using LLMs - arXiv, accessed on November 16, 2025, https://arxiv.org/html/2406.04482v1
+      25. Design multimodal prompts | Generative AI on Vertex AI - Google Cloud Documentation, accessed on November 16, 2025, https://docs.cloud.google.com/vertex-ai/generative-ai/docs/multimodal/design-multimodal-prompts
+      26. Advancing Multimodal Large Language Models: Optimizing Prompt Engineering Strategies for Enhanced Performance - MDPI, accessed on November 16, 2025, https://www.mdpi.com/2076-3417/15/7/3992
+      27. Tree of Thoughts: A New Way to Prompt AI - DEV Community, accessed on November 16, 2025, https://dev.to/zokizuan/tree-of-thoughts-a-new-way-to-prompt-ai-2dle
+      28. Consider a game bible for your next online virtual world. | by Eugene Capon | Medium, accessed on November 16, 2025, https://hightechinfluencer.medium.com/consider-a-game-bible-for-your-next-online-virtual-world-9e75991b007a
+      29. Prompt Versioning & Management Guide for Building AI Features | LaunchDarkly, accessed on November 16, 2025, https://launchdarkly.com/blog/prompt-versioning-and-management/
+      30. Prompt Versioning: The Survival Tool Every Prompt Engineer Needs - Medium, accessed on November 16, 2025, https://medium.com/@danduh/prompt-versioning-the-survival-tool-every-prompt-engineer-needs-43c69ee827dd
+      31. AI in Game Development: How Studios Are Using It Today - Udonis Blog, accessed on November 16, 2025, https://www.blog.udonis.co/mobile-marketing/mobile-games/ai-game-development
+      32. Steam AI games: Valve announces new rules for developers - HyScaler, accessed on November 16, 2025, https://hyscaler.com/insights/steam-ai-games-valve-announces-new-rules/
+      33. Streamlining Game Development Workflows: Using AI Tools to Convert Design Documents into Task Boards - DJ Ogundipe, accessed on November 16, 2025, https://djogundipe.com/design-documents-into-task-boards/
