@@ -207,9 +207,7 @@ class TestEnhancedErrorHandler:
         # NoneType pattern matches after TypeError pattern, so it becomes Type Error
         # But suggestions should still mention NoneType
         assert suggestion.error_type in ["Type Error", "NoneType Error"]
-        assert any(
-            "None" in s or "type" in s.lower() for s in suggestion.suggestions
-        )
+        assert any("None" in s or "type" in s.lower() for s in suggestion.suggestions)
 
     def test_analyze_error_unknown(self):
         """Test analyzing unknown error type"""
