@@ -206,3 +206,163 @@ class SmartVRAMManager:
                 "loaded_services": loaded_services_list,
                 "pending_count": self.pending_queue.qsize()
             }
+
+    def request_vram(
+        self,
+        service_name: str,
+        required_vram_gb: float,
+        priority: int
+    ) -> bool:
+        """
+        Request VRAM allocation for a service.
+
+        Attempts to allocate requested VRAM. If service already loaded,
+        updates its allocation. If insufficient VRAM, returns False
+        (eviction logic in iteration 8, queuing in iteration 9).
+
+        Args:
+            service_name: Service identifier (e.g., "llm", "image", "tts")
+            required_vram_gb: VRAM needed in GB (exact amount, not percentage)
+            priority: VRAMPriority level (1=BACKGROUND, 5=NORMAL, 8=USER_REQUESTED, 10=UI_CRITICAL)
+
+        Returns:
+            True if allocation successful, False if insufficient VRAM
+
+        Emits:
+            VRAM_ALLOCATED event on success (service, vram_allocated, priority)
+            VRAM_ALLOCATION_FAILED event on failure (service, required_vram, queued)
+
+        Example:
+            >>> manager = SmartVRAMManager()
+            >>> # Request 4.0GB for SDXL image generation
+            >>> success = manager.request_vram(
+            ...     service_name="image",
+            ...     required_vram_gb=4.0,
+            ...     priority=VRAMPriority.USER_REQUESTED
+            ... )
+            >>> success
+            True
+
+            >>> # Check allocation
+            >>> manager.get_status()
+            {'allocated_vram': 4.0, 'loaded_services': [{'name': 'image', ...}]}
+        """
+        with self._lock:
+            # Check if enough VRAM available
+            available = self.get_available_vram()
+
+            # If service already loaded, we're updating (free old allocation first)
+            if service_name in self.loaded_services:
+                # Free current allocation
+                current_vram = self.loaded_services[service_name]["vram"]
+                available += current_vram
+
+            # Check if we have enough VRAM
+            if required_vram_gb > available:
+                # Insufficient VRAM - emit failure event
+                # (Eviction logic will be added in iteration 8)
+                # (Queuing logic will be added in iteration 9)
+                self._emit_allocation_failed(
+                    service_name=service_name,
+                    required_vram=required_vram_gb,
+                    queued=False
+                )
+                return False
+
+            # Allocate VRAM
+            self._allocate_service(
+                service_name=service_name,
+                required_vram_gb=required_vram_gb,
+                priority=priority
+            )
+
+            # Emit success event
+            self._emit_allocation_success(
+                service_name=service_name,
+                vram_allocated=required_vram_gb,
+                priority=priority
+            )
+
+            return True
+
+    def _allocate_service(
+        self,
+        service_name: str,
+        required_vram_gb: float,
+        priority: int
+    ):
+        """
+        Internal helper to allocate VRAM to a service.
+
+        Updates loaded_services registry with service info.
+        Called after VRAM availability confirmed.
+
+        Args:
+            service_name: Service identifier
+            required_vram_gb: VRAM to allocate (GB)
+            priority: VRAMPriority level
+
+        Note:
+            Must be called with self._lock held
+        """
+        self.loaded_services[service_name] = {
+            "vram": required_vram_gb,
+            "priority": priority,
+            "loaded_at": time.time()
+        }
+
+    def _emit_allocation_success(
+        self,
+        service_name: str,
+        vram_allocated: float,
+        priority: int
+    ):
+        """
+        Emit VRAM_ALLOCATED event.
+
+        Posts Pygame event to notify UI of successful allocation.
+
+        Args:
+            service_name: Service that was allocated VRAM
+            vram_allocated: Amount allocated (GB)
+            priority: VRAMPriority level
+        """
+        from ai.events import VRAM_ALLOCATED
+
+        event = pygame.event.Event(
+            VRAM_ALLOCATED,
+            {
+                "service": service_name,
+                "vram_allocated": vram_allocated,
+                "priority": priority
+            }
+        )
+        pygame.event.post(event)
+
+    def _emit_allocation_failed(
+        self,
+        service_name: str,
+        required_vram: float,
+        queued: bool
+    ):
+        """
+        Emit VRAM_ALLOCATION_FAILED event.
+
+        Posts Pygame event to notify UI of allocation failure.
+
+        Args:
+            service_name: Service that failed to allocate
+            required_vram: Amount requested (GB)
+            queued: Whether service was queued for later execution
+        """
+        from ai.events import VRAM_ALLOCATION_FAILED
+
+        event = pygame.event.Event(
+            VRAM_ALLOCATION_FAILED,
+            {
+                "service": service_name,
+                "required_vram": required_vram,
+                "queued": queued
+            }
+        )
+        pygame.event.post(event)

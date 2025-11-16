@@ -9,6 +9,7 @@ import queue
 import time
 from unittest.mock import MagicMock, patch
 
+import pygame
 import pytest
 
 from ai.gpu_monitor import GPUMonitor, GPUVendor
@@ -133,6 +134,165 @@ class TestGetStatus:
         assert status["pending_count"] == 0
 
     def test_status_with_services(self, mock_gpu_monitor):
-        """Test status with services loaded (will implement in next iteration)."""
-        # This test will be expanded in iteration 7
-        pass
+        """Test status with services loaded."""
+        manager = SmartVRAMManager()
+
+        # Manually add service to registry (allocation logic tested separately)
+        manager.loaded_services["llm"] = {
+            "vram": 3.2,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        status = manager.get_status()
+
+        assert status["allocated_vram"] == 3.2
+        assert len(status["loaded_services"]) == 1
+        assert status["loaded_services"][0]["name"] == "llm"
+        assert status["loaded_services"][0]["vram"] == 3.2
+        assert status["loaded_services"][0]["priority"] == VRAMPriority.NORMAL
+
+
+class TestRequestVRAM:
+    """Test VRAM allocation logic."""
+
+    def test_allocate_with_sufficient_vram(self, mock_gpu_monitor):
+        """Test successful allocation when enough VRAM available."""
+        mock_gpu_monitor.get_free_vram_gb.return_value = 7.5  # 8GB - 0.5GB safety
+
+        manager = SmartVRAMManager()
+
+        # Request 4.0GB for image service
+        success = manager.request_vram(
+            service_name="image",
+            required_vram_gb=4.0,
+            priority=VRAMPriority.USER_REQUESTED
+        )
+
+        assert success is True
+        assert "image" in manager.loaded_services
+        assert manager.loaded_services["image"]["vram"] == 4.0
+        assert manager.loaded_services["image"]["priority"] == VRAMPriority.USER_REQUESTED
+
+        # Verify status
+        status = manager.get_status()
+        assert status["allocated_vram"] == 4.0
+
+    def test_allocate_multiple_services(self, mock_gpu_monitor):
+        """Test allocating VRAM for multiple services."""
+        mock_gpu_monitor.get_free_vram_gb.return_value = 7.5
+
+        manager = SmartVRAMManager()
+
+        # Allocate LLM (3.2GB)
+        success1 = manager.request_vram("llm", 3.2, VRAMPriority.NORMAL)
+        assert success1 is True
+
+        # Allocate Image (2.0GB) - total 5.2GB
+        success2 = manager.request_vram("image", 2.0, VRAMPriority.USER_REQUESTED)
+        assert success2 is True
+
+        # Verify both loaded
+        assert len(manager.loaded_services) == 2
+        assert manager.loaded_services["llm"]["vram"] == 3.2
+        assert manager.loaded_services["image"]["vram"] == 2.0
+
+        status = manager.get_status()
+        assert status["allocated_vram"] == 5.2
+
+    def test_update_existing_service(self, mock_gpu_monitor):
+        """Test updating VRAM allocation for existing service."""
+        mock_gpu_monitor.get_free_vram_gb.return_value = 7.5
+
+        manager = SmartVRAMManager()
+
+        # Initial allocation: 4.0GB
+        manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+        assert manager.loaded_services["image"]["vram"] == 4.0
+
+        # Update allocation: 6.0GB (e.g., switched to larger model)
+        manager.request_vram("image", 6.0, VRAMPriority.USER_REQUESTED)
+
+        # Should update, not duplicate
+        assert len(manager.loaded_services) == 1
+        assert manager.loaded_services["image"]["vram"] == 6.0
+        assert manager.loaded_services["image"]["priority"] == VRAMPriority.USER_REQUESTED
+
+    def test_allocation_emits_event(self, mock_gpu_monitor):
+        """Test that successful allocation emits VRAM_ALLOCATED event."""
+        mock_gpu_monitor.get_free_vram_gb.return_value = 7.5
+
+        manager = SmartVRAMManager()
+
+        # Clear event queue before test
+        pygame.event.clear()
+
+        # Request VRAM
+        manager.request_vram("image", 4.0, VRAMPriority.USER_REQUESTED)
+
+        # Check for VRAM_ALLOCATED event
+        events = pygame.event.get()
+        vram_events = [e for e in events if e.type == pygame.USEREVENT + 9]
+
+        assert len(vram_events) == 1
+        event = vram_events[0]
+        assert event.service == "image"
+        assert event.vram_allocated == 4.0
+        assert event.priority == VRAMPriority.USER_REQUESTED
+
+
+class TestAllocationFailure:
+    """Test VRAM allocation failure cases."""
+
+    def test_insufficient_vram_returns_false(self, mock_gpu_monitor):
+        """Test allocation fails when not enough VRAM."""
+        # Only 2.0GB free
+        mock_gpu_monitor.get_free_vram_gb.return_value = 2.5  # 2.5 - 0.5 = 2.0GB available
+
+        manager = SmartVRAMManager()
+
+        # Try to allocate 4.0GB (insufficient)
+        success = manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+
+        assert success is False
+        assert "image" not in manager.loaded_services
+        assert manager.get_status()["allocated_vram"] == 0.0
+
+    def test_insufficient_vram_with_loaded_service(self, mock_gpu_monitor):
+        """Test allocation fails when other services using VRAM."""
+        mock_gpu_monitor.get_free_vram_gb.return_value = 7.5
+
+        manager = SmartVRAMManager()
+
+        # Load LLM (5.0GB)
+        manager.request_vram("llm", 5.0, VRAMPriority.NORMAL)
+
+        # Try to load Image (4.0GB) - would need 9.0GB total (exceeds 7.5GB available)
+        mock_gpu_monitor.get_free_vram_gb.return_value = 2.5  # Simulate LLM using 5GB
+        success = manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+
+        assert success is False
+        assert "image" not in manager.loaded_services
+        assert len(manager.loaded_services) == 1  # Only LLM loaded
+
+    def test_allocation_failure_emits_event(self, mock_gpu_monitor):
+        """Test that failed allocation emits VRAM_ALLOCATION_FAILED event."""
+        mock_gpu_monitor.get_free_vram_gb.return_value = 2.0  # Insufficient
+
+        manager = SmartVRAMManager()
+
+        # Clear event queue
+        pygame.event.clear()
+
+        # Try to allocate 4.0GB (will fail)
+        manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+
+        # Check for VRAM_ALLOCATION_FAILED event
+        events = pygame.event.get()
+        failed_events = [e for e in events if e.type == pygame.USEREVENT + 11]
+
+        assert len(failed_events) == 1
+        event = failed_events[0]
+        assert event.service == "image"
+        assert event.required_vram == 4.0
+        assert event.queued is False  # Not queued in this iteration
