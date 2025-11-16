@@ -6,16 +6,17 @@ Strategy: Unit tests with mocks (no actual API calls)
 """
 
 import os
-import pytest
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 
 from neonworks.ai.backends import (
+    AnthropicBackend,
+    LlamaCppBackend,
     LLMBackend,
     LLMBackendConfig,
-    LlamaCppBackend,
     OpenAIBackend,
-    AnthropicBackend,
     create_llm_backend,
 )
 
@@ -38,9 +39,7 @@ class TestLLMBackendConfig:
 
     def test_openai_config_creation(self):
         """Test creating OpenAI config"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         assert config.backend_type == "openai"
         assert config.model_id == "gpt-4"
         assert config.api_key == "test-key"
@@ -81,9 +80,7 @@ class TestLLMBackendConfig:
 
     def test_extra_params_custom(self):
         """Test extra_params can be set"""
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", extra_params={"verbose": True}
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", extra_params={"verbose": True})
         assert config.extra_params == {"verbose": True}
 
 
@@ -95,17 +92,13 @@ class TestBackendFactory:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = create_llm_backend(config)
         assert isinstance(backend, LlamaCppBackend)
 
     def test_create_openai_backend(self):
         """Test factory creates OpenAIBackend"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = create_llm_backend(config)
         assert isinstance(backend, OpenAIBackend)
 
@@ -135,9 +128,7 @@ class TestLlamaCppBackend:
 
     def test_requires_existing_file(self):
         """Test constructor requires existing file"""
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path="/nonexistent/model.gguf"
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path="/nonexistent/model.gguf")
         with pytest.raises(FileNotFoundError):
             LlamaCppBackend(config)
 
@@ -147,9 +138,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_bytes(b"0" * (5 * 1024**3))
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
 
         # Should estimate ~6GB (5GB + 20% overhead)
@@ -161,9 +150,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_bytes(b"0" * (2 * 1024**3))  # 2GB
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
 
         required_vram = backend.get_required_vram()
@@ -174,9 +161,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         assert not backend.is_loaded()
 
@@ -185,9 +170,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         assert backend.backend_type == "llama-cpp"
 
@@ -203,13 +186,12 @@ class TestLlamaCppBackend:
 
         # Patch the import
         import sys
+
         mock_llama_cpp = Mock()
         mock_llama_cpp.Llama = mock_llama_class
-        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
+        monkeypatch.setitem(sys.modules, "llama_cpp", mock_llama_cpp)
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         backend.load()
 
@@ -231,13 +213,12 @@ class TestLlamaCppBackend:
         mock_llama_class.return_value = mock_model
 
         import sys
+
         mock_llama_cpp = Mock()
         mock_llama_cpp.Llama = mock_llama_class
-        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
+        monkeypatch.setitem(sys.modules, "llama_cpp", mock_llama_cpp)
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         backend.load()
         backend.load()  # Second load
@@ -255,13 +236,12 @@ class TestLlamaCppBackend:
         mock_llama_class.return_value = mock_model
 
         import sys
+
         mock_llama_cpp = Mock()
         mock_llama_cpp.Llama = mock_llama_class
-        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
+        monkeypatch.setitem(sys.modules, "llama_cpp", mock_llama_cpp)
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         backend.load()
         assert backend.is_loaded()
@@ -274,9 +254,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         backend.unload()  # Should not raise
         assert not backend.is_loaded()
@@ -286,9 +264,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
 
         with pytest.raises(RuntimeError, match="not loaded"):
@@ -299,9 +275,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         backend._loaded = True  # Fake loaded state
         backend.model = Mock()
@@ -320,13 +294,12 @@ class TestLlamaCppBackend:
         mock_llama_class.return_value = mock_model
 
         import sys
+
         mock_llama_cpp = Mock()
         mock_llama_cpp.Llama = mock_llama_class
-        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
+        monkeypatch.setitem(sys.modules, "llama_cpp", mock_llama_cpp)
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         backend.load()
 
@@ -344,9 +317,10 @@ class TestLlamaCppBackend:
         mock_llama_class.return_value = mock_model
 
         import sys
+
         mock_llama_cpp = Mock()
         mock_llama_cpp.Llama = mock_llama_class
-        monkeypatch.setitem(sys.modules, 'llama_cpp', mock_llama_cpp)
+        monkeypatch.setitem(sys.modules, "llama_cpp", mock_llama_cpp)
 
         config = LLMBackendConfig(
             backend_type="llama-cpp", model_path=str(model_file), temperature=0.7
@@ -367,9 +341,7 @@ class TestLlamaCppBackend:
         model_file = tmp_path / "model.gguf"
         model_file.write_text("fake")
 
-        config = LLMBackendConfig(
-            backend_type="llama-cpp", model_path=str(model_file)
-        )
+        config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
         assert backend.get_vram_usage() == 0.0
 
@@ -391,17 +363,13 @@ class TestOpenAIBackend:
 
     def test_not_loaded_initially(self):
         """Test backend not loaded initially"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         assert not backend.is_loaded()
 
     def test_backend_type_property(self):
         """Test backend_type property"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         assert backend.backend_type == "openai"
 
@@ -412,13 +380,12 @@ class TestOpenAIBackend:
         mock_openai_class.return_value = mock_client
 
         import sys
+
         mock_openai = Mock()
         mock_openai.OpenAI = mock_openai_class
-        monkeypatch.setitem(sys.modules, 'openai', mock_openai)
+        monkeypatch.setitem(sys.modules, "openai", mock_openai)
 
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         backend.load()
 
@@ -427,9 +394,7 @@ class TestOpenAIBackend:
 
     def test_unload(self):
         """Test unloading client"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         backend._loaded = True
         backend.client = Mock()
@@ -440,9 +405,7 @@ class TestOpenAIBackend:
 
     def test_generate_requires_load(self):
         """Test generate raises error if not loaded"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
 
         with pytest.raises(RuntimeError, match="not initialized"):
@@ -450,9 +413,7 @@ class TestOpenAIBackend:
 
     def test_generate_empty_prompt(self):
         """Test generate raises error for empty prompt"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         backend._loaded = True
         backend.client = Mock()
@@ -470,13 +431,12 @@ class TestOpenAIBackend:
         mock_openai_class.return_value = mock_client
 
         import sys
+
         mock_openai = Mock()
         mock_openai.OpenAI = mock_openai_class
-        monkeypatch.setitem(sys.modules, 'openai', mock_openai)
+        monkeypatch.setitem(sys.modules, "openai", mock_openai)
 
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         backend.load()
 
@@ -485,9 +445,7 @@ class TestOpenAIBackend:
 
     def test_vram_usage_zero(self):
         """Test VRAM usage is always 0.0"""
-        config = LLMBackendConfig(
-            backend_type="openai", model_id="gpt-4", api_key="test-key"
-        )
+        config = LLMBackendConfig(backend_type="openai", model_id="gpt-4", api_key="test-key")
         backend = OpenAIBackend(config)
         assert backend.get_vram_usage() == 0.0
         assert backend.get_required_vram() == 0.0
@@ -537,9 +495,10 @@ class TestAnthropicBackend:
         mock_anthropic_class.return_value = mock_client
 
         import sys
+
         mock_anthropic = Mock()
         mock_anthropic.Anthropic = mock_anthropic_class
-        monkeypatch.setitem(sys.modules, 'anthropic', mock_anthropic)
+        monkeypatch.setitem(sys.modules, "anthropic", mock_anthropic)
 
         config = LLMBackendConfig(backend_type="anthropic", api_key="test-key")
         backend = AnthropicBackend(config)
@@ -587,9 +546,10 @@ class TestAnthropicBackend:
         mock_anthropic_class.return_value = mock_client
 
         import sys
+
         mock_anthropic = Mock()
         mock_anthropic.Anthropic = mock_anthropic_class
-        monkeypatch.setitem(sys.modules, 'anthropic', mock_anthropic)
+        monkeypatch.setitem(sys.modules, "anthropic", mock_anthropic)
 
         config = LLMBackendConfig(backend_type="anthropic", api_key="test-key")
         backend = AnthropicBackend(config)

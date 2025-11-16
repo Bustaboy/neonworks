@@ -491,6 +491,7 @@ I can see what's on your map and understand spatial relationships!"""
         """Handle procedural map generation commands"""
         import random
         import re
+
         from neonworks.data.ai_map_integration import get_procedural_integration
 
         proc_integration = get_procedural_integration()

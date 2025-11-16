@@ -24,6 +24,7 @@ from ..rendering.ui import UI
 from .ai_generator_tool import AIGeneratorTool
 from .ai_tileset_ui import AITilesetPanel
 from .autotile_tool import AutotileFillTool, AutotileTool
+from .map_components import MapPropertiesDialog, MinimapUI, ToolOptionsPanel
 from .map_tools import (
     EraserTool,
     EyedropperTool,
@@ -40,7 +41,6 @@ from .map_tools import (
     load_and_apply_preferences,
 )
 from .tileset_picker_ui import TilesetPickerUI
-from .map_components import MinimapUI, ToolOptionsPanel, MapPropertiesDialog
 
 
 class LevelBuilderUI:

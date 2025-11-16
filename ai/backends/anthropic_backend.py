@@ -109,9 +109,7 @@ class AnthropicBackend(LLMBackend):
             ValueError: If prompt is empty
         """
         if not self._loaded or not self.client:
-            raise RuntimeError(
-                "Client not initialized. Call load() before generating text."
-            )
+            raise RuntimeError("Client not initialized. Call load() before generating text.")
 
         if not prompt or not prompt.strip():
             raise ValueError("Prompt cannot be empty")
@@ -127,7 +125,7 @@ class AnthropicBackend(LLMBackend):
             response = self.client.messages.create(
                 model=self.config.model_id,
                 messages=[{"role": "user", "content": prompt}],
-                **gen_params
+                **gen_params,
             )
             return response.content[0].text
 

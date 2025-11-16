@@ -86,6 +86,7 @@ class TestCriticalEvents:
         event_manager = get_event_manager()
 
         events_received = []
+
         def on_critical(event):
             events_received.append(event)
 
@@ -109,6 +110,7 @@ class TestCriticalEvents:
         event_manager = get_event_manager()
 
         events_received = []
+
         def on_critical(event):
             events_received.append(event)
 
@@ -132,6 +134,7 @@ class TestCriticalEvents:
         event_manager = get_event_manager()
 
         events_received = []
+
         def on_critical(event):
             events_received.append(event)
 
@@ -230,6 +233,7 @@ class TestSurvivalDamage:
         event_manager = get_event_manager()
 
         deaths = []
+
         def on_death(event):
             deaths.append(event)
 
@@ -482,6 +486,7 @@ class TestSurvivalIntegration:
         event_manager = get_event_manager()
 
         deaths = []
+
         def on_death(event):
             deaths.append(event)
 

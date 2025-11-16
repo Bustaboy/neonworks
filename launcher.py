@@ -125,7 +125,9 @@ class LauncherUI:
         # Project info
         info_font = pygame.font.Font(None, 18)
         desc = project_info.get("description", "No description")
-        desc_text = info_font.render(desc[:60] + "..." if len(desc) > 60 else desc, True, (200, 200, 220))
+        desc_text = info_font.render(
+            desc[:60] + "..." if len(desc) > 60 else desc, True, (200, 200, 220)
+        )
         self.screen.blit(desc_text, (x + 20, y + 50))
 
         # Version and date
@@ -594,11 +596,11 @@ class NeonWorksLauncher:
             # No projects message
             no_projects_font = pygame.font.Font(None, 24)
             no_projects_text = no_projects_font.render(
-                "No projects found. Create your first project to get started!", True, (150, 150, 170)
+                "No projects found. Create your first project to get started!",
+                True,
+                (150, 150, 170),
             )
-            no_projects_rect = no_projects_text.get_rect(
-                center=(self.width // 2, projects_y + 100)
-            )
+            no_projects_rect = no_projects_text.get_rect(center=(self.width // 2, projects_y + 100))
             self.screen.blit(no_projects_text, no_projects_rect)
         else:
             # Render project cards

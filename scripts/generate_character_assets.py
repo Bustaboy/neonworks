@@ -26,7 +26,6 @@ from typing import Dict, List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFilter
 
-
 # Standard sprite size for character generator
 SPRITE_SIZE = (64, 64)
 MASK_SIZE = (64, 64)

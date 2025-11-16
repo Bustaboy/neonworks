@@ -36,7 +36,7 @@ from .settings_panel import SettingsPanel
 from .shape_tool import ShapeTool
 from .stamp_tool import StampTool
 from .themes import Theme, ThemeManager, get_theme_manager
-from .undo_manager import UndoManager, UndoableAction
+from .undo_manager import UndoableAction, UndoManager
 
 __all__ = [
     "ConnectivityModes",

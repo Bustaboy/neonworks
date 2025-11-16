@@ -19,7 +19,7 @@ from typing import Callable, Optional, Tuple
 
 import pygame
 
-from neonworks.data.tileset_manager import TilesetManager, TilesetInfo
+from neonworks.data.tileset_manager import TilesetInfo, TilesetManager
 
 
 class TilesetPickerUI:

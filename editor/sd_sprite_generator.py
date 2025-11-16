@@ -39,11 +39,11 @@ from PIL import Image
 # Stable Diffusion imports
 try:
     from diffusers import (
-        StableDiffusionPipeline,
-        StableDiffusionControlNetPipeline,
         ControlNetModel,
         DDIMScheduler,
         DPMSolverMultistepScheduler,
+        StableDiffusionControlNetPipeline,
+        StableDiffusionPipeline,
     )
     from diffusers.utils import load_image
 

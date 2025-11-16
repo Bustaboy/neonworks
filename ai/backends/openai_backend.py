@@ -57,9 +57,7 @@ class OpenAIBackend(LLMBackend):
             )
 
         if not config.model_id:
-            raise ValueError(
-                "OpenAIBackend requires model_id (e.g., 'gpt-4', 'gpt-3.5-turbo')"
-            )
+            raise ValueError("OpenAIBackend requires model_id (e.g., 'gpt-4', 'gpt-3.5-turbo')")
 
     def load(self) -> None:
         """
@@ -76,8 +74,7 @@ class OpenAIBackend(LLMBackend):
             import openai
         except ImportError:
             raise ImportError(
-                "openai is required for OpenAIBackend.\n"
-                "Install with: pip install openai"
+                "openai is required for OpenAIBackend.\n" "Install with: pip install openai"
             )
 
         try:
@@ -110,9 +107,7 @@ class OpenAIBackend(LLMBackend):
             ValueError: If prompt is empty
         """
         if not self._loaded or not self.client:
-            raise RuntimeError(
-                "Client not initialized. Call load() before generating text."
-            )
+            raise RuntimeError("Client not initialized. Call load() before generating text.")
 
         if not prompt or not prompt.strip():
             raise ValueError("Prompt cannot be empty")
@@ -127,7 +122,7 @@ class OpenAIBackend(LLMBackend):
             response = self.client.chat.completions.create(
                 model=self.config.model_id,
                 messages=[{"role": "user", "content": prompt}],
-                **gen_params
+                **gen_params,
             )
             return response.choices[0].message.content
 

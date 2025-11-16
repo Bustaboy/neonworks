@@ -368,9 +368,7 @@ def sample_entities(world):
     for i in range(2):
         building = world.create_entity(f"Building_{i}")
         building.add_component(GridPosition(grid_x=i * 5, grid_y=i * 5))
-        building.add_component(
-            Building(building_type="house", level=1)
-        )
+        building.add_component(Building(building_type="house", level=1))
         building.add_tag("building")
         entities[f"building_{i}"] = building
 

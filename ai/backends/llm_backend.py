@@ -50,15 +50,12 @@ class LLMBackendConfig:
         valid_types = {"llama-cpp", "openai", "anthropic", "transformers"}
         if self.backend_type not in valid_types:
             raise ValueError(
-                f"Invalid backend_type '{self.backend_type}'. "
-                f"Must be one of: {valid_types}"
+                f"Invalid backend_type '{self.backend_type}'. " f"Must be one of: {valid_types}"
             )
 
         # Validate temperature range
         if not 0.0 <= self.temperature <= 2.0:
-            raise ValueError(
-                f"temperature must be between 0.0 and 2.0, got {self.temperature}"
-            )
+            raise ValueError(f"temperature must be between 0.0 and 2.0, got {self.temperature}")
 
         # Validate max_tokens
         if self.max_tokens <= 0:

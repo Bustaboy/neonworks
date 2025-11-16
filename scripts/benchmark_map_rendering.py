@@ -13,9 +13,9 @@ import pygame
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
 from neonworks.rendering.tilemap import (
+    OptimizedTilemapRenderer,
     Tilemap,
     TilemapRenderer,
-    OptimizedTilemapRenderer,
     Tileset,
 )
 
@@ -364,7 +364,9 @@ def main():
     with open("benchmark_comparison.txt", "w") as f:
         f.write("MAP RENDERING PERFORMANCE COMPARISON\n")
         f.write("=" * 80 + "\n\n")
-        f.write(f"{'Map Size':<20} {'Standard FPS':<15} {'Optimized FPS':<15} {'Improvement':<15}\n")
+        f.write(
+            f"{'Map Size':<20} {'Standard FPS':<15} {'Optimized FPS':<15} {'Improvement':<15}\n"
+        )
         f.write("-" * 80 + "\n")
 
         for std_result, opt_result in zip(standard_benchmark.results, optimized_benchmark.results):

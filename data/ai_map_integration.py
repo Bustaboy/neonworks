@@ -18,8 +18,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from neonworks.data.map_manager import MapConnection, MapData, MapManager, get_map_manager
-from neonworks.data.tileset_manager import get_tileset_manager
 from engine.tools.map_importers import (
     LegacyFormatConverter,
     PNGExporter,
@@ -27,6 +25,8 @@ from engine.tools.map_importers import (
     TiledTMXImporter,
     TilesetImageImporter,
 )
+from neonworks.data.map_manager import MapConnection, MapData, MapManager, get_map_manager
+from neonworks.data.tileset_manager import get_tileset_manager
 
 
 class AIMapCommands:

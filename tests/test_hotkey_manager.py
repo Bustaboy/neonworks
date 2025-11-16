@@ -312,12 +312,8 @@ class TestHotkeyManager:
 
     def test_get_hotkeys_by_context(self):
         """Test getting hotkeys by context."""
-        self.manager.register(
-            key=pygame.K_a, action="game_action", context=HotkeyContext.GAME
-        )
-        self.manager.register(
-            key=pygame.K_b, action="editor_action", context=HotkeyContext.EDITOR
-        )
+        self.manager.register(key=pygame.K_a, action="game_action", context=HotkeyContext.GAME)
+        self.manager.register(key=pygame.K_b, action="editor_action", context=HotkeyContext.EDITOR)
         self.manager.register(key=pygame.K_c, action="global_action", context=HotkeyContext.GLOBAL)
 
         game_hotkeys = self.manager.get_hotkeys_by_context(HotkeyContext.GAME)
@@ -489,12 +485,8 @@ class TestHotkeyIntegration:
             open_called["value"] = True
 
         # Register hotkeys
-        manager.register(
-            key=pygame.K_s, action="save", callback=save_callback, modifiers={"ctrl"}
-        )
-        manager.register(
-            key=pygame.K_o, action="open", callback=open_callback, modifiers={"ctrl"}
-        )
+        manager.register(key=pygame.K_s, action="save", callback=save_callback, modifiers={"ctrl"})
+        manager.register(key=pygame.K_o, action="open", callback=open_callback, modifiers={"ctrl"})
 
         # Simulate Ctrl+S
         event = MagicMock()

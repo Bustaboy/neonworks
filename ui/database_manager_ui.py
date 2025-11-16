@@ -41,7 +41,7 @@ class DatabaseManagerUI:
 
         new_entity = {
             "id": f"new_{category.lower()}_{len(self.database[category])}",
-            "name": f"New {category[:-1]}"
+            "name": f"New {category[:-1]}",
         }
         self.database[category].append(new_entity)
         self.selected_entity = new_entity

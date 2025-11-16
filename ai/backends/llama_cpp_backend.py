@@ -90,14 +90,12 @@ class LlamaCppBackend(LLMBackend):
                 n_ctx=self.config.n_ctx,
                 n_gpu_layers=self.config.n_gpu_layers,
                 verbose=False,
-                **self.config.extra_params
+                **self.config.extra_params,
             )
             self._loaded = True
 
         except Exception as e:
-            raise RuntimeError(
-                f"Failed to load llama-cpp model from {self.config.model_path}: {e}"
-            )
+            raise RuntimeError(f"Failed to load llama-cpp model from {self.config.model_path}: {e}")
 
     def unload(self) -> None:
         """
@@ -140,9 +138,7 @@ class LlamaCppBackend(LLMBackend):
             ValueError: If prompt is empty
         """
         if not self._loaded or not self.model:
-            raise RuntimeError(
-                "Model not loaded. Call load() before generating text."
-            )
+            raise RuntimeError("Model not loaded. Call load() before generating text.")
 
         if not prompt or not prompt.strip():
             raise ValueError("Prompt cannot be empty")
