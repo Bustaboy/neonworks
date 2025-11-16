@@ -587,6 +587,9 @@ class TestSpellEvents:
         event_manager = get_event_manager()
         system = MagicSystem(event_manager)
 
+        # Clear any queued events from previous tests
+        event_manager.clear_queue()
+
         events = []
 
         def on_custom(event):
@@ -622,6 +625,9 @@ class TestSpellEvents:
         event_manager = get_event_manager()
         system = MagicSystem(event_manager)
 
+        # Clear any queued events from previous tests
+        event_manager.clear_queue()
+
         events = []
 
         def on_custom(event):
@@ -656,6 +662,9 @@ class TestSpellEvents:
         world = World()
         event_manager = get_event_manager()
         system = MagicSystem(event_manager)
+
+        # Clear any queued events from previous tests
+        event_manager.clear_queue()
 
         events = []
 
