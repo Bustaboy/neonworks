@@ -11,10 +11,10 @@ from ..audio.audio_manager import AudioManager
 from ..core.ecs import World
 from ..core.hotkey_manager import HotkeyContext, get_hotkey_manager
 from ..core.state import StateManager
-from ..engine.ui.event_editor_ui import EventEditorUI
-from ..engine.ui.database_editor_ui import DatabaseEditorUI
-from ..engine.ui.character_generator_ui import CharacterGeneratorUI
 from ..input.input_manager import InputManager
+from .event_editor_ui import EventEditorUI
+from .database_manager_ui import DatabaseManagerUI
+from .character_generator_ui import CharacterGeneratorUI
 from .ai_animator_ui import AIAnimatorUI
 from .ai_asset_editor import AIAssetEditor
 from .ai_asset_inspector import AIAssetInspector
@@ -68,9 +68,9 @@ class MasterUIManager:
         self.combat_ui = CombatUI(screen, world)
         self.navmesh_editor = NavmeshEditorUI(screen, world)
         self.level_builder = LevelBuilderUI(screen, world)
-        self.event_editor = EventEditorUI(screen)
-        self.database_editor = DatabaseEditorUI(screen)
-        self.character_generator = CharacterGeneratorUI(screen)
+        self.event_editor = EventEditorUI(world, renderer)
+        self.database_editor = DatabaseManagerUI(world, renderer)
+        self.character_generator = CharacterGeneratorUI(world, renderer)
         self.settings_ui = SettingsUI(screen, audio_manager, input_manager)
         self.project_manager = ProjectManagerUI(screen, state_manager)
         self.debug_console = DebugConsoleUI(screen, world)
@@ -240,15 +240,15 @@ class MasterUIManager:
 
         # Render event editor if visible
         if self.event_editor.visible:
-            self.event_editor.render()
+            self.event_editor.render(self.screen)
 
         # Render database editor if visible
         if self.database_editor.visible:
-            self.database_editor.render()
+            self.database_editor.render(self.screen)
 
         # Render character generator if visible
         if self.character_generator.visible:
-            self.character_generator.render()
+            self.character_generator.render(self.screen)
 
         # Render asset browser if visible
         if self.asset_browser.visible:
@@ -414,15 +414,20 @@ class MasterUIManager:
             self.autotile_editor.handle_event(event)
             return True
 
+        # Route events to event editor if visible
+        if self.event_editor.visible:
+            self.event_editor.handle_event(event)
+            return True
+
         # Route events to database editor if visible
         if self.database_editor.visible:
-            if self.database_editor.handle_event(event):
-                return True
+            self.database_editor.handle_event(event)
+            return True
 
         # Route events to character generator if visible
         if self.character_generator.visible:
-            if self.character_generator.handle_event(event):
-                return True
+            self.character_generator.handle_event(event)
+            return True
 
         # Route events to AI Animator if visible
         if self.ai_animator.visible:
