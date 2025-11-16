@@ -27,7 +27,7 @@ setup(
     author="Neon Works Team",
     license="CC BY-NC-SA 4.0",
     python_requires=">=3.11",
-    packages=find_packages(exclude=["tests", "tests.*"]),
+    packages=find_packages(where="."),
     install_requires=requirements,
     entry_points={
         "console_scripts": [

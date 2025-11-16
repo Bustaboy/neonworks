@@ -20,10 +20,9 @@ class TestCLITemplates:
 
     def test_templates_defined(self):
         """Test that templates are properly defined"""
-        # Import templates
-        from neonworks import cli
+        import neonworks.cli
 
-        TEMPLATES = cli.TEMPLATES
+        TEMPLATES = neonworks.cli.TEMPLATES
 
         assert "basic_game" in TEMPLATES
         assert "turn_based_rpg" in TEMPLATES
@@ -120,7 +119,7 @@ class TestCLIIntegration:
 
     def test_cli_script_structure(self):
         """Test CLI script has proper structure"""
-        cli_path = Path(__file__).parent.parent / "cli.py"
+        cli_path = Path(__file__).parent.parent / "neonworks" / "cli.py"
 
         assert cli_path.exists()
 
@@ -165,7 +164,7 @@ class TestExportCLI:
 
     def test_export_cli_exists(self):
         """Test export_cli module exists"""
-        export_cli_path = Path(__file__).parent.parent / "export_cli.py"
+        export_cli_path = Path(__file__).parent.parent / "neonworks" / "export_cli.py"
 
         assert export_cli_path.exists()
 
@@ -186,7 +185,7 @@ class TestLicenseCLI:
 
     def test_license_cli_exists(self):
         """Test license_cli module exists"""
-        license_cli_path = Path(__file__).parent.parent / "license_cli.py"
+        license_cli_path = Path(__file__).parent.parent / "neonworks" / "license_cli.py"
 
         assert license_cli_path.exists()
 
@@ -207,13 +206,13 @@ class TestMainCLI:
 
     def test_main_cli_exists(self):
         """Test main.py exists"""
-        main_path = Path(__file__).parent.parent / "main.py"
+        main_path = Path(__file__).parent.parent / "neonworks" / "main.py"
 
         assert main_path.exists()
 
     def test_main_cli_has_entry_point(self):
         """Test main.py has entry point"""
-        main_path = Path(__file__).parent.parent / "main.py"
+        main_path = Path(__file__).parent.parent / "neonworks" / "main.py"
         content = main_path.read_text(encoding="utf-8")
 
         assert "__main__" in content or "def main" in content

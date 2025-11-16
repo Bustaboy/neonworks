@@ -1384,6 +1384,7 @@ class TestUndoManagerAdditionalCoverage:
 
     def test_composite_command_execute_failure_rollback(self):
         """Test CompositeCommand rolls back on failure"""
+
         class SuccessCmd(Command):
             def __init__(self):
                 super().__init__()

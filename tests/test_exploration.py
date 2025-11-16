@@ -81,9 +81,7 @@ class TestPlayerMovement:
         """Test system finds player entity"""
         input_mgr = Mock()
         # Provide some input so the method continues
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -103,9 +101,7 @@ class TestPlayerMovement:
     def test_get_movement_direction_up(self):
         """Test getting upward movement direction"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_up"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_up")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -116,9 +112,7 @@ class TestPlayerMovement:
     def test_get_movement_direction_down(self):
         """Test getting downward movement direction"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_down"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_down")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -129,9 +123,7 @@ class TestPlayerMovement:
     def test_get_movement_direction_left(self):
         """Test getting leftward movement direction"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_left"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_left")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -142,9 +134,7 @@ class TestPlayerMovement:
     def test_get_movement_direction_right(self):
         """Test getting rightward movement direction"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -166,9 +156,7 @@ class TestPlayerMovement:
     def test_player_movement_blocked_by_collision_map(self):
         """Test player movement blocked by collision map"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -193,9 +181,7 @@ class TestPlayerMovement:
     def test_player_movement_starts_successfully(self):
         """Test player movement starts when tile is walkable"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -218,9 +204,7 @@ class TestPlayerMovement:
     def test_player_movement_triggers_callback(self):
         """Test player movement triggers on_move_start callback"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -243,9 +227,7 @@ class TestPlayerMovement:
     def test_player_movement_blocked_triggers_collision_callback(self):
         """Test collision triggers on_collision callback"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -273,9 +255,7 @@ class TestPlayerMovement:
     def test_player_cant_move_while_moving(self):
         """Test player can't accept new input while moving"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 
@@ -299,9 +279,7 @@ class TestPlayerMovement:
     def test_player_movement_updates_animation_state(self):
         """Test player movement updates animation state"""
         input_mgr = Mock()
-        input_mgr.is_action_held = Mock(
-            side_effect=lambda action: action == "move_right"
-        )
+        input_mgr.is_action_held = Mock(side_effect=lambda action: action == "move_right")
         event_mgr = Mock()
         system = ExplorationSystem(input_mgr, event_mgr)
 

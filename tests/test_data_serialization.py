@@ -141,9 +141,7 @@ class TestGameSerializer:
 
     def test_serialize_turn_actor(self):
         """Test serializing TurnActor component"""
-        component = TurnActor(
-            action_points=3, max_action_points=5, initiative=15, has_acted=True
-        )
+        component = TurnActor(action_points=3, max_action_points=5, initiative=15, has_acted=True)
 
         data = GameSerializer.serialize_component(component)
 
@@ -346,9 +344,7 @@ class TestGameSerializer:
                     "id": "entity1",
                     "tags": ["player"],
                     "active": True,
-                    "components": [
-                        {"_type": "Transform", "x": 100.0, "y": 200.0, "rotation": 0.0}
-                    ],
+                    "components": [{"_type": "Transform", "x": 100.0, "y": 200.0, "rotation": 0.0}],
                 },
                 {
                     "id": "entity2",

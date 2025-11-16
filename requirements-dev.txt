@@ -24,6 +24,7 @@ coverage-badge==1.1.0
 
 # Mocking and Testing Utilities
 faker==21.0.0  # For generating test data
+pyautogui==0.9.54 # For GUI automation in tests
 
 # Documentation
 sphinx==7.1.2

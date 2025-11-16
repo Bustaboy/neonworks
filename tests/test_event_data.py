@@ -143,7 +143,13 @@ class TestEventPage:
     def test_from_dict_basic(self):
         """Test creating EventPage from dict"""
         data = {
-            "conditions": {"switch1_valid": True, "switch1_id": 3, "variable_valid": True, "variable_id": 2, "variable_value": 10},
+            "conditions": {
+                "switch1_valid": True,
+                "switch1_id": 3,
+                "variable_valid": True,
+                "variable_id": 2,
+                "variable_value": 10,
+            },
             "movement": {"move_type": 1, "move_speed": 5},
             "options": {"trigger": "autorun", "priority": 2},
         }
