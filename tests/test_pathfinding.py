@@ -8,7 +8,7 @@ and movement range calculations.
 import pytest
 
 from neonworks.core.ecs import Navmesh, World
-from neonworks.systems.pathfinding import PathNode, PathfindingSystem
+from neonworks.systems.pathfinding import PathfindingSystem, PathNode
 
 
 class TestPathNode:
@@ -176,9 +176,7 @@ class TestPathfindingSystem:
         system = PathfindingSystem()
 
         # L-shaped corridor
-        navmesh = Navmesh(
-            walkable_cells={(0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (2, 3)}
-        )
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (2, 3)})
 
         path = system.find_path(0, 0, 2, 3, navmesh)
 
