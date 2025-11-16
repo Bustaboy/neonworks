@@ -122,11 +122,14 @@ class TestDiffusersBackend:
             model_id="runwayml/stable-diffusion-v1-5",
             width=512,
             height=512,
+            enable_cpu_offload=False,
+            enable_attention_slicing=False,
+            enable_vae_slicing=False,
         )
         backend = DiffusersBackend(config)
         vram = backend.get_required_vram()
 
-        # SD 1.5 should be ~4GB base
+        # SD 1.5 should be ~4GB base (no optimizations)
         assert 3.5 <= vram <= 4.5
 
     def test_vram_estimation_sdxl(self):
@@ -136,11 +139,14 @@ class TestDiffusersBackend:
             model_id="stabilityai/stable-diffusion-xl-base-1.0",
             width=1024,
             height=1024,
+            enable_cpu_offload=False,
+            enable_attention_slicing=False,
+            enable_vae_slicing=False,
         )
         backend = DiffusersBackend(config)
         vram = backend.get_required_vram()
 
-        # SDXL should be ~7.5GB base
+        # SDXL should be ~7.5GB base (no optimizations)
         assert 7.0 <= vram <= 8.0
 
     def test_vram_estimation_sd3(self):
@@ -150,11 +156,14 @@ class TestDiffusersBackend:
             model_id="stabilityai/stable-diffusion-3-medium-diffusers",
             width=1024,
             height=1024,
+            enable_cpu_offload=False,
+            enable_attention_slicing=False,
+            enable_vae_slicing=False,
         )
         backend = DiffusersBackend(config)
         vram = backend.get_required_vram()
 
-        # SD 3 should be ~10GB base
+        # SD 3 should be ~10GB base (no optimizations)
         assert 9.0 <= vram <= 11.0
 
     def test_vram_increases_with_resolution(self):
@@ -164,6 +173,9 @@ class TestDiffusersBackend:
             model_id="runwayml/stable-diffusion-v1-5",
             width=512,
             height=512,
+            enable_cpu_offload=False,
+            enable_attention_slicing=False,
+            enable_vae_slicing=False,
         )
         backend_512 = DiffusersBackend(config_512)
         vram_512 = backend_512.get_required_vram()
@@ -173,6 +185,9 @@ class TestDiffusersBackend:
             model_id="runwayml/stable-diffusion-v1-5",
             width=1024,
             height=1024,
+            enable_cpu_offload=False,
+            enable_attention_slicing=False,
+            enable_vae_slicing=False,
         )
         backend_1024 = DiffusersBackend(config_1024)
         vram_1024 = backend_1024.get_required_vram()
