@@ -12,6 +12,15 @@ numpy>=1.24.0
 # Used for texture atlases, format conversions, and editor tools
 Pillow>=10.0.0
 
+# AI/ML backends for image generation (OPTIONAL - Heavy packages ~4GB)
+# Only install if you need AI-powered asset generation features
+# Uncomment the lines below or install separately:
+# torch>=2.0.0
+# diffusers>=0.25.0
+#
+# Installation: pip install torch diffusers
+# Note: These packages are large and not required for core engine functionality
+
 # Configuration file format support
 # Provides YAML support for more readable game data files
 PyYAML>=6.0.3
