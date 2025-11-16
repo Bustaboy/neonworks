@@ -38,7 +38,11 @@ from neonworks.gameplay.movement import Movement
 # Initialize Pygame for tests that need it
 @pytest.fixture(scope="session", autouse=True)
 def pygame_init():
-    """Initialize Pygame once for all tests."""
+    """Initialize Pygame once for all tests (headless mode for CI)."""
+    # Set headless mode for CI environments (no display required)
+    os.environ['SDL_VIDEODRIVER'] = 'dummy'
+    os.environ['SDL_AUDIODRIVER'] = 'dummy'
+
     pygame.init()
     yield
     pygame.quit()
