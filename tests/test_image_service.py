@@ -5,9 +5,10 @@ Tests service lifecycle, model loading/unloading, and VRAM integration.
 """
 
 import pytest
-import pygame
 import time
 from unittest.mock import Mock, patch, MagicMock
+
+import pygame  # Imported AFTER conftest sets SDL environment variables
 
 from ai.image_service import ImageService
 from ai.vram_manager import SmartVRAMManager
