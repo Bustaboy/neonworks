@@ -127,6 +127,16 @@ class TestLoadingIndicator:
 class TestKeyboardNavigator:
     """Test keyboard navigation"""
 
+    @pytest.fixture(autouse=True)
+    def setup_pygame(self):
+        """Ensure pygame is initialized for each test"""
+        if not pygame.get_init():
+            pygame.init()
+        if not pygame.display.get_surface():
+            pygame.display.set_mode((800, 600))
+        yield
+        # Don't quit pygame here as it's shared across tests
+
     def test_navigator_creation(self):
         """Test creating keyboard navigator"""
         navigator = KeyboardNavigator()

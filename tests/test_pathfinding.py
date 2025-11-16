@@ -1,490 +1,646 @@
 """
-Comprehensive tests for Navigation and Pathfinding System
+Tests for Pathfinding System
 
-Tests A* pathfinding, grid navigation, and path smoothing.
+Tests the A* pathfinding algorithm, path smoothing, line of sight,
+and movement range calculations.
 """
-
-import math
 
 import pytest
 
-from neonworks.ai.pathfinding import (
-    Heuristic,
-    NavigationGrid,
-    Pathfinder,
-    PathfindingSystem,
-    PathNode,
-)
-
-
-class TestNavigationGrid:
-    """Test navigation grid"""
-
-    def test_grid_creation(self):
-        """Test creating navigation grid"""
-        grid = NavigationGrid(10, 8)
-
-        assert grid.width == 10
-        assert grid.height == 8
-
-    def test_all_cells_walkable_by_default(self):
-        """Test all cells are walkable by default"""
-        grid = NavigationGrid(5, 5)
-
-        for y in range(5):
-            for x in range(5):
-                assert grid.is_walkable(x, y)
-
-    def test_set_walkable(self):
-        """Test setting cell walkability"""
-        grid = NavigationGrid(5, 5)
-
-        grid.set_walkable(2, 2, False)
-
-        assert not grid.is_walkable(2, 2)
-        assert grid.is_walkable(2, 1)
-        assert grid.is_walkable(2, 3)
-
-    def test_in_bounds(self):
-        """Test bounds checking"""
-        grid = NavigationGrid(10, 10)
-
-        assert grid.in_bounds(0, 0)
-        assert grid.in_bounds(9, 9)
-        assert not grid.in_bounds(-1, 0)
-        assert not grid.in_bounds(0, -1)
-        assert not grid.in_bounds(10, 0)
-        assert not grid.in_bounds(0, 10)
-
-    def test_out_of_bounds_not_walkable(self):
-        """Test out of bounds cells are not walkable"""
-        grid = NavigationGrid(5, 5)
-
-        assert not grid.is_walkable(-1, 0)
-        assert not grid.is_walkable(0, -1)
-        assert not grid.is_walkable(10, 0)
-        assert not grid.is_walkable(0, 10)
-
-    def test_get_cost(self):
-        """Test getting cell cost"""
-        grid = NavigationGrid(5, 5)
-
-        # Default cost is 1.0
-        assert grid.get_cost(2, 2) == 1.0
-
-    def test_set_cost(self):
-        """Test setting cell cost"""
-        grid = NavigationGrid(5, 5)
-
-        grid.set_cost(2, 2, 2.5)
-
-        assert grid.get_cost(2, 2) == 2.5
-
-    def test_get_neighbors_cardinal(self):
-        """Test getting cardinal neighbors"""
-        grid = NavigationGrid(5, 5)
-
-        neighbors = grid.get_neighbors(2, 2, diagonal=False)
-
-        assert len(neighbors) == 4
-        assert (2, 1) in neighbors  # North
-        assert (3, 2) in neighbors  # East
-        assert (2, 3) in neighbors  # South
-        assert (1, 2) in neighbors  # West
-
-    def test_get_neighbors_with_diagonal(self):
-        """Test getting neighbors including diagonals"""
-        grid = NavigationGrid(5, 5)
-
-        neighbors = grid.get_neighbors(2, 2, diagonal=True)
-
-        assert len(neighbors) == 8
-
-    def test_get_neighbors_excludes_blocked(self):
-        """Test neighbors excludes blocked cells"""
-        grid = NavigationGrid(5, 5)
-
-        grid.set_walkable(3, 2, False)
-        neighbors = grid.get_neighbors(2, 2, diagonal=False)
-
-        assert (3, 2) not in neighbors
-        assert len(neighbors) == 3
-
-    def test_get_neighbors_corner(self):
-        """Test getting neighbors at corner"""
-        grid = NavigationGrid(5, 5)
-
-        neighbors = grid.get_neighbors(0, 0, diagonal=False)
-
-        # Only 2 neighbors at corner
-        assert len(neighbors) == 2
-        assert (1, 0) in neighbors
-        assert (0, 1) in neighbors
-
-    def test_clear_grid(self):
-        """Test clearing grid"""
-        grid = NavigationGrid(5, 5)
-
-        grid.set_walkable(2, 2, False)
-        grid.set_cost(3, 3, 5.0)
-
-        grid.clear()
-
-        assert grid.is_walkable(2, 2)
-        assert grid.get_cost(3, 3) == 1.0
-
-    def test_set_area_walkable(self):
-        """Test setting area walkability"""
-        grid = NavigationGrid(10, 10)
-
-        grid.set_area_walkable(2, 2, 4, 4, False)
-
-        # Check area is blocked
-        for y in range(2, 5):
-            for x in range(2, 5):
-                assert not grid.is_walkable(x, y)
-
-        # Check outside area is walkable
-        assert grid.is_walkable(1, 1)
-        assert grid.is_walkable(5, 5)
+from neonworks.core.ecs import Navmesh, World
+from neonworks.systems.pathfinding import PathNode, PathfindingSystem
 
 
 class TestPathNode:
-    """Test path node"""
+    """Test suite for PathNode"""
 
-    def test_node_creation(self):
-        """Test creating path node"""
-        node = PathNode(priority=10.0, position=(5, 5))
+    def test_init_basic(self):
+        """Test basic PathNode initialization"""
+        node = PathNode(x=5, y=10, g_cost=2.0, h_cost=3.0)
 
-        assert node.position == (5, 5)
-        assert node.priority == 10.0
+        assert node.x == 5
+        assert node.y == 10
+        assert node.g_cost == 2.0
+        assert node.h_cost == 3.0
+        assert node.f_cost == 5.0
+        assert node.parent is None
+
+    def test_init_with_parent(self):
+        """Test PathNode with parent"""
+        parent = PathNode(x=0, y=0, g_cost=0.0, h_cost=5.0)
+        node = PathNode(x=1, y=0, g_cost=1.0, h_cost=4.0, parent=parent)
+
+        assert node.parent is parent
+        assert node.parent.x == 0
+        assert node.parent.y == 0
 
     def test_f_cost_calculation(self):
-        """Test f_cost calculation"""
-        node = PathNode(priority=15.0, position=(5, 5), g_cost=10.0, h_cost=5.0)
+        """Test f_cost is correctly calculated"""
+        node = PathNode(x=0, y=0, g_cost=10.0, h_cost=20.0)
 
-        assert node.f_cost == 15.0
+        assert node.f_cost == 30.0
+
+    def test_comparison_less_than(self):
+        """Test node comparison (for heap)"""
+        node1 = PathNode(x=0, y=0, g_cost=5.0, h_cost=5.0)  # f_cost = 10
+        node2 = PathNode(x=1, y=1, g_cost=10.0, h_cost=5.0)  # f_cost = 15
+
+        assert node1 < node2
+        assert not node2 < node1
+
+    def test_equality(self):
+        """Test node equality (based on position)"""
+        node1 = PathNode(x=5, y=10, g_cost=0.0, h_cost=0.0)
+        node2 = PathNode(x=5, y=10, g_cost=99.0, h_cost=99.0)
+        node3 = PathNode(x=6, y=10, g_cost=0.0, h_cost=0.0)
+
+        assert node1 == node2  # Same position
+        assert node1 != node3  # Different position
+
+    def test_hash(self):
+        """Test node hashing (for sets/dicts)"""
+        node1 = PathNode(x=5, y=10, g_cost=0.0, h_cost=0.0)
+        node2 = PathNode(x=5, y=10, g_cost=99.0, h_cost=99.0)
+        node3 = PathNode(x=6, y=10, g_cost=0.0, h_cost=0.0)
+
+        assert hash(node1) == hash(node2)
+        assert hash(node1) != hash(node3)
+
+        # Can be used in sets
+        node_set = {node1, node2, node3}
+        assert len(node_set) == 2  # node1 and node2 are considered equal
 
 
-class TestHeuristics:
-    """Test heuristic functions"""
+class TestPathfindingSystem:
+    """Test suite for PathfindingSystem"""
 
-    def test_manhattan_heuristic(self):
+    def test_init(self):
+        """Test PathfindingSystem initialization"""
+        system = PathfindingSystem()
+
+        assert system.priority == -40
+        assert system.navmesh_entity is None
+        assert system.navmesh is None
+
+    def test_update_caches_navmesh(self):
+        """Test update caches navmesh from world"""
+        world = World()
+        system = PathfindingSystem()
+
+        # Create navmesh entity
+        navmesh_entity = world.create_entity("Navmesh")
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0)})
+        navmesh_entity.add_component(navmesh)
+
+        # Update should cache it
+        system.update(world, 0.016)
+
+        assert system.navmesh_entity is navmesh_entity
+        assert system.navmesh is navmesh
+
+    def test_update_only_caches_once(self):
+        """Test update doesn't re-cache navmesh"""
+        world = World()
+        system = PathfindingSystem()
+
+        navmesh_entity = world.create_entity("Navmesh")
+        navmesh = Navmesh(walkable_cells={(0, 0)})
+        navmesh_entity.add_component(navmesh)
+
+        system.update(world, 0.016)
+        first_navmesh = system.navmesh
+
+        # Create another navmesh
+        world.create_entity("Navmesh2").add_component(Navmesh(walkable_cells={(5, 5)}))
+
+        system.update(world, 0.016)
+
+        # Should still have the first navmesh
+        assert system.navmesh is first_navmesh
+
+    def test_heuristic_manhattan_distance(self):
         """Test Manhattan distance heuristic"""
-        distance = Pathfinder.calculate_heuristic((0, 0), (3, 4), Heuristic.MANHATTAN)
+        system = PathfindingSystem()
 
-        assert distance == 7.0  # 3 + 4
+        # Horizontal distance
+        assert system._heuristic(0, 0, 5, 0) == 5
 
-    def test_euclidean_heuristic(self):
-        """Test Euclidean distance heuristic"""
-        distance = Pathfinder.calculate_heuristic((0, 0), (3, 4), Heuristic.EUCLIDEAN)
+        # Vertical distance
+        assert system._heuristic(0, 0, 0, 5) == 5
 
-        assert abs(distance - 5.0) < 0.001  # sqrt(9 + 16) = 5
+        # Diagonal distance (Manhattan)
+        assert system._heuristic(0, 0, 3, 4) == 7  # 3 + 4
 
-    def test_diagonal_heuristic(self):
-        """Test diagonal distance heuristic"""
-        distance = Pathfinder.calculate_heuristic((0, 0), (3, 3), Heuristic.DIAGONAL)
+        # Negative coordinates
+        assert system._heuristic(-5, -5, 5, 5) == 20  # 10 + 10
 
-        # Diagonal distance for (3,3) should be close to 3 * sqrt(2)
-        expected = 3 * math.sqrt(2)
-        assert abs(distance - expected) < 0.001
+    def test_get_neighbors_four_directional(self):
+        """Test getting 4-directional neighbors"""
+        system = PathfindingSystem()
 
-    def test_chebyshev_heuristic(self):
-        """Test Chebyshev distance heuristic"""
-        distance = Pathfinder.calculate_heuristic((0, 0), (3, 4), Heuristic.CHEBYSHEV)
+        neighbors = system._get_neighbors(5, 5)
 
-        assert distance == 4.0  # max(3, 4)
+        assert len(neighbors) == 4
+        assert (5, 4) in neighbors  # North
+        assert (6, 5) in neighbors  # East
+        assert (5, 6) in neighbors  # South
+        assert (4, 5) in neighbors  # West
 
+    def test_get_neighbors_at_origin(self):
+        """Test neighbors at origin include negatives"""
+        system = PathfindingSystem()
 
-class TestPathfinding:
-    """Test A* pathfinding"""
+        neighbors = system._get_neighbors(0, 0)
 
-    def test_find_straight_path(self):
-        """Test finding straight horizontal path"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+        assert (0, -1) in neighbors
+        assert (1, 0) in neighbors
+        assert (0, 1) in neighbors
+        assert (-1, 0) in neighbors
 
-        path = pathfinder.find_path((0, 0), (5, 0))
+    def test_find_path_straight_line(self):
+        """Test finding path in straight line"""
+        system = PathfindingSystem()
+
+        # Create simple navmesh (horizontal line)
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0), (3, 0), (4, 0)})
+
+        path = system.find_path(0, 0, 4, 0, navmesh)
 
         assert path is not None
+        assert len(path) == 5
         assert path[0] == (0, 0)
-        assert path[-1] == (5, 0)
-        assert len(path) >= 2
+        assert path[-1] == (4, 0)
 
-    def test_find_path_with_obstacle(self):
-        """Test finding path around obstacle"""
-        grid = NavigationGrid(10, 10)
+    def test_find_path_with_turn(self):
+        """Test finding path with turn"""
+        system = PathfindingSystem()
 
-        # Create wall
-        for y in range(1, 9):
-            grid.set_walkable(5, y, False)
+        # L-shaped corridor
+        navmesh = Navmesh(
+            walkable_cells={(0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (2, 3)}
+        )
 
-        pathfinder = Pathfinder(grid)
-        path = pathfinder.find_path((0, 5), (9, 5))
-
-        assert path is not None
-        assert path[0] == (0, 5)
-        assert path[-1] == (9, 5)
-
-        # Path should not go through x=5 (except at edges)
-        for pos in path[1:-1]:
-            if pos[1] != 0 and pos[1] != 9:
-                assert pos[0] != 5
-
-    def test_no_path_exists(self):
-        """Test when no path exists"""
-        grid = NavigationGrid(10, 10)
-
-        # Create complete wall
-        for y in range(10):
-            grid.set_walkable(5, y, False)
-
-        pathfinder = Pathfinder(grid)
-        path = pathfinder.find_path((0, 5), (9, 5))
-
-        assert path is None
-
-    def test_start_blocked(self):
-        """Test when start position is blocked"""
-        grid = NavigationGrid(10, 10)
-
-        grid.set_walkable(0, 0, False)
-        pathfinder = Pathfinder(grid)
-
-        path = pathfinder.find_path((0, 0), (5, 5))
-
-        assert path is None
-
-    def test_goal_blocked(self):
-        """Test when goal position is blocked"""
-        grid = NavigationGrid(10, 10)
-
-        grid.set_walkable(5, 5, False)
-        pathfinder = Pathfinder(grid)
-
-        path = pathfinder.find_path((0, 0), (5, 5))
-
-        assert path is None
-
-    def test_diagonal_pathfinding(self):
-        """Test diagonal movement in pathfinding"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
-        pathfinder.allow_diagonal = True
-
-        path = pathfinder.find_path((0, 0), (5, 5))
+        path = system.find_path(0, 0, 2, 3, navmesh)
 
         assert path is not None
+        assert len(path) == 6
         assert path[0] == (0, 0)
-        assert path[-1] == (5, 5)
+        assert path[-1] == (2, 3)
+        assert (2, 0) in path  # Should pass through corner
 
-        # With diagonals, path should be shorter
-        assert len(path) <= 6  # Straight diagonal would be 6 steps
+    def test_find_path_around_obstacle(self):
+        """Test pathfinding around obstacle"""
+        system = PathfindingSystem()
 
-    def test_no_diagonal_pathfinding(self):
-        """Test pathfinding without diagonal movement"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
-        pathfinder.allow_diagonal = False
+        # Create grid with obstacle in middle
+        walkable = set()
+        for x in range(5):
+            for y in range(5):
+                if not (x == 2 and y in [1, 2, 3]):  # Obstacle column
+                    walkable.add((x, y))
 
-        path = pathfinder.find_path((0, 0), (5, 5))
+        navmesh = Navmesh(walkable_cells=walkable)
 
-        assert path is not None
-
-        # Without diagonals, path should be longer (Manhattan distance)
-        assert len(path) >= 11  # 5 right + 5 down + 1 start = 11
-
-    def test_path_with_costs(self):
-        """Test pathfinding considers cell costs"""
-        grid = NavigationGrid(10, 10)
-
-        # Create expensive path through middle
-        for x in range(3, 7):
-            grid.set_cost(x, 5, 10.0)
-
-        pathfinder = Pathfinder(grid)
-        path = pathfinder.find_path((0, 5), (9, 5))
+        path = system.find_path(0, 2, 4, 2, navmesh)
 
         assert path is not None
+        assert path[0] == (0, 2)
+        assert path[-1] == (4, 2)
+        # Should route around obstacle
+        assert (2, 1) not in path
+        assert (2, 2) not in path
+        assert (2, 3) not in path
 
-        # Path should avoid expensive cells if possible
-        # (This is a heuristic test - exact behavior depends on costs)
+    def test_find_path_no_path_available(self):
+        """Test pathfinding when no path exists"""
+        system = PathfindingSystem()
 
-    def test_same_start_and_goal(self):
-        """Test when start and goal are same"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+        # Two separate islands
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (5, 5), (6, 5)})
 
-        path = pathfinder.find_path((5, 5), (5, 5))
+        path = system.find_path(0, 0, 5, 5, navmesh)
+
+        assert path is None
+
+    def test_find_path_start_not_walkable(self):
+        """Test pathfinding with unwalkable start"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(1, 0), (2, 0), (3, 0)})
+
+        path = system.find_path(0, 0, 3, 0, navmesh)
+
+        assert path is None
+
+    def test_find_path_goal_not_walkable(self):
+        """Test pathfinding with unwalkable goal"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0)})
+
+        path = system.find_path(0, 0, 3, 0, navmesh)
+
+        assert path is None
+
+    def test_find_path_no_navmesh(self):
+        """Test pathfinding without navmesh returns None"""
+        system = PathfindingSystem()
+
+        path = system.find_path(0, 0, 5, 5, navmesh=None)
+
+        assert path is None
+
+    def test_find_path_with_different_costs(self):
+        """Test pathfinding prefers lower cost paths"""
+        system = PathfindingSystem()
+
+        # Create two possible paths
+        # Top path: (0,0) -> (1,0) -> (2,0) -> (2,1) -> (2,2)
+        # Bottom path: (0,0) -> (0,1) -> (0,2) -> (1,2) -> (2,2)
+        walkable = {
+            (0, 0),
+            (1, 0),
+            (2, 0),
+            (2, 1),
+            (2, 2),
+            (0, 1),
+            (0, 2),
+            (1, 2),
+        }
+
+        # Make bottom path expensive
+        cost_multipliers = {
+            (0, 1): 10.0,
+            (0, 2): 10.0,
+            (1, 2): 10.0,
+        }
+
+        navmesh = Navmesh(walkable_cells=walkable, cost_multipliers=cost_multipliers)
+
+        path = system.find_path(0, 0, 2, 2, navmesh)
+
+        assert path is not None
+        # Should prefer top path (cheaper)
+        assert (1, 0) in path
+        assert (2, 0) in path
+        assert (2, 1) in path
+        # Should avoid expensive bottom path
+        assert (0, 1) not in path
+
+    def test_find_path_same_start_and_goal(self):
+        """Test pathfinding when start equals goal"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(5, 5)})
+
+        path = system.find_path(5, 5, 5, 5, navmesh)
 
         assert path is not None
         assert len(path) == 1
         assert path[0] == (5, 5)
 
+    def test_reconstruct_path(self):
+        """Test path reconstruction from nodes"""
+        system = PathfindingSystem()
 
-class TestPathSmoothing:
-    """Test path smoothing"""
+        # Create a chain of nodes
+        node1 = PathNode(0, 0, 0.0, 0.0, None)
+        node2 = PathNode(1, 0, 1.0, 0.0, node1)
+        node3 = PathNode(2, 0, 2.0, 0.0, node2)
 
-    def test_smooth_straight_path(self):
-        """Test smoothing straight path"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+        path = system._reconstruct_path(node3)
 
-        # Create a path
-        path = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0)]
+        assert len(path) == 3
+        assert path[0] == (0, 0)
+        assert path[1] == (1, 0)
+        assert path[2] == (2, 0)
 
-        smoothed = pathfinder.smooth_path(path)
+    def test_reconstruct_path_single_node(self):
+        """Test reconstructing path with single node"""
+        system = PathfindingSystem()
 
-        # Straight path should be reduced to start and end
+        node = PathNode(5, 5, 0.0, 0.0, None)
+
+        path = system._reconstruct_path(node)
+
+        assert len(path) == 1
+        assert path[0] == (5, 5)
+
+    def test_get_path_cost_basic(self):
+        """Test calculating path cost"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0)})
+        path = [(0, 0), (1, 0), (2, 0)]
+
+        cost = system.get_path_cost(path, navmesh)
+
+        assert cost == 3.0  # 1.0 per cell
+
+    def test_get_path_cost_with_multipliers(self):
+        """Test path cost with cost multipliers"""
+        system = PathfindingSystem()
+
+        cost_multipliers = {(0, 0): 1.0, (1, 0): 2.0, (2, 0): 3.0}
+        navmesh = Navmesh(
+            walkable_cells={(0, 0), (1, 0), (2, 0)}, cost_multipliers=cost_multipliers
+        )
+        path = [(0, 0), (1, 0), (2, 0)]
+
+        cost = system.get_path_cost(path, navmesh)
+
+        assert cost == 6.0  # 1.0 + 2.0 + 3.0
+
+    def test_get_path_cost_empty_path(self):
+        """Test path cost for empty path"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells=set())
+        cost = system.get_path_cost([], navmesh)
+
+        assert cost == 0.0
+
+    def test_is_line_of_sight_clear(self):
+        """Test line of sight with clear path"""
+        system = PathfindingSystem()
+
+        # Straight horizontal line
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0), (3, 0), (4, 0)})
+
+        assert system.is_line_of_sight(0, 0, 4, 0, navmesh)
+
+    def test_is_line_of_sight_blocked(self):
+        """Test line of sight with obstacle"""
+        system = PathfindingSystem()
+
+        # Obstacle at (2, 0)
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (3, 0), (4, 0)})
+
+        assert not system.is_line_of_sight(0, 0, 4, 0, navmesh)
+
+    def test_is_line_of_sight_diagonal(self):
+        """Test line of sight diagonal"""
+        system = PathfindingSystem()
+
+        # Diagonal line from (0,0) to (3,3)
+        walkable = set()
+        for i in range(4):
+            for j in range(4):
+                walkable.add((i, j))
+
+        navmesh = Navmesh(walkable_cells=walkable)
+
+        assert system.is_line_of_sight(0, 0, 3, 3, navmesh)
+
+    def test_is_line_of_sight_single_point(self):
+        """Test line of sight from point to itself"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(5, 5)})
+
+        assert system.is_line_of_sight(5, 5, 5, 5, navmesh)
+
+    def test_smooth_path_no_smoothing_needed(self):
+        """Test path smoothing with straight path"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0), (3, 0)})
+        path = [(0, 0), (1, 0), (2, 0), (3, 0)]
+
+        smoothed = system.smooth_path(path, navmesh)
+
+        # Should reduce to start and end
         assert len(smoothed) == 2
         assert smoothed[0] == (0, 0)
-        assert smoothed[-1] == (5, 0)
-
-    def test_smooth_path_with_turn(self):
-        """Test smoothing path with turn"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
-
-        # Create L-shaped path
-        path = [(0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (2, 3)]
-
-        smoothed = pathfinder.smooth_path(path)
-
-        # Should be reduced (start and end at minimum, may have corner points)
-        assert len(smoothed) >= 2
-        assert len(smoothed) <= len(path)
-        assert smoothed[0] == (0, 0)
-        assert smoothed[-1] == (2, 3)
+        assert smoothed[-1] == (3, 0)
 
     def test_smooth_path_with_obstacle(self):
-        """Test smoothing path around obstacle"""
-        grid = NavigationGrid(10, 10)
+        """Test path smoothing around obstacle"""
+        system = PathfindingSystem()
 
-        # Block diagonal path
-        grid.set_walkable(2, 2, False)
+        # Path goes around obstacle
+        walkable = {(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (3, 2), (3, 1), (3, 0)}
+        navmesh = Navmesh(walkable_cells=walkable)
 
-        pathfinder = Pathfinder(grid)
+        # Unsmoothed path
+        path = [(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (3, 2), (3, 1), (3, 0)]
 
-        # Path must go around obstacle
-        path = [(0, 0), (1, 0), (2, 0), (2, 1), (3, 1), (3, 2), (3, 3)]
+        smoothed = system.smooth_path(path, navmesh)
 
-        smoothed = pathfinder.smooth_path(path)
+        # Should still include waypoints (can't cut through obstacle)
+        assert smoothed[0] == (0, 0)
+        assert smoothed[-1] == (3, 0)
+        assert len(smoothed) < len(path)  # Should be shorter
 
-        # Should still avoid obstacle
-        for pos in smoothed:
-            assert pos != (2, 2)
+    def test_smooth_path_single_point(self):
+        """Test smoothing path with single point"""
+        system = PathfindingSystem()
 
-    def test_smooth_short_path(self):
-        """Test smoothing very short path"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+        navmesh = Navmesh(walkable_cells={(0, 0)})
+        path = [(0, 0)]
 
-        path = [(0, 0), (1, 1)]
+        smoothed = system.smooth_path(path, navmesh)
 
-        smoothed = pathfinder.smooth_path(path)
+        assert smoothed == [(0, 0)]
 
-        # Short path should remain unchanged
-        assert smoothed == path
+    def test_smooth_path_two_points(self):
+        """Test smoothing path with two points"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0)})
+        path = [(0, 0), (1, 0)]
+
+        smoothed = system.smooth_path(path, navmesh)
+
+        assert smoothed == [(0, 0), (1, 0)]
+
+    def test_get_movement_range_basic(self):
+        """Test getting movement range"""
+        system = PathfindingSystem()
+
+        # 3x3 grid, all walkable
+        walkable = set()
+        for x in range(3):
+            for y in range(3):
+                walkable.add((x, y))
+
+        navmesh = Navmesh(walkable_cells=walkable)
+
+        # Movement range of 2 from center
+        reachable = system.get_movement_range(1, 1, 2, navmesh)
+
+        # Should include center and all adjacent cells within 2 moves
+        assert (1, 1) in reachable  # Center
+        assert (0, 1) in reachable  # 1 move
+        assert (2, 1) in reachable  # 1 move
+        assert (1, 0) in reachable  # 1 move
+        assert (1, 2) in reachable  # 1 move
+        assert (0, 0) in reachable  # 2 moves
+        assert (2, 2) in reachable  # 2 moves
+
+    def test_get_movement_range_with_obstacle(self):
+        """Test movement range with obstacle"""
+        system = PathfindingSystem()
+
+        # Grid with obstacle blocking path
+        walkable = {
+            (0, 0),
+            (1, 0),
+            (2, 0),
+            (0, 1),
+            # (1, 1) - obstacle
+            (2, 1),
+            (0, 2),
+            (1, 2),
+            (2, 2),
+        }
+
+        navmesh = Navmesh(walkable_cells=walkable)
+
+        # Start at (0, 0), movement range 2
+        reachable = system.get_movement_range(0, 0, 2, navmesh)
+
+        assert (0, 0) in reachable
+        assert (1, 0) in reachable
+        assert (2, 0) in reachable
+        assert (0, 1) in reachable
+        assert (0, 2) in reachable
+        # Can't reach (2, 2) in 2 moves due to obstacle
+        assert (2, 2) not in reachable
+
+    def test_get_movement_range_zero_movement(self):
+        """Test movement range with zero movement points"""
+        system = PathfindingSystem()
+
+        navmesh = Navmesh(walkable_cells={(0, 0), (1, 0), (2, 0)})
+
+        reachable = system.get_movement_range(0, 0, 0, navmesh)
+
+        # Should only include starting position
+        assert len(reachable) == 1
+        assert (0, 0) in reachable
+
+    def test_get_movement_range_with_costs(self):
+        """Test movement range respects movement costs"""
+        system = PathfindingSystem()
+
+        # Grid where some cells cost more
+        walkable = {(0, 0), (1, 0), (2, 0), (3, 0)}
+        cost_multipliers = {
+            (0, 0): 1.0,
+            (1, 0): 2.0,  # Expensive
+            (2, 0): 1.0,
+            (3, 0): 1.0,
+        }
+
+        navmesh = Navmesh(walkable_cells=walkable, cost_multipliers=cost_multipliers)
+
+        # 3 movement points from (0, 0)
+        reachable = system.get_movement_range(0, 0, 3, navmesh)
+
+        assert (0, 0) in reachable  # 0 cost (start)
+        assert (1, 0) in reachable  # 2 cost
+        assert (2, 0) in reachable  # 2 + 1 = 3 cost
+        # (3, 0) would require 4 cost total (2 for (1,0) + 1 for (2,0) + 1 for (3,0))
+        assert (3, 0) not in reachable
+
+    def test_get_movement_range_large_range(self):
+        """Test movement range with large movement points"""
+        system = PathfindingSystem()
+
+        # 5x5 grid
+        walkable = set()
+        for x in range(5):
+            for y in range(5):
+                walkable.add((x, y))
+
+        navmesh = Navmesh(walkable_cells=walkable)
+
+        # Large movement range
+        reachable = system.get_movement_range(0, 0, 100, navmesh)
+
+        # Should include entire grid
+        assert len(reachable) == 25
 
 
-class TestLineOfSight:
-    """Test line of sight checking"""
+class TestIntegration:
+    """Integration tests for pathfinding system"""
 
-    def test_clear_line_of_sight(self):
-        """Test clear line of sight"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+    def test_full_pathfinding_workflow(self):
+        """Test complete pathfinding workflow"""
+        world = World()
+        system = PathfindingSystem()
 
-        assert pathfinder._has_line_of_sight((0, 0), (5, 5))
+        # Create navmesh
+        navmesh_entity = world.create_entity("Navmesh")
+        walkable = set()
+        for x in range(10):
+            for y in range(10):
+                if not (x == 5 and y in range(3, 8)):  # Obstacle
+                    walkable.add((x, y))
 
-    def test_blocked_line_of_sight(self):
-        """Test blocked line of sight"""
-        grid = NavigationGrid(10, 10)
+        navmesh = Navmesh(walkable_cells=walkable)
+        navmesh_entity.add_component(navmesh)
 
-        # Block middle cell
-        grid.set_walkable(2, 2, False)
+        # Update to cache navmesh
+        system.update(world, 0.016)
 
-        pathfinder = Pathfinder(grid)
+        # Find path (system should use cached navmesh)
+        path = system.find_path(0, 5, 9, 5)
 
-        # Line of sight through blocked cell should fail
-        assert not pathfinder._has_line_of_sight((0, 0), (4, 4))
+        assert path is not None
+        assert path[0] == (0, 5)
+        assert path[-1] == (9, 5)
 
-    def test_line_of_sight_horizontal(self):
-        """Test horizontal line of sight"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+        # Smooth the path
+        smoothed = system.smooth_path(path, navmesh)
 
-        assert pathfinder._has_line_of_sight((0, 5), (9, 5))
+        assert len(smoothed) <= len(path)
+        assert smoothed[0] == (0, 5)
+        assert smoothed[-1] == (9, 5)
 
-    def test_line_of_sight_vertical(self):
-        """Test vertical line of sight"""
-        grid = NavigationGrid(10, 10)
-        pathfinder = Pathfinder(grid)
+    def test_pathfinding_with_multiple_agents(self):
+        """Test pathfinding for multiple agents"""
+        system = PathfindingSystem()
 
-        assert pathfinder._has_line_of_sight((5, 0), (5, 9))
+        # Create shared navmesh
+        walkable = set()
+        for x in range(20):
+            for y in range(20):
+                walkable.add((x, y))
 
+        navmesh = Navmesh(walkable_cells=walkable)
 
-class TestPathfindingSystem:
-    """Test pathfinding system with caching"""
+        # Find paths for multiple agents
+        paths = []
+        for i in range(5):
+            path = system.find_path(0, i * 2, 19, i * 2, navmesh)
+            assert path is not None
+            paths.append(path)
 
-    def test_system_creation(self):
-        """Test creating pathfinding system"""
-        grid = NavigationGrid(10, 10)
-        system = PathfindingSystem(grid)
+        # All paths should succeed
+        assert len(paths) == 5
+        for i, path in enumerate(paths):
+            assert path[0] == (0, i * 2)
+            assert path[-1] == (19, i * 2)
 
-        assert system.grid == grid
-        assert system.pathfinder is not None
+    def test_pathfinding_performance(self):
+        """Test pathfinding on larger grid"""
+        system = PathfindingSystem()
 
-    def test_find_path_with_caching(self):
-        """Test path caching"""
-        grid = NavigationGrid(10, 10)
-        system = PathfindingSystem(grid)
+        # Create 50x50 grid
+        walkable = set()
+        for x in range(50):
+            for y in range(50):
+                walkable.add((x, y))
 
-        # First call
-        path1 = system.find_path((0, 0), (5, 5))
+        navmesh = Navmesh(walkable_cells=walkable)
 
-        # Second call should use cache
-        path2 = system.find_path((0, 0), (5, 5))
+        # Find long path
+        path = system.find_path(0, 0, 49, 49, navmesh)
 
-        assert path1 == path2
-
-    def test_find_path_with_smoothing(self):
-        """Test path with smoothing"""
-        grid = NavigationGrid(10, 10)
-        system = PathfindingSystem(grid)
-
-        path_smooth = system.find_path((0, 0), (5, 5), smooth=True)
-        path_no_smooth = system.find_path((0, 0), (5, 5), smooth=False)
-
-        # Smoothed path should be shorter or equal
-        assert len(path_smooth) <= len(path_no_smooth)
-
-    def test_clear_cache(self):
-        """Test clearing cache"""
-        grid = NavigationGrid(10, 10)
-        system = PathfindingSystem(grid)
-
-        system.find_path((0, 0), (5, 5))
-
-        assert len(system._path_cache) > 0
-
-        system.clear_cache()
-
-        assert len(system._path_cache) == 0
-
-    def test_invalidate_area(self):
-        """Test invalidating cached paths in area"""
-        grid = NavigationGrid(10, 10)
-        system = PathfindingSystem(grid)
-
-        system.find_path((0, 0), (9, 9))
-
-        system.invalidate_area(4, 4, 6, 6)
-
-        # Cache should be cleared (simplified implementation)
-        assert len(system._path_cache) == 0
-
-
-# Run tests with: pytest engine/tests/test_pathfinding.py -v
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert path is not None
+        assert path[0] == (0, 0)
+        assert path[-1] == (49, 49)
+        # Path length should be approximately Manhattan distance
+        assert len(path) >= 99  # At least 98 moves + start
