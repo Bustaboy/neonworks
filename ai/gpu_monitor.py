@@ -5,6 +5,7 @@ Provides unified interface for querying GPU VRAM across multiple vendors (NVIDIA
 Auto-detects GPU vendor and uses appropriate monitoring tool (nvidia-smi or rocm-smi).
 """
 
+import json
 import shutil
 import subprocess
 import time
@@ -248,11 +249,38 @@ class GPUMonitor:
 
         Raises:
             RuntimeError: If query fails
-
-        Note:
-            Not yet implemented - will be added in iteration 4
         """
-        raise NotImplementedError("AMD VRAM querying not yet implemented (iteration 4)")
+        try:
+            result = subprocess.run(
+                ["rocm-smi", "--showmeminfo", "vram", "--json"],
+                capture_output=True,
+                text=True,
+                timeout=5.0,
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"rocm-smi failed: {result.stderr}")
+
+            # Parse JSON output
+            data = json.loads(result.stdout)
+
+            # ROCm SMI returns data per card (card0, card1, etc.)
+            # Get first card's VRAM info
+            card_key = next(iter(data.keys()))
+            vram_info = data[card_key]
+
+            # Extract free VRAM in bytes, convert to GB
+            # Format: {"VRAM Total Memory (B)": ..., "VRAM Total Used Memory (B)": ...}
+            total_bytes = vram_info.get("VRAM Total Memory (B)", 0)
+            used_bytes = vram_info.get("VRAM Total Used Memory (B)", 0)
+            free_bytes = total_bytes - used_bytes
+
+            return free_bytes / (1024.0**3)  # Convert bytes to GB
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("rocm-smi timeout (5s)")
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            raise RuntimeError(f"Failed to parse rocm-smi output: {e}")
 
     def _get_amd_total_vram(self) -> float:
         """
@@ -263,11 +291,29 @@ class GPUMonitor:
 
         Raises:
             RuntimeError: If query fails
-
-        Note:
-            Not yet implemented - will be added in iteration 4
         """
-        raise NotImplementedError("AMD VRAM querying not yet implemented (iteration 4)")
+        try:
+            result = subprocess.run(
+                ["rocm-smi", "--showmeminfo", "vram", "--json"],
+                capture_output=True,
+                text=True,
+                timeout=5.0,
+            )
+
+            if result.returncode != 0:
+                raise RuntimeError(f"rocm-smi failed: {result.stderr}")
+
+            # Parse JSON output
+            data = json.loads(result.stdout)
+            card_key = next(iter(data.keys()))
+            total_bytes = data[card_key].get("VRAM Total Memory (B)", 0)
+
+            return total_bytes / (1024.0**3)  # Convert bytes to GB
+
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("rocm-smi timeout (5s)")
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            raise RuntimeError(f"Failed to parse rocm-smi output: {e}")
 
     def invalidate_cache(self):
         """

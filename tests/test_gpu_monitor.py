@@ -218,3 +218,144 @@ class TestNVIDIASMI:
                 free_gb = monitor.get_free_vram_gb()
 
                 assert free_gb == pytest.approx(2.5, abs=0.01)
+
+
+class TestROCMSMI:
+    """Test AMD GPU monitoring via rocm-smi."""
+
+    def test_query_free_vram_amd(self):
+        """Test querying free VRAM with rocm-smi."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # Mock rocm-smi JSON output: 8GB total, 4GB used = 4GB free
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = json.dumps(
+                    {
+                        "card0": {
+                            "VRAM Total Memory (B)": 8589934592,  # 8GB
+                            "VRAM Total Used Memory (B)": 4294967296,  # 4GB used
+                        }
+                    }
+                )
+
+                free_gb = monitor.get_free_vram_gb()
+
+                assert free_gb == pytest.approx(4.0, abs=0.01)  # 4GB free
+                mock_run.assert_called_once()
+                # Verify correct rocm-smi command
+                args = mock_run.call_args[0][0]
+                assert args[0] == "rocm-smi"
+                assert "--showmeminfo" in args
+                assert "vram" in args
+                assert "--json" in args
+
+    def test_query_total_vram_amd(self):
+        """Test querying total VRAM with rocm-smi."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # Mock rocm-smi JSON output: 8GB total
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = json.dumps(
+                    {"card0": {"VRAM Total Memory (B)": 8589934592}}  # 8GB
+                )
+
+                total_gb = monitor.get_total_vram_gb()
+
+                assert total_gb == pytest.approx(8.0, abs=0.01)
+
+    def test_rocm_smi_timeout(self):
+        """Test timeout handling for rocm-smi."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch(
+                "subprocess.run", side_effect=subprocess.TimeoutExpired("rocm-smi", 5.0)
+            ):
+                with pytest.raises(RuntimeError, match="rocm-smi timeout"):
+                    monitor.get_free_vram_gb()
+
+    def test_rocm_smi_parse_error(self):
+        """Test handling of invalid rocm-smi JSON output."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # Invalid JSON
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = "invalid json"
+
+                with pytest.raises(RuntimeError, match="Failed to parse rocm-smi"):
+                    monitor.get_free_vram_gb()
+
+    def test_rocm_smi_nonzero_exit(self):
+        """Test handling of rocm-smi errors (non-zero exit code)."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                mock_run.return_value.returncode = 1
+                mock_run.return_value.stderr = "Error: No AMD devices found"
+
+                with pytest.raises(RuntimeError, match="rocm-smi failed"):
+                    monitor.get_free_vram_gb()
+
+    def test_rocm_smi_fractional_vram(self):
+        """Test parsing of fractional VRAM values."""
+        with patch("shutil.which") as mock_which:
+
+            def which_side_effect(cmd):
+                return "/usr/bin/rocm-smi" if cmd == "rocm-smi" else None
+
+            mock_which.side_effect = which_side_effect
+
+            monitor = GPUMonitor()
+
+            with patch("subprocess.run") as mock_run:
+                # 6.5GB total, 4GB used = 2.5GB free
+                mock_run.return_value.returncode = 0
+                mock_run.return_value.stdout = json.dumps(
+                    {
+                        "card0": {
+                            "VRAM Total Memory (B)": 6979321856,  # 6.5GB
+                            "VRAM Total Used Memory (B)": 4294967296,  # 4GB
+                        }
+                    }
+                )
+
+                free_gb = monitor.get_free_vram_gb()
+
+                assert free_gb == pytest.approx(2.5, abs=0.01)
