@@ -9,7 +9,6 @@ import time
 import uuid
 from typing import Dict, List, Optional
 
-from ai.events import IMAGE_MODEL_LOADED, IMAGE_MODEL_UNLOADED
 from ai.image_request import ImageGenerationRequest, RequestState
 from ai.vram_manager import SmartVRAMManager
 from ai.vram_priority import VRAMPriority
@@ -137,6 +136,9 @@ class ImageService:
 
             # Emit event (lazy import to avoid pygame init during module import)
             import pygame
+
+            from ai.events import IMAGE_MODEL_LOADED
+
             event = pygame.event.Event(
                 IMAGE_MODEL_LOADED,
                 {"service": "image_service", "vram": vram_required},
@@ -178,9 +180,10 @@ class ImageService:
 
             # Emit event (lazy import to avoid pygame init during module import)
             import pygame
-            event = pygame.event.Event(
-                IMAGE_MODEL_UNLOADED, {"service": "image_service"}
-            )
+
+            from ai.events import IMAGE_MODEL_UNLOADED
+
+            event = pygame.event.Event(IMAGE_MODEL_UNLOADED, {"service": "image_service"})
             pygame.event.post(event)
 
             return True
@@ -371,11 +374,7 @@ class ImageService:
             5
         """
         with self._lock:
-            return [
-                req
-                for req in self._requests.values()
-                if req.state == RequestState.PENDING
-            ]
+            return [req for req in self._requests.values() if req.state == RequestState.PENDING]
 
     def get_all_requests(self) -> List[ImageGenerationRequest]:
         """
@@ -508,9 +507,7 @@ class ImageService:
             self.update_last_use_time()
 
             # Emit completion event
-            self._emit_generation_complete(
-                request_id=request.request_id, result_path=result_path
-            )
+            self._emit_generation_complete(request_id=request.request_id, result_path=result_path)
 
         except Exception as e:
             # Mark as failed
@@ -518,9 +515,7 @@ class ImageService:
             request.mark_failed(error_message=error_message)
 
             # Emit error event
-            self._emit_generation_error(
-                request_id=request.request_id, error_message=error_message
-            )
+            self._emit_generation_error(request_id=request.request_id, error_message=error_message)
 
     def _emit_generation_complete(self, request_id: str, result_path: str):
         """
@@ -530,8 +525,9 @@ class ImageService:
             request_id: Request ID that completed
             result_path: Path to generated image
         """
-        from ai.events import IMAGE_GENERATION_COMPLETE
         import pygame
+
+        from ai.events import IMAGE_GENERATION_COMPLETE
 
         event = pygame.event.Event(
             IMAGE_GENERATION_COMPLETE,
@@ -547,8 +543,9 @@ class ImageService:
             request_id: Request ID that failed
             error_message: Error description
         """
-        from ai.events import IMAGE_GENERATION_ERROR
         import pygame
+
+        from ai.events import IMAGE_GENERATION_ERROR
 
         event = pygame.event.Event(
             IMAGE_GENERATION_ERROR,

@@ -5,16 +5,16 @@ Tests the integration between ImageService and SmartVRAMManager,
 verifying VRAM allocation, eviction, and sequential loading.
 """
 
-import pytest
 import time
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 import pygame  # Imported AFTER conftest sets SDL environment variables
+import pytest
 
+from ai.gpu_monitor import GPUMonitor, GPUVendor
 from ai.image_service import ImageService
 from ai.vram_manager import SmartVRAMManager
 from ai.vram_priority import VRAMPriority
-from ai.gpu_monitor import GPUMonitor, GPUVendor
 
 
 @pytest.fixture
@@ -49,10 +49,7 @@ class TestImageServiceVRAMIntegration:
     def test_load_model_requests_vram(self, mock_backend, mock_gpu_monitor):
         """Test that load_model() requests VRAM from manager."""
         vram_manager = SmartVRAMManager()
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         # Load model
         success = service.load_model()
@@ -72,10 +69,7 @@ class TestImageServiceVRAMIntegration:
         mock_gpu_monitor.get_free_vram_gb.return_value = 2.0
 
         vram_manager = SmartVRAMManager()
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         # Load model should fail
         success = service.load_model()
@@ -90,10 +84,7 @@ class TestImageServiceVRAMIntegration:
     def test_unload_model_releases_vram(self, mock_backend, mock_gpu_monitor):
         """Test that unload_model() releases VRAM."""
         vram_manager = SmartVRAMManager()
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         # Load then unload
         service.load_model()
@@ -109,10 +100,7 @@ class TestImageServiceVRAMIntegration:
     def test_load_emits_vram_allocated_event(self, mock_backend, mock_gpu_monitor):
         """Test that loading emits VRAM_ALLOCATED event."""
         vram_manager = SmartVRAMManager()
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         pygame.event.clear()
 
@@ -131,10 +119,7 @@ class TestImageServiceVRAMIntegration:
     def test_unload_emits_vram_released_event(self, mock_backend, mock_gpu_monitor):
         """Test that unloading emits VRAM_RELEASED event."""
         vram_manager = SmartVRAMManager()
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         service.load_model()
         pygame.event.clear()
@@ -153,13 +138,11 @@ class TestImageServiceVRAMIntegration:
     def test_worker_processes_with_vram_manager(self, mock_backend, mock_gpu_monitor):
         """Test that worker thread works with VRAM manager."""
         import time
+
         from ai.image_request import RequestState
 
         vram_manager = SmartVRAMManager()
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         # Start worker
         service.start_worker()
@@ -231,10 +214,7 @@ class TestMultiServiceVRAMCompetition:
         vram_manager.request_vram("llm", 5.0, VRAMPriority.USER_REQUESTED)
 
         # Image service tries to load (4.0GB, USER_REQUESTED priority) - should queue
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         success = service.load_model()
         assert success is False  # Queued (insufficient VRAM, can't evict same priority)
@@ -253,9 +233,7 @@ class TestMultiServiceVRAMCompetition:
         """Test that idle unload releases VRAM."""
         vram_manager = SmartVRAMManager()
         service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager,
-            idle_timeout=0.1  # 100ms for testing
+            backend=mock_backend, vram_manager=vram_manager, idle_timeout=0.1  # 100ms for testing
         )
 
         # Load model
@@ -292,10 +270,7 @@ class TestMultiServiceVRAMCompetition:
         vram_manager.request_vram("llm", 5.0, VRAMPriority.NORMAL)
 
         # Image service loads with higher priority
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=vram_manager)
 
         success = service.load_model()
 
@@ -331,6 +306,7 @@ class TestConcurrentWorkerIntegration:
     def test_worker_processes_requests_when_vram_insufficient(self, mock_backend, mock_gpu_monitor):
         """Test that worker fails gracefully when VRAM is insufficient."""
         import time
+
         from ai.image_request import RequestState
 
         # Set up small VRAM pool
@@ -378,6 +354,7 @@ class TestConcurrentWorkerIntegration:
     def test_multiple_concurrent_requests_single_service(self, mock_backend, mock_gpu_monitor):
         """Test multiple concurrent requests processed by worker thread."""
         import time
+
         from ai.image_request import RequestState
 
         vram_manager = SmartVRAMManager()

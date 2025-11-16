@@ -4,11 +4,11 @@ Tests for ImageService
 Tests service lifecycle, model loading/unloading, and VRAM integration.
 """
 
-import pytest
 import time
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 import pygame  # Imported AFTER conftest sets SDL environment variables
+import pytest
 
 from ai.image_service import ImageService
 from ai.vram_manager import SmartVRAMManager
@@ -40,10 +40,7 @@ class TestImageServiceInit:
 
     def test_initialization(self, mock_backend, mock_vram_manager):
         """Test basic initialization."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         assert service.backend == mock_backend
         assert service.vram_manager == mock_vram_manager
@@ -54,9 +51,7 @@ class TestImageServiceInit:
     def test_initialization_custom_timeout(self, mock_backend, mock_vram_manager):
         """Test initialization with custom idle timeout."""
         service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager,
-            idle_timeout=600.0  # 10 minutes
+            backend=mock_backend, vram_manager=mock_vram_manager, idle_timeout=600.0  # 10 minutes
         )
 
         assert service.idle_timeout == 600.0
@@ -77,10 +72,7 @@ class TestLoadModel:
 
     def test_load_model_success(self, mock_backend, mock_vram_manager):
         """Test successful model loading."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
         pygame.event.clear()
 
         success = service.load_model()
@@ -93,7 +85,7 @@ class TestLoadModel:
         mock_vram_manager.request_vram.assert_called_once_with(
             service_name="image_service",
             required_vram_gb=4.0,  # VRAM estimate
-            priority=VRAMPriority.USER_REQUESTED
+            priority=VRAMPriority.USER_REQUESTED,
         )
 
         # Should load backend
@@ -108,10 +100,7 @@ class TestLoadModel:
         """Test load failure when VRAM allocation fails."""
         mock_vram_manager.request_vram.return_value = False
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         success = service.load_model()
 
@@ -123,10 +112,7 @@ class TestLoadModel:
 
     def test_load_model_already_loaded(self, mock_backend, mock_vram_manager):
         """Test that loading when already loaded is a no-op."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
         service.load_model()
 
         # Try to load again
@@ -144,10 +130,7 @@ class TestLoadModel:
 
     def test_load_model_updates_last_use_time(self, mock_backend, mock_vram_manager):
         """Test that loading updates last_use_time."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         before = time.time()
         service.load_model()
@@ -162,10 +145,7 @@ class TestUnloadModel:
 
     def test_unload_model_success(self, mock_backend, mock_vram_manager):
         """Test successful model unloading."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
         service.load_model()
 
         pygame.event.clear()
@@ -189,10 +169,7 @@ class TestUnloadModel:
 
     def test_unload_model_not_loaded(self, mock_backend, mock_vram_manager):
         """Test that unloading when not loaded is a no-op."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         success = service.unload_model()
 
@@ -212,7 +189,7 @@ class TestIdleUnload:
         service = ImageService(
             backend=mock_backend,
             vram_manager=mock_vram_manager,
-            idle_timeout=0.1  # 100ms timeout for testing
+            idle_timeout=0.1,  # 100ms timeout for testing
         )
         service.load_model()
 
@@ -230,7 +207,7 @@ class TestIdleUnload:
         service = ImageService(
             backend=mock_backend,
             vram_manager=mock_vram_manager,
-            idle_timeout=1.0  # 1 second timeout
+            idle_timeout=1.0,  # 1 second timeout
         )
         service.load_model()
 
@@ -242,10 +219,7 @@ class TestIdleUnload:
 
     def test_check_idle_unload_when_not_loaded(self, mock_backend, mock_vram_manager):
         """Test that check_idle_unload is safe when not loaded."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         # Should not crash
         service.check_idle_unload()
@@ -258,10 +232,7 @@ class TestUpdateLastUseTime:
 
     def test_update_last_use_time(self, mock_backend, mock_vram_manager):
         """Test that update_last_use_time() updates timestamp."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
         service.load_model()
 
         old_time = service.last_use_time
@@ -273,10 +244,7 @@ class TestUpdateLastUseTime:
 
     def test_update_last_use_time_when_not_loaded(self, mock_backend, mock_vram_manager):
         """Test that update_last_use_time() works when not loaded."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         # Should not crash
         service.update_last_use_time()
@@ -289,10 +257,7 @@ class TestGetStatus:
 
     def test_status_not_loaded(self, mock_backend, mock_vram_manager):
         """Test status when model not loaded."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         status = service.get_status()
 
@@ -302,10 +267,7 @@ class TestGetStatus:
 
     def test_status_loaded(self, mock_backend, mock_vram_manager):
         """Test status when model loaded."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
         service.load_model()
 
         status = service.get_status()
@@ -322,16 +284,10 @@ class TestAsyncRequests:
         """Test submitting a generation request."""
         from ai.image_request import ImageGenerationRequest, RequestState
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         request = service.submit_request(
-            prompt="A cat in space",
-            model="sdxl",
-            width=1024,
-            height=1024
+            prompt="A cat in space", model="sdxl", width=1024, height=1024
         )
 
         assert isinstance(request, ImageGenerationRequest)
@@ -343,10 +299,7 @@ class TestAsyncRequests:
 
     def test_submit_request_generates_unique_id(self, mock_backend, mock_vram_manager):
         """Test that each request gets unique ID."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         request1 = service.submit_request(prompt="test1")
         request2 = service.submit_request(prompt="test2")
@@ -355,10 +308,7 @@ class TestAsyncRequests:
 
     def test_get_request_by_id(self, mock_backend, mock_vram_manager):
         """Test retrieving request by ID."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         request = service.submit_request(prompt="test")
         request_id = request.request_id
@@ -371,10 +321,7 @@ class TestAsyncRequests:
 
     def test_get_request_nonexistent(self, mock_backend, mock_vram_manager):
         """Test retrieving nonexistent request returns None."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         retrieved = service.get_request("nonexistent_id")
 
@@ -384,10 +331,7 @@ class TestAsyncRequests:
         """Test cancelling a request by ID."""
         from ai.image_request import RequestState
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         request = service.submit_request(prompt="test")
         request_id = request.request_id
@@ -402,10 +346,7 @@ class TestAsyncRequests:
 
     def test_cancel_request_nonexistent(self, mock_backend, mock_vram_manager):
         """Test cancelling nonexistent request returns False."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         success = service.cancel_request("nonexistent_id")
 
@@ -415,10 +356,7 @@ class TestAsyncRequests:
         """Test listing all pending requests."""
         from ai.image_request import RequestState
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         # Submit multiple requests
         req1 = service.submit_request(prompt="test1")
@@ -432,10 +370,7 @@ class TestAsyncRequests:
 
     def test_list_pending_excludes_cancelled(self, mock_backend, mock_vram_manager):
         """Test that list_pending_requests() excludes cancelled requests."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         req1 = service.submit_request(prompt="test1")
         req2 = service.submit_request(prompt="test2")
@@ -452,10 +387,7 @@ class TestAsyncRequests:
         """Test getting all requests regardless of state."""
         from ai.image_request import RequestState
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         req1 = service.submit_request(prompt="test1")
         req2 = service.submit_request(prompt="test2")
@@ -475,10 +407,7 @@ class TestWorkerThread:
 
     def test_start_worker(self, mock_backend, mock_vram_manager):
         """Test starting the worker thread."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         service.start_worker()
 
@@ -491,10 +420,7 @@ class TestWorkerThread:
 
     def test_stop_worker(self, mock_backend, mock_vram_manager):
         """Test stopping the worker thread."""
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         service.start_worker()
         assert service._worker_running is True
@@ -509,15 +435,13 @@ class TestWorkerThread:
     def test_worker_processes_pending_request(self, mock_backend, mock_vram_manager):
         """Test that worker processes pending requests."""
         import time
+
         from ai.image_request import RequestState
 
         # Mock backend to generate image
         mock_backend.generate.return_value = "/output/image.png"
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         # Start worker
         service.start_worker()
@@ -541,10 +465,7 @@ class TestWorkerThread:
 
         mock_backend.generate.return_value = "/output/image.png"
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         # Model not loaded initially
         assert service.is_loaded is False
@@ -564,15 +485,13 @@ class TestWorkerThread:
     def test_worker_handles_generation_error(self, mock_backend, mock_vram_manager):
         """Test that worker handles backend errors gracefully."""
         import time
+
         from ai.image_request import RequestState
 
         # Mock backend to raise error
         mock_backend.generate.side_effect = RuntimeError("CUDA out of memory")
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         service.start_worker()
         request = service.submit_request(prompt="test")
@@ -592,10 +511,7 @@ class TestWorkerThread:
 
         mock_backend.generate.return_value = "/output/image.png"
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         pygame.event.clear()
 
@@ -622,10 +538,7 @@ class TestWorkerThread:
 
         mock_backend.generate.side_effect = RuntimeError("CUDA error")
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         pygame.event.clear()
 
@@ -652,10 +565,7 @@ class TestWorkerThread:
 
         mock_backend.generate.return_value = "/output/image.png"
 
-        service = ImageService(
-            backend=mock_backend,
-            vram_manager=mock_vram_manager
-        )
+        service = ImageService(backend=mock_backend, vram_manager=mock_vram_manager)
 
         service.start_worker()
 

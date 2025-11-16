@@ -12,8 +12,8 @@ from typing import Dict, List
 from unittest.mock import MagicMock, Mock
 
 # Set headless mode BEFORE pygame import
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 import pygame
 import pytest

@@ -125,8 +125,7 @@ class TestGPUMonitorInit:
             error_msg = str(exc_info.value)
             # Should mention drivers or installation
             assert any(
-                keyword in error_msg.lower()
-                for keyword in ["install", "driver", "http", "guide"]
+                keyword in error_msg.lower() for keyword in ["install", "driver", "http", "guide"]
             )
 
 
@@ -290,9 +289,7 @@ class TestROCMSMI:
 
             monitor = GPUMonitor()
 
-            with patch(
-                "subprocess.run", side_effect=subprocess.TimeoutExpired("rocm-smi", 5.0)
-            ):
+            with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("rocm-smi", 5.0)):
                 with pytest.raises(RuntimeError, match="rocm-smi timeout"):
                     monitor.get_free_vram_gb()
 

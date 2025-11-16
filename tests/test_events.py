@@ -4,8 +4,8 @@ Tests for AI Service Pygame Events
 Validates event constant definitions and uniqueness.
 """
 
-import pytest
 import pygame
+import pytest
 
 from ai.events import (
     IMAGE_GENERATION_COMPLETE,
@@ -13,8 +13,8 @@ from ai.events import (
     IMAGE_MODEL_LOADED,
     IMAGE_MODEL_UNLOADED,
     VRAM_ALLOCATED,
-    VRAM_RELEASED,
     VRAM_ALLOCATION_FAILED,
+    VRAM_RELEASED,
     VRAM_UNLOAD_REQUESTED,
 )
 
@@ -90,7 +90,9 @@ class TestEventConstants:
 
         for event in events:
             offset = event - pygame.USEREVENT
-            assert 0 <= offset <= max_offset, f"Event {event} has offset {offset} (max: {max_offset})"
+            assert (
+                0 <= offset <= max_offset
+            ), f"Event {event} has offset {offset} (max: {max_offset})"
 
     def test_image_events_grouped(self):
         """Test that image events are grouped together (1-4)."""

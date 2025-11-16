@@ -77,11 +77,7 @@ class SmartVRAMManager:
         gpu_monitor: GPU monitoring instance
     """
 
-    def __init__(
-        self,
-        total_vram_gb: Optional[float] = None,
-        safety_buffer_gb: float = 0.5
-    ):
+    def __init__(self, total_vram_gb: Optional[float] = None, safety_buffer_gb: float = 0.5):
         """
         Initialize VRAM manager.
 
@@ -183,8 +179,7 @@ class SmartVRAMManager:
         with self._lock:
             # Calculate total allocated VRAM
             allocated_vram = sum(
-                service_info["vram"]
-                for service_info in self.loaded_services.values()
+                service_info["vram"] for service_info in self.loaded_services.values()
             )
 
             # Build loaded services list
@@ -192,7 +187,7 @@ class SmartVRAMManager:
                 {
                     "name": service_name,
                     "vram": service_info["vram"],
-                    "priority": service_info["priority"]
+                    "priority": service_info["priority"],
                 }
                 for service_name, service_info in self.loaded_services.items()
             ]
@@ -202,15 +197,10 @@ class SmartVRAMManager:
                 "safety_buffer": self.safety_buffer,
                 "allocated_vram": allocated_vram,
                 "loaded_services": loaded_services_list,
-                "pending_count": self.pending_queue.qsize()
+                "pending_count": self.pending_queue.qsize(),
             }
 
-    def request_vram(
-        self,
-        service_name: str,
-        required_vram_gb: float,
-        priority: int
-    ) -> bool:
+    def request_vram(self, service_name: str, required_vram_gb: float, priority: int) -> bool:
         """
         Request VRAM allocation for a service.
 
@@ -259,8 +249,7 @@ class SmartVRAMManager:
             if required_vram_gb > available:
                 # Try to free VRAM by evicting lower priority services
                 freed_vram = self._free_lower_priority_services(
-                    required_vram=required_vram_gb,
-                    requesting_priority=priority
+                    required_vram=required_vram_gb, requesting_priority=priority
                 )
 
                 # Re-check available VRAM after eviction
@@ -274,37 +263,26 @@ class SmartVRAMManager:
                     self._add_to_pending_queue(
                         service_name=service_name,
                         required_vram_gb=required_vram_gb,
-                        priority=priority
+                        priority=priority,
                     )
                     self._emit_allocation_failed(
-                        service_name=service_name,
-                        required_vram=required_vram_gb,
-                        queued=True
+                        service_name=service_name, required_vram=required_vram_gb, queued=True
                     )
                     return False
 
             # Allocate VRAM
             self._allocate_service(
-                service_name=service_name,
-                required_vram_gb=required_vram_gb,
-                priority=priority
+                service_name=service_name, required_vram_gb=required_vram_gb, priority=priority
             )
 
             # Emit success event
             self._emit_allocation_success(
-                service_name=service_name,
-                vram_allocated=required_vram_gb,
-                priority=priority
+                service_name=service_name, vram_allocated=required_vram_gb, priority=priority
             )
 
             return True
 
-    def _allocate_service(
-        self,
-        service_name: str,
-        required_vram_gb: float,
-        priority: int
-    ):
+    def _allocate_service(self, service_name: str, required_vram_gb: float, priority: int):
         """
         Internal helper to allocate VRAM to a service.
 
@@ -322,15 +300,10 @@ class SmartVRAMManager:
         self.loaded_services[service_name] = {
             "vram": required_vram_gb,
             "priority": priority,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
-    def _emit_allocation_success(
-        self,
-        service_name: str,
-        vram_allocated: float,
-        priority: int
-    ):
+    def _emit_allocation_success(self, service_name: str, vram_allocated: float, priority: int):
         """
         Emit VRAM_ALLOCATED event.
 
@@ -341,25 +314,17 @@ class SmartVRAMManager:
             vram_allocated: Amount allocated (GB)
             priority: VRAMPriority level
         """
-        from ai.events import VRAM_ALLOCATED
         import pygame
+
+        from ai.events import VRAM_ALLOCATED
 
         event = pygame.event.Event(
             VRAM_ALLOCATED,
-            {
-                "service": service_name,
-                "vram_allocated": vram_allocated,
-                "priority": priority
-            }
+            {"service": service_name, "vram_allocated": vram_allocated, "priority": priority},
         )
         pygame.event.post(event)
 
-    def _emit_allocation_failed(
-        self,
-        service_name: str,
-        required_vram: float,
-        queued: bool
-    ):
+    def _emit_allocation_failed(self, service_name: str, required_vram: float, queued: bool):
         """
         Emit VRAM_ALLOCATION_FAILED event.
 
@@ -370,23 +335,18 @@ class SmartVRAMManager:
             required_vram: Amount requested (GB)
             queued: Whether service was queued for later execution
         """
-        from ai.events import VRAM_ALLOCATION_FAILED
         import pygame
+
+        from ai.events import VRAM_ALLOCATION_FAILED
 
         event = pygame.event.Event(
             VRAM_ALLOCATION_FAILED,
-            {
-                "service": service_name,
-                "required_vram": required_vram,
-                "queued": queued
-            }
+            {"service": service_name, "required_vram": required_vram, "queued": queued},
         )
         pygame.event.post(event)
 
     def _free_lower_priority_services(
-        self,
-        required_vram: float,
-        requesting_priority: int
+        self, required_vram: float, requesting_priority: int
     ) -> float:
         """
         Free VRAM by evicting lower priority services.
@@ -434,18 +394,11 @@ class SmartVRAMManager:
             freed_vram += vram_freed
 
             # Emit VRAM_RELEASED event
-            self._emit_vram_released(
-                service_name=service_name,
-                vram_freed=vram_freed
-            )
+            self._emit_vram_released(service_name=service_name, vram_freed=vram_freed)
 
         return freed_vram
 
-    def _emit_vram_released(
-        self,
-        service_name: str,
-        vram_freed: float
-    ):
+    def _emit_vram_released(self, service_name: str, vram_freed: float):
         """
         Emit VRAM_RELEASED event.
 
@@ -455,15 +408,12 @@ class SmartVRAMManager:
             service_name: Service that was unloaded
             vram_freed: Amount of VRAM freed (GB)
         """
-        from ai.events import VRAM_RELEASED
         import pygame
 
+        from ai.events import VRAM_RELEASED
+
         event = pygame.event.Event(
-            VRAM_RELEASED,
-            {
-                "service": service_name,
-                "vram_freed": vram_freed
-            }
+            VRAM_RELEASED, {"service": service_name, "vram_freed": vram_freed}
         )
         pygame.event.post(event)
 
@@ -505,22 +455,14 @@ class SmartVRAMManager:
             del self.loaded_services[service_name]
 
             # Emit release event
-            self._emit_vram_released(
-                service_name=service_name,
-                vram_freed=vram_freed
-            )
+            self._emit_vram_released(service_name=service_name, vram_freed=vram_freed)
 
             # Process pending queue (VRAM now available)
             self._process_pending_queue()
 
             return True
 
-    def _add_to_pending_queue(
-        self,
-        service_name: str,
-        required_vram_gb: float,
-        priority: int
-    ):
+    def _add_to_pending_queue(self, service_name: str, required_vram_gb: float, priority: int):
         """
         Add service request to pending queue.
 
@@ -538,15 +480,17 @@ class SmartVRAMManager:
         # PriorityQueue uses tuple: (priority, timestamp, data)
         # Lower number = higher priority, so negate to get correct order
         # (Python's PriorityQueue is min-heap, we want max-priority first)
-        self.pending_queue.put((
-            -priority,  # Negate so higher priority comes first
-            time.time(),  # Timestamp for FIFO tiebreaker
-            {
-                "service_name": service_name,
-                "required_vram_gb": required_vram_gb,
-                "priority": priority
-            }
-        ))
+        self.pending_queue.put(
+            (
+                -priority,  # Negate so higher priority comes first
+                time.time(),  # Timestamp for FIFO tiebreaker
+                {
+                    "service_name": service_name,
+                    "required_vram_gb": required_vram_gb,
+                    "priority": priority,
+                },
+            )
+        )
 
     def _process_pending_queue(self):
         """
@@ -576,14 +520,10 @@ class SmartVRAMManager:
             if required_vram_gb <= available:
                 # Allocate successfully
                 self._allocate_service(
-                    service_name=service_name,
-                    required_vram_gb=required_vram_gb,
-                    priority=priority
+                    service_name=service_name, required_vram_gb=required_vram_gb, priority=priority
                 )
                 self._emit_allocation_success(
-                    service_name=service_name,
-                    vram_allocated=required_vram_gb,
-                    priority=priority
+                    service_name=service_name, vram_allocated=required_vram_gb, priority=priority
                 )
                 # Continue processing queue
             else:

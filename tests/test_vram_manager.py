@@ -164,7 +164,7 @@ class TestGetStatus:
         manager.loaded_services["llm"] = {
             "vram": 3.2,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         status = manager.get_status()
@@ -187,9 +187,7 @@ class TestRequestVRAM:
 
         # Request 4.0GB for image service
         success = manager.request_vram(
-            service_name="image",
-            required_vram_gb=4.0,
-            priority=VRAMPriority.USER_REQUESTED
+            service_name="image", required_vram_gb=4.0, priority=VRAMPriority.USER_REQUESTED
         )
 
         assert success is True
@@ -333,7 +331,7 @@ class TestPriorityEviction:
         manager.loaded_services["llm"] = {
             "vram": 5.0,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 2.5GB before eviction, then 7.5GB after
@@ -363,7 +361,7 @@ class TestPriorityEviction:
         manager.loaded_services["llm"] = {
             "vram": 5.0,
             "priority": VRAMPriority.USER_REQUESTED,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: Only 2.5GB free (8.0 - 5.0 LLM - 0.5 safety)
@@ -386,17 +384,17 @@ class TestPriorityEviction:
         manager.loaded_services["tts"] = {
             "vram": 2.0,
             "priority": VRAMPriority.BACKGROUND,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
         manager.loaded_services["translator"] = {
             "vram": 2.0,
             "priority": VRAMPriority.BACKGROUND,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
         manager.loaded_services["classifier"] = {
             "vram": 2.0,
             "priority": VRAMPriority.BACKGROUND,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 1.5GB initially, then incrementally freed (each service adds 2GB back)
@@ -426,12 +424,12 @@ class TestPriorityEviction:
         manager.loaded_services["llm"] = {
             "vram": 3.0,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
         manager.loaded_services["tts"] = {
             "vram": 2.0,
             "priority": VRAMPriority.BACKGROUND,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 2.5GB initially, then enough after TTS evicted
@@ -455,7 +453,7 @@ class TestPriorityEviction:
         manager.loaded_services["llm"] = {
             "vram": 5.0,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 2.5GB initially, 7.5GB after LLM evicted
@@ -489,7 +487,7 @@ class TestReleaseVRAM:
         manager.loaded_services["llm"] = {
             "vram": 3.2,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Release it
@@ -516,7 +514,7 @@ class TestReleaseVRAM:
         manager.loaded_services["llm"] = {
             "vram": 3.2,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Clear events
@@ -545,7 +543,7 @@ class TestPendingQueue:
         manager.loaded_services["llm"] = {
             "vram": 6.0,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: only 1.5GB free
@@ -575,7 +573,7 @@ class TestPendingQueue:
         manager.loaded_services["llm"] = {
             "vram": 5.0,
             "priority": VRAMPriority.NORMAL,
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 2.5GB free initially
@@ -603,16 +601,21 @@ class TestPendingQueue:
         manager.loaded_services["llm"] = {
             "vram": 6.0,
             "priority": VRAMPriority.UI_CRITICAL,  # Highest priority - can't be evicted
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 1.5GB when queueing, then 7.5GB after release
         # Need enough values for queueing 3 requests (each checks twice) + processing them
         mock_gpu_monitor.get_free_vram_gb.side_effect = [
-            1.5, 1.5,  # tts request: initial check, re-check after failed eviction
-            1.5, 1.5,  # image request: initial check, re-check
-            1.5, 1.5,  # translator request: initial check, re-check
-            7.5, 4.5, 2.5,  # Processing: image (3GB), translator (2GB), tts (2GB)
+            1.5,
+            1.5,  # tts request: initial check, re-check after failed eviction
+            1.5,
+            1.5,  # image request: initial check, re-check
+            1.5,
+            1.5,  # translator request: initial check, re-check
+            7.5,
+            4.5,
+            2.5,  # Processing: image (3GB), translator (2GB), tts (2GB)
         ]
 
         # Queue multiple requests (different priorities)
@@ -638,7 +641,7 @@ class TestPendingQueue:
         manager.loaded_services["llm"] = {
             "vram": 6.0,
             "priority": VRAMPriority.UI_CRITICAL,  # Can't be evicted
-            "loaded_at": time.time()
+            "loaded_at": time.time(),
         }
 
         # Mock: 1.5GB when queueing (twice for failed eviction), 7.5GB after release, 4.5GB after allocation
@@ -685,8 +688,7 @@ class TestThreadSafety:
 
         # Create 5 threads requesting VRAM
         threads = [
-            threading.Thread(target=allocate_service, args=(f"service_{i}", 1.0))
-            for i in range(5)
+            threading.Thread(target=allocate_service, args=(f"service_{i}", 1.0)) for i in range(5)
         ]
 
         # Start all threads
@@ -719,7 +721,7 @@ class TestThreadSafety:
             manager.loaded_services[f"service_{i}"] = {
                 "vram": 1.0,
                 "priority": VRAMPriority.NORMAL,
-                "loaded_at": time.time()
+                "loaded_at": time.time(),
             }
 
         results = []
@@ -734,8 +736,7 @@ class TestThreadSafety:
 
         # Create 5 threads releasing VRAM
         threads = [
-            threading.Thread(target=release_service, args=(f"service_{i}",))
-            for i in range(5)
+            threading.Thread(target=release_service, args=(f"service_{i}",)) for i in range(5)
         ]
 
         # Start all threads
@@ -768,7 +769,7 @@ class TestThreadSafety:
             manager.loaded_services[f"existing_{i}"] = {
                 "vram": 1.0,
                 "priority": VRAMPriority.NORMAL,
-                "loaded_at": time.time()
+                "loaded_at": time.time(),
             }
 
         errors = []
@@ -787,14 +788,12 @@ class TestThreadSafety:
 
         # Create mixed threads
         threads = []
-        threads.extend([
-            threading.Thread(target=allocate_service, args=(f"new_{i}", 1.0))
-            for i in range(3)
-        ])
-        threads.extend([
-            threading.Thread(target=release_service, args=(f"existing_{i}",))
-            for i in range(3)
-        ])
+        threads.extend(
+            [threading.Thread(target=allocate_service, args=(f"new_{i}", 1.0)) for i in range(3)]
+        )
+        threads.extend(
+            [threading.Thread(target=release_service, args=(f"existing_{i}",)) for i in range(3)]
+        )
 
         # Start all threads
         for t in threads:

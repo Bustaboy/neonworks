@@ -4,9 +4,10 @@ Tests for ImageGenerationRequest
 Tests request state management, thread safety, and result storage.
 """
 
-import pytest
 import time
 from enum import Enum
+
+import pytest
 
 from ai.image_request import ImageGenerationRequest, RequestState
 
@@ -39,10 +40,7 @@ class TestImageGenerationRequestInit:
 
     def test_initialization_minimal(self):
         """Test initialization with minimal parameters."""
-        request = ImageGenerationRequest(
-            request_id="req_001",
-            prompt="A cat in space"
-        )
+        request = ImageGenerationRequest(request_id="req_001", prompt="A cat in space")
 
         assert request.request_id == "req_001"
         assert request.prompt == "A cat in space"
@@ -57,11 +55,7 @@ class TestImageGenerationRequestInit:
     def test_initialization_full_parameters(self):
         """Test initialization with all parameters."""
         request = ImageGenerationRequest(
-            request_id="req_002",
-            prompt="A dog on the moon",
-            model="sdxl",
-            width=1024,
-            height=1024
+            request_id="req_002", prompt="A dog on the moon", model="sdxl", width=1024, height=1024
         )
 
         assert request.request_id == "req_002"
@@ -173,11 +167,7 @@ class TestGetStatus:
     def test_status_pending(self):
         """Test status dict for pending request."""
         request = ImageGenerationRequest(
-            request_id="req_012",
-            prompt="test prompt",
-            model="sdxl",
-            width=1024,
-            height=1024
+            request_id="req_012", prompt="test prompt", model="sdxl", width=1024, height=1024
         )
 
         status = request.get_status()
