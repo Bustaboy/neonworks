@@ -132,11 +132,19 @@ class TestLlamaCppBackend:
         with pytest.raises(FileNotFoundError):
             LlamaCppBackend(config)
 
-    def test_vram_calculation_5gb_file(self, tmp_path):
+    def test_vram_calculation_5gb_file(self, tmp_path, monkeypatch):
         """Test VRAM estimation from 5GB file size"""
-        # Create 5GB fake file
+        # Create tiny fake file (avoid filling disk in CI)
         model_file = tmp_path / "model.gguf"
-        model_file.write_bytes(b"0" * (5 * 1024**3))
+        model_file.write_bytes(b"fake_model_data")
+
+        # Mock file size to appear as 5GB without actually creating 5GB
+        def mock_getsize(path):
+            if str(path).endswith("model.gguf"):
+                return 5 * 1024**3  # 5GB
+            return 0
+
+        monkeypatch.setattr("os.path.getsize", mock_getsize)
 
         config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
@@ -145,10 +153,19 @@ class TestLlamaCppBackend:
         required_vram = backend.get_required_vram()
         assert 5.5 <= required_vram <= 6.5
 
-    def test_vram_calculation_small_file(self, tmp_path):
+    def test_vram_calculation_small_file(self, tmp_path, monkeypatch):
         """Test VRAM estimation from small file"""
+        # Create tiny fake file (avoid filling disk in CI)
         model_file = tmp_path / "model.gguf"
-        model_file.write_bytes(b"0" * (2 * 1024**3))  # 2GB
+        model_file.write_bytes(b"fake_model_data")
+
+        # Mock file size to appear as 2GB without actually creating 2GB
+        def mock_getsize(path):
+            if str(path).endswith("model.gguf"):
+                return 2 * 1024**3  # 2GB
+            return 0
+
+        monkeypatch.setattr("os.path.getsize", mock_getsize)
 
         config = LLMBackendConfig(backend_type="llama-cpp", model_path=str(model_file))
         backend = LlamaCppBackend(config)
