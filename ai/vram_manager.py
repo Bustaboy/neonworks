@@ -270,13 +270,18 @@ class SmartVRAMManager:
                 if service_name in self.loaded_services:
                     available += self.loaded_services[service_name]["vram"]
 
-                # If still insufficient, fail
+                # If still insufficient, queue for later
                 if required_vram_gb > available:
-                    # Queuing logic will be added in iteration 9
+                    # Add to pending queue for sequential loading
+                    self._add_to_pending_queue(
+                        service_name=service_name,
+                        required_vram_gb=required_vram_gb,
+                        priority=priority
+                    )
                     self._emit_allocation_failed(
                         service_name=service_name,
                         required_vram=required_vram_gb,
-                        queued=False
+                        queued=True
                     )
                     return False
 
@@ -460,3 +465,127 @@ class SmartVRAMManager:
             }
         )
         pygame.event.post(event)
+
+    def release_vram(self, service_name: str) -> bool:
+        """
+        Manually release VRAM for a service.
+
+        Unloads service and frees its VRAM allocation.
+        Processes pending queue after release to allocate waiting requests.
+
+        Args:
+            service_name: Service to unload
+
+        Returns:
+            True if service was loaded and released, False if not loaded
+
+        Emits:
+            VRAM_RELEASED event on success
+
+        Example:
+            >>> manager = SmartVRAMManager()
+            >>> manager.request_vram("llm", 3.2, VRAMPriority.NORMAL)
+            True
+            >>> # LLM finishes generation
+            >>> manager.release_vram("llm")
+            True
+            >>> # Pending requests now processed
+        """
+        with self._lock:
+            # Check if service is loaded
+            if service_name not in self.loaded_services:
+                return False
+
+            # Get service info
+            service_info = self.loaded_services[service_name]
+            vram_freed = service_info["vram"]
+
+            # Remove from registry
+            del self.loaded_services[service_name]
+
+            # Emit release event
+            self._emit_vram_released(
+                service_name=service_name,
+                vram_freed=vram_freed
+            )
+
+            # Process pending queue (VRAM now available)
+            self._process_pending_queue()
+
+            return True
+
+    def _add_to_pending_queue(
+        self,
+        service_name: str,
+        required_vram_gb: float,
+        priority: int
+    ):
+        """
+        Add service request to pending queue.
+
+        Queue uses priority for ordering (higher priority = processed first).
+        Uses timestamp as tiebreaker for same-priority requests.
+
+        Args:
+            service_name: Service identifier
+            required_vram_gb: VRAM needed (GB)
+            priority: VRAMPriority level
+
+        Note:
+            Must be called with self._lock held
+        """
+        # PriorityQueue uses tuple: (priority, timestamp, data)
+        # Lower number = higher priority, so negate to get correct order
+        # (Python's PriorityQueue is min-heap, we want max-priority first)
+        self.pending_queue.put((
+            -priority,  # Negate so higher priority comes first
+            time.time(),  # Timestamp for FIFO tiebreaker
+            {
+                "service_name": service_name,
+                "required_vram_gb": required_vram_gb,
+                "priority": priority
+            }
+        ))
+
+    def _process_pending_queue(self):
+        """
+        Process pending queue after VRAM released.
+
+        Attempts to allocate VRAM for queued requests in priority order.
+        Stops when queue empty or no more VRAM available.
+
+        Note:
+            Must be called with self._lock held
+        """
+        # Process queue until empty or allocation fails
+        while not self.pending_queue.empty():
+            # Peek at next request (don't remove yet)
+            try:
+                priority_neg, timestamp, request_data = self.pending_queue.get_nowait()
+            except queue.Empty:
+                break
+
+            service_name = request_data["service_name"]
+            required_vram_gb = request_data["required_vram_gb"]
+            priority = request_data["priority"]
+
+            # Check if enough VRAM available now
+            available = self.get_available_vram()
+
+            if required_vram_gb <= available:
+                # Allocate successfully
+                self._allocate_service(
+                    service_name=service_name,
+                    required_vram_gb=required_vram_gb,
+                    priority=priority
+                )
+                self._emit_allocation_success(
+                    service_name=service_name,
+                    vram_allocated=required_vram_gb,
+                    priority=priority
+                )
+                # Continue processing queue
+            else:
+                # Not enough VRAM - put back in queue and stop
+                self.pending_queue.put((priority_neg, timestamp, request_data))
+                break

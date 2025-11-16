@@ -300,14 +300,15 @@ class TestAllocationFailure:
 
     def test_allocation_failure_emits_event(self, mock_gpu_monitor):
         """Test that failed allocation emits VRAM_ALLOCATION_FAILED event."""
-        mock_gpu_monitor.get_free_vram_gb.return_value = 2.0  # Insufficient
+        # Insufficient VRAM (checked twice: initial + after failed eviction)
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [2.0, 2.0]
 
         manager = SmartVRAMManager()
 
         # Clear event queue
         pygame.event.clear()
 
-        # Try to allocate 4.0GB (will fail)
+        # Try to allocate 4.0GB (will fail and queue)
         manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
 
         # Check for VRAM_ALLOCATION_FAILED event
@@ -318,7 +319,7 @@ class TestAllocationFailure:
         event = failed_events[0]
         assert event.service == "image"
         assert event.required_vram == 4.0
-        assert event.queued is False  # Not queued in this iteration
+        assert event.queued is True  # Queued for later processing (iteration 9)
 
 
 class TestPriorityEviction:
@@ -475,3 +476,188 @@ class TestPriorityEviction:
         llm_release = [e for e in release_events if e.service == "llm"]
         assert len(llm_release) == 1
         assert llm_release[0].vram_freed == 5.0
+
+
+class TestReleaseVRAM:
+    """Test manual VRAM release."""
+
+    def test_release_loaded_service(self, mock_gpu_monitor):
+        """Test releasing VRAM for a loaded service."""
+        manager = SmartVRAMManager()
+
+        # Manually load service
+        manager.loaded_services["llm"] = {
+            "vram": 3.2,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        # Release it
+        success = manager.release_vram("llm")
+
+        assert success is True
+        assert "llm" not in manager.loaded_services
+        assert manager.get_status()["allocated_vram"] == 0.0
+
+    def test_release_nonexistent_service(self, mock_gpu_monitor):
+        """Test releasing VRAM for non-existent service."""
+        manager = SmartVRAMManager()
+
+        # Try to release service that isn't loaded
+        success = manager.release_vram("nonexistent")
+
+        assert success is False
+
+    def test_release_emits_event(self, mock_gpu_monitor):
+        """Test that release emits VRAM_RELEASED event."""
+        manager = SmartVRAMManager()
+
+        # Load service
+        manager.loaded_services["llm"] = {
+            "vram": 3.2,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        # Clear events
+        pygame.event.clear()
+
+        # Release
+        manager.release_vram("llm")
+
+        # Check for event
+        events = pygame.event.get()
+        release_events = [e for e in events if e.type == pygame.USEREVENT + 10]
+
+        assert len(release_events) == 1
+        assert release_events[0].service == "llm"
+        assert release_events[0].vram_freed == 3.2
+
+
+class TestPendingQueue:
+    """Test pending queue for sequential loading."""
+
+    def test_queue_when_insufficient_vram(self, mock_gpu_monitor):
+        """Test that requests are queued when VRAM insufficient."""
+        manager = SmartVRAMManager()
+
+        # Load LLM (uses most VRAM)
+        manager.loaded_services["llm"] = {
+            "vram": 6.0,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        # Mock: only 1.5GB free
+        mock_gpu_monitor.get_free_vram_gb.return_value = 1.5
+
+        # Clear events
+        pygame.event.clear()
+
+        # Try to load Image (4.0GB) - should queue
+        success = manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+
+        # Should fail but queue
+        assert success is False
+        assert manager.pending_queue.qsize() == 1
+
+        # Check VRAM_ALLOCATION_FAILED event with queued=True
+        events = pygame.event.get()
+        failed_events = [e for e in events if e.type == pygame.USEREVENT + 11]
+        assert len(failed_events) == 1
+        assert failed_events[0].queued is True
+
+    def test_process_pending_after_release(self, mock_gpu_monitor):
+        """Test that pending requests are processed after VRAM released."""
+        manager = SmartVRAMManager()
+
+        # Load LLM
+        manager.loaded_services["llm"] = {
+            "vram": 5.0,
+            "priority": VRAMPriority.NORMAL,
+            "loaded_at": time.time()
+        }
+
+        # Mock: 2.5GB free initially
+        mock_gpu_monitor.get_free_vram_gb.return_value = 2.5
+
+        # Try to load Image (4.0GB) - should queue
+        manager.request_vram("image", 4.0, VRAMPriority.NORMAL)
+        assert manager.pending_queue.qsize() == 1
+
+        # Mock: 7.5GB free after LLM released
+        mock_gpu_monitor.get_free_vram_gb.return_value = 7.5
+
+        # Release LLM
+        manager.release_vram("llm")
+
+        # Pending queue should be processed
+        assert manager.pending_queue.qsize() == 0
+        assert "image" in manager.loaded_services
+
+    def test_pending_queue_priority_order(self, mock_gpu_monitor):
+        """Test that pending queue processes higher priority first."""
+        manager = SmartVRAMManager()
+
+        # Fill VRAM with high-priority service that can't be evicted
+        manager.loaded_services["llm"] = {
+            "vram": 6.0,
+            "priority": VRAMPriority.UI_CRITICAL,  # Highest priority - can't be evicted
+            "loaded_at": time.time()
+        }
+
+        # Mock: 1.5GB when queueing, then 7.5GB after release
+        # Need enough values for queueing 3 requests (each checks twice) + processing them
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [
+            1.5, 1.5,  # tts request: initial check, re-check after failed eviction
+            1.5, 1.5,  # image request: initial check, re-check
+            1.5, 1.5,  # translator request: initial check, re-check
+            7.5, 4.5, 2.5,  # Processing: image (3GB), translator (2GB), tts (2GB)
+        ]
+
+        # Queue multiple requests (different priorities)
+        manager.request_vram("tts", 2.0, VRAMPriority.BACKGROUND)
+        manager.request_vram("image", 3.0, VRAMPriority.USER_REQUESTED)
+        manager.request_vram("translator", 2.0, VRAMPriority.NORMAL)
+
+        assert manager.pending_queue.qsize() == 3
+
+        # Release LLM (plenty of VRAM now)
+        manager.release_vram("llm")
+
+        # USER_REQUESTED (image) should be loaded first
+        assert "image" in manager.loaded_services
+        # Queue should have processed all that fit
+        assert manager.pending_queue.qsize() < 3
+
+    def test_pending_request_allocation_emits_event(self, mock_gpu_monitor):
+        """Test that pending request allocation emits VRAM_ALLOCATED event."""
+        manager = SmartVRAMManager()
+
+        # Fill VRAM with high-priority service that can't be evicted
+        manager.loaded_services["llm"] = {
+            "vram": 6.0,
+            "priority": VRAMPriority.UI_CRITICAL,  # Can't be evicted
+            "loaded_at": time.time()
+        }
+
+        # Mock: 1.5GB when queueing (twice for failed eviction), 7.5GB after release, 4.5GB after allocation
+        mock_gpu_monitor.get_free_vram_gb.side_effect = [1.5, 1.5, 7.5, 4.5]
+
+        # Queue request
+        manager.request_vram("image", 3.0, VRAMPriority.USER_REQUESTED)
+
+        # Clear events
+        pygame.event.clear()
+
+        # Release LLM (triggers pending processing)
+        manager.release_vram("llm")
+
+        # Check for VRAM_ALLOCATED event
+        events = pygame.event.get()
+        # Should have VRAM_RELEASED (for llm) + VRAM_ALLOCATED (for image)
+        allocated_events = [e for e in events if e.type == pygame.USEREVENT + 9]
+        assert len(allocated_events) >= 1
+        # Find image allocation
+        image_alloc = [e for e in allocated_events if e.service == "image"]
+        assert len(image_alloc) == 1
