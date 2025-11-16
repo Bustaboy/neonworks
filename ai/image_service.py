@@ -7,9 +7,11 @@ Service for managing image generation with VRAM integration and auto-unload.
 import pygame
 import threading
 import time
-from typing import Optional
+import uuid
+from typing import Dict, List, Optional
 
 from ai.events import IMAGE_MODEL_LOADED, IMAGE_MODEL_UNLOADED
+from ai.image_request import ImageGenerationRequest, RequestState
 from ai.vram_manager import SmartVRAMManager
 from ai.vram_priority import VRAMPriority
 
@@ -80,6 +82,9 @@ class ImageService:
         # State tracking
         self.is_loaded: bool = False
         self.last_use_time: Optional[float] = None
+
+        # Request tracking
+        self._requests: Dict[str, ImageGenerationRequest] = {}
 
         # Thread safety
         self._lock = threading.Lock()
@@ -249,3 +254,136 @@ class ImageService:
                 "last_use_time": self.last_use_time,
                 "idle_timeout": self.idle_timeout,
             }
+
+    def submit_request(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+    ) -> ImageGenerationRequest:
+        """
+        Submit an image generation request.
+
+        Creates a new request and adds it to the queue for processing.
+        Generates a unique request ID.
+
+        Args:
+            prompt: Text prompt for image generation
+            model: Model to use (optional)
+            width: Image width in pixels (optional)
+            height: Image height in pixels (optional)
+
+        Returns:
+            ImageGenerationRequest object
+
+        Thread-safe.
+
+        Example:
+            >>> request = service.submit_request(
+            ...     prompt="A cat in space",
+            ...     model="sdxl",
+            ...     width=1024,
+            ...     height=1024
+            ... )
+            >>> print(request.request_id)
+            req_abc123...
+        """
+        with self._lock:
+            # Generate unique request ID
+            request_id = f"req_{uuid.uuid4().hex[:16]}"
+
+            # Create request
+            request = ImageGenerationRequest(
+                request_id=request_id,
+                prompt=prompt,
+                model=model,
+                width=width,
+                height=height,
+            )
+
+            # Store request
+            self._requests[request_id] = request
+
+            return request
+
+    def get_request(self, request_id: str) -> Optional[ImageGenerationRequest]:
+        """
+        Get request by ID.
+
+        Args:
+            request_id: Request ID to retrieve
+
+        Returns:
+            ImageGenerationRequest if found, None otherwise
+
+        Thread-safe.
+
+        Example:
+            >>> request = service.get_request("req_abc123")
+            >>> if request:
+            ...     print(request.state)
+        """
+        with self._lock:
+            return self._requests.get(request_id)
+
+    def cancel_request(self, request_id: str) -> bool:
+        """
+        Cancel a request by ID.
+
+        Args:
+            request_id: Request ID to cancel
+
+        Returns:
+            True if cancelled, False if not found or already complete
+
+        Thread-safe.
+
+        Example:
+            >>> success = service.cancel_request("req_abc123")
+            >>> print(success)
+            True
+        """
+        with self._lock:
+            request = self._requests.get(request_id)
+            if request is None:
+                return False
+
+            return request.cancel()
+
+    def list_pending_requests(self) -> List[ImageGenerationRequest]:
+        """
+        List all pending requests.
+
+        Returns:
+            List of pending ImageGenerationRequest objects
+
+        Thread-safe.
+
+        Example:
+            >>> pending = service.list_pending_requests()
+            >>> print(len(pending))
+            5
+        """
+        with self._lock:
+            return [
+                req
+                for req in self._requests.values()
+                if req.state == RequestState.PENDING
+            ]
+
+    def get_all_requests(self) -> List[ImageGenerationRequest]:
+        """
+        Get all requests regardless of state.
+
+        Returns:
+            List of all ImageGenerationRequest objects
+
+        Thread-safe.
+
+        Example:
+            >>> all_requests = service.get_all_requests()
+            >>> states = {r.state for r in all_requests}
+        """
+        with self._lock:
+            return list(self._requests.values())

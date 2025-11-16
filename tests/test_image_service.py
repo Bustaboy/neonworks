@@ -312,3 +312,158 @@ class TestGetStatus:
         assert status["is_loaded"] is True
         assert status["last_use_time"] is not None
         assert isinstance(status["last_use_time"], float)
+
+
+class TestAsyncRequests:
+    """Test async request handling."""
+
+    def test_submit_request(self, mock_backend, mock_vram_manager):
+        """Test submitting a generation request."""
+        from ai.image_request import ImageGenerationRequest, RequestState
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        request = service.submit_request(
+            prompt="A cat in space",
+            model="sdxl",
+            width=1024,
+            height=1024
+        )
+
+        assert isinstance(request, ImageGenerationRequest)
+        assert request.prompt == "A cat in space"
+        assert request.model == "sdxl"
+        assert request.width == 1024
+        assert request.height == 1024
+        assert request.state == RequestState.PENDING
+
+    def test_submit_request_generates_unique_id(self, mock_backend, mock_vram_manager):
+        """Test that each request gets unique ID."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        request1 = service.submit_request(prompt="test1")
+        request2 = service.submit_request(prompt="test2")
+
+        assert request1.request_id != request2.request_id
+
+    def test_get_request_by_id(self, mock_backend, mock_vram_manager):
+        """Test retrieving request by ID."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        request = service.submit_request(prompt="test")
+        request_id = request.request_id
+
+        retrieved = service.get_request(request_id)
+
+        assert retrieved is not None
+        assert retrieved.request_id == request_id
+        assert retrieved.prompt == "test"
+
+    def test_get_request_nonexistent(self, mock_backend, mock_vram_manager):
+        """Test retrieving nonexistent request returns None."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        retrieved = service.get_request("nonexistent_id")
+
+        assert retrieved is None
+
+    def test_cancel_request_by_id(self, mock_backend, mock_vram_manager):
+        """Test cancelling a request by ID."""
+        from ai.image_request import RequestState
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        request = service.submit_request(prompt="test")
+        request_id = request.request_id
+
+        success = service.cancel_request(request_id)
+
+        assert success is True
+
+        # Request should be cancelled
+        retrieved = service.get_request(request_id)
+        assert retrieved.state == RequestState.CANCELLED
+
+    def test_cancel_request_nonexistent(self, mock_backend, mock_vram_manager):
+        """Test cancelling nonexistent request returns False."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        success = service.cancel_request("nonexistent_id")
+
+        assert success is False
+
+    def test_list_pending_requests(self, mock_backend, mock_vram_manager):
+        """Test listing all pending requests."""
+        from ai.image_request import RequestState
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        # Submit multiple requests
+        req1 = service.submit_request(prompt="test1")
+        req2 = service.submit_request(prompt="test2")
+        req3 = service.submit_request(prompt="test3")
+
+        pending = service.list_pending_requests()
+
+        assert len(pending) == 3
+        assert all(r.state == RequestState.PENDING for r in pending)
+
+    def test_list_pending_excludes_cancelled(self, mock_backend, mock_vram_manager):
+        """Test that list_pending_requests() excludes cancelled requests."""
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        req1 = service.submit_request(prompt="test1")
+        req2 = service.submit_request(prompt="test2")
+
+        # Cancel one request
+        service.cancel_request(req1.request_id)
+
+        pending = service.list_pending_requests()
+
+        assert len(pending) == 1
+        assert pending[0].request_id == req2.request_id
+
+    def test_get_all_requests(self, mock_backend, mock_vram_manager):
+        """Test getting all requests regardless of state."""
+        from ai.image_request import RequestState
+
+        service = ImageService(
+            backend=mock_backend,
+            vram_manager=mock_vram_manager
+        )
+
+        req1 = service.submit_request(prompt="test1")
+        req2 = service.submit_request(prompt="test2")
+        service.cancel_request(req1.request_id)
+
+        all_requests = service.get_all_requests()
+
+        assert len(all_requests) == 2
+        # Should include both pending and cancelled
+        states = {r.state for r in all_requests}
+        assert RequestState.PENDING in states
+        assert RequestState.CANCELLED in states
