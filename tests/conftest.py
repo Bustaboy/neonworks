@@ -11,6 +11,10 @@ from pathlib import Path
 from typing import Dict, List
 from unittest.mock import MagicMock, Mock
 
+# Set headless mode BEFORE pygame import
+os.environ['SDL_VIDEODRIVER'] = 'dummy'
+os.environ['SDL_AUDIODRIVER'] = 'dummy'
+
 import pygame
 import pytest
 
@@ -33,11 +37,6 @@ from neonworks.core.events import EventManager, get_event_manager
 from neonworks.gameplay.combat import Team, TeamComponent
 from neonworks.gameplay.jrpg_combat import JRPGStats, MagicPoints, PartyMember
 from neonworks.gameplay.movement import Movement
-
-
-# Set headless mode BEFORE any pygame imports
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
-os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 
 # Initialize Pygame for tests that need it
