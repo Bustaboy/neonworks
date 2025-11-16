@@ -82,6 +82,46 @@ neonworks/
 
 ## Quick Start
 
+### 🚀 Using the Visual Launcher (Recommended)
+
+The easiest way to get started is with the **NeonWorks Launcher** - a visual project hub similar to Unity Hub or Godot's project manager.
+
+```bash
+# Start the launcher
+python launcher.py
+
+# Or use the convenience scripts:
+./launch_neonworks.sh        # Linux/Mac
+launch_neonworks.bat         # Windows
+```
+
+The launcher provides:
+- ✅ **Visual project browser** with project cards
+- ✅ **Create new projects** with template selection
+- ✅ **One-click project launching** into the editor
+- ✅ **Recent projects tracking**
+- ✅ **4 built-in templates**: Basic Game, Turn-Based RPG, Base Builder, JRPG Demo
+
+See [LAUNCHER_README.md](LAUNCHER_README.md) for detailed launcher documentation.
+
+### 💻 Using the Command Line (Alternative)
+
+You can also use the CLI for project management:
+
+```bash
+# Create a new project
+python cli.py create my_game --template turn_based_rpg
+
+# List available templates
+python cli.py templates
+
+# Run a project
+python main.py my_game
+
+# List all projects
+python cli.py list
+```
+
 ### Running Tests
 ```bash
 # Run engine tests
@@ -90,9 +130,9 @@ pytest tests/
 
 ### Using the Editor Tools
 
-The engine includes editor tools for level design, navmesh editing, and asset management. These tools are available once you create a complete game project (see below).
+The engine includes 17+ visual editor tools (F1-F12 hotkeys) for level design, navmesh editing, quest creation, and asset management. These tools are available when you launch a project.
 
-### Creating a New Game Project
+### Creating a New Game Project (Programmatic)
 ```python
 from engine.core.project import ProjectManager, ProjectMetadata, ProjectSettings
 
