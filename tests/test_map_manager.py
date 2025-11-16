@@ -7,6 +7,7 @@ duplication, templates, and batch operations.
 
 import json
 import tempfile
+import time
 from pathlib import Path
 
 import pytest
@@ -111,6 +112,8 @@ class TestMapData:
         map_data = MapData("ResizeTest", width=50, height=50)
 
         original_modified = map_data.metadata.modified_date
+
+        time.sleep(0.001)  # Ensure timestamp will be different
 
         # Resize
         map_data.resize(100, 80)

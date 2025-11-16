@@ -125,7 +125,7 @@ class TestCLIIntegration:
         assert cli_path.exists()
 
         # Read file and check for main components
-        content = cli_path.read_text()
+        content = cli_path.read_text(encoding="utf-8")
 
         assert "argparse" in content
         assert "TEMPLATES" in content
@@ -214,6 +214,6 @@ class TestMainCLI:
     def test_main_cli_has_entry_point(self):
         """Test main.py has entry point"""
         main_path = Path(__file__).parent.parent / "main.py"
-        content = main_path.read_text()
+        content = main_path.read_text(encoding="utf-8")
 
         assert "__main__" in content or "def main" in content

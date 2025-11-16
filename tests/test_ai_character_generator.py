@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from neonworks.config.ai_config import AIConfig
 from neonworks.engine.tools.ai_character_generator import (
     AICharacterGenerator,
     CharacterArchetype,
@@ -22,14 +23,26 @@ from neonworks.engine.tools.character_generator import LayerType
 
 
 @pytest.fixture
-def ai_generator():
-    """Create an AI character generator instance."""
+def ai_generator(mocker):
+    """Create an AI character generator instance with mocked config."""
+    # Mock get_ai_config to prevent real hardware detection during tests
+    mock_config = AIConfig()
+    mocker.patch(
+        "neonworks.engine.tools.ai_character_generator.get_ai_config",
+        return_value=mock_config,
+    )
     return AICharacterGenerator(default_size=32)
 
 
 @pytest.fixture
-def loaded_ai_generator():
-    """Create an AI generator with sample components loaded."""
+def loaded_ai_generator(mocker):
+    """Create an AI generator with sample components loaded and mocked config."""
+    # Mock get_ai_config to prevent real hardware detection during tests
+    mock_config = AIConfig()
+    mocker.patch(
+        "neonworks.engine.tools.ai_character_generator.get_ai_config",
+        return_value=mock_config,
+    )
     gen = AICharacterGenerator(default_size=32)
 
     # Load the test components we generated

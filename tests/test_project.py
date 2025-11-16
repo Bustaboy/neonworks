@@ -624,16 +624,14 @@ class TestProjectManager:
         captured = capsys.readouterr()
         assert "Invalid project name" in captured.out
 
-    def test_create_project_valid_names(self, tmp_path):
+    @pytest.mark.parametrize("name", ["test", "test_game", "test-game", "test123", "TEST"])
+    def test_create_project_valid_names(self, tmp_path, name):
         """Test creating projects with various valid names"""
         manager = ProjectManager(tmp_path)
         metadata = ProjectMetadata(name="Test", version="1.0", description="Test", author="Test")
 
-        valid_names = ["test", "test_game", "test-game", "test123", "TEST"]
-
-        for name in valid_names:
-            project = manager.create_project(name, metadata)
-            assert project is not None, f"Valid name {name} rejected"
+        project = manager.create_project(name, metadata)
+        assert project is not None, f"Valid name {name} rejected"
 
     def test_create_project_already_exists(self, tmp_path, capsys):
         """Test creating project that already exists"""

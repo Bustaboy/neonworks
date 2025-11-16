@@ -43,8 +43,8 @@ def temp_tileset_image(pygame_display):
 
     # Save to temporary file
     temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-    pygame.image.save(surface, temp_file.name)
     temp_file.close()
+    pygame.image.save(surface, temp_file.name)
 
     yield temp_file.name
 

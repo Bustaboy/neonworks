@@ -230,8 +230,8 @@ class TestAITilesetGenerator:
 
         # Save to temp file
         temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        temp_file.close()  # Close the file so pygame can write to it
         pygame.image.save(tileset_surface, temp_file.name)
-        temp_file.close()
 
         # Add to tileset manager
         tileset_manager.add_tileset(
@@ -281,8 +281,8 @@ class TestAITilesetGenerator:
 
         # Save to temp file
         temp_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        temp_file.close()  # Close the file so pygame can write to it
         pygame.image.save(tileset_surface, temp_file.name)
-        temp_file.close()
 
         # Add to tileset manager
         tileset_manager.add_tileset(
