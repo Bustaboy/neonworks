@@ -35,14 +35,15 @@ from neonworks.gameplay.jrpg_combat import JRPGStats, MagicPoints, PartyMember
 from neonworks.gameplay.movement import Movement
 
 
+# Set headless mode BEFORE any pygame imports
+os.environ['SDL_VIDEODRIVER'] = 'dummy'
+os.environ['SDL_AUDIODRIVER'] = 'dummy'
+
+
 # Initialize Pygame for tests that need it
 @pytest.fixture(scope="session", autouse=True)
 def pygame_init():
     """Initialize Pygame once for all tests (headless mode for CI)."""
-    # Set headless mode for CI environments (no display required)
-    os.environ['SDL_VIDEODRIVER'] = 'dummy'
-    os.environ['SDL_AUDIODRIVER'] = 'dummy'
-
     pygame.init()
     yield
     pygame.quit()
