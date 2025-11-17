@@ -323,7 +323,15 @@ class PerformanceMonitor:
 
     def print_stats(self):
         """Print current performance statistics to console"""
+        if not self.frame_history:
+            print("\n" + "=" * 60)
+            print("PERFORMANCE STATISTICS")
+            print("=" * 60)
+            print("No frame data recorded yet.")
+            return
+
         stats = self.get_stats()
+        frame_count = len(self.frame_history)
 
         print("\n" + "=" * 60)
         print("PERFORMANCE STATISTICS")
@@ -339,9 +347,10 @@ class PerformanceMonitor:
         print(f"  Update:         {stats.avg_update_time_ms:.2f}ms")
         print(f"  Render:         {stats.avg_render_time_ms:.2f}ms")
         print(f"  Events:         {stats.avg_event_time_ms:.2f}ms")
+        dropped_percentage = (stats.dropped_frames / frame_count * 100) if frame_count else 0.0
         print(
             f"Dropped Frames:   {stats.dropped_frames} "
-            f"({stats.dropped_frames / len(self.frame_history) * 100:.1f}%)"
+            f"({dropped_percentage:.1f}%)"
         )
         print(f"Memory:           {stats.memory_used_mb:.1f} MB " f"({stats.memory_percent:.1f}%)")
         print(f"Entities:         {stats.entity_count}")
