@@ -8,6 +8,10 @@ pygame==2.5.2
 # Used in pathfinding, physics, and particle systems
 numpy>=1.24.0
 
+# System performance metrics
+# Used by performance monitoring utilities to profile CPU and memory usage
+psutil>=5.9.0
+
 # Image processing and asset pipeline
 # Used for texture atlases, format conversions, and editor tools
 Pillow>=10.0.0

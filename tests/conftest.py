@@ -7,8 +7,10 @@ including world instances, entities, mock objects, and test data.
 
 import os
 import tempfile
+from contextlib import ExitStack
 from pathlib import Path
 from typing import Dict, List
+from unittest import mock
 from unittest.mock import MagicMock, Mock
 
 import pygame
@@ -33,6 +35,30 @@ from neonworks.core.events import EventManager, get_event_manager
 from neonworks.gameplay.combat import Team, TeamComponent
 from neonworks.gameplay.jrpg_combat import JRPGStats, MagicPoints, PartyMember
 from neonworks.gameplay.movement import Movement
+
+
+class _SimpleMocker:
+    """Lightweight replacement for pytest-mock's mocker fixture."""
+
+    def __init__(self):
+        self._stack = ExitStack()
+
+    def patch(self, target, *args, **kwargs):
+        return self._stack.enter_context(mock.patch(target, *args, **kwargs))
+
+    def stop(self):
+        self._stack.close()
+
+
+@pytest.fixture
+def mocker():
+    """Provide a mocker fixture even when pytest-mock isn't installed."""
+
+    simple_mocker = _SimpleMocker()
+    try:
+        yield simple_mocker
+    finally:
+        simple_mocker.stop()
 
 
 # Initialize Pygame for tests that need it

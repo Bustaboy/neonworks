@@ -9,9 +9,42 @@ import time
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Deque, Dict, List, Optional
+from typing import Deque, Dict, List, NamedTuple, Optional
 
-import psutil
+import os
+import sys
+
+try:
+    import psutil
+except ImportError:  # pragma: no cover - fallback when psutil isn't available
+    psutil = None
+
+
+class _FallbackMemoryInfo(NamedTuple):
+    """Minimal memory info structure when psutil isn't installed."""
+
+    rss: int
+
+
+class _FallbackProcess:
+    """Lightweight process monitor used when psutil is unavailable."""
+
+    def __init__(self):
+        self._pid = os.getpid()
+
+    def memory_info(self) -> _FallbackMemoryInfo:
+        try:
+            import resource
+
+            usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            # Linux provides kilobytes, macOS provides bytes
+            rss_bytes = usage if sys.platform == "darwin" else usage * 1024
+        except Exception:
+            rss_bytes = 0
+        return _FallbackMemoryInfo(rss=rss_bytes)
+
+    def memory_percent(self) -> float:
+        return 0.0
 
 
 @dataclass
@@ -120,7 +153,7 @@ class PerformanceMonitor:
         self._event_count: int = 0
 
         # Process info for memory tracking
-        self._process = psutil.Process()
+        self._process = self._create_process()
 
         # Performance warnings
         self._consecutive_slow_frames = 0
@@ -228,9 +261,16 @@ class PerformanceMonitor:
         dropped_frames = sum(1 for ft in frame_times if ft > 0.033)
 
         # Memory usage
-        mem_info = self._process.memory_info()
-        memory_used_mb = mem_info.rss / (1024 * 1024)
-        memory_percent = self._process.memory_percent()
+        if self._process:
+            mem_info = self._process.memory_info()
+            memory_used_mb = mem_info.rss / (1024 * 1024)
+            try:
+                memory_percent = self._process.memory_percent()
+            except Exception:
+                memory_percent = 0.0
+        else:
+            memory_used_mb = 0.0
+            memory_percent = 0.0
 
         return PerformanceStats(
             avg_fps=avg_fps,
@@ -283,7 +323,15 @@ class PerformanceMonitor:
 
     def print_stats(self):
         """Print current performance statistics to console"""
+        if not self.frame_history:
+            print("\n" + "=" * 60)
+            print("PERFORMANCE STATISTICS")
+            print("=" * 60)
+            print("No frame data recorded yet.")
+            return
+
         stats = self.get_stats()
+        frame_count = len(self.frame_history)
 
         print("\n" + "=" * 60)
         print("PERFORMANCE STATISTICS")
@@ -299,9 +347,10 @@ class PerformanceMonitor:
         print(f"  Update:         {stats.avg_update_time_ms:.2f}ms")
         print(f"  Render:         {stats.avg_render_time_ms:.2f}ms")
         print(f"  Events:         {stats.avg_event_time_ms:.2f}ms")
+        dropped_percentage = (stats.dropped_frames / frame_count * 100) if frame_count else 0.0
         print(
             f"Dropped Frames:   {stats.dropped_frames} "
-            f"({stats.dropped_frames / len(self.frame_history) * 100:.1f}%)"
+            f"({dropped_percentage:.1f}%)"
         )
         print(f"Memory:           {stats.memory_used_mb:.1f} MB " f"({stats.memory_percent:.1f}%)")
         print(f"Entities:         {stats.entity_count}")
@@ -348,6 +397,14 @@ class PerformanceMonitor:
         self.frame_count = 0
         self.frame_history.clear()
         self._consecutive_slow_frames = 0
+
+    def _create_process(self):
+        if psutil:
+            try:
+                return psutil.Process()
+            except Exception:
+                pass
+        return _FallbackProcess()
 
 
 # Global performance monitor instance
