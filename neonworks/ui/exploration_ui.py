@@ -60,6 +60,17 @@ class DialogueBox(UIWidget):
         # Callbacks
         self.on_dialogue_complete: Optional[Callable] = None
 
+        # AI approval state (optional, used when integrating with Loremaster)
+        self.ai_approval_mode: bool = False
+        # Callable that should call the Loremaster to (re)generate a line.
+        # Signature: (guidance: Optional[str]) -> str
+        self.ai_generate_callback: Optional[Callable[[Optional[str]], str]] = None
+        # Optional callback invoked when a line is finally accepted.
+        self.ai_on_accept: Optional[Callable[[str], None]] = None
+        self.ai_guidance_text: str = ""
+        self.ai_waiting_for_guidance: bool = False
+        self.ai_last_line: str = ""
+
     def start_dialogue(self, lines: List[DialogueLine]):
         """Start a new dialogue sequence"""
         self.dialogue_lines = lines
@@ -97,18 +108,157 @@ class DialogueBox(UIWidget):
             self.displayed_text = self.full_text
             self.is_text_complete = True
         else:
+            # In AI approval mode we never auto-advance past the proposed line;
+            # the user must explicitly accept it.
+            if self.ai_approval_mode:
+                return
+
             # Move to next line
             self.current_line_index += 1
             self._load_current_line()
+
+    # --- AI dialogue approval -------------------------------------------------
+
+    def start_ai_approval(
+        self,
+        proposed_line: str,
+        generate_callback: Callable[[Optional[str]], str],
+        on_accept: Optional[Callable[[str], None]] = None,
+    ):
+        """
+        Start an AI dialogue approval workflow for a single line.
+
+        Args:
+            proposed_line: Initial line proposed by the Loremaster.
+            generate_callback: Callable that, when invoked with an optional
+                guidance string, returns a new line from the Loremaster. This
+                is where the actual Loremaster call should happen.
+            on_accept: Optional callback invoked with the final accepted line.
+        """
+        self.ai_approval_mode = True
+        self.ai_generate_callback = generate_callback
+        self.ai_on_accept = on_accept
+        self.ai_guidance_text = ""
+        self.ai_waiting_for_guidance = False
+        self.ai_last_line = proposed_line
+
+        # Treat the proposed line as a single-line dialogue sequence
+        self.is_active = True
+        self.visible = True
+        self.full_text = proposed_line
+        self.displayed_text = ""
+        self.text_timer = 0.0
+        self.is_text_complete = False
 
     def handle_event(self, event: pygame.event.Event) -> bool:
         """Handle input events"""
         if not self.visible or not self.is_active:
             return False
 
+        # AI guidance text entry mode
+        if self.ai_approval_mode and self.ai_waiting_for_guidance:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    # Submit guidance and request a new line
+                    guidance = self.ai_guidance_text.strip() or None
+                    if self.ai_generate_callback:
+                        new_line = self.ai_generate_callback(guidance)
+                        self.ai_last_line = new_line
+                        self.full_text = new_line
+                        self.displayed_text = ""
+                        self.text_timer = 0.0
+                        self.is_text_complete = False
+                    self.ai_waiting_for_guidance = False
+                    self.ai_guidance_text = ""
+                    return True
+                if event.key == pygame.K_ESCAPE:
+                    # Cancel guidance entry
+                    self.ai_waiting_for_guidance = False
+                    self.ai_guidance_text = ""
+                    return True
+                if event.key == pygame.K_BACKSPACE:
+                    self.ai_guidance_text = self.ai_guidance_text[:-1]
+                    return True
+
+                # Append printable characters
+                if event.unicode and event.unicode.isprintable():
+                    if len(self.ai_guidance_text) < 200:
+                        self.ai_guidance_text += event.unicode
+                    return True
+
+            return False
+
         if event.type == pygame.KEYDOWN:
-            if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_e):
-                self.advance()
+            if self.ai_approval_mode and self.is_text_complete:
+                # Approval shortcuts in AI mode
+                if event.key in (pygame.K_a, pygame.K_RETURN):
+                    # Accept
+                    self.ai_approval_mode = False
+                    if self.ai_on_accept:
+                        self.ai_on_accept(self.ai_last_line)
+                    self._end_dialogue()
+                    return True
+                if event.key == pygame.K_r:
+                    # Rewrite using a generic rewrite hint
+                    if self.ai_generate_callback:
+                        new_line = self.ai_generate_callback("Please rewrite this line.")
+                        self.ai_last_line = new_line
+                        self.full_text = new_line
+                        self.displayed_text = ""
+                        self.text_timer = 0.0
+                        self.is_text_complete = False
+                    return True
+                if event.key == pygame.K_g:
+                    # Enter guidance mode
+                    self.ai_waiting_for_guidance = True
+                    self.ai_guidance_text = ""
+                    return True
+            else:
+                # Normal dialogue advance
+                if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_e):
+                    self.advance()
+                    return True
+
+        # Mouse click support for AI approval buttons
+        if (
+            self.ai_approval_mode
+            and self.is_text_complete
+            and event.type == pygame.MOUSEBUTTONDOWN
+            and event.button == 1
+        ):
+            mouse_x, mouse_y = event.pos
+
+            button_width = 100
+            button_height = 36
+            spacing = 15
+            base_y = self.y + self.height - button_height - 15
+
+            accept_rect = pygame.Rect(self.x + 20, base_y, button_width, button_height)
+            rewrite_rect = pygame.Rect(
+                self.x + 20 + button_width + spacing, base_y, button_width, button_height
+            )
+            guide_rect = pygame.Rect(
+                self.x + 20 + 2 * (button_width + spacing), base_y, button_width, button_height
+            )
+
+            if accept_rect.collidepoint(mouse_x, mouse_y):
+                self.ai_approval_mode = False
+                if self.ai_on_accept:
+                    self.ai_on_accept(self.ai_last_line)
+                self._end_dialogue()
+                return True
+            if rewrite_rect.collidepoint(mouse_x, mouse_y):
+                if self.ai_generate_callback:
+                    new_line = self.ai_generate_callback("Please rewrite this line.")
+                    self.ai_last_line = new_line
+                    self.full_text = new_line
+                    self.displayed_text = ""
+                    self.text_timer = 0.0
+                    self.is_text_complete = False
+                return True
+            if guide_rect.collidepoint(mouse_x, mouse_y):
+                self.ai_waiting_for_guidance = True
+                self.ai_guidance_text = ""
                 return True
 
         return False

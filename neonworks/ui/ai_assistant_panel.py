@@ -7,6 +7,7 @@ The AI can see what's on screen and provide intelligent assistance.
 
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
+import threading
 
 import pygame
 
@@ -87,6 +88,12 @@ class AIAssistantPanel:
 
         # Suggestions
         self.current_suggestions: List[str] = []
+
+        # Async Director task state
+        self.task_running: bool = False
+        self.task_status: str = ""
+        self.task_error: Optional[str] = None
+        self._task_thread: Optional[threading.Thread] = None
 
     def toggle(self):
         """Toggle panel visibility"""
@@ -185,9 +192,26 @@ class AIAssistantPanel:
         collapse_text = self.small_font.render("►", True, self.text_color)
         self.screen.blit(collapse_text, (self.panel_x + self.panel_width - 25, self.panel_y + 12))
 
-        # Chat area
-        chat_y = self.panel_y + 45
-        chat_height = self.panel_height - 145
+        # Optional task status
+        status_y = self.panel_y + 42
+        if self.task_running and self.task_status:
+            status_text = self.small_font.render(
+                f"Working: {self.task_status}", True, (200, 200, 160)
+            )
+            self.screen.blit(status_text, (self.panel_x + 10, status_y))
+        elif self.task_error:
+            status_text = self.small_font.render(
+                f"Error: {self.task_error}", True, (255, 120, 120)
+            )
+            self.screen.blit(status_text, (self.panel_x + 10, status_y))
+
+        # Action buttons row
+        actions_y = self.panel_y + 70
+        self._render_actions(actions_y)
+
+        # Chat area (below actions)
+        chat_y = actions_y + 60
+        chat_height = self.panel_height - 145 - 60
 
         self._render_chat_messages(chat_y, chat_height)
 
@@ -258,6 +282,41 @@ class AIAssistantPanel:
         elif self.input_active:
             placeholder = self.input_font.render("Ask AI anything...", True, (100, 100, 100))
             self.screen.blit(placeholder, (self.panel_x + 10, y + 10))
+
+    def _render_actions(self, y: int):
+        """Render quick action buttons for common AI tasks"""
+        label = self.small_font.render("Actions:", True, (180, 180, 200))
+        self.screen.blit(label, (self.panel_x + 10, y))
+
+        btn_width = 120
+        btn_height = 28
+        spacing = 10
+        base_x = self.panel_x + 10
+        btn_y = y + 18
+
+        # Generate Navmesh
+        nav_rect = pygame.Rect(base_x, btn_y, btn_width, btn_height)
+        quest_rect = pygame.Rect(base_x + btn_width + spacing, btn_y, btn_width, btn_height)
+        describe_rect = pygame.Rect(
+            base_x + 2 * (btn_width + spacing), btn_y, btn_width, btn_height
+        )
+
+        def draw_button(rect: pygame.Rect, text: str):
+            color = (70, 90, 130)
+            pygame.draw.rect(self.screen, color, rect, border_radius=4)
+            pygame.draw.rect(self.screen, (120, 140, 190), rect, 1, border_radius=4)
+            txt_surface = self.small_font.render(text, True, (240, 240, 255))
+            txt_rect = txt_surface.get_rect(center=rect.center)
+            self.screen.blit(txt_surface, txt_rect)
+
+        draw_button(nav_rect, "Generate Navmesh")
+        draw_button(quest_rect, "Write Quest")
+        draw_button(describe_rect, "Describe Scene")
+
+        # Cache rects for click handling
+        self._navmesh_button_rect = nav_rect
+        self._quest_button_rect = quest_rect
+        self._describe_button_rect = describe_rect
 
     def _render_wrapped_text(self, text: str, x: int, y: int, max_width: int):
         """Render word-wrapped text"""
@@ -351,6 +410,19 @@ class AIAssistantPanel:
             if self.panel_x + self.panel_width - 30 <= mx <= self.panel_x + self.panel_width:
                 if self.panel_y + 5 <= my <= self.panel_y + 35:
                     self.toggle_collapse()
+                    return True
+
+            # Action buttons
+            actions_y = self.panel_y + 70
+            if hasattr(self, "_navmesh_button_rect"):
+                if self._navmesh_button_rect.collidepoint(mx, my):
+                    self._on_action_clicked("navmesh")
+                    return True
+                if self._quest_button_rect.collidepoint(mx, my):
+                    self._on_action_clicked("quest")
+                    return True
+                if self._describe_button_rect.collidepoint(mx, my):
+                    self._on_action_clicked("describe")
                     return True
 
             # Input field
@@ -463,6 +535,96 @@ I can see what's on your map and understand spatial relationships!"""
 
         # Default response
         return f"I understand you want: '{user_message}'. This feature is coming soon! Try 'help' to see what I can do now."
+
+    # --- Director-backed quick actions ---------------------------------------
+
+    def _on_action_clicked(self, action: str):
+        """Handle quick action button clicks"""
+        if self.task_running:
+            # Inform user that a task is already running
+            timestamp = datetime.now().strftime("%H:%M")
+            self.chat_history.append(
+                ("AI", "Another AI task is already running. Please wait for it to finish.", timestamp)
+            )
+            return
+
+        if action == "navmesh":
+            prompt = self._build_navmesh_prompt()
+            label = "Generate Navmesh"
+        elif action == "quest":
+            prompt = self._build_quest_prompt()
+            label = "Write Quest"
+        elif action == "describe":
+            prompt = self._build_describe_prompt()
+            label = "Describe Scene"
+        else:
+            return
+
+        self._start_director_task(label, prompt)
+
+    def _build_navmesh_prompt(self) -> str:
+        """Construct prompt for navmesh generation suggestion"""
+        scene_desc = self._describe_screen()
+        return (
+            "You are an AI assistant helping design a 2D RPG map.\n"
+            "Based on the scene description below, propose a high-level navmesh plan:\n"
+            "- Which regions should be walkable vs blocked\n"
+            "- Any special navigation zones (bridges, stairs, water, etc.)\n\n"
+            f"Scene description:\n{scene_desc}\n"
+        )
+
+    def _build_quest_prompt(self) -> str:
+        """Construct prompt for quest writing"""
+        scene_desc = self._describe_screen()
+        guidance = self.current_input.strip()
+        self.current_input = ""
+        guidance_text = guidance or "Design a short starter quest suitable for this scene."
+        return (
+            "You are the Loremaster for a 2D JRPG.\n"
+            "Write a short quest concept (2-4 sentences) including:\n"
+            "- Quest name\n"
+            "- NPC or location that gives the quest\n"
+            "- Core objective and reward\n\n"
+            f"Scene description:\n{scene_desc}\n\n"
+            f"Designer guidance:\n{guidance_text}\n"
+        )
+
+    def _build_describe_prompt(self) -> str:
+        """Construct prompt for Director to describe the current scene"""
+        scene_desc = self._describe_screen()
+        return (
+            "You are helping a level designer understand their current scene.\n"
+            "Rewrite the description below into a vivid, human-friendly paragraph "
+            "that highlights key points of interest for the player.\n\n"
+            f"Raw scene description:\n{scene_desc}\n"
+        )
+
+    def _start_director_task(self, label: str, prompt: str):
+        """Run a Director LLM task asynchronously to avoid blocking the UI."""
+        from neonworks.core.director import Director  # Imported lazily
+
+        timestamp = datetime.now().strftime("%H:%M")
+        self.chat_history.append(("User", f"[{label}]", timestamp))
+
+        self.task_running = True
+        self.task_status = label
+        self.task_error = None
+
+        def worker():
+            try:
+                director = Director()
+                # Use the Director agent itself; in a richer setup this would
+                # route to a specialized agent like Loremaster.
+                result = director.run_task("Director", prompt)
+                self.chat_history.append(("AI", result, datetime.now().strftime("%H:%M")))
+            except Exception as e:  # pragma: no cover - defensive
+                self.task_error = str(e)
+            finally:
+                self.task_running = False
+                self.task_status = ""
+
+        self._task_thread = threading.Thread(target=worker, daemon=True)
+        self._task_thread.start()
 
     def _describe_screen(self) -> str:
         """Describe what AI sees on screen"""

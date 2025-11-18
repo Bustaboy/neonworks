@@ -19,19 +19,12 @@ Usage:
 import json
 import subprocess
 import sys
-import threading
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pygame
 
-from neonworks.agents.architect import Architect
-from neonworks.agents.director import Director
-from neonworks.agents.llm_backend import DummyBackend
-from neonworks.bible.bible_manager import BibleManager
-from neonworks.bible.schema import Location, Mechanic, Quest
-from neonworks.bible.storage import save_bible
 from neonworks.core.project import ProjectManager, ProjectMetadata, ProjectSettings
 from neonworks.rendering.ui import UI, UIStyle
 
@@ -133,14 +126,21 @@ class LauncherUI:
         info_font = pygame.font.Font(None, 18)
         desc = project_info.get("description", "No description")
         desc_text = info_font.render(
-            desc[:60] + "..." if len(desc) > 60 else desc, True, (200, 200, 220)
+            desc if len(desc) <= 60 else desc[:57] + "...",
+            True,
+            (200, 200, 220),
         )
-        self.screen.blit(desc_text, (x + 20, y + 50))
+        self.screen.blit(desc_text, (x + 20, y + 45))
+
+        # Author
+        author = project_info.get("author", "Unknown")
+        author_text = info_font.render(f"Author: {author}", True, (180, 180, 200))
+        self.screen.blit(author_text, (x + 20, y + 70))
 
         # Version and date
         version = project_info.get("version", "0.1.0")
         version_text = info_font.render(f"Version: {version}", True, (150, 150, 170))
-        self.screen.blit(version_text, (x + 20, y + 75))
+        self.screen.blit(version_text, (x + 20, y + 95))
 
         # Modified date
         modified = project_info.get("modified_date", "Unknown")
@@ -151,7 +151,7 @@ class LauncherUI:
             except:
                 pass
         date_text = info_font.render(f"Modified: {modified}", True, (150, 150, 170))
-        self.screen.blit(date_text, (x + 20, y + 100))
+        self.screen.blit(date_text, (x + 20, y + 120))
 
         # Template info
         template = project_info.get("template", "unknown")
@@ -300,7 +300,7 @@ class NeonWorksLauncher:
                 "item_definitions": "config/items.json",
             },
         },
-  "jrpg_demo": {
+        "jrpg_demo": {
             "name": "JRPG Demo",
             "description": "Complete JRPG template with battle system, magic, and exploration",
             "settings": {
@@ -319,8 +319,8 @@ class NeonWorksLauncher:
         },
     }
 
-      def __init__(self):
-          pygame.init()
+    def __init__(self):
+        pygame.init()
 
         # Window settings
         self.width = 1200
@@ -337,36 +337,20 @@ class NeonWorksLauncher:
         self.projects_root.mkdir(exist_ok=True)
         self.project_manager = ProjectManager(str(self.projects_root))
 
-          # State
-          self.running = True
-          self.clock = pygame.time.Clock()
-          self.view = "main"  # 'main', 'new_project', 'template_select', 'ai_wizard', 'ai_progress'
+        # State
+        self.running = True
+        self.clock = pygame.time.Clock()
+        self.view = "main"  # 'main', 'new_project', 'template_select'
 
         # Project data
         self.projects: List[Dict] = []
         self.selected_project_index = -1
 
-          # New project state
-          self.new_project_name = ""
-          self.selected_template = "basic_game"
-          self.new_project_author = "Developer"
-          self.new_project_description = ""
-
-          # AI wizard state
-          self.active_text_field: Optional[str] = None
-          self.ai_wizard_step = 0
-          self.ai_project_name = ""
-          self.ai_world_setting = ""
-          self.ai_tone = ""
-          self.ai_main_quest = ""
-          self.ai_key_locations = ""
-          self.ai_mechanics = ""
-
-          # AI generation task state
-          self.ai_task_thread: Optional[threading.Thread] = None
-          self.ai_task_running: bool = False
-          self.ai_task_status: str = ""
-          self.ai_task_error: Optional[str] = None
+        # New project state
+        self.new_project_name = ""
+        self.selected_template = "basic_game"
+        self.new_project_author = "Developer"
+        self.new_project_description = ""
 
         # Recent projects
         self.recent_projects_file = self.engine_root / ".recent_projects.json"
@@ -403,7 +387,7 @@ class NeonWorksLauncher:
         self.recent_projects.insert(0, project_name)
         self._save_recent_projects()
 
-      def refresh_projects(self):
+    def refresh_projects(self):
         """Scan and load all projects"""
         self.projects = []
         project_names = self.project_manager.list_projects()
@@ -429,20 +413,20 @@ class NeonWorksLauncher:
         try:
             # Validate name
             if not name or not name.replace("_", "").replace("-", "").isalnum():
-                print("❌ Invalid project name")
+                print("❗ Invalid project name")
                 return False
 
             # Check if exists
             if (self.projects_root / name).exists():
-                print(f"❌ Project '{name}' already exists")
+                print(f"❗ Project '{name}' already exists")
                 return False
 
             template_info = self.TEMPLATES.get(template)
             if not template_info:
-                print(f"❌ Unknown template '{template}'")
+                print(f"❗ Unknown template '{template}'")
                 return False
 
-            print(f"🎮 Creating project: {name}")
+            print(f"🛠️ Creating project: {name}")
 
             # Create metadata
             metadata = ProjectMetadata(
@@ -506,66 +490,28 @@ class NeonWorksLauncher:
 
             traceback.print_exc()
 
-      def handle_events(self):
-          """Handle input events"""
-          for event in pygame.event.get():
+    def handle_events(self):
+        """Handle input events"""
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
 
             if event.type == pygame.KEYDOWN:
-                if self.launcher_ui.text_input_active and self.active_text_field:
-                    # Handle generic text input for the active field
+                if self.view == "new_project" and self.launcher_ui.text_input_active:
+                    # Handle text input
                     if event.key == pygame.K_BACKSPACE:
-                        if self.active_text_field == "new_project_name":
-                            self.new_project_name = self.new_project_name[:-1]
-                        elif self.active_text_field == "ai_project_name":
-                            self.ai_project_name = self.ai_project_name[:-1]
-                        elif self.active_text_field == "ai_world_setting":
-                            self.ai_world_setting = self.ai_world_setting[:-1]
-                        elif self.active_text_field == "ai_tone":
-                            self.ai_tone = self.ai_tone[:-1]
-                        elif self.active_text_field == "ai_main_quest":
-                            self.ai_main_quest = self.ai_main_quest[:-1]
-                        elif self.active_text_field == "ai_key_locations":
-                            self.ai_key_locations = self.ai_key_locations[:-1]
-                        elif self.active_text_field == "ai_mechanics":
-                            self.ai_mechanics = self.ai_mechanics[:-1]
+                        self.new_project_name = self.new_project_name[:-1]
                     elif event.key == pygame.K_RETURN:
-                        # Finish editing current field
                         self.launcher_ui.text_input_active = False
-                        self.active_text_field = None
                     elif event.key == pygame.K_ESCAPE:
-                        # Cancel text input; do not change view here
                         self.launcher_ui.text_input_active = False
-                        self.active_text_field = None
-                    else:
+                        self.view = "main"
+                    elif len(self.new_project_name) < 50:
                         char = event.unicode
-                        if not char:
-                            continue
-                        # Basic length limits per field
-                        if self.active_text_field == "new_project_name":
-                            if len(self.new_project_name) < 50 and (char.isalnum() or char in "_-"):
-                                self.new_project_name += char
-                        elif self.active_text_field == "ai_project_name":
-                            if len(self.ai_project_name) < 50 and (char.isalnum() or char in "_-"):
-                                self.ai_project_name += char
-                        elif self.active_text_field == "ai_world_setting":
-                            if len(self.ai_world_setting) < 120:
-                                self.ai_world_setting += char
-                        elif self.active_text_field == "ai_tone":
-                            if len(self.ai_tone) < 80:
-                                self.ai_tone += char
-                        elif self.active_text_field == "ai_main_quest":
-                            if len(self.ai_main_quest) < 160:
-                                self.ai_main_quest += char
-                        elif self.active_text_field == "ai_key_locations":
-                            if len(self.ai_key_locations) < 200:
-                                self.ai_key_locations += char
-                        elif self.active_text_field == "ai_mechanics":
-                            if len(self.ai_mechanics) < 200:
-                                self.ai_mechanics += char
+                        if char.isalnum() or char in "_-":
+                            self.new_project_name += char
                 else:
-                    # Keyboard shortcuts (when not actively typing)
+                    # Keyboard shortcuts
                     if event.key == pygame.K_ESCAPE:
                         if self.view != "main":
                             self.view = "main"
@@ -574,34 +520,30 @@ class NeonWorksLauncher:
                     elif event.key == pygame.K_n and pygame.key.get_mods() & pygame.KMOD_CTRL:
                         self.view = "new_project"
 
-      def update(self, dt: float):
-          """Update launcher state"""
-          # Update click cooldown
-          if self.click_cooldown > 0:
-              self.click_cooldown -= dt
+    def update(self, dt: float):
+        """Update launcher state"""
+        # Update click cooldown
+        if self.click_cooldown > 0:
+            self.click_cooldown -= dt
 
     def render(self):
-          """Render the launcher"""
-          # Clear screen
-          self.screen.fill((15, 15, 25))
-  
-          if self.view == "main":
-              self.render_main_view()
-          elif self.view == "new_project":
-              self.render_new_project_view()
-          elif self.view == "template_select":
-              self.render_template_select_view()
-          elif self.view == "ai_wizard":
-              self.render_ai_wizard_view()
-          elif self.view == "ai_progress":
-              self.render_ai_progress_view()
+        """Render the launcher"""
+        # Clear screen
+        self.screen.fill((15, 15, 25))
+
+        if self.view == "main":
+            self.render_main_view()
+        elif self.view == "new_project":
+            self.render_new_project_view()
+        elif self.view == "template_select":
+            self.render_template_select_view()
 
         pygame.display.flip()
 
-      def render_main_view(self):
-          """Render the main project browser view"""
-          # Header
-          self.launcher_ui.render_header(0, 20, self.width)
+    def render_main_view(self):
+        """Render the main project browser view"""
+        # Header
+        self.launcher_ui.render_header(0, 20, self.width)
 
         # Action buttons
         button_y = 140
@@ -609,54 +551,42 @@ class NeonWorksLauncher:
         button_height = 50
         button_spacing = 20
 
-          # New Project button
-          if self.launcher_ui.render_button_large(
-              50, button_y, button_width, button_height, "New Project", (70, 130, 220)
-          ):
-              if self.click_cooldown <= 0:
-                  self.view = "new_project"
-                  self.new_project_name = ""
-                  self.active_text_field = "new_project_name"
-                  self.launcher_ui.text_input_active = True
-                  self.click_cooldown = 0.3
+        # New Project button
+        if self.launcher_ui.render_button_large(
+            50, button_y, button_width, button_height, "New Project", (70, 130, 220)
+        ):
+            if self.click_cooldown <= 0:
+                self.view = "new_project"
+                self.new_project_name = ""
+                self.click_cooldown = 0.3
 
-          # Create Game with AI button
-          if self.launcher_ui.render_button_large(
-              50 + button_width + button_spacing,
-              button_y,
-              button_width,
-              button_height,
-              "Create Game with AI",
-              (150, 100, 220),
-          ):
-              if self.click_cooldown <= 0:
-                  # Reset wizard state
-                  self.ai_wizard_step = 0
-                  self.ai_project_name = ""
-                  self.ai_world_setting = ""
-                  self.ai_tone = ""
-                  self.ai_main_quest = ""
-                  self.ai_key_locations = ""
-                  self.ai_mechanics = ""
-                  self.active_text_field = "ai_project_name"
-                  self.launcher_ui.text_input_active = True
-                  self.view = "ai_wizard"
-                  self.click_cooldown = 0.3
-  
-          # Open Project button (only if a project is selected)
-          if self.selected_project_index >= 0:
-              if self.launcher_ui.render_button_large(
-                  50 + 2 * (button_width + button_spacing),
-                  button_y,
-                  button_width,
-                  button_height,
-                  "Open Project",
-                  (70, 180, 100),
-              ):
-                  if self.click_cooldown <= 0:
-                      project = self.projects[self.selected_project_index]
-                      self.launch_project(project["name"])
-                      self.click_cooldown = 0.3
+        # Open Project button (only if a project is selected)
+        if self.selected_project_index >= 0:
+            if self.launcher_ui.render_button_large(
+                50 + button_width + button_spacing,
+                button_y,
+                button_width,
+                button_height,
+                "Open Project",
+                (70, 180, 100),
+            ):
+                if self.click_cooldown <= 0:
+                    project = self.projects[self.selected_project_index]
+                    self.launch_project(project["name"])
+                    self.click_cooldown = 0.3
+
+        # User Manual button
+        if self.launcher_ui.render_button_large(
+            50 + 2 * (button_width + button_spacing),
+            button_y,
+            button_width,
+            button_height,
+            "User Manual",
+            (80, 80, 150),
+        ):
+            if self.click_cooldown <= 0:
+                self.open_user_manual()
+                self.click_cooldown = 0.3
 
         # Refresh button
         if self.launcher_ui.render_button_large(
@@ -733,6 +663,21 @@ class NeonWorksLauncher:
         footer_rect = footer_text.get_rect(center=(self.width // 2, self.height - 20))
         self.screen.blit(footer_text, footer_rect)
 
+    def open_user_manual(self) -> None:
+        """Open the user manual markdown file in the system default viewer."""
+        manual_path = Path(__file__).resolve().parent.parent / "docs" / "user_manual.md"
+        try:
+            if sys.platform.startswith("win"):
+                # On Windows, use 'start' via shell
+                subprocess.Popen(["start", str(manual_path)], shell=True)
+            elif sys.platform.startswith("darwin"):
+                subprocess.Popen(["open", str(manual_path)])
+            else:
+                subprocess.Popen(["xdg-open", str(manual_path)])
+        except Exception:
+            # Fallback: print path so users can open manually
+            print(f"User manual: {manual_path}")
+
     def render_new_project_view(self):
         """Render the new project creation view"""
         # Background panel
@@ -761,9 +706,9 @@ class NeonWorksLauncher:
         title_rect = title_text.get_rect(center=(self.width // 2, panel_y + 40))
         self.screen.blit(title_text, title_rect)
 
-          # Project name input
-          input_y = panel_y + 120
-          self.new_project_name = self.launcher_ui.render_text_input(
+        # Project name input
+        input_y = panel_y + 120
+        self.new_project_name = self.launcher_ui.render_text_input(
             panel_x + 50, input_y, panel_width - 100, 50, self.new_project_name, "Project Name:"
         )
 
@@ -772,13 +717,12 @@ class NeonWorksLauncher:
         input_rect = pygame.Rect(panel_x + 50, input_y, panel_width - 100, 50)
         if input_rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
             self.launcher_ui.text_input_active = True
-            self.active_text_field = "new_project_name"
 
         # Template selection
         template_y = input_y + 100
-        template_font = pygame.font.Font(None, 24)
-        template_label = template_font.render("Select Template:", True, (200, 200, 220))
-        self.screen.blit(template_label, (panel_x + 50, template_y - 30))
+        template_title_font = pygame.font.Font(None, 28)
+        template_title = template_title_font.render("Choose a Template", True, (200, 200, 220))
+        self.screen.blit(template_title, (panel_x + 50, template_y - 40))
 
         # Template buttons
         template_btn_width = (panel_width - 150) // 2
@@ -872,331 +816,6 @@ class NeonWorksLauncher:
     def render_template_select_view(self):
         """Render template selection view (future expansion)"""
         pass
-
-    def render_ai_wizard_view(self):
-        """Render the AI-assisted game creation wizard"""
-        panel_width = 900
-        panel_height = 650
-        panel_x = (self.width - panel_width) // 2
-        panel_y = (self.height - panel_height) // 2
-
-        pygame.draw.rect(
-            self.screen,
-            (25, 25, 35),
-            (panel_x, panel_y, panel_width, panel_height),
-            border_radius=12,
-        )
-        pygame.draw.rect(
-            self.screen,
-            (180, 150, 255),
-            (panel_x, panel_y, panel_width, panel_height),
-            3,
-            border_radius=12,
-        )
-
-        title_font = pygame.font.Font(None, 40)
-        title_text = title_font.render("Create Game with AI", True, (200, 180, 255))
-        title_rect = title_text.get_rect(center=(self.width // 2, panel_y + 40))
-        self.screen.blit(title_text, title_rect)
-
-        step_font = pygame.font.Font(None, 24)
-        step_label = f"Step {self.ai_wizard_step + 1} of 3"
-        step_text = step_font.render(step_label, True, (180, 180, 210))
-        self.screen.blit(step_text, (panel_x + 40, panel_y + 80))
-
-        content_y = panel_y + 130
-        field_height = 50
-        field_spacing = 80
-
-        mouse_pos = pygame.mouse.get_pos()
-
-        def render_field(y: int, label: str, value: str, field_name: str):
-            text = self.launcher_ui.render_text_input(
-                panel_x + 50,
-                y,
-                panel_width - 100,
-                field_height,
-                value,
-                label,
-            )
-            rect = pygame.Rect(panel_x + 50, y, panel_width - 100, field_height)
-            if rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
-                self.launcher_ui.text_input_active = True
-                self.active_text_field = field_name
-            return text
-
-        # Step-specific fields
-        if self.ai_wizard_step == 0:
-            self.ai_project_name = render_field(
-                content_y,
-                "Project Name:",
-                self.ai_project_name,
-                "ai_project_name",
-            )
-            self.ai_world_setting = render_field(
-                content_y + field_spacing,
-                "World Setting (e.g., cozy seaside town, ruined sky city):",
-                self.ai_world_setting,
-                "ai_world_setting",
-            )
-        elif self.ai_wizard_step == 1:
-            self.ai_tone = render_field(
-                content_y,
-                "Tone (cozy, dark, epic, comedic, etc.):",
-                self.ai_tone,
-                "ai_tone",
-            )
-            self.ai_main_quest = render_field(
-                content_y + field_spacing,
-                "Main Quest / Long-term Goal:",
-                self.ai_main_quest,
-                "ai_main_quest",
-            )
-        elif self.ai_wizard_step == 2:
-            self.ai_key_locations = render_field(
-                content_y,
-                "Key Locations (comma-separated):",
-                self.ai_key_locations,
-                "ai_key_locations",
-            )
-            self.ai_mechanics = render_field(
-                content_y + field_spacing,
-                "Desired Mechanics (comma-separated: combat, farming, relationships, etc.):",
-                self.ai_mechanics,
-                "ai_mechanics",
-            )
-
-        # Navigation buttons
-        action_y = panel_y + panel_height - 80
-
-        # Back
-        if self.ai_wizard_step > 0:
-            if self.launcher_ui.render_button_large(
-                panel_x + 50, action_y, 200, 50, "Back", (100, 100, 120)
-            ):
-                if self.click_cooldown <= 0:
-                    self.ai_wizard_step -= 1
-                    self.click_cooldown = 0.3
-
-        # Next / Generate
-        can_advance = True
-        if self.ai_wizard_step == 0:
-            can_advance = bool(self.ai_project_name.strip() and self.ai_world_setting.strip())
-        elif self.ai_wizard_step == 1:
-            can_advance = bool(self.ai_tone.strip() and self.ai_main_quest.strip())
-        elif self.ai_wizard_step == 2:
-            can_advance = bool(self.ai_key_locations.strip() and self.ai_mechanics.strip())
-
-        primary_label = "Next" if self.ai_wizard_step < 2 else "Generate Game"
-        primary_color = (70, 180, 100) if can_advance else (60, 60, 70)
-
-        if self.launcher_ui.render_button_large(
-            panel_x + panel_width - 300, action_y, 250, 50, primary_label, primary_color
-        ):
-            if can_advance and self.click_cooldown <= 0:
-                if self.ai_wizard_step < 2:
-                    self.ai_wizard_step += 1
-                else:
-                    self._start_ai_game_creation()
-                self.click_cooldown = 0.3
-
-        # Cancel
-        if self.launcher_ui.render_button_large(
-            panel_x + panel_width // 2 - 100, action_y, 200, 50, "Cancel", (120, 60, 60)
-        ):
-            if self.click_cooldown <= 0:
-                self.view = "main"
-                self.click_cooldown = 0.3
-
-    def render_ai_progress_view(self):
-        """Render progress view while AI-assisted generation runs"""
-        self.launcher_ui.render_header(0, 20, self.width)
-
-        panel_width = 700
-        panel_height = 300
-        panel_x = (self.width - panel_width) // 2
-        panel_y = (self.height - panel_height) // 2
-
-        pygame.draw.rect(
-            self.screen,
-            (25, 25, 35),
-            (panel_x, panel_y, panel_width, panel_height),
-            border_radius=12,
-        )
-        pygame.draw.rect(
-            self.screen,
-            (180, 150, 255),
-            (panel_x, panel_y, panel_width, panel_height),
-            3,
-            border_radius=12,
-        )
-
-        title_font = pygame.font.Font(None, 36)
-        title_text = title_font.render("Generating AI-Assisted Project", True, (200, 180, 255))
-        title_rect = title_text.get_rect(center=(self.width // 2, panel_y + 40))
-        self.screen.blit(title_text, title_rect)
-
-        status_font = pygame.font.Font(None, 24)
-        status = self.ai_task_status or "Preparing..."
-        status_text = status_font.render(status, True, (200, 200, 220))
-        status_rect = status_text.get_rect(center=(self.width // 2, panel_y + 110))
-        self.screen.blit(status_text, status_rect)
-
-        if self.ai_task_error:
-            error_font = pygame.font.Font(None, 22)
-            error_text = error_font.render(
-                "Error: " + self.ai_task_error[:80], True, (255, 120, 120)
-            )
-            error_rect = error_text.get_rect(center=(self.width // 2, panel_y + 150))
-            self.screen.blit(error_text, error_rect)
-
-        # Back to launcher when finished or on error
-        if not self.ai_task_running:
-            if self.launcher_ui.render_button_large(
-                panel_x + panel_width // 2 - 100,
-                panel_y + panel_height - 70,
-                200,
-                50,
-                "Back to Launcher",
-                (70, 130, 220),
-            ):
-                if self.click_cooldown <= 0:
-                    self.view = "main"
-                    self.click_cooldown = 0.3
-
-    def _start_ai_game_creation(self):
-        """Kick off a background task to create an AI-assisted project"""
-        if self.ai_task_running:
-            return
-
-        project_name = self.ai_project_name.strip() or "ai_game"
-        self.ai_task_status = "Creating project..."
-        self.ai_task_error = None
-        self.ai_task_running = True
-        self.view = "ai_progress"
-
-        def worker():
-            try:
-                description = (
-                    f"AI-generated game set in: {self.ai_world_setting.strip()}"
-                    if self.ai_world_setting.strip()
-                    else "AI-generated game"
-                )
-
-                created = self.create_project(
-                    project_name,
-                    "turn_based_rpg",
-                    self.new_project_author,
-                    description,
-                )
-                if not created:
-                    self.ai_task_error = "Failed to create project (name conflict or invalid)."
-                    return
-
-                project_root = self.projects_root / project_name
-
-                # Build a Q&A-style transcript from the wizard fields
-                transcript_lines = [
-                    f"Q: Describe the world setting.\nA: {self.ai_world_setting.strip()}",
-                    f"Q: What is the overall tone?\nA: {self.ai_tone.strip()}",
-                    f"Q: What is the main quest or long-term goal?\nA: {self.ai_main_quest.strip()}",
-                    f"Q: List key locations.\nA: {self.ai_key_locations.strip()}",
-                    f"Q: List desired mechanics.\nA: {self.ai_mechanics.strip()}",
-                ]
-                transcript = "\n\n".join(transcript_lines)
-
-                # Load the interview prompt (if available) and call the Director
-                self.ai_task_status = "Calling Director with interview prompt..."
-                qna_prompt_path = self.engine_root / "prompts" / "qna_interview.md"
-                base_prompt = ""
-                if qna_prompt_path.exists():
-                    try:
-                        base_prompt = qna_prompt_path.read_text(encoding="utf-8")
-                    except Exception:
-                        base_prompt = ""
-
-                full_prompt = base_prompt + "\n\n---\nUser vision summary:\n" + transcript
-
-                backend = DummyBackend()
-                director = Director(backends={"bible": backend})
-
-                # Stub call: this currently just passes through the prompt
-                _ = director.run_task("bible", full_prompt)
-
-                # Build a simple Bible graph using BibleManager (in-memory fallback)
-                self.ai_task_status = "Building world bible..."
-                manager = BibleManager()
-
-                # Main hub location
-                hub_location = Location(
-                    id="main_hub",
-                    props={
-                        "name": "Main Hub",
-                        "summary": self.ai_world_setting.strip(),
-                        "tone": self.ai_tone.strip(),
-                    },
-                )
-                manager.add_node(hub_location)
-
-                # Main quest
-                main_quest = Quest(
-                    id="main_quest",
-                    props={
-                        "title": "Main Quest",
-                        "summary": self.ai_main_quest.strip(),
-                    },
-                )
-                manager.add_node(main_quest)
-
-                # Key locations
-                for idx, raw in enumerate(self.ai_key_locations.split(",")):
-                    name = raw.strip()
-                    if not name:
-                        continue
-                    loc_id = f"location_{idx+1}"
-                    node = Location(
-                        id=loc_id,
-                        props={
-                            "name": name,
-                            "summary": f"Key location: {name}",
-                        },
-                    )
-                    manager.add_node(node)
-
-                # Mechanics
-                for idx, raw in enumerate(self.ai_mechanics.split(",")):
-                    name = raw.strip()
-                    if not name:
-                        continue
-                    mech_id = f"mechanic_{idx+1}"
-                    node = Mechanic(
-                        id=mech_id,
-                        props={
-                            "name": name,
-                        },
-                    )
-                    manager.add_node(node)
-
-                # Save the bible to disk
-                bible_path = project_root / "bible.json"
-                save_bible(manager._graph, bible_path)  # type: ignore[attr-defined]
-
-                # Use Architect to generate project data from the bible
-                self.ai_task_status = "Generating project data from bible..."
-                architect = Architect(backend=DummyBackend())
-                architect.generate_project_from_bible(manager._graph, project_root)  # type: ignore[attr-defined]
-
-                # Finally, launch the project in the editor
-                self.ai_task_status = "Opening project in editor..."
-                self.launch_project(project_name)
-
-            except Exception as exc:  # pragma: no cover - defensive logging
-                self.ai_task_error = str(exc)
-            finally:
-                self.ai_task_running = False
-
-        self.ai_task_thread = threading.Thread(target=worker, daemon=True)
-        self.ai_task_thread.start()
 
     def run(self):
         """Run the launcher main loop"""

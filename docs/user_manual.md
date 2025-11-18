@@ -8,6 +8,54 @@ Welcome to NeonWorks! This comprehensive user manual will guide you through crea
 
 ---
 
+## Quick Start: New AI & Bible Tools
+
+This section covers the new AI-assisted workflows and World Bible graph editor. For a deeper tour of the engine, see the sections below.
+
+### AI Assistant Panel (Ctrl+Space)
+
+- Open the **AI Assistant Panel** with **Ctrl+Space** from any editor workspace.
+- Use the chat box to ask for help (e.g., “what can you do?” or “generate a starter town layout”).
+- Quick action buttons:
+  - **Generate Navmesh** – builds a high-level navigation plan for the current map.
+  - **Write Quest** – proposes a short quest based on what’s visible on screen and any text you type.
+  - **Describe Scene** – rewrites the current scene into a concise designer-friendly description.
+- While an AI task is running, a small **“Working: …”** status appears in the panel header. Tasks run **one at a time** to respect VRAM and keep the editor responsive.
+- You can add screenshots later for your team, e.g.:
+  - `![AI Assistant Panel](assets/docs/ai_assistant_panel.png) <!-- TODO: capture screenshot -->`
+
+### World Bible Graph Editor (Ctrl+D → World Bible tab)
+
+- Open the **Database Manager** with **Ctrl+D** (or via its toolbar button), then select the **“World Bible”** tab.
+- On the **left**, choose a node category (Characters, Locations, Quests, etc.).
+- In the **middle list**, you can:
+  - Click a node to select it as the **From** node.
+  - Click the small arrow button to mark a node as the **To** node.
+  - Press **“New Node”** to add a new entry of the current type (e.g., `character_3` with a placeholder name).
+- On the **right**, you will see:
+  - Basic node info (ID, type, name).
+  - A list of outgoing relationships (e.g., `located_in → town_1`).
+  - A **Relation** selector (cycles through labels like `related_to`, `located_in`, `member_of`, `gives_quest`, `uses_mechanic`).
+  - An **“Add Relationship”** button that links the current **From** and **To** nodes and saves to `bible.json` in your project.
+- The World Bible is stored as a graph and kept in sync via the **BibleManager**, so other tools can safely query it.
+
+### AI-Approved Dialogue (in-game, Loremaster integration)
+
+- During gameplay, some NPC lines may appear in a special **AI approval dialogue box** with three options:
+  - **Accept (A)** – keep the proposed line and continue.
+  - **Rewrite (R)** – ask the Loremaster to rewrite the line automatically.
+  - **Guide (G)** – open a small text field where you can type guidance (tone, lore notes, etc.), then the Loremaster generates a new line based on that.
+- Keyboard shortcuts:
+  - **A** or **Enter** – Accept.
+  - **R** – Rewrite.
+  - **G** – Guide and open the guidance text box.
+- The game only advances after you **Accept** a line, giving you full control over the final NPC dialogue.
+
+You can add diagrams later for your team, e.g.:
+
+- `![World Bible Graph View](assets/docs/world_bible_graph.png) <!-- TODO: draw nodes + edges diagram -->`
+- `![Dialogue Approval Flow](assets/docs/dialogue_approval_flow.png) <!-- TODO: simple three-button flowchart -->`
+
 ## Table of Contents
 
 1. [Introduction](#introduction)
