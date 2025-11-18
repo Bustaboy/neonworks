@@ -320,8 +320,12 @@ class TestMapWorkflow:
         assert len(obstacles) > 0
 
         # Verify entities placed
-        assert player.get_component(GridPosition).x == 5
-        assert player.get_component(GridPosition).y == 5
+        player_grid = player.get_component(GridPosition)
+        player_transform = player.get_component(Transform)
+        assert player_grid.grid_x == 5
+        assert player_grid.grid_y == 5
+        assert player_transform.x == 5 * 32
+        assert player_transform.y == 5 * 32
 
         all_enemies = world.get_entities_with_tag("enemy")
         assert len(all_enemies) == 3
