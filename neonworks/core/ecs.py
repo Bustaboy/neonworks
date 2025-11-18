@@ -201,13 +201,39 @@ class Entity:
         return all(ct in self._components for ct in component_types)
 
     def add_tag(self, tag: str) -> "Entity":
-        """Add a tag to this entity"""
+        """Add a tag to this entity.
+
+        Also updates the World's tag index if the entity is currently
+        part of a world, so tag-based queries stay in sync.
+        """
+        if tag in self.tags:
+            return self
+
         self.tags.add(tag)
+
+        # Update world's tag index if entity is in a world
+        if self._world is not None:
+            if tag not in self._world._tags_to_entities:
+                self._world._tags_to_entities[tag] = set()
+            self._world._tags_to_entities[tag].add(self.id)
+
         return self
 
     def remove_tag(self, tag: str) -> "Entity":
-        """Remove a tag from this entity"""
+        """Remove a tag from this entity.
+
+        Also updates the World's tag index if the entity is currently
+        part of a world.
+        """
+        if tag not in self.tags:
+            return self
+
         self.tags.discard(tag)
+
+        # Update world's tag index if entity is in a world
+        if self._world is not None and tag in self._world._tags_to_entities:
+            self._world._tags_to_entities[tag].discard(self.id)
+
         return self
 
     def has_tag(self, tag: str) -> bool:

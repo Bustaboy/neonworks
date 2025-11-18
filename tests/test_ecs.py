@@ -546,14 +546,11 @@ class TestWorld:
         assert entity2 in entities_with_transform
         assert entity3 not in entities_with_transform
 
-    @pytest.mark.skip(reason="Known issue: Entity.add_tag doesn't update world tag index")
     def test_get_entities_with_tag(self, world):
         """Test querying entities with a specific tag.
 
-        NOTE: This test is currently skipped due to a known limitation in the ECS implementation.
-        The Entity.add_tag() method does not update the World's tag index (_tags_to_entities)
-        when called on entities that are already in the world. Tags must be added before
-        the entity is added to the world for tag queries to work properly.
+        This verifies that tags added after an entity is created and
+        registered in the world correctly update the world's tag index.
         """
         entity1 = world.create_entity("Entity1")
         entity1.add_tag("player")
