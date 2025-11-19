@@ -27,7 +27,7 @@ Update `scripts/components.py` to add combat-related components:
 ```python
 """Custom components for Coin Collector with Combat."""
 
-from engine.core.ecs import Component, Health
+from neonworks.core.ecs import Component, Health
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -80,8 +80,8 @@ Update `scripts/systems.py` with combat systems:
 ```python
 """Game systems with combat mechanics."""
 
-from engine.core.ecs import System, World, Transform, Collider, Health
-from engine.core.events import get_event_manager, Event, EventType
+from neonworks.core.ecs import System, World, Transform, Collider, Health
+from neonworks.core.events import get_event_manager, Event, EventType
 from components import Player, Velocity, Coin, Enemy, CombatStats, CombatState
 import pygame
 import math
@@ -330,7 +330,7 @@ class PlayerCombatSystem(System):
 
     def _execute_player_attack(self, player_entity, enemy_entity):
         """Player attacks enemy."""
-        from engine.core.events import get_event_manager
+        from neonworks.core.events import get_event_manager
 
         player_stats = player_entity.get_component(CombatStats)
         enemy_health = enemy_entity.get_component(Health)
@@ -533,7 +533,7 @@ Update `scripts/game.py`:
 ```python
 """Game setup with combat."""
 
-from engine.core.ecs import World, Transform, Collider, Health
+from neonworks.core.ecs import World, Transform, Collider, Health
 from components import Player, Coin, Velocity, Enemy, CombatStats, CombatState
 from systems import (
     PlayerInputSystem,

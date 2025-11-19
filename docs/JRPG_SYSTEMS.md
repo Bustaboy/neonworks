@@ -579,8 +579,8 @@ boss_ai_system.register_boss(boss_entity)
 ### Complete JRPG Game Setup
 
 ```python
-from engine.core.ecs import World
-from engine.core.events import EventManager
+from neonworks.core.ecs import World
+from neonworks.core.events import EventManager
 from engine.input.input_manager import InputManager
 from systems.exploration import ExplorationSystem
 from systems.zone_system import ZoneSystem

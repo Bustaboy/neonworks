@@ -51,16 +51,18 @@ Access visual editors for game development. Most are accessed via function keys 
 | `F3` | Building UI | Game | Build and place structures in-game |
 | `F4` | Level Builder | Editor | Design levels and maps visually |
 | `F5` | Event Editor | Editor | Create and edit game events |
-| `F6` | Quest Editor | Editor | Design quests and dialogue trees |
-| `F7` | Asset Browser | Editor | Browse and manage game assets |
+| `F6` | Database Editor | Editor | Edit game data tables |
+| `F7` | Character Generator | Editor | Generate and edit characters |
 | `Shift+F7` | AI Animator | Editor | AI-powered animation editor |
-| `F8` | Project Manager | All | Manage projects, create new, load existing |
+| `F8` | Quest Editor | Editor | Design quests and dialogue trees |
 | `F9` | Combat UI | Game | View combat interface and controls |
 | `F10` | Game HUD | Game | Toggle the in-game heads-up display |
 | `F11` | Autotile Editor | Editor | Edit autotile configurations |
 | `F12` | Navmesh Editor | Editor | Edit navigation meshes for pathfinding |
 | `Ctrl+M` | Map Manager | Editor | Manage multiple maps and transitions |
 | `Ctrl+H` | History Viewer | Editor | View undo/redo history for active editor |
+
+> The Asset Browser and Project Manager are available from the workspace toolbar in the editor UI rather than direct F-key shortcuts.
 
 ---
 

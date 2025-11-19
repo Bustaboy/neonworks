@@ -23,7 +23,7 @@ Display a visual health bar above entities.
 ### Components
 
 ```python
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 from dataclasses import dataclass
 
 @dataclass
@@ -52,7 +52,7 @@ class HealthBar(Component):
 
 ```python
 import pygame
-from engine.core.ecs import System, World, Transform
+from neonworks.core.ecs import System, World, Transform
 
 class HealthBarRenderSystem(System):
     """Renders health bars above entities"""
@@ -219,7 +219,7 @@ class Inventory(Component):
 ### System
 
 ```python
-from engine.core.events import EventManager, Event, EventType
+from neonworks.core.events import EventManager, Event, EventType
 
 class InventorySystem(System):
     """Manages inventory operations and events"""
@@ -303,8 +303,8 @@ Complete save/load functionality with multiple save slots.
 ### Implementation
 
 ```python
-from engine.core.serialization import save_world, load_world
-from engine.core.ecs import World
+from neonworks.core.serialization import save_world, load_world
+from neonworks.core.ecs import World
 import json
 import os
 from datetime import datetime
@@ -694,7 +694,7 @@ A* pathfinding with navmesh support.
 ```python
 import heapq
 from typing import List, Tuple, Set, Optional
-from engine.core.ecs import Navmesh, GridPosition, Component
+from neonworks.core.ecs import Navmesh, GridPosition, Component
 from dataclasses import dataclass, field
 
 @dataclass
@@ -1221,7 +1221,7 @@ world.add_system(ParticleRenderSystem(screen))
 Turn-based combat with damage calculation.
 
 ```python
-from engine.core.events import get_event_manager, EventType, Event
+from neonworks.core.events import get_event_manager, EventType, Event
 from dataclasses import dataclass
 from typing import Optional
 import random

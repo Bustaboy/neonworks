@@ -308,11 +308,19 @@ def get_default_stamps() -> Dict:
     Returns:
         Dict mapping stamp names to stamp definitions
     """
+    def _augment(stamp: Dict) -> Dict:
+        """Add legacy-friendly fields to stamp definitions."""
+        data = dict(stamp)
+        # Older consumers expect 'coords' instead of 'tiles'
+        if "coords" not in data and "tiles" in data:
+            data["coords"] = data["tiles"]
+        return data
+
     return {
-        "2x2_square": DefaultStamps.SQUARE_2X2,
-        "3x3_square": DefaultStamps.SQUARE_3X3,
-        "plus": DefaultStamps.PLUS,
-        "diamond": DefaultStamps.DIAMOND,
+        "2x2_square": _augment(DefaultStamps.SQUARE_2X2),
+        "3x3_square": _augment(DefaultStamps.SQUARE_3X3),
+        "plus": _augment(DefaultStamps.PLUS),
+        "diamond": _augment(DefaultStamps.DIAMOND),
     }
 
 

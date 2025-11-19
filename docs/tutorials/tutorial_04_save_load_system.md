@@ -31,7 +31,7 @@ Create `scripts/save_components.py`:
 ```python
 """Save system components."""
 
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 from dataclasses import dataclass, field
 from typing import Dict, Any
 from datetime import datetime
@@ -86,8 +86,8 @@ import json
 import os
 from datetime import datetime
 from typing import Optional, Dict, Any
-from engine.core.ecs import World, Entity, Component, Transform
-from engine.core.serialization import save_world, load_world
+from neonworks.core.ecs import World, Entity, Component, Transform
+from neonworks.core.serialization import save_world, load_world
 from save_components import SaveMetadata, GameProgress
 from components import Player
 
@@ -214,7 +214,7 @@ Create `scripts/autosave_system.py`:
 ```python
 """Auto-save system."""
 
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 from save_manager import SaveManager
 
 class AutoSaveSystem(System):

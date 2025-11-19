@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from engine.core.event_data import (
+from neonworks.engine.core.event_data import (
     EventGraphic,
     EventManager,
     EventPage,

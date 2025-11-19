@@ -1,0 +1,12 @@
+## 🚀 Quick Start
+
+### Prerequisites
+
+```bash
+# Python 3.10 or higher required
+python --version
+
+# Install dependencies
+pip install -r requirements.txt
+
+# (Optional) Install development tools

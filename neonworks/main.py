@@ -4,8 +4,8 @@ Main Application Entry Point
 Load and run game projects with the engine.
 
 Usage:
-    python -m engine.main <project_name>
-    python -m engine.main neon_collapse
+    python -m neonworks.main <project_name>
+    python -m neonworks.main neon_collapse
 """
 
 import sys
@@ -26,9 +26,10 @@ from neonworks.systems.turn_system import TurnSystem
 class GameApplication:
     """Main game application"""
 
-    def __init__(self, project_name: str):
+    def __init__(self, project_name: str, mode: str = "run"):
         print(f"🎮 Starting Neon Works Engine...")
         print(f"   Loading project: {project_name}")
+        self.mode = mode
 
         # Load project
         try:
@@ -61,6 +62,29 @@ class GameApplication:
             self.engine_config.tile_size,
         )
         self.renderer.set_title(self.project.config.settings.window_title)
+
+        # Optional editor UI manager (only used in editor mode)
+        self.ui_manager = None
+        if self.mode == "edit":
+            try:
+                from neonworks.ui.master_ui_manager import MasterUIManager
+
+                self.ui_manager = MasterUIManager(
+                    self.renderer.screen,
+                    self.engine.world,
+                    self.engine.state_manager,
+                    self.engine.audio_manager,
+                    self.engine.input_manager,
+                    self.renderer,
+                )
+                self.engine.attach_ui_manager(
+                    self.ui_manager,
+                    lambda: (self.renderer.camera.x, self.renderer.camera.y),
+                )
+                self.ui_manager.set_mode("editor")
+                self.ui_manager.toggle_level_builder()
+            except Exception as ui_error:
+                print(f"❌ Failed to initialize editor UI: {ui_error}")
 
         # Initialize save system
         self.save_manager = SaveGameManager(self.project)
@@ -156,6 +180,11 @@ class GameApplication:
         print("\n🚀 Starting game loop...")
         print("   Press Ctrl+C to quit\n")
 
+        if self.ui_manager:
+            self.ui_manager.show_notification(
+                "Editor mode active: F4 Level Builder, F5 Event Editor, F6 Database, F8 Quest"
+            )
+
         try:
             self.engine.start()
         except KeyboardInterrupt:
@@ -198,42 +227,18 @@ def print_usage():
     """Print usage information"""
     print(
         """
-╔═══════════════════════════════════════════════════════════════╗
-║           NEON COLLAPSE CUSTOM GAME ENGINE                    ║
-║                                                               ║
-║  A project-based 2D game engine for turn-based strategy      ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝
+NeonWorks Game Engine
 
 Usage:
-    python -m engine.main <project_name>
+    python -m neonworks.main <project_name> [--editor | --run]
 
 Examples:
-    python -m engine.main neon_collapse
-    python -m engine.main my_game
+    python -m neonworks.main neon_collapse --run
+    python -m neonworks.main my_game --editor  # opens editor tools
 
 Available Projects:
     """
     )
-
-    # List available projects
-    from neonworks.core.project import get_project_manager
-
-    pm = get_project_manager()
-    projects = pm.list_projects()
-
-    if projects:
-        for project in projects:
-            print(f"    • {project}")
-    else:
-        print("    (No projects found in projects/ directory)")
-
-    print(
-        """
-To create a new project, see the engine README.md for instructions.
-"""
-    )
-
 
 def main():
     """Main entry point"""
@@ -245,28 +250,41 @@ def main():
         print("\n💡 To fix this:")
         print("   pip install pygame")
         print("   or")
-        print("   pip install -e engine/  (installs all dependencies)")
+        print("   pip install -e .  (installs all dependencies)")
         print("\nSee QUICKSTART.md for complete installation instructions.")
         sys.exit(1)
 
-    if len(sys.argv) < 2:
+    args = sys.argv[1:]
+    if not args:
         print_usage()
         sys.exit(1)
 
-    project_name = sys.argv[1]
+    mode = "run"
+    project_name = None
 
-    # Check for special commands
-    if project_name in ["--help", "-h", "help"]:
+    for arg in args:
+        if arg in ["--help", "-h", "help"]:
+            print_usage()
+            sys.exit(0)
+        if arg in ["--version", "-v"]:
+            print("Neon Works v0.1.0")
+            sys.exit(0)
+        if arg in ["--editor", "--edit", "-e"]:
+            mode = "edit"
+            continue
+        if arg in ["--run"]:
+            mode = "run"
+            continue
+        if project_name is None:
+            project_name = arg
+
+    if project_name is None:
         print_usage()
-        sys.exit(0)
-
-    if project_name in ["--version", "-v"]:
-        print("Neon Works v0.1.0")
-        sys.exit(0)
+        sys.exit(1)
 
     # Create and run application
     try:
-        app = GameApplication(project_name)
+        app = GameApplication(project_name, mode=mode)
         app.run()
     except KeyboardInterrupt:
         print("\n👋 Goodbye!")

@@ -37,10 +37,10 @@ import importlib.util
 def lazy_import_project_module():
     """Lazily import project module to avoid pygame dependency"""
     spec = importlib.util.spec_from_file_location(
-        "engine.core.project", Path(__file__).parent / "core" / "project.py"
+        "neonworks.core.project", Path(__file__).parent / "core" / "project.py"
     )
     module = importlib.util.module_from_spec(spec)
-    sys.modules["engine.core.project"] = module
+    sys.modules["neonworks.core.project"] = module
     spec.loader.exec_module(module)
     return module
 
@@ -48,10 +48,10 @@ def lazy_import_project_module():
 def lazy_import_validation_module():
     """Lazily import validation module"""
     spec = importlib.util.spec_from_file_location(
-        "engine.core.validation", Path(__file__).parent / "core" / "validation.py"
+        "neonworks.core.validation", Path(__file__).parent / "core" / "validation.py"
     )
     module = importlib.util.module_from_spec(spec)
-    sys.modules["engine.core.validation"] = module
+    sys.modules["neonworks.core.validation"] = module
     spec.loader.exec_module(module)
     return module
 
@@ -383,7 +383,7 @@ See the NeonWorks documentation for more information:
         try:
             # Run as subprocess to properly handle pygame
             result = subprocess.run(
-                [sys.executable, "-m", "engine.main", project_name],
+                [sys.executable, "-m", "neonworks.main", project_name],
                 cwd=self.engine_root.parent,
                 check=False,
             )

@@ -13,11 +13,11 @@ Common questions and answers to help you get the most out of NeonWorks.
 ### Q: How do I install NeonWorks?
 **A:** Clone the repository and run:
 ```bash
-pip install -e engine/
+pip install -e .
 ```
 Or with development tools:
 ```bash
-pip install -e "engine/[dev]"
+pip install -e ".[dev]"
 ```
 
 ### Q: Can I use NeonWorks for commercial games?
@@ -37,7 +37,7 @@ pip install -e "engine/[dev]"
 ### Q: How do I create a custom Component?
 **A:** Inherit from `Component` and use `@dataclass`:
 ```python
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 from dataclasses import dataclass
 
 @dataclass
@@ -49,7 +49,7 @@ class Inventory(Component):
 ### Q: How do I create a custom System?
 **A:** Inherit from `System` and implement the `update` method:
 ```python
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 
 class InventorySystem(System):
     def update(self, world: World, delta_time: float):
@@ -102,7 +102,7 @@ transform.x += velocity              # Bad - frame-dependent
 ### Q: How do I use the event system?
 **A:** Events decouple your code:
 ```python
-from engine.core.events import get_event_manager, EventType, Event
+from neonworks.core.events import get_event_manager, EventType, Event
 
 # Subscribe
 def on_damage(event):
@@ -271,7 +271,7 @@ audio.play_music(loops=-1)  # Loop forever
 ### Q: How do I save game state?
 **A:** Use the serialization system:
 ```python
-from engine.core.serialization import save_world, load_world
+from neonworks.core.serialization import save_world, load_world
 
 # Save
 save_world(world, "saves/savegame.json")
@@ -286,7 +286,7 @@ world = load_world("saves/savegame.json")
 ### Q: How do I save custom data?
 **A:** Make sure your custom components are registered:
 ```python
-from engine.core.serialization import register_component
+from neonworks.core.serialization import register_component
 
 register_component(MyCustomComponent)
 ```
@@ -336,7 +336,7 @@ if entity:
 ```
 
 ### Q: "ModuleNotFoundError: No module named 'engine'"
-**A:** Install NeonWorks: `pip install -e engine/`
+**A:** Install NeonWorks: `pip install -e .`
 
 ### Q: Game loop hangs or freezes
 **A:** You have an infinite loop in a System. Make sure all loops in `update()` methods can complete in one frame.

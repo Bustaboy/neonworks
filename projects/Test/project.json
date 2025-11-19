@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "name": "Test",
+    "version": "0.1.0",
+    "description": "A Basic Game project",
+    "author": "Developer",
+    "engine_version": "0.1.0",
+    "created_date": "2025-11-19T21:49:30.883530",
+    "modified_date": "2025-11-19T21:49:30.884538"
+  },
+  "paths": {
+    "assets": "assets",
+    "levels": "levels",
+    "scripts": "scripts",
+    "saves": "saves",
+    "config": "config"
+  },
+  "settings": {
+    "window_title": "Test",
+    "window_width": 1280,
+    "window_height": 720,
+    "fullscreen": false,
+    "tile_size": 32,
+    "grid_width": 40,
+    "grid_height": 30,
+    "initial_scene": "gameplay",
+    "initial_level": "",
+    "enable_base_building": false,
+    "enable_survival": false,
+    "enable_turn_based": false,
+    "enable_combat": false,
+    "building_definitions": "",
+    "item_definitions": "",
+    "character_definitions": "",
+    "quest_definitions": "",
+    "export_version": "1.0.0",
+    "export_publisher": "Independent Developer",
+    "export_description": "",
+    "export_icon": "",
+    "export_license": "",
+    "export_readme": "",
+    "export_encrypt": false,
+    "export_compress": true,
+    "export_console": false
+  },
+  "custom_data": {}
+}

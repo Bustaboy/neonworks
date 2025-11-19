@@ -151,9 +151,11 @@ class Tilemap(Component):
         self,
         width: int,
         height: int,
-        tile_width: int,
-        tile_height: int,
+        tile_width: Optional[int] = None,
+        tile_height: Optional[int] = None,
         use_enhanced_layers: bool = True,
+        tile_size: Optional[int] = None,
+        layers: Optional[int] = None,
     ):
         """
         Create a new tilemap.
@@ -164,11 +166,21 @@ class Tilemap(Component):
             tile_width: Width of each tile in pixels
             tile_height: Height of each tile in pixels
             use_enhanced_layers: Use new LayerManager (recommended)
+            tile_size: Optional uniform tile size (overrides tile_width/tile_height)
+            layers: Optional backward-compatible layer count (ignored when using enhanced layers)
         """
         self.width = width
         self.height = height
-        self.tile_width = tile_width
-        self.tile_height = tile_height
+        # Provide flexible sizing for legacy callers
+        if tile_size is not None:
+            tile_width = tile_width or tile_size
+            tile_height = tile_height or tile_size
+        self.tile_width = tile_width or 32
+        self.tile_height = tile_height or 32
+
+        # Backward compatibility: older code passed a layer count; the enhanced
+        # LayerManager manages layers internally, so we accept and ignore.
+        self.legacy_layer_count = layers
 
         # Layer system selection
         self.use_enhanced_layers = use_enhanced_layers

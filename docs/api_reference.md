@@ -116,7 +116,7 @@ if entity.has_tag("enemy"):
 
 ```python
 from dataclasses import dataclass
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 @dataclass
 class Velocity(Component):
@@ -157,7 +157,7 @@ System()
 Called every frame. Implement your game logic here.
 
 ```python
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 
 class MovementSystem(System):
     def __init__(self):
@@ -529,7 +529,7 @@ class EngineConfig:
 
 **Usage**:
 ```python
-from engine.core.game_loop import GameEngine, EngineConfig
+from neonworks.core.game_loop import GameEngine, EngineConfig
 
 config = EngineConfig(target_fps=60, max_frame_time=0.25)
 engine = GameEngine(config)
@@ -556,7 +556,7 @@ Event system for decoupled communication between systems.
 Subscribe to an event type.
 
 ```python
-from engine.core.events import EventManager, EventType
+from neonworks.core.events import EventManager, EventType
 
 def on_player_death(event):
     print(f"Player died! Score: {event.data.get('score')}")
@@ -575,7 +575,7 @@ EventManager.unsubscribe(EventType.ENTITY_DIED, on_player_death)
 Emit an event to all subscribers.
 
 ```python
-from engine.core.events import Event, EventType
+from neonworks.core.events import Event, EventType
 
 event = Event(
     type=EventType.ENTITY_DIED,
@@ -715,7 +715,7 @@ class Project:
 
 **Usage**:
 ```python
-from engine.core.project import ProjectManager
+from neonworks.core.project import ProjectManager
 
 project = ProjectManager.load_project("my_game")
 print(f"Loaded: {project.config.metadata.name}")

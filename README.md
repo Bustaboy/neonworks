@@ -63,10 +63,10 @@ All editors accessible via **F-key hotkeys** and **Ctrl/Shift combos**:
 | **F2** | Settings | Engine and project settings |
 | **F3** | Building UI | Building placement and management |
 | **F4** | Level Builder | Visual tile placement and level design |
-| **F5** | Navmesh Editor | Automatic and manual navmesh generation |
-| **F6** | Quest Editor | Quest and dialogue tree editor |
-| **F7** | Asset Browser | Comprehensive asset management |
-| **F8** | Project Manager | Project settings and configuration |
+| **F5** | Event Editor | Create and edit game events |
+| **F6** | Database Editor | Game data database editor |
+| **F7** | Character Generator | AI-assisted character creation |
+| **F8** | Quest Editor | Quest and dialogue tree editor |
 | **F9** | Combat UI | Turn-based combat interface |
 | **F10** | Game HUD | In-game heads-up display |
 | **F11** | Autotile Editor | Intelligent autotiling system |
@@ -75,6 +75,8 @@ All editors accessible via **F-key hotkeys** and **Ctrl/Shift combos**:
 | **Ctrl+D** | Database Manager | Game data database editor |
 | **Ctrl+G** | Character Generator | AI-powered character creation |
 | **Ctrl+Space** | AI Assistant | AI-powered development assistant |
+
+> Note: The Asset Browser and Project Manager are accessible from the workspace toolbar rather than direct F-key shortcuts.
 
 **Map Tools** (activated in Map Editor):
 - **P** - Pencil Tool • **E** - Eraser Tool • **F** - Fill Tool
@@ -166,6 +168,8 @@ See [JRPG_FEATURES.md](JRPG_FEATURES.md) for complete JRPG documentation.
 
 ## 🚀 Quick Start
 
+NeonWorks is designed to open through the **visual launcher** first. Use the launcher to browse, create, and open projects; drop to the CLI when you need scripting or automation.
+
 ### Prerequisites
 
 ```bash
@@ -182,29 +186,30 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-### 🎯 Using the Visual Launcher (Recommended)
+### Using the Visual Launcher (Primary)
 
 The easiest way to get started is with the **NeonWorks Launcher** - a visual project hub similar to Unity Hub.
 
 ```bash
 # Start the launcher
-python launcher.py
+python -m neonworks.launcher
 
 # Or use the convenience scripts:
-./launch_neonworks.sh        # Linux/Mac
-launch_neonworks.bat         # Windows
+./launch_neonworks.sh        # Linux/Mac wrapper for `python -m neonworks.launcher`
+launch_neonworks.bat         # Windows wrapper for `python -m neonworks.launcher`
 ```
 
 **Launcher Features:**
-- ✅ Visual project browser with project cards
-- ✅ Create new projects from 4 built-in templates
-- ✅ One-click project launching into the editor
-- ✅ Recent projects tracking
-- ✅ Template preview and selection
+- Visual project browser with project cards
+- Create new projects from 4 built-in templates
+- **Two clear actions per project:** Edit in Editor (default) or Run Game
+- Double-click a project card to open the editor
+- Recent projects tracking
+- Template preview and selection
 
 See [LAUNCHER_README.md](LAUNCHER_README.md) for detailed launcher documentation.
 
-### 💻 Using the Command Line (Alternative)
+### Alternative: Command Line (advanced/scripting)
 
 ```bash
 # Create a new project
@@ -216,13 +221,15 @@ python cli.py templates
 # List all projects
 python cli.py list
 
-# Run a project in editor mode
-python main.py my_game
+# Open a project in editor mode
+python main.py my_game --editor
+
+# Run a project in play mode
+python main.py my_game --run
 
 # Export a project to executable
 python export_cli.py export my_game
 ```
-
 ### 📝 Available Templates
 
 1. **Basic Game** - Minimal starter template

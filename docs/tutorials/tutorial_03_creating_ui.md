@@ -31,7 +31,7 @@ Create or update `scripts/ui_components.py`:
 ```python
 """UI components."""
 
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 from dataclasses import dataclass
 from typing import Optional, Callable
 
@@ -91,7 +91,7 @@ Create `scripts/ui_systems.py`:
 ```python
 """UI systems."""
 
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 from ui_components import Button, Text, Panel, UIElement, GameState
 import pygame
 
@@ -412,7 +412,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scripts'))
 
-from engine.core.ecs import World
+from neonworks.core.ecs import World
 from ui_components import GameState
 from ui_systems import ButtonSystem, UIRenderSystem, ScreenManager
 

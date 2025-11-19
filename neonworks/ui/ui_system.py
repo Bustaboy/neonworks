@@ -137,9 +137,11 @@ class UIWidget(ABC):
 class UILabel(UIWidget):
     """Text label widget"""
 
-    def __init__(self, text: str = "", **kwargs):
+    def __init__(self, text: str = "", color: Optional[Tuple[int, int, int, int]] = None, **kwargs):
         super().__init__(**kwargs)
         self.text = text
+        if color is not None:
+            self.style.text_color = color
         self.font: Optional[pygame.font.Font] = None
         self._cached_surface: Optional[pygame.Surface] = None
         self._cached_text = ""
@@ -173,9 +175,22 @@ class UILabel(UIWidget):
 class UIButton(UIWidget):
     """Clickable button widget"""
 
-    def __init__(self, text: str = "Button", **kwargs):
+    def __init__(
+        self,
+        text: str = "Button",
+        on_click: Optional[Callable[[], None]] = None,
+        color: Optional[Tuple[int, int, int, int]] = None,
+        text_color: Optional[Tuple[int, int, int, int]] = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.text = text
+        if on_click:
+            self.on_click = on_click
+        if color is not None:
+            self.style.background_color = color
+        if text_color is not None:
+            self.style.text_color = text_color
         self.font: Optional[pygame.font.Font] = None
 
     def render(self, screen: pygame.Surface):
@@ -951,3 +966,69 @@ class KeyboardNavigator:
             pygame.draw.rect(
                 screen, self.highlight_color, (x, y, corner_size, corner_size), self.highlight_width
             )
+
+
+class UITextInput(UIWidget):
+    """Basic text input field used across legacy UIs."""
+
+    def __init__(self, text: str = "", placeholder: str = "", **kwargs):
+        super().__init__(**kwargs)
+        self.text = text
+        self.placeholder = placeholder
+        self.font: Optional[pygame.font.Font] = None
+
+    def set_text(self, text: str):
+        """Update the input text."""
+        self.text = text
+
+    def get_text(self) -> str:
+        """Return current text."""
+        return self.text
+
+    def handle_event(self, event: pygame.event.Event) -> bool:
+        """Handle typing and focus."""
+        if not self.visible or not self.enabled:
+            return False
+
+        consumed = super().handle_event(event)
+        if consumed:
+            return True
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+                return True
+            elif event.unicode and event.key != pygame.K_RETURN:
+                self.text += event.unicode
+                return True
+        return False
+
+    def render(self, screen: pygame.Surface):
+        if not self.visible:
+            return
+
+        rect = self.get_rect()
+
+        # Draw background
+        pygame.draw.rect(screen, self.style.background_color, rect)
+        pygame.draw.rect(screen, self.style.border_color, rect, 1)
+
+        # Prepare font
+        if self.font is None:
+            self.font = pygame.font.Font(self.style.font_name, self.style.font_size)
+
+        # Choose text/placeholder
+        display_text = self.text if self.text else self.placeholder
+        color = self.style.text_color[:3] if self.text else (150, 150, 150)
+
+        text_surface = self.font.render(display_text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midleft = (self.x + self.style.padding, self.y + self.height // 2)
+        screen.blit(text_surface, text_rect)
+
+
+# Compatibility aliases for legacy imports
+Button = UIButton
+Label = UILabel
+Panel = UIPanel
+TextInput = UITextInput

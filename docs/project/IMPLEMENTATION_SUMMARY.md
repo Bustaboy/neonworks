@@ -212,7 +212,7 @@ python -m engine.test_event_workflow
 
 ### Code Example
 ```python
-from engine.core.event_data import EventManager, create_door_event
+from neonworks.engine.core.event_data import EventManager, create_door_event
 from pathlib import Path
 
 # Create event manager

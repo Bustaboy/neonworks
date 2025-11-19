@@ -12,6 +12,17 @@ NeonWorks is a Python 2D game engine built on Pygame, featuring:
 - **Save/load system** with automatic serialization
 - **Event-driven architecture** for decoupled game logic
 
+## Start with the Visual Launcher (recommended)
+
+The fastest, most guided way to use NeonWorks is through the **NeonWorks Launcher UI**.
+
+1. Launch the UI: `python -m neonworks.launcher` (or `./launch_neonworks.sh` / `launch_neonworks.bat`)
+2. Click **Create Project**, choose a template (e.g., Turn-Based RPG), and set the project name/location.
+3. Pick **Open in Editor** to load the project; the Level Builder and tool panels will appear.
+4. Press **Play** to test immediately, or use the toolbar (F-key shortcuts) to edit maps, events, and quests.
+
+Need automation or scripted pipelines? Keep reading for the CLI/manual path.
+
 ## Installation
 
 ### Prerequisites
@@ -25,15 +36,17 @@ NeonWorks is a Python 2D game engine built on Pygame, featuring:
 cd /path/to/neon-collapse
 
 # Install in development mode
-pip install -e engine/
+pip install -e .
 
 # Or install with dev tools
-pip install -e "engine/[dev]"
+pip install -e ".[dev]"
 ```
 
 This installs NeonWorks and its dependencies (pygame, numpy).
 
-## Your First Game in 5 Minutes
+## Alternative: Manual CLI workflow (advanced)
+
+Prefer full manual control or running without the launcher UI? Use this path.
 
 ### 1. Create a New Project
 
@@ -88,10 +101,10 @@ Create `project.json` with minimal configuration:
 Create `scripts/game.py`:
 
 ```python
-from engine.core.ecs import World, Entity, Component, System
-from engine.core.game_loop import GameEngine
-from engine.core.events import EventManager, EventType
-from engine.rendering.renderer import Renderer
+from neonworks.core.ecs import World, Entity, Component, System
+from neonworks.core.game_loop import GameEngine
+from neonworks.core.events import EventManager, EventType
+from neonworks.rendering.renderer import Renderer
 from dataclasses import dataclass
 import pygame
 
@@ -139,7 +152,7 @@ class PlayerMovementSystem(System):
                 transform.y += dy * player.speed * delta_time
 
 # Import Transform component (built-in)
-from engine.core.ecs import Transform
+from neonworks.core.ecs import Transform
 
 def setup_game(world: World, renderer: Renderer):
     """Set up the initial game state."""
@@ -167,10 +180,10 @@ Create `main.py`:
 #!/usr/bin/env python3
 """Main entry point for My First Game."""
 
-from engine.core.project import ProjectManager
-from engine.core.game_loop import GameEngine, EngineConfig
-from engine.rendering.renderer import Renderer
-from engine.core.ecs import World
+from neonworks.core.project import ProjectManager
+from neonworks.core.game_loop import GameEngine, EngineConfig
+from neonworks.rendering.renderer import Renderer
+from neonworks.core.ecs import World
 import pygame
 import sys
 import os
@@ -231,7 +244,7 @@ def main():
         screen.fill((20, 20, 40))  # Dark blue background
 
         # Draw entities (if they have sprites)
-        from engine.core.ecs import Transform
+        from neonworks.core.ecs import Transform
         for entity in world.get_entities_with_component(Transform):
             transform = entity.get_component(Transform)
             # Draw a simple circle for the player
@@ -280,7 +293,7 @@ Now that you have a basic game running, explore:
 ## Common Issues
 
 ### "Module not found: engine"
-Make sure you installed NeonWorks: `pip install -e engine/`
+Make sure you installed NeonWorks: `pip install -e .`
 
 ### "Project not found"
 The ProjectManager looks for projects in the `projects/` directory relative to the engine root. Make sure your project directory is in the right location.

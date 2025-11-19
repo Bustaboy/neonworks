@@ -21,7 +21,7 @@ Think of systems as the "verbs" of your game:
 All systems inherit from `System` and implement the `update` method:
 
 ```python
-from engine.core.ecs import System, World, Transform
+from neonworks.core.ecs import System, World, Transform
 
 class MovementSystem(System):
     """Moves entities based on their velocity."""
@@ -51,7 +51,7 @@ class MovementSystem(System):
 ### Adding Systems to the World
 
 ```python
-from engine.core.ecs import World
+from neonworks.core.ecs import World
 
 world = World()
 
@@ -166,7 +166,7 @@ Handle player input:
 
 ```python
 import pygame
-from engine.core.ecs import System, World, Transform
+from neonworks.core.ecs import System, World, Transform
 
 class PlayerInputSystem(System):
     """Process player keyboard input."""
@@ -219,7 +219,7 @@ class PlayerInputSystem(System):
 Track time-based effects:
 
 ```python
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 
 class CooldownSystem(System):
     """Update ability cooldowns."""
@@ -246,7 +246,7 @@ class CooldownSystem(System):
 Manage entity state transitions:
 
 ```python
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 from enum import Enum
 
 class AIState(Enum):
@@ -356,7 +356,7 @@ class AISystem(System):
 Remove dead/expired entities:
 
 ```python
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 
 class CleanupSystem(System):
     """Remove dead entities."""
@@ -384,8 +384,8 @@ class CleanupSystem(System):
 Use events for communication:
 
 ```python
-from engine.core.ecs import System, World
-from engine.core.events import EventManager, Event, EventType
+from neonworks.core.ecs import System, World
+from neonworks.core.events import EventManager, Event, EventType
 
 class DamageSystem(System):
     """Handle damage events."""
@@ -449,7 +449,7 @@ class DamageSystem(System):
 ### Example 1: Animation System
 
 ```python
-from engine.core.ecs import System, World, Sprite
+from neonworks.core.ecs import System, World, Sprite
 
 class AnimationSystem(System):
     """Update sprite animations."""
@@ -489,7 +489,7 @@ class AnimationSystem(System):
 ### Example 2: Collision Detection System
 
 ```python
-from engine.core.ecs import System, World, Transform, Collider
+from neonworks.core.ecs import System, World, Transform, Collider
 
 class CollisionSystem(System):
     """Detect and resolve collisions."""
@@ -549,8 +549,8 @@ class CollisionSystem(System):
 ### Example 3: Quest System
 
 ```python
-from engine.core.ecs import System, World
-from engine.core.events import EventManager, Event, EventType
+from neonworks.core.ecs import System, World
+from neonworks.core.events import EventManager, Event, EventType
 
 class QuestSystem(System):
     """Manage quest progression."""
@@ -667,7 +667,7 @@ class MySystem(System):
 
 ```python
 import pytest
-from engine.core.ecs import World, Transform
+from neonworks.core.ecs import World, Transform
 from scripts.systems import MovementSystem
 from scripts.components import Velocity
 

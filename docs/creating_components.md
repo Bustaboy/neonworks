@@ -38,7 +38,7 @@ Components are created using Python `dataclasses`:
 
 ```python
 from dataclasses import dataclass
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 @dataclass
 class Velocity(Component):
@@ -57,7 +57,7 @@ class Velocity(Component):
 ## Using Your Component
 
 ```python
-from engine.core.ecs import World, Transform
+from neonworks.core.ecs import World, Transform
 
 # Create world and entity
 world = World()

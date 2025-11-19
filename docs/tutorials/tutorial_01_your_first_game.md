@@ -15,7 +15,7 @@ Build a complete game from scratch in 30 minutes! This tutorial walks you throug
 ## Prerequisites
 
 - Python 3.8+ installed
-- NeonWorks installed (`pip install -e engine/`)
+- NeonWorks installed (`pip install -e .`)
 - Basic Python knowledge
 
 ## Step 1: Create Project Structure
@@ -75,7 +75,7 @@ Create `scripts/components.py`:
 ```python
 """Custom components for Coin Collector game."""
 
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 from dataclasses import dataclass
 
 @dataclass
@@ -103,8 +103,8 @@ Create `scripts/systems.py`:
 ```python
 """Game systems for Coin Collector."""
 
-from engine.core.ecs import System, World, Transform, Collider
-from engine.core.events import get_event_manager, Event, EventType
+from neonworks.core.ecs import System, World, Transform, Collider
+from neonworks.core.events import get_event_manager, Event, EventType
 from components import Player, Velocity, Coin
 import pygame
 import math
@@ -293,7 +293,7 @@ Create `scripts/game.py`:
 ```python
 """Main game setup for Coin Collector."""
 
-from engine.core.ecs import World, Transform, Collider
+from neonworks.core.ecs import World, Transform, Collider
 from components import Player, Coin, Velocity
 from systems import (
     PlayerInputSystem,
@@ -354,7 +354,7 @@ import os
 # Add scripts to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'scripts'))
 
-from engine.core.ecs import World
+from neonworks.core.ecs import World
 from game import setup_game
 
 def main():

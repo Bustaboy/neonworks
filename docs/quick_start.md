@@ -57,34 +57,29 @@ Before starting, make sure you have:
 
 ## Step 1: Create Your Project (3 minutes)
 
-### 1.1: Launch NeonWorks
+### 1.1: Launch the Visual Launcher (primary path)
 
-Open your terminal/command prompt and run:
+Open your terminal/command prompt and launch the UI:
 
 ```bash
 cd /path/to/neonworks
-python main.py
+python -m neonworks.launcher
+# or use:
+# ./launch_neonworks.sh  (macOS/Linux)
+# launch_neonworks.bat   (Windows)
 ```
 
-The NeonWorks splash screen appears!
+The NeonWorks launcher opens with a visual project list and template browser.
 
-### 1.2: Open Project Manager
-
-Press `F8` or click **File → Project Manager**.
-
-**Screenshot: Project Manager window**
-*[Screenshot should show: Project Manager with "Create New Project" button highlighted]*
-
-### 1.3: Create New Project
+### 1.2: Create New Project from the UI
 
 1. Click **"Create New Project"**
-
 2. Fill in the details:
    - **Project Name:** `my_first_rpg`
    - **Display Name:** "My First RPG"
    - **Author:** Your name
    - **Description:** "A simple RPG demo"
-   - **Template:** Choose **"Turn-Based RPG"**
+   - **Template:** Choose **"Turn-Based RPG"** (or your preferred starter template)
 
 3. Configure window settings:
    - **Width:** 1280
@@ -92,19 +87,29 @@ Press `F8` or click **File → Project Manager**.
    - **Tile Size:** 32
    - **Target FPS:** 60
 
-4. Click **"Create Project"**
+4. Click **"Create"**
 
-NeonWorks creates your project folder structure!
+NeonWorks creates your project folder structure and adds it to the launcher list.
 
-### 1.4: Open in Editor
+### 1.3: Open in Editor
 
-1. Select your project in the list
-2. Click **"Open in Editor"**
+1. Select your project in the launcher list
+2. Click **"Open in Editor"** (or double-click the project card)
 3. The Level Builder opens automatically
 
 **✅ Checkpoint:** You should see a blank grid with toolbar and properties panel.
 
 **Time check:** 3 minutes ⏱️
+
+### Alternative: create and open via CLI (advanced)
+
+Prefer scripting? You can mirror the same setup from the command line:
+
+```bash
+# From repo root
+python cli.py create my_first_rpg --template turn_based_rpg
+python main.py my_first_rpg --editor  # opens editor mode directly
+```
 
 ---
 

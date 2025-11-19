@@ -156,7 +156,7 @@ A single page of an event with:
 ### Method 1: Using Templates
 
 ```python
-from engine.core.event_data import create_door_event
+from neonworks.engine.core.event_data import create_door_event
 
 # Create a door that transfers to another map
 door = create_door_event(
@@ -170,7 +170,7 @@ door = create_door_event(
 ### Method 2: Using Event Manager
 
 ```python
-from engine.core.event_data import EventManager, EventTrigger
+from neonworks.engine.core.event_data import EventManager, EventTrigger
 
 manager = EventManager()
 event = manager.create_event("My Event", x=3, y=7)
@@ -199,7 +199,7 @@ page.commands = [
 ### Save Events to File
 
 ```python
-from engine.core.event_data import EventManager
+from neonworks.engine.core.event_data import EventManager
 from pathlib import Path
 
 manager = EventManager()
@@ -247,7 +247,7 @@ Pre-configured templates are available in `engine/templates/events/`:
 Events can have multiple pages with different conditions:
 
 ```python
-from engine.core.event_data import GameEvent, EventPage
+from neonworks.engine.core.event_data import GameEvent, EventPage
 
 event = GameEvent(name="Conditional Event")
 
@@ -330,7 +330,7 @@ while running:
 ### Loading Map Events
 
 ```python
-from engine.core.event_data import EventManager
+from neonworks.engine.core.event_data import EventManager
 
 def load_map(map_name: str):
     manager = EventManager()

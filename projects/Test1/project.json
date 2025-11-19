@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "name": "Test1",
+    "version": "0.1.0",
+    "description": "A Turn-Based RPG project",
+    "author": "Developer",
+    "engine_version": "0.1.0",
+    "created_date": "2025-11-19T21:58:15.399745",
+    "modified_date": "2025-11-19T21:58:15.399745"
+  },
+  "paths": {
+    "assets": "assets",
+    "levels": "levels",
+    "scripts": "scripts",
+    "saves": "saves",
+    "config": "config"
+  },
+  "settings": {
+    "window_title": "Test1",
+    "window_width": 1280,
+    "window_height": 720,
+    "fullscreen": false,
+    "tile_size": 32,
+    "grid_width": 40,
+    "grid_height": 30,
+    "initial_scene": "menu",
+    "initial_level": "",
+    "enable_base_building": false,
+    "enable_survival": false,
+    "enable_turn_based": true,
+    "enable_combat": true,
+    "building_definitions": "",
+    "item_definitions": "",
+    "character_definitions": "",
+    "quest_definitions": "",
+    "export_version": "1.0.0",
+    "export_publisher": "Independent Developer",
+    "export_description": "",
+    "export_icon": "",
+    "export_license": "",
+    "export_readme": "",
+    "export_encrypt": false,
+    "export_compress": true,
+    "export_console": false
+  },
+  "custom_data": {}
+}

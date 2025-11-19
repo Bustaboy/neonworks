@@ -30,6 +30,8 @@ class GameEngine:
         self.target_fps = target_fps
         self.fixed_timestep = fixed_timestep
         self.running = False
+        self.ui_manager = None
+        self._camera_offset_provider = None
 
         # Initialize pygame
         pygame.init()
@@ -116,6 +118,10 @@ class GameEngine:
         """Fixed timestep update"""
         # Process pygame events
         for event in pygame.event.get():
+            # Route events through UI manager first; if handled, skip engine handling.
+            if self.ui_manager and self.ui_manager.handle_event(event):
+                continue
+
             if event.type == pygame.QUIT:
                 self.running = False
 
@@ -131,6 +137,12 @@ class GameEngine:
         # Update audio manager
         self.audio_manager.update()
 
+        # Update UI manager before states so UI state stays responsive
+        if self.ui_manager:
+            self.ui_manager.update(
+                delta_time, pygame.mouse.get_pos(), self._get_camera_offset()
+            )
+
         # Update state manager (which updates current state)
         self.state_manager.update(delta_time)
 
@@ -141,6 +153,12 @@ class GameEngine:
         """Variable timestep rendering"""
         # Render current state
         self.state_manager.render()
+
+        # Render UI overlays
+        if self.ui_manager:
+            self.ui_manager.render(
+                fps=self.get_fps(), camera_offset=self._get_camera_offset()
+            )
 
     def _update_fps(self, frame_time: float):
         """Update FPS counter"""
@@ -160,6 +178,26 @@ class GameEngine:
     def get_stats(self) -> dict:
         """Get performance statistics"""
         return self.stats.copy()
+
+    def attach_ui_manager(self, ui_manager, camera_offset_provider=None):
+        """
+        Attach a UI manager so the engine can dispatch events and render overlays.
+
+        Args:
+            ui_manager: Instance with handle_event/update/render methods.
+            camera_offset_provider: Callable returning (x, y) offset for UI tools.
+        """
+        self.ui_manager = ui_manager
+        self._camera_offset_provider = camera_offset_provider
+
+    def _get_camera_offset(self):
+        """Return camera offset if provided by caller, else origin."""
+        if callable(self._camera_offset_provider):
+            try:
+                return self._camera_offset_provider()
+            except Exception:
+                return (0, 0)
+        return (0, 0)
 
 
 class EngineConfig:

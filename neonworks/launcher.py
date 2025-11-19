@@ -490,6 +490,27 @@ class NeonWorksLauncher:
 
             traceback.print_exc()
 
+    def edit_project(self, project_name: str):
+        """Open a project directly in editor mode (UI tools first)."""
+        print(f"🚀 Opening project in editor: {project_name}")
+
+        try:
+            self._add_to_recent(project_name)
+            main_script = self.engine_root / "main.py"
+
+            subprocess.Popen(
+                [sys.executable, str(main_script), project_name, "--editor"],
+                cwd=str(self.engine_root.parent),
+            )
+
+            print(f"✅ Editor opened for: {project_name}")
+            print("📌 The launcher will remain open. Close this window to exit.")
+        except Exception as e:
+            print(f"❌ Error opening editor: {e}")
+            import traceback
+
+            traceback.print_exc()
+
     def handle_events(self):
         """Handle input events"""
         for event in pygame.event.get():
@@ -560,24 +581,37 @@ class NeonWorksLauncher:
                 self.new_project_name = ""
                 self.click_cooldown = 0.3
 
-        # Open Project button (only if a project is selected)
+        # Edit / Run buttons (only if a project is selected)
         if self.selected_project_index >= 0:
+            project = self.projects[self.selected_project_index]
+
             if self.launcher_ui.render_button_large(
                 50 + button_width + button_spacing,
                 button_y,
                 button_width,
                 button_height,
-                "Open Project",
+                "Edit in Editor",
                 (70, 180, 100),
             ):
                 if self.click_cooldown <= 0:
-                    project = self.projects[self.selected_project_index]
+                    self.edit_project(project["name"])
+                    self.click_cooldown = 0.3
+
+            if self.launcher_ui.render_button_large(
+                50 + 2 * (button_width + button_spacing),
+                button_y,
+                button_width,
+                button_height,
+                "Run Game",
+                (120, 120, 180),
+            ):
+                if self.click_cooldown <= 0:
                     self.launch_project(project["name"])
                     self.click_cooldown = 0.3
 
         # User Manual button
         if self.launcher_ui.render_button_large(
-            50 + 2 * (button_width + button_spacing),
+            50 + 3 * (button_width + button_spacing),
             button_y,
             button_width,
             button_height,
@@ -645,8 +679,8 @@ class NeonWorksLauncher:
 
                     if clicked and self.click_cooldown <= 0:
                         if self.selected_project_index == i:
-                            # Double-click to open
-                            self.launch_project(project["name"])
+                            # Double-click to open directly in editor
+                            self.edit_project(project["name"])
                             self.click_cooldown = 0.5
                         else:
                             # Single-click to select
@@ -656,7 +690,7 @@ class NeonWorksLauncher:
         # Footer
         footer_font = pygame.font.Font(None, 18)
         footer_text = footer_font.render(
-            "Ctrl+N: New Project  |  Esc: Exit  |  Double-click to open project",
+            "Ctrl+N: New Project  |  Esc: Exit  |  Double-click to edit project",
             True,
             (100, 100, 120),
         )

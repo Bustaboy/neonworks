@@ -360,3 +360,7 @@ class AINavmeshGenerator:
                 "high_cost": high_cost,
             },
         }
+
+
+# Compatibility alias for legacy imports
+NavmeshGenerator = AINavmeshGenerator

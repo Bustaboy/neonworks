@@ -1031,7 +1031,7 @@ Located at: `/projects/neon_collapse/project.json`
 
 ## 11. MAIN APPLICATION ENTRY POINT
 
-### `/engine/main.py` (216 lines)
+### `/neonworks/main.py` (216 lines)
 
 **`GameApplication` Class**
 ```python
@@ -1063,7 +1063,7 @@ class GameApplication:
 
 **Usage:**
 ```bash
-python -m engine.main project_name
+python -m neonworks.main project_name
 ```
 
 ---
@@ -1340,7 +1340,7 @@ setup(
 1. **Create project directory**: `mkdir projects/my_game`
 2. **Create project.json**: Configure metadata, settings, features
 3. **Create project structure**: assets/, levels/, config/, scripts/, saves/
-4. **Run game**: `python -m engine.main my_game`
+4. **Run game**: `python -m neonworks.main my_game`
 
 ### Creating Custom Systems
 

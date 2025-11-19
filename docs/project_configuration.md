@@ -278,7 +278,7 @@ Here's a complete `project.json` for a cyberpunk turn-based strategy game:
 The easiest way to load your project:
 
 ```python
-from engine.core.project import ProjectManager
+from neonworks.core.project import ProjectManager
 
 # Load project by name (looks in projects/ directory)
 project = ProjectManager.load_project("my_game")

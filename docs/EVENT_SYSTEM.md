@@ -75,7 +75,7 @@ class DamageSystem(System):
 `EventType` is an enum defining all possible event types in your game:
 
 ```python
-from engine.core.events import EventType
+from neonworks.core.events import EventType
 
 # Built-in event types
 EventType.DAMAGE_DEALT
@@ -92,7 +92,7 @@ An `Event` is a data class containing:
 - `data`: Dictionary of event-specific data
 
 ```python
-from engine.core.events import Event, EventType
+from neonworks.core.events import Event, EventType
 
 event = Event(
     event_type=EventType.DAMAGE_DEALT,
@@ -113,7 +113,7 @@ The `EventManager` handles:
 - Dispatching events to subscribers
 
 ```python
-from engine.core.events import get_event_manager
+from neonworks.core.events import get_event_manager
 
 event_manager = get_event_manager()
 ```
@@ -188,7 +188,7 @@ EventType.GAME_LOADED   # Game loaded
 Extend EventType for your game:
 
 ```python
-from engine.core.events import EventType
+from neonworks.core.events import EventType
 from enum import auto
 
 class CustomEventType(EventType):
@@ -206,7 +206,7 @@ class CustomEventType(EventType):
 ### Basic Emission
 
 ```python
-from engine.core.events import get_event_manager, Event, EventType
+from neonworks.core.events import get_event_manager, Event, EventType
 
 event_manager = get_event_manager()
 
@@ -220,7 +220,7 @@ event_manager.emit(Event(EventType.DAMAGE_DEALT, {
 ### Convenience Function
 
 ```python
-from engine.core.events import emit_event, EventType
+from neonworks.core.events import emit_event, EventType
 
 # Shorter syntax
 emit_event(EventType.DAMAGE_DEALT, {
@@ -268,7 +268,7 @@ event_manager.emit_immediate(Event(EventType.DAMAGE_DEALT, data))
 ### Basic Subscription
 
 ```python
-from engine.core.events import get_event_manager, EventType, Event
+from neonworks.core.events import get_event_manager, EventType, Event
 
 def on_damage_dealt(event: Event):
     """Handler function"""
@@ -689,8 +689,8 @@ class TutorialSystem(System):
 ### Complete Example: Damage System with Events
 
 ```python
-from engine.core.ecs import System, World, Entity, Component
-from engine.core.events import get_event_manager, Event, EventType
+from neonworks.core.ecs import System, World, Entity, Component
+from neonworks.core.events import get_event_manager, Event, EventType
 from dataclasses import dataclass
 
 @dataclass

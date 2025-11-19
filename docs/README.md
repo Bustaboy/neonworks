@@ -5,8 +5,9 @@ Welcome to the NeonWorks game engine documentation!
 ## Quick Links
 
 ### Getting Started
-- **[Getting Started Guide](getting_started.md)** - Build your first game in 5 minutes
-- **[QUICKSTART.md](../../QUICKSTART.md)** - Installation and setup
+- **[Getting Started Guide](getting_started.md)** - Launcher-first onboarding and quick tutorial
+- **[LAUNCHER_README.md](../LAUNCHER_README.md)** - Visual launcher walkthrough (recommended entry point)
+- **[QUICKSTART.md](../../QUICKSTART.md)** - Installation and setup (includes CLI alternative)
 
 ### Core Documentation
 - **[API Reference](api_reference.md)** - Complete API documentation for all core classes
@@ -73,7 +74,7 @@ Components are pure data containers:
 
 ```python
 from dataclasses import dataclass
-from engine.core.ecs import Component
+from neonworks.core.ecs import Component
 
 @dataclass
 class Velocity(Component):
@@ -88,7 +89,7 @@ See [Creating Components](creating_components.md) for details.
 Systems contain game logic:
 
 ```python
-from engine.core.ecs import System, World
+from neonworks.core.ecs import System, World
 
 class MovementSystem(System):
     def update(self, world: World, delta_time: float):
