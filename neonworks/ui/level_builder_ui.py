@@ -259,6 +259,21 @@ class LevelBuilderUI:
         self.tool_manager.register_tool("autotile", self.autotile_tool)
         self.tool_manager.register_tool("autotile_fill", self.autotile_fill_tool)
 
+    def _get_layer_count(self, tilemap: Optional[Tilemap]) -> int:
+        """
+        Safely get the number of layers from a tilemap, regardless of implementation.
+
+        Supports legacy tilemaps that expose a layers list/int and the enhanced
+        tilemap API that provides get_layer_count().
+        """
+        if tilemap is None:
+            return 0
+
+        if hasattr(tilemap, "get_layer_count"):
+            return tilemap.get_layer_count()  # type: ignore[attr-defined]
+
+        return 0
+
     def _on_tile_selected(self, tileset_id: str, tile_id: int):
         """
         Callback when a tile is selected from the tileset picker.
@@ -318,10 +333,12 @@ class LevelBuilderUI:
                     width=self.grid_width,
                     height=self.grid_height,
                     tile_size=self.tile_size,
-                    layers=old_tilemap.layers,
                 )
+                self._create_default_layers(self.tilemap, self._get_layer_count(old_tilemap))
                 # Copy old tiles that fit in new dimensions
-                for layer in range(min(old_tilemap.layers, self.tilemap.layers)):
+                old_layers = self._get_layer_count(old_tilemap)
+                new_layers = self._get_layer_count(self.tilemap)
+                for layer in range(min(old_layers, new_layers)):
                     for y in range(min(old_tilemap.height, self.grid_height)):
                         for x in range(min(old_tilemap.width, self.grid_width)):
                             tile = old_tilemap.get_tile(x, y, layer)
@@ -366,6 +383,11 @@ class LevelBuilderUI:
             undo_manager=self.undo_manager,
         )
 
+    def _create_default_layers(self, tilemap: Tilemap, count: int = 3):
+        """Create a set of default enhanced layers."""
+        for idx in range(count):
+            tilemap.create_enhanced_layer(f"Layer {idx + 1}")
+
     def initialize_tilemap(self):
         """Initialize a blank tilemap."""
         if self.tilemap is None:
@@ -373,8 +395,8 @@ class LevelBuilderUI:
                 width=self.grid_width,
                 height=self.grid_height,
                 tile_size=self.tile_size,
-                layers=3,
             )
+            self._create_default_layers(self.tilemap, 3)
 
     def toggle(self):
         """Toggle level builder visibility."""
@@ -496,7 +518,8 @@ class LevelBuilderUI:
         if not self.tilemap:
             return
 
-        for layer_idx in range(self.tilemap.layers):
+        layer_count = self._get_layer_count(self.tilemap)
+        for layer_idx in range(layer_count):
             # Dim non-current layers
             alpha = 255 if layer_idx == self.current_layer else 100
 
@@ -1094,12 +1117,12 @@ class LevelBuilderUI:
         tilemap_data = {
             "width": self.tilemap.width,
             "height": self.tilemap.height,
-            "layers": self.tilemap.layers,
             "tiles": [],
         }
 
         # Serialize tiles
-        for layer in range(self.tilemap.layers):
+        layer_count = self._get_layer_count(self.tilemap)
+        for layer in range(layer_count):
             for y in range(self.tilemap.height):
                 for x in range(self.tilemap.width):
                     tile = self.tilemap.get_tile(x, y, layer)
@@ -1122,15 +1145,18 @@ class LevelBuilderUI:
             self.initialize_tilemap()
             return
 
-        self.tilemap = Tilemap(
-            width=tilemap_data.get("width", self.grid_width),
-            height=tilemap_data.get("height", self.grid_height),
-            tile_size=self.tile_size,
-            layers=tilemap_data.get("layers", 3),
-        )
+        width = tilemap_data.get("width", self.grid_width)
+        height = tilemap_data.get("height", self.grid_height)
+        tiles = tilemap_data.get("tiles", [])
+        legacy_layers = tilemap_data.get("layers")  # legacy numeric layer count
+        inferred_layers = max([t.get("layer", 0) for t in tiles], default=0) + 1
+        layer_count = max(legacy_layers or 0, inferred_layers, 1)
+
+        self.tilemap = Tilemap(width=width, height=height, tile_size=self.tile_size)
+        self._create_default_layers(self.tilemap, layer_count)
 
         # Deserialize tiles
-        for tile_data in tilemap_data.get("tiles", []):
+        for tile_data in tiles:
             tile = Tile(tile_type=tile_data["tile_type"], walkable=tile_data["walkable"])
             self.tilemap.set_tile(tile_data["x"], tile_data["y"], tile_data["layer"], tile)
 

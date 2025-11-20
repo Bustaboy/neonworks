@@ -12,7 +12,13 @@ import pytest
 from neonworks.data.map_layers import LayerType, ParallaxMode
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
-from neonworks.rendering.tilemap import Tilemap, TilemapBuilder, TilemapRenderer, Tileset
+from neonworks.rendering.tilemap import (
+    TileLayer,
+    Tilemap,
+    TilemapBuilder,
+    TilemapRenderer,
+    Tileset,
+)
 
 
 @pytest.fixture
@@ -41,14 +47,6 @@ class TestEnhancedTilemap:
         assert tilemap.use_enhanced_layers is True
         assert hasattr(tilemap, "layer_manager")
         assert tilemap.layer_manager is not None
-
-    def test_create_legacy_tilemap_explicit(self):
-        """Test creating legacy tilemap explicitly"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=False)
-
-        assert tilemap.use_enhanced_layers is False
-        assert hasattr(tilemap, "layers")
-        assert isinstance(tilemap.layers, list)
 
     def test_create_enhanced_layer(self):
         """Test creating enhanced layer"""
@@ -414,8 +412,25 @@ class TestTilemapBuilder:
 
     def test_migrate_legacy_tilemap(self):
         """Test migrating legacy tilemap to enhanced"""
+        class LegacyTilemap:
+            def __init__(self):
+                self.use_enhanced_layers = False
+                self.width = 10
+                self.height = 10
+                self.tile_width = 32
+                self.tile_height = 32
+                self.layers = []
+                self.tilesets = {}
+                self.default_tileset = None
+
+            def create_layer(self, name, fill_tile=0):
+                layer = TileLayer(name=name, width=self.width, height=self.height)
+                if fill_tile:
+                    layer.fill(fill_tile)
+                self.layers.append(layer)
+
         # Create legacy tilemap
-        old_tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=False)
+        old_tilemap = LegacyTilemap()
         old_tilemap.create_layer("ground", fill_tile=5)
         old_tilemap.create_layer("objects")
 
@@ -431,7 +446,7 @@ class TestTilemapBuilder:
 
     def test_migrate_already_enhanced(self):
         """Test migrating already enhanced tilemap returns same"""
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
         tilemap.create_enhanced_layer("Test")
 
         migrated = TilemapBuilder.migrate_legacy_tilemap(tilemap)
@@ -442,16 +457,10 @@ class TestTilemapBuilder:
 class TestEnhancedLayerOperations:
     """Test enhanced layer operations on tilemap"""
 
-    def test_enhanced_layer_returns_none_on_legacy(self):
-        """Test enhanced layer methods return None on legacy tilemap"""
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=False)
-
-        assert tilemap.create_enhanced_layer("Test") is None
-        assert tilemap.create_parallax_background("Sky") is None
-        assert tilemap.remove_layer("fake_id") is False
-        assert tilemap.reorder_layer("fake_id", 0) is False
-        assert tilemap.duplicate_layer("fake_id") is None
-        assert tilemap.merge_layers(["fake_id"]) is None
-        assert tilemap.create_layer_group("Group") is None
-        assert tilemap.get_enhanced_layer("fake_id") is None
-        assert tilemap.get_enhanced_layer_by_name("Test") is None
+    def test_enhanced_layer_operations(self):
+        tilemap = Tilemap(10, 10, 32, 32)
+        layer_id = tilemap.create_enhanced_layer("Test")
+        assert layer_id is not None
+        assert tilemap.reorder_layer(layer_id, 0) is True
+        assert tilemap.duplicate_layer(layer_id) is not None
+        assert tilemap.remove_layer(layer_id) is True

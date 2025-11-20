@@ -77,7 +77,12 @@ class EyedropperTool(MapTool):
                 picked_layer = context.current_layer
         else:
             # Pick from any layer (search from top to bottom)
-            for layer in range(context.tilemap.layers - 1, -1, -1):
+            if hasattr(context.tilemap, "get_layer_count"):
+                layer_count = context.tilemap.get_layer_count()  # type: ignore[attr-defined]
+            else:
+                layer_count = 0
+
+            for layer in range(layer_count - 1, -1, -1):
                 tile = context.tilemap.get_tile(grid_x, grid_y, layer)
                 if tile:
                     picked_tile = tile

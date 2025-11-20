@@ -151,9 +151,9 @@ class AILevelGenerator:
         if not context.tilemap:
             from ..rendering.tilemap import Tilemap
 
-            context.tilemap = Tilemap(
-                width=width, height=height, tile_size=context.tile_size, layers=3
-            )
+            context.tilemap = Tilemap(width=width, height=height, tile_size=context.tile_size)
+            for idx in range(3):
+                context.tilemap.create_enhanced_layer(f"Layer {idx + 1}")
 
         # 1. Generate terrain
         terrain_type = template["terrain"]
@@ -220,9 +220,9 @@ class AILevelGenerator:
         if not context.tilemap:
             from ..rendering.tilemap import Tilemap
 
-            context.tilemap = Tilemap(
-                width=width, height=height, tile_size=context.tile_size, layers=3
-            )
+            context.tilemap = Tilemap(width=width, height=height, tile_size=context.tile_size)
+            for idx in range(3):
+                context.tilemap.create_enhanced_layer(f"Layer {idx + 1}")
 
         # Generate terrain
         self._generate_terrain(terrain_type, width, height, context)

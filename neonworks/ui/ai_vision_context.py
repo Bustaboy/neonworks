@@ -175,23 +175,32 @@ class AIVisionExporter:
         min_x, min_y, max_x, max_y = visible_area
 
         layers_data = {}
-        for layer_id, layer in enumerate(tilemap.layers):
+        render_order = (
+            tilemap.layer_manager.get_render_order()
+            if hasattr(tilemap, "layer_manager")
+            else []
+        )
+
+        for layer_index, layer_id in enumerate(render_order):
+            layer = tilemap.layer_manager.get_layer(layer_id) if hasattr(tilemap, "layer_manager") else None
+            if layer is None:
+                continue
+
             tiles_list = []
             for y in range(min_y, max_y + 1):
                 for x in range(min_x, max_x + 1):
-                    if 0 <= y < len(layer.tiles) and 0 <= x < len(layer.tiles[0]):
-                        tile = layer.tiles[y][x]
-                        if tile and tile.tile_id is not None:
-                            tiles_list.append(
-                                {
-                                    "x": x,
-                                    "y": y,
-                                    "tile_id": tile.tile_id,
-                                    "tileset_id": tile.tileset_id,
-                                }
-                            )
+                    tile = tilemap.get_tile(x, y, layer_index) if hasattr(tilemap, "get_tile") else None
+                    if tile and tile.tile_id is not None:
+                        tiles_list.append(
+                            {
+                                "x": x,
+                                "y": y,
+                                "tile_id": tile.tile_id,
+                                "tileset_id": getattr(tile, "tileset_id", None),
+                            }
+                        )
 
-            layers_data[layer_id] = {"tiles": tiles_list, "name": layer.name}
+            layers_data[layer_index] = {"tiles": tiles_list, "name": layer.properties.name}
 
         return TilemapSnapshot(
             width=tilemap.width,
@@ -277,7 +286,7 @@ class AIVisionExporter:
 
         # Count terrain types
         terrain_summary = {}
-        for layer_data in tilemap.layers.values():
+        for layer_data in getattr(tilemap, "layers", {}).values():
             for tile in layer_data.get("tiles", []):
                 tile_id = tile.get("tile_id")
                 if tile_id is not None:
@@ -368,7 +377,7 @@ class AIVisionExporter:
         occupied = [[False] * width for _ in range(height)]
 
         # Mark tiles as occupied
-        for layer_data in tilemap.layers.values():
+        for layer_data in getattr(tilemap, "layers", {}).values():
             for tile in layer_data.get("tiles", []):
                 x, y = tile["x"] - min_x, tile["y"] - min_y
                 if 0 <= x < width and 0 <= y < height:

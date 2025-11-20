@@ -222,7 +222,12 @@ class MinimapUI:
         scale = min(scale_x, scale_y)
 
         # Draw tiles
-        for layer in range(self.tilemap.layers):
+        if hasattr(self.tilemap, "get_layer_count"):
+            layer_count = self.tilemap.get_layer_count()  # type: ignore[attr-defined]
+        else:
+            layer_count = 0
+
+        for layer in range(layer_count):
             alpha = 255 if layer == 0 else 180
             for y in range(self.tilemap.height):
                 for x in range(self.tilemap.width):

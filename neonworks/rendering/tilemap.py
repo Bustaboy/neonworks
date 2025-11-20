@@ -31,6 +31,9 @@ class Tile:
 
     tile_id: int = 0  # ID in the tileset (0 = empty)
     flags: int = 0  # Flip/rotation flags
+    tile_type: Optional[str] = None  # Legacy tile type identifier
+    walkable: bool = True  # Legacy walkability flag
+    tileset_id: Optional[str] = None  # Source tileset for editor metadata
 
     # Tile flags
     FLIP_HORIZONTAL = 0x01
@@ -39,7 +42,7 @@ class Tile:
 
     def is_empty(self) -> bool:
         """Check if tile is empty"""
-        return self.tile_id == 0
+        return self.tile_id == 0 and self.tile_type is None
 
     def is_flipped_horizontal(self) -> bool:
         return (self.flags & self.FLIP_HORIZONTAL) != 0
@@ -165,9 +168,9 @@ class Tilemap(Component):
             height: Height in tiles
             tile_width: Width of each tile in pixels
             tile_height: Height of each tile in pixels
-            use_enhanced_layers: Use new LayerManager (recommended)
+            use_enhanced_layers: DEPRECATED - enhanced layers are always used
             tile_size: Optional uniform tile size (overrides tile_width/tile_height)
-            layers: Optional backward-compatible layer count (ignored when using enhanced layers)
+            layers: DEPRECATED - callers must create layers explicitly
         """
         self.width = width
         self.height = height
@@ -177,26 +180,88 @@ class Tilemap(Component):
             tile_height = tile_height or tile_size
         self.tile_width = tile_width or 32
         self.tile_height = tile_height or 32
+        self._tile_metadata: Dict[Tuple[str, int, int], Tile] = {}
 
-        # Backward compatibility: older code passed a layer count; the enhanced
-        # LayerManager manages layers internally, so we accept and ignore.
-        self.legacy_layer_count = layers
-
-        # Layer system selection
-        self.use_enhanced_layers = use_enhanced_layers
-
-        if use_enhanced_layers:
-            # NEW: Enhanced layer system
-            self.layer_manager = LayerManager(width, height)
-        else:
-            # OLD: Legacy layer system (for backward compatibility)
-            self.layers: List[TileLayer] = []
+        # Enhanced layer system (legacy layer mode removed)
+        self.use_enhanced_layers = True
+        self.layer_manager = LayerManager(width, height)
 
         # Tilesets
         self.tilesets: Dict[str, Tileset] = {}
         self.default_tileset: Optional[str] = None
 
         # Rendering cache
+        self._render_cache_dirty = True
+
+    def _get_layer_by_index(
+        self, index: int, create: bool = False
+    ) -> Tuple[Optional[EnhancedTileLayer], Optional[str]]:
+        """Get an enhanced layer and ID by index, optionally creating missing layers."""
+        render_order = self.layer_manager.get_render_order()
+
+        if 0 <= index < len(render_order):
+            layer_id = render_order[index]
+            return (self.layer_manager.get_layer(layer_id), layer_id)
+
+        if create and index >= 0:
+            while len(render_order) <= index:
+                self.create_enhanced_layer(f"Layer {len(render_order) + 1}")
+                render_order = self.layer_manager.get_render_order()
+
+            layer_id = render_order[index]
+            return (self.layer_manager.get_layer(layer_id), layer_id)
+
+        return (None, None)
+
+    def get_layer_count(self) -> int:
+        """Return the number of layers."""
+        return len(self.layer_manager.get_render_order())
+
+    def get_tile(self, x: int, y: int, layer: int = 0) -> Optional[Tile]:
+        """
+        Tile access for enhanced layers.
+
+        Args:
+            x: Tile X coordinate
+            y: Tile Y coordinate
+            layer: Layer index
+        """
+        enhanced_layer, layer_id = self._get_layer_by_index(layer)
+        if not enhanced_layer or layer_id is None:
+            return None
+
+        meta_tile = self._tile_metadata.get((layer_id, x, y))
+        if meta_tile is not None:
+            return meta_tile
+
+        tile_id = enhanced_layer.get_tile(x, y)
+        if tile_id == 0:
+            return None
+
+        return Tile(tile_id=tile_id)
+
+    def set_tile(self, x: int, y: int, layer: int, tile: Optional[Tile]):
+        """
+        Tile setter for enhanced layers. Automatically creates layers if missing.
+
+        Args:
+            x: Tile X coordinate
+            y: Tile Y coordinate
+            layer: Layer index
+            tile: Tile to place (None clears)
+        """
+        enhanced_layer, layer_id = self._get_layer_by_index(layer, create=True)
+        if not enhanced_layer or layer_id is None:
+            return
+
+        if tile is None:
+            enhanced_layer.set_tile(x, y, 0)
+            self._tile_metadata.pop((layer_id, x, y), None)
+        else:
+            tile_id = getattr(tile, "tile_id", 0) or 0
+            enhanced_layer.set_tile(x, y, tile_id)
+            self._tile_metadata[(layer_id, x, y)] = tile
+
         self._render_cache_dirty = True
 
     # ===================================================================
@@ -224,10 +289,8 @@ class Tilemap(Component):
             parent_group_id: Parent group ID (None for root)
 
         Returns:
-            Layer ID, or None if not using enhanced layers
+            Layer ID
         """
-        if not self.use_enhanced_layers:
-            return None
 
         props = LayerProperties(
             name=name,
@@ -263,11 +326,8 @@ class Tilemap(Component):
             auto_scroll_y: Auto-scroll speed Y (pixels/second)
 
         Returns:
-            Layer ID, or None if not using enhanced layers
+            Layer ID
         """
-        if not self.use_enhanced_layers:
-            return None
-
         props = LayerProperties(
             name=name,
             layer_type=LayerType.PARALLAX_BACKGROUND,
@@ -294,9 +354,6 @@ class Tilemap(Component):
         Returns:
             True if removed, False otherwise
         """
-        if not self.use_enhanced_layers:
-            return False
-
         result = self.layer_manager.remove_layer(layer_id)
         if result:
             self._render_cache_dirty = True
@@ -313,9 +370,6 @@ class Tilemap(Component):
         Returns:
             True if reordered, False otherwise
         """
-        if not self.use_enhanced_layers:
-            return False
-
         result = self.layer_manager.reorder_layer(layer_id, new_index)
         if result:
             self._render_cache_dirty = True
@@ -332,9 +386,6 @@ class Tilemap(Component):
         Returns:
             New layer ID, or None if failed
         """
-        if not self.use_enhanced_layers:
-            return None
-
         new_id = self.layer_manager.duplicate_layer(layer_id, new_name)
         if new_id:
             self._render_cache_dirty = True
@@ -351,9 +402,6 @@ class Tilemap(Component):
         Returns:
             New merged layer ID, or None if failed
         """
-        if not self.use_enhanced_layers:
-            return None
-
         new_id = self.layer_manager.merge_layers(layer_ids, new_name)
         if new_id:
             self._render_cache_dirty = True
@@ -370,59 +418,40 @@ class Tilemap(Component):
             parent_group_id: Parent group ID (None for root)
 
         Returns:
-            Group ID, or None if not using enhanced layers
+            Group ID
         """
-        if not self.use_enhanced_layers:
-            return None
-
         group = self.layer_manager.create_group(name=name, parent_group_id=parent_group_id)
         return group.group_id
 
     def get_enhanced_layer(self, layer_id: str) -> Optional[EnhancedTileLayer]:
         """Get enhanced layer by ID"""
-        if not self.use_enhanced_layers:
-            return None
         return self.layer_manager.get_layer(layer_id)
 
     def get_enhanced_layer_by_name(self, name: str) -> Optional[EnhancedTileLayer]:
         """Get enhanced layer by name"""
-        if not self.use_enhanced_layers:
-            return None
         return self.layer_manager.get_layer_by_name(name)
 
-    # ===================================================================
-    # Legacy Layer System API (for backward compatibility)
-    # ===================================================================
-
     def add_layer(self, layer: TileLayer) -> int:
-        """Add a legacy layer and return its index"""
-        if self.use_enhanced_layers:
-            # Convert to enhanced layer
-            props = LayerProperties(
-                name=layer.name,
-                visible=layer.visible,
-                opacity=layer.opacity,
-                offset_x=layer.offset_x,
-                offset_y=layer.offset_y,
-                parallax_x=layer.parallax_x,
-                parallax_y=layer.parallax_y,
-            )
+        """Add a layer (legacy TileLayer is converted to enhanced)."""
+        props = LayerProperties(
+            name=layer.name,
+            visible=layer.visible,
+            opacity=layer.opacity,
+            offset_x=layer.offset_x,
+            offset_y=layer.offset_y,
+            parallax_x=layer.parallax_x,
+            parallax_y=layer.parallax_y,
+        )
 
-            # Convert tiles to ID array
-            tiles = [[tile.tile_id for tile in row] for row in layer.tiles]
+        # Convert tiles to ID array
+        tiles = [[tile.tile_id for tile in row] for row in layer.tiles]
 
-            enhanced = EnhancedTileLayer(
-                width=layer.width, height=layer.height, tiles=tiles, properties=props
-            )
+        enhanced = EnhancedTileLayer(width=layer.width, height=layer.height, tiles=tiles, properties=props)
 
-            self.layer_manager.layers[props.layer_id] = enhanced
-            self.layer_manager.root_ids.append(props.layer_id)
-            self._render_cache_dirty = True
-            return len(self.layer_manager.root_ids) - 1
-        else:
-            self.layers.append(layer)
-            self._render_cache_dirty = True
-            return len(self.layers) - 1
+        self.layer_manager.layers[props.layer_id] = enhanced
+        self.layer_manager.root_ids.append(props.layer_id)
+        self._render_cache_dirty = True
+        return len(self.layer_manager.root_ids) - 1
 
     def create_layer(self, name: str, fill_tile: int = 0) -> int:
         """Create and add a new legacy layer"""
@@ -433,32 +462,20 @@ class Tilemap(Component):
 
     def get_layer(self, index: int) -> Optional[TileLayer]:
         """Get legacy layer by index"""
-        if self.use_enhanced_layers:
-            # Convert enhanced layer to legacy
-            render_order = self.layer_manager.get_render_order()
-            if 0 <= index < len(render_order):
-                layer_id = render_order[index]
-                enhanced = self.layer_manager.get_layer(layer_id)
-                if enhanced:
-                    return self._enhanced_to_legacy(enhanced)
-            return None
-        else:
-            if 0 <= index < len(self.layers):
-                return self.layers[index]
-            return None
+        render_order = self.layer_manager.get_render_order()
+        if 0 <= index < len(render_order):
+            layer_id = render_order[index]
+            enhanced = self.layer_manager.get_layer(layer_id)
+            if enhanced:
+                return self._enhanced_to_legacy(enhanced)
+        return None
 
     def get_layer_by_name(self, name: str) -> Optional[TileLayer]:
         """Get legacy layer by name"""
-        if self.use_enhanced_layers:
-            enhanced = self.layer_manager.get_layer_by_name(name)
-            if enhanced:
-                return self._enhanced_to_legacy(enhanced)
-            return None
-        else:
-            for layer in self.layers:
-                if layer.name == name:
-                    return layer
-            return None
+        enhanced = self.layer_manager.get_layer_by_name(name)
+        if enhanced:
+            return self._enhanced_to_legacy(enhanced)
+        return None
 
     def _enhanced_to_legacy(self, enhanced: EnhancedTileLayer) -> TileLayer:
         """Convert enhanced layer to legacy TileLayer"""
@@ -484,8 +501,7 @@ class Tilemap(Component):
 
     def update(self, dt: float):
         """Update tilemap (auto-scroll layers, etc.)"""
-        if self.use_enhanced_layers:
-            self.layer_manager.update(dt)
+        self.layer_manager.update(dt)
 
     def add_tileset(self, tileset: Tileset):
         """Add a tileset"""
@@ -550,11 +566,8 @@ class TilemapRenderer:
         if not tileset.tiles:
             tileset.load_tiles(self.asset_manager)
 
-        # Route to appropriate renderer
-        if tilemap.use_enhanced_layers:
-            self._render_enhanced(screen, tilemap, camera, tileset)
-        else:
-            self._render_legacy(screen, tilemap, camera, tileset)
+        # Render using enhanced layer system
+        self._render_enhanced(screen, tilemap, camera, tileset)
 
     def _render_enhanced(
         self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera, tileset: Tileset
@@ -648,75 +661,6 @@ class TilemapRenderer:
                 # Render tile
                 screen.blit(render_surface, (screen_x, screen_y))
                 self._stats["tiles_rendered"] += 1
-
-    def _render_legacy(
-        self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera, tileset: Tileset
-    ):
-        """Render using legacy layer system"""
-        camera_left = camera.x - camera.width / 2
-        camera_top = camera.y - camera.height / 2
-
-        # Render each layer
-        for layer in tilemap.layers:
-            if not layer.visible:
-                continue
-
-            # Apply parallax
-            layer_camera_left = camera_left * layer.parallax_x + layer.offset_x
-            layer_camera_top = camera_top * layer.parallax_y + layer.offset_y
-
-            # Calculate tile range to render (with 1-tile buffer)
-            start_tile_x = max(0, int(layer_camera_left / tilemap.tile_width) - 1)
-            start_tile_y = max(0, int(layer_camera_top / tilemap.tile_height) - 1)
-            end_tile_x = min(
-                tilemap.width,
-                int((layer_camera_left + camera.width) / tilemap.tile_width) + 2,
-            )
-            end_tile_y = min(
-                tilemap.height,
-                int((layer_camera_top + camera.height) / tilemap.tile_height) + 2,
-            )
-
-            # Render visible tiles
-            for tile_y in range(start_tile_y, end_tile_y):
-                for tile_x in range(start_tile_x, end_tile_x):
-                    tile = layer.get_tile(tile_x, tile_y)
-                    if not tile or tile.is_empty():
-                        self._stats["tiles_culled"] += 1
-                        continue
-
-                    # Get tile sprite
-                    tile_surface = tileset.tiles.get(tile.tile_id)
-                    if not tile_surface:
-                        self._stats["tiles_culled"] += 1
-                        continue
-
-                    # Calculate world position
-                    world_x = tile_x * tilemap.tile_width
-                    world_y = tile_y * tilemap.tile_height
-
-                    # Apply parallax offset
-                    world_x = world_x - layer.offset_x
-                    world_y = world_y - layer.offset_y
-
-                    # Convert to screen coordinates
-                    screen_x, screen_y = camera.world_to_screen(world_x, world_y)
-
-                    # Apply tile transformations
-                    render_surface = tile_surface
-                    if tile.flags != 0:
-                        render_surface = self._apply_tile_transforms(tile_surface, tile)
-
-                    # Apply layer opacity
-                    if layer.opacity < 1.0:
-                        render_surface = render_surface.copy()
-                        render_surface.set_alpha(int(layer.opacity * 255))
-
-                    # Render tile
-                    screen.blit(render_surface, (screen_x, screen_y))
-                    self._stats["tiles_rendered"] += 1
-
-            self._stats["layers_rendered"] += 1
 
     def _apply_tile_transforms(self, surface: pygame.Surface, tile: Tile) -> pygame.Surface:
         """Apply flip/rotation transformations to a tile"""
@@ -873,11 +817,8 @@ class OptimizedTilemapRenderer(TilemapRenderer):
         if self.enable_caching and tileset.name not in self._atlas_cache:
             self._create_texture_atlas(tileset)
 
-        # Route to appropriate renderer
-        if tilemap.use_enhanced_layers:
-            self._render_enhanced_optimized(screen, tilemap, camera, tileset)
-        else:
-            self._render_legacy_optimized(screen, tilemap, camera, tileset)
+        # Render using enhanced layer system
+        self._render_enhanced_optimized(screen, tilemap, camera, tileset)
 
         # Update previous camera state
         self._prev_camera_x = camera.x
@@ -1143,180 +1084,6 @@ class OptimizedTilemapRenderer(TilemapRenderer):
 
         return chunk_surface
 
-    def _render_legacy_optimized(
-        self, screen: pygame.Surface, tilemap: Tilemap, camera: Camera, tileset: Tileset
-    ):
-        """Render using legacy layer system with optimizations"""
-        camera_left = camera.x - camera.width / 2
-        camera_top = camera.y - camera.height / 2
-
-        # Render each layer
-        for idx, layer in enumerate(tilemap.layers):
-            if not layer.visible:
-                continue
-
-            # Generate layer ID for caching
-            layer_id = f"legacy_{idx}_{layer.name}"
-
-            # Apply parallax
-            layer_camera_left = camera_left * layer.parallax_x + layer.offset_x
-            layer_camera_top = camera_top * layer.parallax_y + layer.offset_y
-
-            # Calculate visible chunk range
-            start_chunk_x = max(0, int(layer_camera_left / (tilemap.tile_width * self.CHUNK_SIZE)))
-            start_chunk_y = max(0, int(layer_camera_top / (tilemap.tile_height * self.CHUNK_SIZE)))
-
-            end_chunk_x = min(
-                (tilemap.width + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
-                int((layer_camera_left + camera.width) / (tilemap.tile_width * self.CHUNK_SIZE))
-                + 1,
-            )
-            end_chunk_y = min(
-                (tilemap.height + self.CHUNK_SIZE - 1) // self.CHUNK_SIZE,
-                int((layer_camera_top + camera.height) / (tilemap.tile_height * self.CHUNK_SIZE))
-                + 1,
-            )
-
-            # Render visible chunks
-            for chunk_y in range(start_chunk_y, end_chunk_y):
-                for chunk_x in range(start_chunk_x, end_chunk_x):
-                    self._render_legacy_chunk(
-                        screen,
-                        tilemap,
-                        camera,
-                        tileset,
-                        layer,
-                        layer_id,
-                        chunk_x,
-                        chunk_y,
-                        layer.offset_x,
-                        layer.offset_y,
-                    )
-
-            self._stats["layers_rendered"] += 1
-
-    def _render_legacy_chunk(
-        self,
-        screen: pygame.Surface,
-        tilemap: Tilemap,
-        camera: Camera,
-        tileset: Tileset,
-        layer: TileLayer,
-        layer_id: str,
-        chunk_x: int,
-        chunk_y: int,
-        offset_x: float,
-        offset_y: float,
-    ):
-        """Render a legacy layer chunk with caching"""
-        chunk_key = (layer_id, chunk_x, chunk_y)
-
-        # Check cache
-        if self.enable_caching and chunk_key in self._chunk_cache:
-            chunk_surface = self._chunk_cache[chunk_key]
-            self._stats["cache_hits"] += 1
-            self._stats["chunks_reused"] += 1
-        else:
-            # Render chunk
-            chunk_surface = self._render_legacy_chunk_to_surface(
-                tilemap, tileset, layer, chunk_x, chunk_y
-            )
-
-            if chunk_surface is None:
-                return
-
-            # Cache the chunk
-            if self.enable_caching:
-                self._chunk_cache[chunk_key] = chunk_surface
-                self._stats["chunks_cached"] += 1
-
-            self._stats["cache_misses"] += 1
-
-        # Calculate chunk world position
-        chunk_world_x = chunk_x * self.CHUNK_SIZE * tilemap.tile_width - offset_x
-        chunk_world_y = chunk_y * self.CHUNK_SIZE * tilemap.tile_height - offset_y
-
-        # Convert to screen coordinates
-        screen_x, screen_y = camera.world_to_screen(chunk_world_x, chunk_world_y)
-
-        # Apply layer opacity
-        if layer.opacity < 1.0:
-            render_surface = chunk_surface.copy()
-            render_surface.set_alpha(int(layer.opacity * 255))
-            screen.blit(render_surface, (screen_x, screen_y))
-        else:
-            screen.blit(chunk_surface, (screen_x, screen_y))
-
-        self._stats["chunks_rendered"] += 1
-
-    def _render_legacy_chunk_to_surface(
-        self,
-        tilemap: Tilemap,
-        tileset: Tileset,
-        layer: TileLayer,
-        chunk_x: int,
-        chunk_y: int,
-    ) -> Optional[pygame.Surface]:
-        """Render a legacy chunk to surface"""
-        # Calculate tile range
-        start_tile_x = chunk_x * self.CHUNK_SIZE
-        start_tile_y = chunk_y * self.CHUNK_SIZE
-        end_tile_x = min(start_tile_x + self.CHUNK_SIZE, tilemap.width)
-        end_tile_y = min(start_tile_y + self.CHUNK_SIZE, tilemap.height)
-
-        # Calculate chunk size
-        chunk_pixel_width = (end_tile_x - start_tile_x) * tilemap.tile_width
-        chunk_pixel_height = (end_tile_y - start_tile_y) * tilemap.tile_height
-
-        # Check if chunk has tiles
-        has_tiles = False
-        for tile_y in range(start_tile_y, end_tile_y):
-            for tile_x in range(start_tile_x, end_tile_x):
-                tile = layer.get_tile(tile_x, tile_y)
-                if tile and not tile.is_empty():
-                    has_tiles = True
-                    break
-            if has_tiles:
-                break
-
-        if not has_tiles:
-            self._stats["tiles_culled"] += (end_tile_x - start_tile_x) * (end_tile_y - start_tile_y)
-            return None
-
-        # Create chunk surface
-        chunk_surface = pygame.Surface((chunk_pixel_width, chunk_pixel_height), pygame.SRCALPHA)
-
-        # Render tiles
-        for tile_y in range(start_tile_y, end_tile_y):
-            for tile_x in range(start_tile_x, end_tile_x):
-                tile = layer.get_tile(tile_x, tile_y)
-
-                if not tile or tile.is_empty():
-                    self._stats["tiles_culled"] += 1
-                    continue
-
-                # Get tile surface
-                tile_surface = tileset.tiles.get(tile.tile_id)
-                if not tile_surface:
-                    self._stats["tiles_culled"] += 1
-                    continue
-
-                # Apply transformations if needed
-                render_surface = tile_surface
-                if tile.flags != 0:
-                    render_surface = self._apply_tile_transforms(tile_surface, tile)
-
-                # Calculate position within chunk
-                local_x = (tile_x - start_tile_x) * tilemap.tile_width
-                local_y = (tile_y - start_tile_y) * tilemap.tile_height
-
-                # Blit tile
-                chunk_surface.blit(render_surface, (local_x, local_y))
-                self._stats["tiles_rendered"] += 1
-
-        return chunk_surface
-
-
 class TilemapBuilder:
     """Helper class for building tilemaps"""
 
@@ -1325,12 +1092,8 @@ class TilemapBuilder:
         width: int, height: int, tile_size: int = 32, use_enhanced: bool = True
     ) -> Tilemap:
         """Create a simple single-layer tilemap"""
-        tilemap = Tilemap(width, height, tile_size, tile_size, use_enhanced_layers=use_enhanced)
-
-        if use_enhanced:
-            tilemap.create_enhanced_layer("Ground")
-        else:
-            tilemap.create_layer("ground", fill_tile=0)
+        tilemap = Tilemap(width, height, tile_size, tile_size)
+        tilemap.create_enhanced_layer("Ground")
 
         return tilemap
 
@@ -1346,14 +1109,10 @@ class TilemapBuilder:
         if layer_names is None:
             layer_names = ["Ground", "Objects", "Overlay"]
 
-        tilemap = Tilemap(width, height, tile_size, tile_size, use_enhanced_layers=use_enhanced)
+        tilemap = Tilemap(width, height, tile_size, tile_size)
 
-        if use_enhanced:
-            for name in layer_names:
-                tilemap.create_enhanced_layer(name)
-        else:
-            for name in layer_names:
-                tilemap.create_layer(name)
+        for name in layer_names:
+            tilemap.create_enhanced_layer(name)
 
         return tilemap
 
@@ -1369,7 +1128,7 @@ class TilemapBuilder:
         - Objects (1.0x parallax)
         - Foreground (1.2x parallax)
         """
-        tilemap = Tilemap(width, height, tile_size, tile_size, use_enhanced_layers=True)
+        tilemap = Tilemap(width, height, tile_size, tile_size)
 
         # Background layers with parallax
         tilemap.create_parallax_background("Far Background", parallax_x=0.3, parallax_y=0.3)
@@ -1402,24 +1161,18 @@ class TilemapBuilder:
         Returns:
             New tilemap with enhanced layers
         """
-        if old_tilemap.use_enhanced_layers:
+        if getattr(old_tilemap, "use_enhanced_layers", True):
             return old_tilemap  # Already enhanced
 
         # Create new enhanced tilemap
-        new_tilemap = Tilemap(
-            old_tilemap.width,
-            old_tilemap.height,
-            old_tilemap.tile_width,
-            old_tilemap.tile_height,
-            use_enhanced_layers=True,
-        )
+        new_tilemap = Tilemap(old_tilemap.width, old_tilemap.height, old_tilemap.tile_width, old_tilemap.tile_height)
 
         # Copy tilesets
         new_tilemap.tilesets = old_tilemap.tilesets.copy()
         new_tilemap.default_tileset = old_tilemap.default_tileset
 
         # Convert each layer
-        for old_layer in old_tilemap.layers:
+        for old_layer in getattr(old_tilemap, "layers", []):
             props = LayerProperties(
                 name=old_layer.name,
                 visible=old_layer.visible,
