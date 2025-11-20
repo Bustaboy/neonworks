@@ -332,10 +332,6 @@ class AILayerGenerator:
         """
         suggestions = []
 
-        if not tilemap.use_enhanced_layers:
-            suggestions.append("❗ Consider migrating to enhanced layer system for better features")
-            return suggestions
-
         manager = tilemap.layer_manager
         layer_count = len(manager.layers)
         group_count = len(manager.groups)
@@ -395,3 +391,4 @@ class AILayerGenerator:
             suggestions.append("✅ Layer structure looks optimized!")
 
         return suggestions
+

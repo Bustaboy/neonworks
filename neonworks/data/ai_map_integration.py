@@ -18,13 +18,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from engine.tools.map_importers import (
-    LegacyFormatConverter,
-    PNGExporter,
-    TiledTMXExporter,
-    TiledTMXImporter,
-    TilesetImageImporter,
-)
+from engine.tools.map_importers import PNGExporter, TiledTMXExporter, TiledTMXImporter, TilesetImageImporter
 from neonworks.data.map_manager import MapConnection, MapData, MapManager, get_map_manager
 from neonworks.data.tileset_manager import get_tileset_manager
 
@@ -52,8 +46,6 @@ class AIMapCommands:
         self.tmx_exporter = TiledTMXExporter()
         self.tmx_importer = None  # Will be initialized when needed
         self.tileset_importer = TilesetImageImporter(self.tileset_manager)
-        self.legacy_converter = LegacyFormatConverter()
-
     def process_command(self, user_message: str) -> Optional[str]:
         """
         Process a natural language map command.
@@ -115,12 +107,8 @@ class AIMapCommands:
             return self._cmd_import_tmx(user_message)
 
         # IMPORT LEGACY command
-        if "import" in message_lower and "legacy" in message_lower:
-            return self._cmd_import_legacy(user_message)
 
         # CONVERT LEGACY command
-        if "convert" in message_lower and ("legacy" in message_lower or "old" in message_lower):
-            return self._cmd_convert_legacy(user_message)
 
         # IMPORT TILESET command
         if (
@@ -1039,10 +1027,6 @@ class AIMapCommands:
             "Tiled is a popular open-source map editor!"
         )
 
-    def _cmd_import_legacy(self, user_message: str) -> str:
-        """Handle import legacy command."""
-        # Parse: "import legacy oldmap.json"
-        match = re.search(r"import legacy\s+([^\s]+\.json)", user_message, re.IGNORECASE)
 
         if match:
             legacy_path = match.group(1)
@@ -1084,10 +1068,6 @@ class AIMapCommands:
             "Converts old 3-layer format to enhanced layer system!"
         )
 
-    def _cmd_convert_legacy(self, user_message: str) -> str:
-        """Handle batch convert legacy maps."""
-        # Parse: "convert legacy maps from path/to/dir"
-        match = re.search(r"convert.*from\s+([^\s]+)", user_message, re.IGNORECASE)
 
         if match:
             input_dir = Path(match.group(1))
@@ -1391,3 +1371,5 @@ def get_procedural_integration() -> ProceduralMapIntegration:
     if _procedural_integration is None:
         _procedural_integration = ProceduralMapIntegration()
     return _procedural_integration
+
+

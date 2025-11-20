@@ -105,8 +105,7 @@ class LayerPanelUI:
         if not self.visible or not self.tilemap:
             return
 
-        if not self.tilemap.use_enhanced_layers:
-            self._render_legacy_warning(screen)
+        # Legacy check removed; enhanced layers only.
             return
 
         # Draw background
@@ -131,23 +130,8 @@ class LayerPanelUI:
         text = self.font.render("Enhanced Layers", True, self.text_color)
         screen.blit(text, (self.x + 10, self.y + 10))
 
-        warning = self.small_font.render("Legacy mode active", True, (255, 150, 0))
+        warning = self.small_font.render("Enhanced layers only", True, (255, 150, 0))
         screen.blit(warning, (self.x + 10, self.y + 40))
-
-        help_text = [
-            "This tilemap uses the",
-            "old 3-layer system.",
-            "",
-            "To use enhanced layers,",
-            "create a new tilemap with",
-            "use_enhanced_layers=True",
-        ]
-
-        y_pos = self.y + 70
-        for line in help_text:
-            text = self.small_font.render(line, True, self.text_dim_color)
-            screen.blit(text, (self.x + 10, y_pos))
-            y_pos += 18
 
     def _render_header(self, screen: pygame.Surface):
         """Render panel header with controls"""
@@ -405,9 +389,6 @@ class LayerPanelUI:
         Returns True if event was consumed.
         """
         if not self.visible or not self.tilemap:
-            return False
-
-        if not self.tilemap.use_enhanced_layers:
             return False
 
         if event.type == pygame.MOUSEBUTTONDOWN:

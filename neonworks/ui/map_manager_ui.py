@@ -16,13 +16,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import pygame
 
-from engine.tools.map_importers import (
-    LegacyFormatConverter,
-    PNGExporter,
-    TiledTMXExporter,
-    TiledTMXImporter,
-    TilesetImageImporter,
-)
+from engine.tools.map_importers import PNGExporter, TiledTMXExporter, TiledTMXImporter, TilesetImageImporter
 from neonworks.data.map_manager import (
     MapConnection,
     MapData,
@@ -102,10 +96,8 @@ class MapManagerUI:
             TiledTMXImporter(project_root, self.tileset_manager) if project_root else None
         )
         self.tileset_importer = TilesetImageImporter(self.tileset_manager)
-        self.legacy_converter = LegacyFormatConverter()
-
         # Import/Export state
-        self.import_format = "tmx"  # tmx, legacy
+        self.import_format = "tmx"
         self.export_format = "png"  # png, tmx, minimap
         self.import_file_path = ""
         self.export_file_path = ""
@@ -1167,17 +1159,6 @@ class MapManagerUI:
         if self.ui.button("Tiled TMX", dialog_x + 20, form_y, button_width, 35, color=tmx_color):
             self.import_format = "tmx"
 
-        legacy_color = (0, 100, 120) if self.import_format == "legacy" else (60, 60, 80)
-        if self.ui.button(
-            "Legacy JSON",
-            dialog_x + button_width + 30,
-            form_y,
-            button_width,
-            35,
-            color=legacy_color,
-        ):
-            self.import_format = "legacy"
-
         form_y += 50
 
         # File path
@@ -1200,10 +1181,7 @@ class MapManagerUI:
         form_y += 50
 
         # Info
-        if self.import_format == "tmx":
-            info_text = "Import maps from Tiled Map Editor (.tmx files)"
-        else:
-            info_text = "Convert legacy 3-layer format to enhanced format"
+        info_text = "Import maps from Tiled Map Editor (.tmx files)"
 
         self.ui.label(info_text, dialog_x + 20, form_y, size=12, color=(180, 180, 180))
 
@@ -1454,22 +1432,6 @@ class MapManagerUI:
                         print(f"Successfully imported TMX map: {map_data.metadata.name}")
                     else:
                         print("Failed to import TMX map")
-            elif self.import_format == "legacy":
-                # Import legacy format
-                import json
-
-                with open(self.import_file_path, "r") as f:
-                    legacy_data = json.load(f)
-
-                map_data = self.legacy_converter.convert_legacy_map(legacy_data)
-                if map_data:
-                    # Save converted map
-                    self.map_manager.save_map(map_data)
-                    self.map_manager._build_folder_structure()
-                    print(f"Successfully converted legacy map: {map_data.metadata.name}")
-                else:
-                    print("Failed to convert legacy map")
-
             self.show_import_dialog = False
             self.import_file_path = ""
 
