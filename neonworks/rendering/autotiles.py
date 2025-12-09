@@ -11,7 +11,8 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import pygame
 
-from neonworks.rendering.tilemap import Tile, TileLayer, Tilemap
+from neonworks.data.map_layers import EnhancedTileLayer
+from neonworks.rendering.tilemap import Tilemap
 
 
 class AutotileFormat(Enum):
@@ -249,7 +250,7 @@ class AutotileManager:
 
     def calculate_bitmask(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
         autotile_set: AutotileSet,
@@ -285,17 +286,9 @@ class AutotileManager:
 
             # Check bounds
             if 0 <= nx < layer.width and 0 <= ny < layer.height:
-                neighbor_tile = layer.get_tile(nx, ny)
-
-                # Skip empty tiles (unless autotile base_tile_id is 0, then we need special handling)
-                if neighbor_tile and not neighbor_tile.is_empty():
-                    if self._tiles_match(neighbor_tile.tile_id, autotile_set):
-                        bitmask |= 1 << i
-                elif neighbor_tile and neighbor_tile.is_empty() and autotile_set.base_tile_id == 0:
-                    # Special case: if autotile base is 0, we need to check if this tile
-                    # was explicitly set to 0 as part of the autotile or if it's just empty
-                    # For now, treat empty (tile_id=0) as not matching
-                    pass
+                neighbor_id = layer.get_tile(nx, ny)
+                if neighbor_id and self._tiles_match(neighbor_id, autotile_set):
+                    bitmask |= 1 << i
 
         return bitmask
 
@@ -324,7 +317,7 @@ class AutotileManager:
 
     def get_autotile_for_position(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
         autotile_set: AutotileSet,
@@ -346,7 +339,7 @@ class AutotileManager:
 
     def update_tile(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
         autotile_set: AutotileSet,
@@ -361,11 +354,11 @@ class AutotileManager:
             autotile_set: Autotile set to use
         """
         tile_id = self.get_autotile_for_position(layer, x, y, autotile_set)
-        layer.set_tile(x, y, Tile(tile_id=tile_id))
+        layer.set_tile(x, y, tile_id)
 
     def update_adjacent_tiles(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
     ):
@@ -380,12 +373,12 @@ class AutotileManager:
             y: Tile Y coordinate of newly placed tile
         """
         # Get the tile at this position
-        center_tile = layer.get_tile(x, y)
-        if not center_tile or center_tile.is_empty():
+        center_tile_id = layer.get_tile(x, y)
+        if not center_tile_id:
             return
 
         # Get autotile set for the center tile
-        autotile_set = self.get_autotile_for_tile(center_tile.tile_id)
+        autotile_set = self.get_autotile_for_tile(center_tile_id)
         if not autotile_set:
             return
 
@@ -408,11 +401,10 @@ class AutotileManager:
             nx, ny = x + dx, y + dy
 
             if 0 <= nx < layer.width and 0 <= ny < layer.height:
-                neighbor_tile = layer.get_tile(nx, ny)
+                neighbor_id = layer.get_tile(nx, ny)
 
-                if neighbor_tile and not neighbor_tile.is_empty():
-                    # Get autotile set for neighbor
-                    neighbor_autotile = self.get_autotile_for_tile(neighbor_tile.tile_id)
+                if neighbor_id:
+                    neighbor_autotile = self.get_autotile_for_tile(neighbor_id)
 
                     if neighbor_autotile:
                         # Update neighbor tile
@@ -420,7 +412,7 @@ class AutotileManager:
 
     def paint_autotile(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
         autotile_set: AutotileSet,
@@ -435,14 +427,14 @@ class AutotileManager:
             autotile_set: Autotile set to paint with
         """
         # Place the base tile (it will be updated based on neighbors)
-        layer.set_tile(x, y, Tile(tile_id=autotile_set.base_tile_id))
+        layer.set_tile(x, y, autotile_set.base_tile_id)
 
         # Update this tile and all adjacent tiles
         self.update_adjacent_tiles(layer, x, y)
 
     def erase_autotile(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
     ):
@@ -455,7 +447,7 @@ class AutotileManager:
             y: Tile Y coordinate
         """
         # Erase the tile
-        layer.set_tile(x, y, Tile(tile_id=0))
+        layer.set_tile(x, y, 0)
 
         # Update adjacent tiles
         neighbors = [
@@ -473,17 +465,17 @@ class AutotileManager:
             nx, ny = x + dx, y + dy
 
             if 0 <= nx < layer.width and 0 <= ny < layer.height:
-                neighbor_tile = layer.get_tile(nx, ny)
+                neighbor_id = layer.get_tile(nx, ny)
 
-                if neighbor_tile and not neighbor_tile.is_empty():
-                    autotile_set = self.get_autotile_for_tile(neighbor_tile.tile_id)
+                if neighbor_id:
+                    autotile_set = self.get_autotile_for_tile(neighbor_id)
 
                     if autotile_set:
                         self.update_tile(layer, nx, ny, autotile_set)
 
     def get_preview_tile(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         x: int,
         y: int,
         autotile_set: AutotileSet,
@@ -502,20 +494,19 @@ class AutotileManager:
         """
         # Temporarily set the tile
         original_tile = layer.get_tile(x, y)
-        layer.set_tile(x, y, Tile(tile_id=autotile_set.base_tile_id))
+        layer.set_tile(x, y, autotile_set.base_tile_id)
 
         # Calculate what it would be
         preview_tile_id = self.get_autotile_for_position(layer, x, y, autotile_set)
 
         # Restore original tile
-        if original_tile:
-            layer.set_tile(x, y, original_tile)
+        layer.set_tile(x, y, original_tile or 0)
 
         return preview_tile_id
 
     def fill_with_autotile(
         self,
-        layer: TileLayer,
+        layer: EnhancedTileLayer,
         start_x: int,
         start_y: int,
         autotile_set: AutotileSet,
@@ -530,11 +521,11 @@ class AutotileManager:
             autotile_set: Autotile set to fill with
         """
         # Get the tile to replace
-        start_tile = layer.get_tile(start_x, start_y)
-        if not start_tile:
+        start_tile_id = layer.get_tile(start_x, start_y)
+        if start_tile_id is None:
             return
 
-        target_tile_id = start_tile.tile_id
+        target_tile_id = start_tile_id
 
         # Don't fill if already this autotile
         if autotile_set.contains_tile(target_tile_id):
@@ -553,12 +544,12 @@ class AutotileManager:
             if not (0 <= x < layer.width and 0 <= y < layer.height):
                 continue
 
-            tile = layer.get_tile(x, y)
-            if not tile or tile.tile_id != target_tile_id:
+            tile_id = layer.get_tile(x, y)
+            if tile_id is None or tile_id != target_tile_id:
                 continue
 
             # Fill this position
-            layer.set_tile(x, y, Tile(tile_id=autotile_set.base_tile_id))
+            layer.set_tile(x, y, autotile_set.base_tile_id)
             filled_positions.add((x, y))
 
             # Add neighbors to queue

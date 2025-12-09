@@ -15,7 +15,6 @@ __all__ = [
     "AnimationStateMachine",
     "Animation",
     "Tilemap",
-    "TileLayer",
     "Tileset",
     "Tile",
     "UI",
@@ -99,13 +98,12 @@ def __getattr__(name):
         from neonworks.rendering.renderer import Renderer
 
         globals()["Renderer"] = Renderer
-    elif name in ["Tile", "TileLayer", "Tilemap", "Tileset"]:
-        from neonworks.rendering.tilemap import Tile, TileLayer, Tilemap, Tileset
+    elif name in ["Tile", "Tilemap", "Tileset"]:
+        from neonworks.rendering.tilemap import Tile, Tilemap, Tileset
 
         globals().update(
             {
                 "Tile": Tile,
-                "TileLayer": TileLayer,
                 "Tilemap": Tilemap,
                 "Tileset": Tileset,
             }

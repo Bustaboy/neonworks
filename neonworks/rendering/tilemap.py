@@ -95,47 +95,6 @@ class Tileset:
             self.tiles[tile_id] = tile_surface
 
 
-@dataclass
-class TileLayer:
-    """A single layer in the tilemap"""
-
-    name: str
-    width: int  # Width in tiles
-    height: int  # Height in tiles
-    tiles: List[List[Tile]] = field(default_factory=list)
-    visible: bool = True
-    opacity: float = 1.0
-    offset_x: float = 0.0
-    offset_y: float = 0.0
-    parallax_x: float = 1.0  # Parallax scrolling multiplier
-    parallax_y: float = 1.0
-
-    def __post_init__(self):
-        if not self.tiles:
-            # Initialize empty tile grid
-            self.tiles = [[Tile() for _ in range(self.width)] for _ in range(self.height)]
-
-    def get_tile(self, x: int, y: int) -> Optional[Tile]:
-        """Get tile at grid position"""
-        if 0 <= x < self.width and 0 <= y < self.height:
-            return self.tiles[y][x]
-        return None
-
-    def set_tile(self, x: int, y: int, tile: Tile):
-        """Set tile at grid position"""
-        if 0 <= x < self.width and 0 <= y < self.height:
-            self.tiles[y][x] = tile
-
-    def fill(self, tile_id: int):
-        """Fill entire layer with a tile"""
-        for y in range(self.height):
-            for x in range(self.width):
-                self.tiles[y][x] = Tile(tile_id=tile_id)
-
-    def clear(self):
-        """Clear layer (fill with empty tiles)"""
-        self.fill(0)
-
 
 class Tilemap(Component):
     """
@@ -1096,7 +1055,7 @@ class TilemapBuilder:
         )
 
     @staticmethod
-    def fill_pattern(layer: TileLayer, pattern: List[List[int]]):
+    def fill_pattern(layer: EnhancedTileLayer, pattern: List[List[int]]):
         """Fill layer with a repeating pattern"""
         pattern_height = len(pattern)
         pattern_width = len(pattern[0]) if pattern_height > 0 else 0
@@ -1109,21 +1068,21 @@ class TilemapBuilder:
                 pattern_y = y % pattern_height
                 pattern_x = x % pattern_width
                 tile_id = pattern[pattern_y][pattern_x]
-                layer.set_tile(x, y, Tile(tile_id=tile_id))
+                layer.set_tile(x, y, tile_id)
 
     @staticmethod
-    def create_border(layer: TileLayer, border_tile: int, fill_tile: int = 0):
+    def create_border(layer: EnhancedTileLayer, border_tile: int, fill_tile: int = 0):
         """Create a border around the layer"""
         # Fill interior
         for y in range(1, layer.height - 1):
             for x in range(1, layer.width - 1):
-                layer.set_tile(x, y, Tile(tile_id=fill_tile))
+                layer.set_tile(x, y, fill_tile)
 
         # Create border
         for x in range(layer.width):
-            layer.set_tile(x, 0, Tile(tile_id=border_tile))
-            layer.set_tile(x, layer.height - 1, Tile(tile_id=border_tile))
+            layer.set_tile(x, 0, border_tile)
+            layer.set_tile(x, layer.height - 1, border_tile)
 
         for y in range(layer.height):
-            layer.set_tile(0, y, Tile(tile_id=border_tile))
-            layer.set_tile(layer.width - 1, y, Tile(tile_id=border_tile))
+            layer.set_tile(0, y, border_tile)
+            layer.set_tile(layer.width - 1, y, border_tile)

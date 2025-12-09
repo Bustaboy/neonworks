@@ -13,7 +13,8 @@ from neonworks.rendering.autotiles import (
     AutotileSet,
     get_autotile_manager,
 )
-from neonworks.rendering.tilemap import TileLayer, Tilemap, TilemapBuilder, Tileset
+from neonworks.data.map_layers import EnhancedTileLayer
+from neonworks.rendering.tilemap import Tilemap, TilemapBuilder, Tileset
 from neonworks.ui.autotile_editor_ui import AutotileEditorUI
 
 

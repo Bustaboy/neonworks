@@ -11,7 +11,8 @@ from typing import Any, Callable, Dict, Optional
 from neonworks.core.ecs import Entity, GridPosition, Sprite, System, Transform, World
 from neonworks.core.events import Event, EventManager, EventType
 from neonworks.gameplay.movement import Direction, TileCollisionMap, ZoneTrigger
-from neonworks.rendering.tilemap import Tile, TileLayer, Tilemap, Tileset
+from neonworks.data.map_layers import LayerType
+from neonworks.rendering.tilemap import Tile, Tilemap, Tileset
 
 
 class ZoneData:
@@ -263,26 +264,25 @@ class ZoneSystem(System):
             )
             tilemap.add_tileset(tileset)
 
-        # Load layers
+        # Load layers into enhanced system
         for layer_data in tilemap_data.get("layers", []):
-            layer = TileLayer(
-                name=layer_data.get("name", "layer"),
-                width=zone.width,
-                height=zone.height,
-                visible=layer_data.get("visible", True),
+            layer_id = tilemap.create_enhanced_layer(
+                layer_data.get("name", "layer"),
+                layer_type=LayerType.STANDARD,
                 opacity=layer_data.get("opacity", 1.0),
+                visible=layer_data.get("visible", True),
             )
+
+            layer = tilemap.get_enhanced_layer(layer_id)
 
             # Load tile data
             tiles_data = layer_data.get("data", [])
-            if tiles_data:
+            if layer and tiles_data:
                 for y in range(min(zone.height, len(tiles_data))):
                     row = tiles_data[y]
                     for x in range(min(zone.width, len(row))):
                         tile_id = row[x]
-                        layer.set_tile(x, y, Tile(tile_id=tile_id))
-
-            tilemap.add_layer(layer)
+                        layer.set_tile(x, y, tile_id)
 
         return tilemap
 
@@ -298,10 +298,9 @@ class ZoneSystem(System):
         # Load collision layer if specified
         if "layer" in collision_data and zone.tilemap:
             layer_name = collision_data["layer"]
-            layer = zone.tilemap.get_layer_by_name(layer_name)
+            layer = zone.tilemap.get_enhanced_layer_by_name(layer_name)
             if layer:
-                layer_data = [[tile.tile_id for tile in row] for row in layer.tiles]
-                collision_map.load_from_layer(layer_data, blocked_tiles)
+                collision_map.load_from_layer(layer.tiles, blocked_tiles)
         else:
             # Default: all tiles walkable
             collision_map.collision_data = [[True] * zone.width for _ in range(zone.height)]

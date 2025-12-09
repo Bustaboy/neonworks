@@ -13,7 +13,6 @@ from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
 from neonworks.rendering.tilemap import (
     Tile,
-    TileLayer,
     Tilemap,
     TilemapBuilder,
     TilemapRenderer,
@@ -151,76 +150,6 @@ class TestTileset:
         # Should have loaded tiles
         assert len(tileset.tiles) == 4
         asset_manager.load_sprite.assert_called_once()
-
-
-class TestTileLayer:
-    """Test tile layer operations"""
-
-    def test_layer_creation(self):
-        """Test creating a tile layer"""
-        layer = TileLayer(name="ground", width=10, height=10)
-
-        assert layer.name == "ground"
-        assert layer.width == 10
-        assert layer.height == 10
-        assert layer.visible
-        assert layer.opacity == 1.0
-
-    def test_layer_auto_initialize(self):
-        """Test layer auto-initializes tile grid"""
-        layer = TileLayer(name="ground", width=5, height=5)
-
-        assert len(layer.tiles) == 5
-        assert len(layer.tiles[0]) == 5
-
-    def test_get_set_tile(self):
-        """Test getting and setting tiles"""
-        layer = TileLayer(name="ground", width=10, height=10)
-
-        # Set a tile
-        layer.set_tile(5, 5, Tile(tile_id=42))
-
-        # Get the tile
-        tile = layer.get_tile(5, 5)
-        assert tile.tile_id == 42
-
-    def test_get_tile_out_of_bounds(self):
-        """Test getting tile out of bounds returns None"""
-        layer = TileLayer(name="ground", width=10, height=10)
-
-        tile = layer.get_tile(100, 100)
-        assert tile is None
-
-        tile = layer.get_tile(-1, -1)
-        assert tile is None
-
-    def test_fill_layer(self):
-        """Test filling layer with a tile"""
-        layer = TileLayer(name="ground", width=5, height=5)
-        layer.fill(7)
-
-        # All tiles should be ID 7
-        for y in range(5):
-            for x in range(5):
-                assert layer.get_tile(x, y).tile_id == 7
-
-    def test_clear_layer(self):
-        """Test clearing a layer"""
-        layer = TileLayer(name="ground", width=5, height=5)
-        layer.fill(7)
-        layer.clear()
-
-        # All tiles should be empty (ID 0)
-        for y in range(5):
-            for x in range(5):
-                assert layer.get_tile(x, y).tile_id == 0
-
-    def test_layer_parallax(self):
-        """Test layer parallax settings"""
-        layer = TileLayer(name="background", width=10, height=10, parallax_x=0.5, parallax_y=0.5)
-
-        assert layer.parallax_x == 0.5
-        assert layer.parallax_y == 0.5
 
 
 class TestTilemap:
@@ -481,37 +410,39 @@ class TestTilemapBuilder:
 
     def test_fill_pattern(self):
         """Test filling layer with pattern"""
-        layer = TileLayer(name="ground", width=10, height=10)
+        from neonworks.data.map_layers import EnhancedTileLayer
 
+        layer = EnhancedTileLayer(width=10, height=10)
         pattern = [[1, 2], [3, 4]]
 
         TilemapBuilder.fill_pattern(layer, pattern)
 
         # Check pattern repeats
-        assert layer.get_tile(0, 0).tile_id == 1
-        assert layer.get_tile(1, 0).tile_id == 2
-        assert layer.get_tile(0, 1).tile_id == 3
-        assert layer.get_tile(1, 1).tile_id == 4
+        assert layer.get_tile(0, 0) == 1
+        assert layer.get_tile(1, 0) == 2
+        assert layer.get_tile(0, 1) == 3
+        assert layer.get_tile(1, 1) == 4
         # Pattern should repeat
-        assert layer.get_tile(2, 0).tile_id == 1
-        assert layer.get_tile(0, 2).tile_id == 1
+        assert layer.get_tile(2, 0) == 1
+        assert layer.get_tile(0, 2) == 1
 
     def test_create_border(self):
         """Test creating border around layer"""
-        layer = TileLayer(name="ground", width=10, height=10)
+        from neonworks.data.map_layers import EnhancedTileLayer
 
+        layer = EnhancedTileLayer(width=10, height=10)
         TilemapBuilder.create_border(layer, border_tile=9, fill_tile=1)
 
         # Check corners are border
-        assert layer.get_tile(0, 0).tile_id == 9
-        assert layer.get_tile(9, 9).tile_id == 9
+        assert layer.get_tile(0, 0) == 9
+        assert layer.get_tile(9, 9) == 9
 
         # Check edges are border
-        assert layer.get_tile(5, 0).tile_id == 9
-        assert layer.get_tile(0, 5).tile_id == 9
+        assert layer.get_tile(5, 0) == 9
+        assert layer.get_tile(0, 5) == 9
 
         # Check interior is fill
-        assert layer.get_tile(5, 5).tile_id == 1
+        assert layer.get_tile(5, 5) == 1
 
 
 # Run tests with: pytest engine/tests/test_tilemap.py -v

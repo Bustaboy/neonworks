@@ -17,7 +17,8 @@ from neonworks.rendering.autotiles import (
     AutotileSet,
     get_autotile_manager,
 )
-from neonworks.rendering.tilemap import Tile, TileLayer
+from neonworks.data.map_layers import EnhancedTileLayer
+from neonworks.rendering.tilemap import Tile, Tilemap
 from neonworks.rendering.ui import UI
 
 
@@ -55,7 +56,7 @@ class AutotileEditorUI:
         self.current_autotile_set: Optional[AutotileSet] = None
         self.selected_tileset_id: Optional[str] = None
         self.selected_format = AutotileFormat.TILE_16
-        self.test_layer: Optional[TileLayer] = None
+        self.test_layer: Optional[EnhancedTileLayer] = None
 
         # UI dimensions
         self.panel_x = 50
@@ -69,11 +70,7 @@ class AutotileEditorUI:
 
         # Test grid for previewing autotiles
         self.test_grid_size = 8
-        self.test_layer = TileLayer(
-            name="test",
-            width=self.test_grid_size,
-            height=self.test_grid_size,
-        )
+        self.test_layer = EnhancedTileLayer(width=self.test_grid_size, height=self.test_grid_size)
 
         # Colors
         self.bg_color = (40, 40, 50)

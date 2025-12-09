@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from ..core.ecs import GridPosition, Sprite, Transform, World
-from ..rendering.tilemap import Tile, TileLayer, Tilemap
+from ..rendering.tilemap import Tile, Tilemap
 
 
 @dataclass

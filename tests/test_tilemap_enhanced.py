@@ -13,7 +13,6 @@ from neonworks.data.map_layers import LayerType, ParallaxMode
 from neonworks.rendering.assets import AssetManager
 from neonworks.rendering.camera import Camera
 from neonworks.rendering.tilemap import (
-    TileLayer,
     Tilemap,
     TilemapBuilder,
     TilemapRenderer,
@@ -177,28 +176,15 @@ class TestEnhancedTilemap:
         assert new_offset[0] == initial_offset[0] + 10.0
         assert new_offset[1] == initial_offset[1] + 5.0
 
-    def test_legacy_api_with_enhanced_layers(self):
-        """Test legacy API works with enhanced layers"""
-        tilemap = Tilemap(50, 50, 32, 32)
-
-        # Use legacy create_layer
-        index = tilemap.create_layer("ground", fill_tile=5)
-
-        # Use legacy get_layer
-        layer = tilemap.get_layer(index)
-        assert layer is not None
-        assert layer.name == "ground"
-        assert layer.get_tile(0, 0).tile_id == 5
-
     def test_get_layer_by_name_enhanced(self):
         """Test get_layer_by_name with enhanced layers"""
         tilemap = Tilemap(50, 50, 32, 32)
 
         tilemap.create_enhanced_layer("Test Layer")
 
-        layer = tilemap.get_layer_by_name("Test Layer")
+        layer = tilemap.get_enhanced_layer_by_name("Test Layer")
         assert layer is not None
-        assert layer.name == "Test Layer"
+        assert layer.properties.name == "Test Layer"
 
 
 class TestEnhancedRendering:

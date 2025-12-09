@@ -25,7 +25,7 @@ from neonworks.rendering.autotiles import (
     get_autotile_manager,
     reset_autotile_manager,
 )
-from neonworks.rendering.tilemap import Tile, TileLayer
+from neonworks.data.map_layers import EnhancedTileLayer
 
 
 class TestAutotileSet:
@@ -143,7 +143,7 @@ class TestAutotileManager:
         self.manager.register_autotile_set(self.water_autotile)
 
         # Create test layer
-        self.layer = TileLayer(name="ground", width=10, height=10)
+        self.layer = EnhancedTileLayer(width=10, height=10)
 
     def test_register_autotile_set(self):
         """Test registering an autotile set."""
@@ -194,9 +194,9 @@ class TestAutotileManager:
     def test_calculate_bitmask_with_neighbors(self):
         """Test calculating bitmask with neighboring tiles."""
         # Place water tiles (use tile IDs from water autotile set)
-        self.layer.set_tile(5, 5, Tile(tile_id=1))  # Center (base_tile_id)
-        self.layer.set_tile(5, 4, Tile(tile_id=2))  # Top
-        self.layer.set_tile(6, 5, Tile(tile_id=3))  # Right
+        self.layer.set_tile(5, 5, 1)  # Center (base_tile_id)
+        self.layer.set_tile(5, 4, 2)  # Top
+        self.layer.set_tile(6, 5, 3)  # Right
 
         bitmask = self.manager.calculate_bitmask(self.layer, 5, 5, self.water_autotile)
 
@@ -211,7 +211,7 @@ class TestAutotileManager:
         # Place water tiles in 3x3 grid (use tile IDs from water autotile set)
         for dy in range(-1, 2):
             for dx in range(-1, 2):
-                self.layer.set_tile(5 + dx, 5 + dy, Tile(tile_id=1))  # base_tile_id
+                self.layer.set_tile(5 + dx, 5 + dy, 1)  # base_tile_id
 
         bitmask = self.manager.calculate_bitmask(self.layer, 5, 5, self.water_autotile)
 
@@ -230,8 +230,7 @@ class TestAutotileManager:
         self.manager.paint_autotile(self.layer, 5, 5, self.water_autotile)
 
         tile = self.layer.get_tile(5, 5)
-        assert tile is not None
-        assert tile.tile_id == 1  # Isolated tile (base_tile_id + offset 0)
+        assert tile == 1  # Isolated tile (base_tile_id + offset 0)
 
     def test_paint_autotile_with_neighbors(self):
         """Test painting autotiles that connect."""
@@ -245,8 +244,8 @@ class TestAutotileManager:
         tile2 = self.layer.get_tile(6, 5)
 
         # Both tiles should have been updated to connect
-        assert tile1.tile_id != 1  # Not isolated anymore (should be > base_tile_id)
-        assert tile2.tile_id != 1  # Not isolated anymore
+        assert tile1 != 1  # Not isolated anymore (should be > base_tile_id)
+        assert tile2 != 1  # Not isolated anymore
 
     def test_erase_autotile(self):
         """Test erasing an autotile and updating neighbors."""
@@ -260,17 +259,17 @@ class TestAutotileManager:
 
         # Center should be empty
         center_tile = self.layer.get_tile(5, 5)
-        assert center_tile.tile_id == 0
+        assert center_tile == 0
 
         # Adjacent tiles should have been updated
         top_tile = self.layer.get_tile(5, 4)
-        assert top_tile.tile_id != 15  # No longer has bottom neighbor
+        assert top_tile != 15  # No longer has bottom neighbor
 
     def test_get_preview_tile(self):
         """Test getting a preview of what tile would be placed."""
         # Paint some tiles (use tile IDs from water autotile set)
-        self.layer.set_tile(5, 4, Tile(tile_id=1))  # Top (base_tile_id)
-        self.layer.set_tile(6, 5, Tile(tile_id=1))  # Right
+        self.layer.set_tile(5, 4, 1)  # Top (base_tile_id)
+        self.layer.set_tile(6, 5, 1)  # Right
 
         # Get preview without actually placing
         preview_tile_id = self.manager.get_preview_tile(self.layer, 5, 5, self.water_autotile)
@@ -280,7 +279,7 @@ class TestAutotileManager:
 
         # Original position should still be empty
         tile = self.layer.get_tile(5, 5)
-        assert tile.tile_id == 0
+        assert tile == 0
 
     def test_fill_with_autotile(self):
         """Test flood filling with autotiles."""
@@ -294,15 +293,15 @@ class TestAutotileManager:
         for y in range(self.layer.height):
             for x in range(self.layer.width):
                 tile = self.layer.get_tile(x, y)
-                assert tile.tile_id in self.water_autotile.tile_ids
+                assert tile in self.water_autotile.tile_ids
 
     def test_update_adjacent_tiles(self):
         """Test updating adjacent tiles after placing a tile."""
         # Paint initial tile (use tile ID from water autotile set)
-        self.layer.set_tile(5, 5, Tile(tile_id=1))  # base_tile_id
+        self.layer.set_tile(5, 5, 1)  # base_tile_id
 
         # Paint adjacent tile
-        self.layer.set_tile(6, 5, Tile(tile_id=1))
+        self.layer.set_tile(6, 5, 1)
 
         # Update adjacent tiles
         self.manager.update_adjacent_tiles(self.layer, 6, 5)
@@ -312,8 +311,8 @@ class TestAutotileManager:
         tile2 = self.layer.get_tile(6, 5)
 
         # Tiles should connect horizontally (tile_id should be different from isolated)
-        assert tile1.tile_id != 1  # Not isolated
-        assert tile2.tile_id != 1  # Not isolated
+        assert tile1 != 1  # Not isolated
+        assert tile2 != 1  # Not isolated
 
 
 class TestAutotileBitmasks:
@@ -369,7 +368,7 @@ class TestAutotileEdgeCases:
         )
         self.manager.register_autotile_set(self.water_autotile)
 
-        self.layer = TileLayer(name="ground", width=10, height=10)
+        self.layer = EnhancedTileLayer(width=10, height=10)
 
     def test_paint_at_boundary(self):
         """Test painting autotiles at layer boundaries."""
@@ -380,8 +379,8 @@ class TestAutotileEdgeCases:
         self.manager.paint_autotile(self.layer, 9, 0, self.water_autotile)
 
         # Should not crash - isolated tiles at boundaries
-        assert self.layer.get_tile(0, 0).tile_id == 1  # base_tile_id (isolated)
-        assert self.layer.get_tile(9, 9).tile_id == 1
+        assert self.layer.get_tile(0, 0) == 1  # base_tile_id (isolated)
+        assert self.layer.get_tile(9, 9) == 1
 
     def test_calculate_bitmask_at_boundary(self):
         """Test calculating bitmask at layer boundaries."""
@@ -395,7 +394,7 @@ class TestAutotileEdgeCases:
         self.manager.update_adjacent_tiles(self.layer, 5, 5)
 
         tile = self.layer.get_tile(5, 5)
-        assert tile.tile_id == 0
+        assert tile == 0
 
     def test_multiple_autotile_sets(self):
         """Test managing multiple autotile sets."""
@@ -415,8 +414,8 @@ class TestAutotileEdgeCases:
         wall_tile = self.layer.get_tile(6, 5)
 
         # Should not connect (different autotile sets)
-        assert water_tile.tile_id in self.water_autotile.tile_ids
-        assert wall_tile.tile_id in wall_autotile.tile_ids
+        assert water_tile in self.water_autotile.tile_ids
+        assert wall_tile in wall_autotile.tile_ids
 
 
 if __name__ == "__main__":
