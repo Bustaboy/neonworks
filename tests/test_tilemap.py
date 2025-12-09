@@ -237,45 +237,37 @@ class TestTilemap:
         assert tilemap.tile_width == 32
         assert tilemap.tile_height == 32
 
-    def test_add_layer(self):
-        """Test adding layers"""
+    def test_add_enhanced_layer(self):
+        """Test adding enhanced layers"""
         tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
-        layer = TileLayer(name="ground", width=10, height=10)
 
-        index = tilemap.add_layer(layer)
+        layer_id = tilemap.create_enhanced_layer("ground")
 
-        assert index == 0
+        assert layer_id is not None
         assert tilemap.get_layer_count() == 1
-
-    def test_create_layer(self):
-        """Test creating and adding a layer"""
-        tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
-
-        index = tilemap.create_layer("ground", fill_tile=5)
-
-        assert index == 0
-        layer = tilemap.get_layer(0)
-        assert layer.name == "ground"
-        assert layer.get_tile(0, 0).tile_id == 5
+        layer = tilemap.get_enhanced_layer(layer_id)
+        assert layer.properties.name == "ground"
 
     def test_get_layer_by_index(self):
-        """Test getting layer by index"""
+        """Test getting layer by index via render order"""
         tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
-        tilemap.create_layer("ground")
-        tilemap.create_layer("objects")
+        first = tilemap.create_enhanced_layer("ground")
+        second = tilemap.create_enhanced_layer("objects")
 
-        layer = tilemap.get_layer(1)
-        assert layer.name == "objects"
+        render_order = tilemap.layer_manager.get_render_order()
+        assert render_order[1] == second
+        layer = tilemap.layer_manager.get_layer(render_order[1])
+        assert layer.properties.name == "objects"
 
     def test_get_layer_by_name(self):
         """Test getting layer by name"""
         tilemap = Tilemap(width=10, height=10, tile_width=32, tile_height=32)
-        tilemap.create_layer("ground")
-        tilemap.create_layer("objects")
+        tilemap.create_enhanced_layer("ground")
+        tilemap.create_enhanced_layer("objects")
 
-        layer = tilemap.get_layer_by_name("objects")
+        layer = tilemap.get_enhanced_layer_by_name("objects")
         assert layer is not None
-        assert layer.name == "objects"
+        assert layer.properties.name == "objects"
 
     def test_add_tileset(self):
         """Test adding a tileset"""
@@ -376,8 +368,9 @@ class TestTilemapRenderer:
         tilemap.add_tileset(tileset)
 
         # Create layer with some tiles
-        layer = tilemap.create_layer("ground")
-        tilemap.get_layer(0).set_tile(0, 0, Tile(tile_id=1))
+        layer_id = tilemap.create_enhanced_layer("ground")
+        layer = tilemap.get_enhanced_layer(layer_id)
+        layer.set_tile(0, 0, 1)
 
         screen = pygame.Surface((800, 600))
         renderer.render(screen, tilemap, camera)
@@ -408,7 +401,9 @@ class TestTilemapRenderer:
         tilemap.add_tileset(tileset)
 
         # Fill entire map
-        layer = tilemap.create_layer("ground", fill_tile=1)
+        layer_id = tilemap.create_enhanced_layer("ground")
+        layer = tilemap.get_enhanced_layer(layer_id)
+        layer.fill(1)
 
         screen = pygame.Surface((100, 100))
         renderer.render(screen, tilemap, camera)
@@ -433,9 +428,10 @@ class TestTilemapRenderer:
         )
         tilemap.add_tileset(tileset)
 
-        layer = tilemap.create_layer("ground", fill_tile=1)
-        layer_ids = tilemap.layer_manager.get_render_order()
-        tilemap.layer_manager.layers[layer_ids[0]].properties.visible = False
+        layer_id = tilemap.create_enhanced_layer("ground")
+        layer = tilemap.get_enhanced_layer(layer_id)
+        layer.fill(1)
+        layer.properties.visible = False
 
         screen = pygame.Surface((800, 600))
         renderer.render(screen, tilemap, camera)
@@ -465,8 +461,8 @@ class TestTilemapBuilder:
         )
 
         assert tilemap.get_layer_count() == 3
-        assert tilemap.get_layer_by_name("ground") is not None
-        assert tilemap.get_layer_by_name("decorations") is not None
+        assert tilemap.get_enhanced_layer_by_name("ground") is not None
+        assert tilemap.get_enhanced_layer_by_name("decorations") is not None
 
     def test_create_tileset_from_sheet(self):
         """Test creating tileset from sprite sheet"""

@@ -51,15 +51,17 @@ class AutotileTool(MapTool):
         if not self.current_autotile_set:
             return False
 
-        layer = context.tilemap.get_layer(context.current_layer)
+        layer = self._get_active_layer(context)
         if not layer:
             return False
 
         if button == 0:  # Left click - paint
             self.autotile_manager.paint_autotile(layer, grid_x, grid_y, self.current_autotile_set)
+            context.tilemap._render_cache_dirty = True
             return True
         elif button == 2:  # Right click - erase
             self.autotile_manager.erase_autotile(layer, grid_x, grid_y)
+            context.tilemap._render_cache_dirty = True
             return True
 
         return False
@@ -72,15 +74,17 @@ class AutotileTool(MapTool):
         if not self.current_autotile_set:
             return False
 
-        layer = context.tilemap.get_layer(context.current_layer)
+        layer = self._get_active_layer(context)
         if not layer:
             return False
 
         if button == 0:  # Left click - paint
             self.autotile_manager.paint_autotile(layer, grid_x, grid_y, self.current_autotile_set)
+            context.tilemap._render_cache_dirty = True
             return True
         elif button == 2:  # Right click - erase
             self.autotile_manager.erase_autotile(layer, grid_x, grid_y)
+            context.tilemap._render_cache_dirty = True
             return True
 
         return False
@@ -106,7 +110,7 @@ class AutotileTool(MapTool):
             self.preview_position = None
             return
 
-        layer = context.tilemap.get_layer(context.current_layer)
+        layer = self._get_active_layer(context)
         if not layer:
             return
 
@@ -175,12 +179,13 @@ class AutotileFillTool(MapTool):
         if button != 0:  # Only left click
             return False
 
-        layer = context.tilemap.get_layer(context.current_layer)
+        layer = self._get_active_layer(context)
         if not layer:
             return False
 
         # Fill with autotiles
         self.autotile_manager.fill_with_autotile(layer, grid_x, grid_y, self.current_autotile_set)
+        context.tilemap._render_cache_dirty = True
         return True
 
     def on_mouse_drag(self, grid_x: int, grid_y: int, button: int, context: ToolContext) -> bool:
@@ -215,3 +220,10 @@ class AutotileFillTool(MapTool):
         center_x = screen_x + tile_size // 2
         center_y = screen_y + tile_size // 2
         pygame.draw.circle(screen, self.color, (center_x, center_y), tile_size // 4, 2)
+
+    def _get_active_layer(self, context: ToolContext):
+        """Get the active enhanced layer by render order index."""
+        render_order = context.tilemap.layer_manager.get_render_order()
+        if context.current_layer < 0 or context.current_layer >= len(render_order):
+            return None
+        return context.tilemap.layer_manager.get_layer(render_order[context.current_layer])
