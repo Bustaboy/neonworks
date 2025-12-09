@@ -260,6 +260,7 @@ class BibleWorkshop:
     """
 
     def __init__(self, backend: Optional[LLMBackend] = None):
+        # Backend can be a real LLM; defaults to Dummy for offline/deterministic runs.
         self.backend = backend or DummyBackend()
 
         self.questions: List[WorkshopQuestion] = [

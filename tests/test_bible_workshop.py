@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from neonworks.agents.llm_backend import DummyBackend
+from neonworks.ai.backend_resolver import resolve_llm_backend
 from neonworks.bible.storage import load_bible
 from neonworks.bible.workshop import BibleWorkshop
 from neonworks.cli import NeonWorksCLI
@@ -65,6 +66,7 @@ def test_cli_guided_bible_automation(tmp_path):
         template="basic_game",
         guided_bible=True,
         guided_script=script,
+        guided_llm="auto",
     )
     assert success
 
@@ -74,3 +76,9 @@ def test_cli_guided_bible_automation(tmp_path):
 
     graph = load_bible(bible_path)
     assert graph.nodes, "Guided project should have a bible graph"
+
+
+def test_resolver_falls_back_to_dummy_when_no_candidates(monkeypatch):
+    # Force resolver to have no candidates and ensure Dummy is returned.
+    backend = resolve_llm_backend(override_name="auto", candidates_factory=lambda: [])
+    assert isinstance(backend, DummyBackend)

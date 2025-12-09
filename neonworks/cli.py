@@ -146,6 +146,7 @@ class NeonWorksCLI:
         description: str = "",
         guided_bible: bool = False,
         guided_script: Optional[Path] = None,
+        guided_llm: Optional[str] = None,
     ) -> bool:
         """Create a new project from a template"""
         # Validate project name
@@ -202,7 +203,7 @@ class NeonWorksCLI:
             if guided_bible:
                 print("\nStarting a conversational Bible workshop (no forms, just chat)...")
                 answers = self._load_guided_script(guided_script) if guided_script else None
-                self._run_guided_bible(project_dir, answers)
+                self._run_guided_bible(project_dir, answers, guided_llm)
             print("\nProject created successfully!")
             print("\nNext steps:")
             print(f"   1. cd {project_dir}")
@@ -424,13 +425,19 @@ if __name__ == '__main__':
             for line in handle:
                 lines.append(line.rstrip("\n"))
         return lines
-    def _run_guided_bible(self, project_dir: Path, scripted_answers: Optional[list[str]] = None) -> None:
+    def _run_guided_bible(
+        self,
+        project_dir: Path,
+        scripted_answers: Optional[list[str]] = None,
+        llm_name: Optional[str] = None,
+    ) -> None:
         """Run the conversational bible workshop and persist outputs."""
-        from neonworks.agents.llm_backend import DummyBackend
+        from neonworks.ai.backend_resolver import resolve_llm_backend
         from neonworks.bible.workshop import run_workshop_and_save
+        backend = resolve_llm_backend(override_name=llm_name)
         run_workshop_and_save(
             project_root=project_dir,
-            backend=DummyBackend(),
+            backend=backend,
             scripted_answers=scripted_answers,
         )
         print(f"   Bible draft, summary, and transcript saved to {project_dir/'bible'}")
@@ -479,6 +486,11 @@ For more information, see the documentation at docs/cli_tools.md
         type=Path,
         help="Path to newline-delimited answers for the guided Bible workshop",
     )
+    create_parser.add_argument(
+        "--llm",
+        dest="guided_llm",
+        help="LLM backend name or 'auto' for best-fit (defaults to NEONWORKS_LLM or auto)",
+    )
     # Run command
     run_parser = subparsers.add_parser(
         "run", help="Run a project", description="Run a game project"
@@ -518,6 +530,7 @@ For more information, see the documentation at docs/cli_tools.md
                 args.description,
                 guided_bible=args.guided_bible,
                 guided_script=args.guided_script,
+                guided_llm=args.guided_llm,
             )
         elif args.command == "run":
             success = cli.run_project(args.project_name)
