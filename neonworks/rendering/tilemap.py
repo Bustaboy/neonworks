@@ -1,10 +1,7 @@
 """
 Tilemap System
 
-Grid-based level rendering with multiple layers, tilesets, and efficient culling.
-
-This module provides backward compatibility with the old 3-layer system while
-supporting the new enhanced layer system from data.map_layers.
+Grid-based level rendering with multiple enhanced layers, tilesets, and efficient culling.
 """
 
 from dataclasses import dataclass, field
@@ -142,12 +139,7 @@ class TileLayer:
 
 class Tilemap(Component):
     """
-    Tilemap component for grid-based levels.
-
-    Supports multiple layers, tilesets, and efficient rendering.
-
-    Now uses the enhanced LayerManager for advanced layer features while
-    maintaining backward compatibility with the old 3-layer system.
+    Tilemap component for grid-based levels using the enhanced LayerManager.
     """
 
     def __init__(
@@ -156,9 +148,7 @@ class Tilemap(Component):
         height: int,
         tile_width: Optional[int] = None,
         tile_height: Optional[int] = None,
-        use_enhanced_layers: bool = True,
         tile_size: Optional[int] = None,
-        layers: Optional[int] = None,
     ):
         """
         Create a new tilemap.
@@ -168,9 +158,7 @@ class Tilemap(Component):
             height: Height in tiles
             tile_width: Width of each tile in pixels
             tile_height: Height of each tile in pixels
-            use_enhanced_layers: DEPRECATED - enhanced layers are always used
             tile_size: Optional uniform tile size (overrides tile_width/tile_height)
-            layers: DEPRECATED - callers must create layers explicitly
         """
         self.width = width
         self.height = height
@@ -182,7 +170,7 @@ class Tilemap(Component):
         self.tile_height = tile_height or 32
         self._tile_metadata: Dict[Tuple[str, int, int], Tile] = {}
 
-        # Enhanced layer system (legacy layer mode removed)
+        # Enhanced layer system only (legacy layer mode removed)
         self.use_enhanced_layers = True
         self.layer_manager = LayerManager(width, height)
 
@@ -1151,50 +1139,6 @@ class TilemapBuilder:
         return tilemap
 
     @staticmethod
-    def migrate_legacy_tilemap(old_tilemap: Tilemap) -> Tilemap:
-        """
-        Migrate a legacy 3-layer tilemap to enhanced system.
-
-        Args:
-            old_tilemap: Old tilemap with legacy layers
-
-        Returns:
-            New tilemap with enhanced layers
-        """
-        if getattr(old_tilemap, "use_enhanced_layers", True):
-            return old_tilemap  # Already enhanced
-
-        # Create new enhanced tilemap
-        new_tilemap = Tilemap(old_tilemap.width, old_tilemap.height, old_tilemap.tile_width, old_tilemap.tile_height)
-
-        # Copy tilesets
-        new_tilemap.tilesets = old_tilemap.tilesets.copy()
-        new_tilemap.default_tileset = old_tilemap.default_tileset
-
-        # Convert each layer
-        for old_layer in getattr(old_tilemap, "layers", []):
-            props = LayerProperties(
-                name=old_layer.name,
-                visible=old_layer.visible,
-                opacity=old_layer.opacity,
-                offset_x=old_layer.offset_x,
-                offset_y=old_layer.offset_y,
-                parallax_x=old_layer.parallax_x,
-                parallax_y=old_layer.parallax_y,
-            )
-
-            # Convert tile data
-            tiles = [[tile.tile_id for tile in row] for row in old_layer.tiles]
-
-            new_layer = EnhancedTileLayer(
-                width=old_layer.width, height=old_layer.height, tiles=tiles, properties=props
-            )
-
-            new_tilemap.layer_manager.layers[props.layer_id] = new_layer
-            new_tilemap.layer_manager.root_ids.append(props.layer_id)
-
-        return new_tilemap
-
     @staticmethod
     def create_tileset_from_sheet(
         name: str,

@@ -18,8 +18,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from engine.tools.map_importers import (
-    LegacyFormatConverter,
+from neonworks.engine.tools.map_importers import (
     PNGExporter,
     TiledTMXExporter,
     TiledTMXImporter,
@@ -228,136 +227,6 @@ class TestTilesetImageImporter:
         assert hasattr(importer, "import_tileset_image")
 
 
-class TestLegacyFormatConverter:
-    """Test legacy format conversion functionality."""
-
-    def test_legacy_converter_initialization(self):
-        """Test legacy converter can be initialized."""
-        converter = LegacyFormatConverter()
-
-        assert converter is not None
-
-    def test_convert_legacy_map_with_layer_order(self):
-        """Test converting legacy map with layer_order format."""
-        converter = LegacyFormatConverter()
-
-        # Create legacy format data
-        legacy_data = {
-            "metadata": {
-                "name": "OldMap",
-                "description": "Legacy test map",
-                "author": "Tester",
-                "created_date": "2024-01-01T00:00:00",
-                "modified_date": "2024-01-02T00:00:00",
-                "tags": ["test", "legacy"],
-                "folder": "old_maps",
-            },
-            "dimensions": {"width": 20, "height": 20, "tile_size": 32},
-            "tileset": {
-                "tileset_id": "old_tileset",
-                "tileset_name": "Old Tileset",
-                "tileset_path": "tilesets/old.png",
-            },
-            "properties": {
-                "bgm": "town_theme.ogg",
-                "weather": "rain",
-                "encounter_rate": 5,
-                "time_of_day": "night",
-            },
-            "layers": {
-                "layer_order": ["ground", "objects", "overlay"],
-                "layer_data": {
-                    "ground": [[0 for _ in range(20)] for _ in range(20)],
-                    "objects": [[0 for _ in range(20)] for _ in range(20)],
-                    "overlay": [[0 for _ in range(20)] for _ in range(20)],
-                },
-            },
-            "entities": [],
-            "events": [],
-        }
-
-        # Convert
-        converted = converter.convert_legacy_map(legacy_data)
-
-        assert converted is not None
-        assert converted.metadata.name == "OldMap"
-        assert converted.metadata.description == "Legacy test map"
-        assert converted.metadata.author == "Tester"
-        assert converted.metadata.folder == "old_maps"
-        assert len(converted.metadata.tags) == 2
-
-        assert converted.dimensions.width == 20
-        assert converted.dimensions.height == 20
-        assert converted.dimensions.tile_size == 32
-
-        assert converted.tileset.tileset_id == "old_tileset"
-
-        assert converted.properties.bgm == "town_theme.ogg"
-        assert converted.properties.weather == "rain"
-        assert converted.properties.encounter_rate == 5
-
-        # Check layers were converted
-        assert len(converted.layer_manager.layers) == 3
-
-    def test_convert_already_new_format(self):
-        """Test that already-converted maps pass through unchanged."""
-        converter = LegacyFormatConverter()
-
-        # Create new format data
-        map_data = MapData("NewMap", width=30, height=30, tile_size=32)
-        new_format_data = map_data.to_dict()
-
-        # Convert (should recognize it's already new format)
-        converted = converter.convert_legacy_map(new_format_data)
-
-        assert converted is not None
-        assert converted.metadata.name == "NewMap"
-
-    def test_batch_convert_maps(self, tmp_path):
-        """Test batch converting multiple legacy maps."""
-        converter = LegacyFormatConverter()
-
-        # Create input directory with legacy maps
-        input_dir = tmp_path / "input"
-        input_dir.mkdir()
-
-        # Create some legacy map files
-        for i in range(3):
-            legacy_data = {
-                "metadata": {"name": f"Map{i}"},
-                "dimensions": {"width": 10, "height": 10, "tile_size": 32},
-                "tileset": {},
-                "properties": {},
-                "layers": {
-                    "layer_order": ["ground", "objects", "overlay"],
-                    "layer_data": {
-                        "ground": [[0 for _ in range(10)] for _ in range(10)],
-                        "objects": [[0 for _ in range(10)] for _ in range(10)],
-                        "overlay": [[0 for _ in range(10)] for _ in range(10)],
-                    },
-                },
-                "entities": [],
-                "events": [],
-            }
-
-            with open(input_dir / f"map{i}.json", "w") as f:
-                json.dump(legacy_data, f)
-
-        # Create output directory
-        output_dir = tmp_path / "output"
-        output_dir.mkdir()
-
-        # Batch convert
-        success, fail = converter.batch_convert_maps(input_dir, output_dir)
-
-        assert success == 3
-        assert fail == 0
-
-        # Verify output files exist
-        for i in range(3):
-            assert (output_dir / f"map{i}.json").exists()
-
-
 class TestIntegration:
     """Integration tests for import/export workflows."""
 
@@ -385,56 +254,5 @@ class TestIntegration:
             assert f'width="15"' in content
             assert f'height="15"' in content
 
-    def test_legacy_conversion_preserves_data(self):
-        """Test that legacy conversion preserves all data."""
-        converter = LegacyFormatConverter()
 
-        # Create comprehensive legacy data
-        legacy_data = {
-            "metadata": {
-                "name": "ComplexMap",
-                "description": "Complex test",
-                "author": "Tester",
-                "tags": ["dungeon", "boss"],
-                "folder": "dungeons/final",
-            },
-            "dimensions": {"width": 50, "height": 50, "tile_size": 16},
-            "tileset": {"tileset_id": "dungeon_tiles", "tileset_name": "Dungeon"},
-            "properties": {
-                "bgm": "boss_theme.ogg",
-                "weather": "none",
-                "encounter_rate": 10,
-                "custom_properties": {"boss_room": True, "difficulty": "hard"},
-            },
-            "layers": {
-                "layer_order": ["ground", "objects", "overlay"],
-                "layer_data": {
-                    "ground": [[1 for _ in range(50)] for _ in range(50)],
-                    "objects": [[0 for _ in range(50)] for _ in range(50)],
-                    "overlay": [[0 for _ in range(50)] for _ in range(50)],
-                },
-            },
-            "entities": [{"type": "boss", "x": 25, "y": 25}],
-            "events": [{"type": "cutscene", "trigger": "on_enter"}],
-        }
 
-        # Convert
-        converted = converter.convert_legacy_map(legacy_data)
-
-        # Verify all data preserved
-        assert converted.metadata.name == "ComplexMap"
-        assert converted.metadata.description == "Complex test"
-        assert converted.metadata.folder == "dungeons/final"
-        assert "dungeon" in converted.metadata.tags
-        assert "boss" in converted.metadata.tags
-
-        assert converted.dimensions.width == 50
-        assert converted.dimensions.tile_size == 16
-
-        assert converted.properties.bgm == "boss_theme.ogg"
-        assert converted.properties.encounter_rate == 10
-        assert converted.properties.custom_properties["boss_room"] is True
-        assert converted.properties.custom_properties["difficulty"] == "hard"
-
-        assert len(converted.entities) == 1
-        assert len(converted.events) == 1

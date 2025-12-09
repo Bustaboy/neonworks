@@ -44,7 +44,7 @@ class TestEnhancedTilemap:
         """Test creating enhanced tilemap uses new system by default"""
         tilemap = Tilemap(50, 50, 32, 32)
 
-        assert tilemap.use_enhanced_layers is True
+        assert tilemap.use_enhanced_layers
         assert hasattr(tilemap, "layer_manager")
         assert tilemap.layer_manager is not None
 
@@ -179,7 +179,7 @@ class TestEnhancedTilemap:
 
     def test_legacy_api_with_enhanced_layers(self):
         """Test legacy API works with enhanced layers"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         # Use legacy create_layer
         index = tilemap.create_layer("ground", fill_tile=5)
@@ -192,7 +192,7 @@ class TestEnhancedTilemap:
 
     def test_get_layer_by_name_enhanced(self):
         """Test get_layer_by_name with enhanced layers"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         tilemap.create_enhanced_layer("Test Layer")
 
@@ -207,7 +207,7 @@ class TestEnhancedRendering:
     def test_render_enhanced_tilemap(self, asset_manager, camera):
         """Test rendering enhanced tilemap"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         # Create tileset
         tileset = Tileset(
@@ -235,7 +235,7 @@ class TestEnhancedRendering:
     def test_render_invisible_enhanced_layer(self, asset_manager, camera):
         """Test invisible enhanced layers are not rendered"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         tileset = Tileset(
             name="tiles",
@@ -262,7 +262,7 @@ class TestEnhancedRendering:
     def test_render_collision_layer_not_visible(self, asset_manager, camera):
         """Test collision layers are not rendered"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         tileset = Tileset(
             name="tiles",
@@ -287,7 +287,7 @@ class TestEnhancedRendering:
     def test_render_multiple_enhanced_layers(self, asset_manager, camera):
         """Test rendering multiple enhanced layers"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         tileset = Tileset(
             name="tiles",
@@ -314,7 +314,7 @@ class TestEnhancedRendering:
     def test_render_with_opacity(self, asset_manager, camera):
         """Test rendering layer with opacity"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         tileset = Tileset(
             name="tiles",
@@ -339,7 +339,7 @@ class TestEnhancedRendering:
     def test_render_with_auto_scroll(self, asset_manager, camera):
         """Test rendering auto-scroll layer"""
         renderer = TilemapRenderer(asset_manager)
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         tileset = Tileset(
             name="tiles",
@@ -372,7 +372,7 @@ class TestTilemapBuilder:
         """Test creating simple enhanced tilemap"""
         tilemap = TilemapBuilder.create_simple_tilemap(20, 15, use_enhanced=True)
 
-        assert tilemap.use_enhanced_layers is True
+        assert tilemap.use_enhanced_layers
         assert len(tilemap.layer_manager.layers) == 1
 
         ground = tilemap.get_enhanced_layer_by_name("Ground")
@@ -385,7 +385,7 @@ class TestTilemapBuilder:
             10, 10, layer_names=layer_names, use_enhanced=True
         )
 
-        assert tilemap.use_enhanced_layers is True
+        assert tilemap.use_enhanced_layers
         assert len(tilemap.layer_manager.layers) == 3
 
         for name in layer_names:
@@ -396,7 +396,7 @@ class TestTilemapBuilder:
         """Test creating parallax scene"""
         tilemap = TilemapBuilder.create_parallax_scene(50, 50)
 
-        assert tilemap.use_enhanced_layers is True
+        assert tilemap.use_enhanced_layers
         assert len(tilemap.layer_manager.layers) >= 5
 
         # Check for parallax layers
@@ -410,49 +410,6 @@ class TestTilemapBuilder:
         assert fg.properties.layer_type == LayerType.PARALLAX_FOREGROUND
         assert fg.properties.parallax_x == 1.2
 
-    def test_migrate_legacy_tilemap(self):
-        """Test migrating legacy tilemap to enhanced"""
-        class LegacyTilemap:
-            def __init__(self):
-                self.use_enhanced_layers = False
-                self.width = 10
-                self.height = 10
-                self.tile_width = 32
-                self.tile_height = 32
-                self.layers = []
-                self.tilesets = {}
-                self.default_tileset = None
-
-            def create_layer(self, name, fill_tile=0):
-                layer = TileLayer(name=name, width=self.width, height=self.height)
-                if fill_tile:
-                    layer.fill(fill_tile)
-                self.layers.append(layer)
-
-        # Create legacy tilemap
-        old_tilemap = LegacyTilemap()
-        old_tilemap.create_layer("ground", fill_tile=5)
-        old_tilemap.create_layer("objects")
-
-        # Migrate
-        new_tilemap = TilemapBuilder.migrate_legacy_tilemap(old_tilemap)
-
-        assert new_tilemap.use_enhanced_layers is True
-        assert len(new_tilemap.layer_manager.layers) == 2
-
-        ground = new_tilemap.get_enhanced_layer_by_name("ground")
-        assert ground is not None
-        assert ground.get_tile(0, 0) == 5
-
-    def test_migrate_already_enhanced(self):
-        """Test migrating already enhanced tilemap returns same"""
-        tilemap = Tilemap(10, 10, 32, 32)
-        tilemap.create_enhanced_layer("Test")
-
-        migrated = TilemapBuilder.migrate_legacy_tilemap(tilemap)
-
-        assert migrated is tilemap  # Same object
-
 
 class TestEnhancedLayerOperations:
     """Test enhanced layer operations on tilemap"""
@@ -464,3 +421,4 @@ class TestEnhancedLayerOperations:
         assert tilemap.reorder_layer(layer_id, 0) is True
         assert tilemap.duplicate_layer(layer_id) is not None
         assert tilemap.remove_layer(layer_id) is True
+

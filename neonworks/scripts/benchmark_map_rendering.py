@@ -50,7 +50,7 @@ class MapRenderingBenchmark:
         self, width: int, height: int, tile_size: int = 32, use_enhanced: bool = True
     ) -> Tilemap:
         """Create a test tilemap filled with random tiles"""
-        tilemap = Tilemap(width, height, tile_size, tile_size, use_enhanced_layers=use_enhanced)
+        tilemap = Tilemap(width, height, tile_size, tile_size)
 
         # Create a simple test tileset
         tileset = Tileset(

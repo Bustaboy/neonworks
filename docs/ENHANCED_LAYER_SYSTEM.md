@@ -16,9 +16,8 @@
 6. [Layer Groups](#layer-groups)
 7. [Parallax Backgrounds](#parallax-backgrounds)
 8. [Advanced Features](#advanced-features)
-9. [Backward Compatibility](#backward-compatibility)
-10. [Best Practices](#best-practices)
-11. [API Reference](#api-reference)
+9. [Best Practices](#best-practices)
+10. [API Reference](#api-reference)
 
 ---
 
@@ -31,7 +30,7 @@ The Enhanced Layer System provides advanced layer management for NeonWorks tilem
 - **Layer groups**: Organize layers into folders
 - **Parallax backgrounds**: Multiple parallax modes including auto-scroll
 - **Layer operations**: Merge, duplicate, reorder
-- **Backward compatibility**: Works with existing 3-layer maps
+
 
 ### Architecture
 
@@ -475,70 +474,6 @@ with open("map_layers.json", "r") as f:
 
 ---
 
-## Backward Compatibility
-
-### Legacy 3-Layer Maps
-
-The system maintains full backward compatibility with old 3-layer maps.
-
-#### Using Legacy Mode
-
-```python
-# Create tilemap in legacy mode
-tilemap = Tilemap(
-    width=50,
-    height=50,
-    tile_width=32,
-    tile_height=32,
-    use_enhanced_layers=False  # Legacy mode
-)
-
-# Use old API
-tilemap.create_layer("ground")
-tilemap.create_layer("objects")
-tilemap.create_layer("overlay")
-```
-
-#### Migrating Legacy Maps
-
-```python
-from neonworks.rendering.tilemap import TilemapBuilder
-
-# Migrate old tilemap to enhanced system
-old_tilemap = ...  # Load legacy tilemap
-new_tilemap = TilemapBuilder.migrate_legacy_tilemap(old_tilemap)
-
-# Now has enhanced features
-layer_id = new_tilemap.create_enhanced_layer("New Layer")
-```
-
-#### Converting from Legacy Data
-
-```python
-from neonworks.data.map_layers import LayerManager
-
-# Legacy 3-layer format (list of 2D arrays)
-legacy_data = [
-    [[1, 2, 3], [4, 5, 6]],  # Ground
-    [[7, 8, 9], [0, 0, 0]],  # Objects
-    [[0, 0, 0], [10, 11, 12]]  # Overlay
-]
-
-# Convert to enhanced system
-manager = LayerManager.from_legacy_layers(
-    width=3,
-    height=2,
-    layer_data=legacy_data
-)
-
-# Access converted layers
-ground = manager.get_layer_by_name("Ground")
-objects = manager.get_layer_by_name("Objects")
-overlay = manager.get_layer_by_name("Overlay")
-```
-
----
-
 ## Best Practices
 
 ### Layer Organization
@@ -664,7 +599,6 @@ resize_all_layers(new_width, new_height, fill_tile) -> None
 # Serialization
 to_dict() -> Dict
 from_dict(data) -> LayerManager
-from_legacy_layers(width, height, layer_data) -> LayerManager
 ```
 
 ### EnhancedTileLayer Methods
@@ -762,19 +696,16 @@ def update(dt):
 
 ---
 
-## Migration Checklist
+## Layer Setup Checklist
 
-When migrating from the old system to enhanced layers:
+Use this checklist when setting up new projects with enhanced layers:
 
-- [ ] Set `use_enhanced_layers=True` in Tilemap constructor
-- [ ] Replace `create_layer()` with `create_enhanced_layer()`
-- [ ] Replace `get_layer(index)` with `get_enhanced_layer(layer_id)`
-- [ ] Update layer access to use layer IDs instead of indices
-- [ ] Convert tile data from Tile objects to int arrays (if needed)
-- [ ] Test rendering and layer visibility
-- [ ] Update save/load code for new serialization format
-- [ ] Add groups for better organization (optional)
-- [ ] Consider adding parallax backgrounds (optional)
+- [ ] Use `create_enhanced_layer()` for all layer creation
+- [ ] Access layers by ID or name via `get_enhanced_layer`/`get_enhanced_layer_by_name`
+- [ ] Use `get_layer_count()` and render order from `layer_manager`
+- [ ] Persist using the enhanced schema (`layer_manager.to_dict()` / `from_dict()`)
+- [ ] Test rendering, parallax, and visibility/opacity per layer
+- [ ] Organize complex scenes with groups and tags
 
 ---
 

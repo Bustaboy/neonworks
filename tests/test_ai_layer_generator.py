@@ -16,7 +16,7 @@ class TestAILayerGenerator:
 
     def test_generate_platformer_layers_basic(self):
         """Test generating basic platformer layers without parallax"""
-        tilemap = Tilemap(50, 30, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 30, 32, 32)
 
         layer_ids = AILayerGenerator.generate_platformer_layers(
             tilemap, has_parallax=False, depth_layers=0
@@ -37,7 +37,7 @@ class TestAILayerGenerator:
 
     def test_generate_platformer_layers_with_parallax(self):
         """Test generating platformer with parallax backgrounds"""
-        tilemap = Tilemap(50, 30, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 30, 32, 32)
 
         layer_ids = AILayerGenerator.generate_platformer_layers(
             tilemap, has_parallax=True, depth_layers=3
@@ -61,7 +61,7 @@ class TestAILayerGenerator:
 
     def test_generate_platformer_layers_depth_limit(self):
         """Test depth layers are limited correctly"""
-        tilemap = Tilemap(50, 30, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 30, 32, 32)
 
         # Request more than available
         layer_ids = AILayerGenerator.generate_platformer_layers(
@@ -80,7 +80,7 @@ class TestAILayerGenerator:
 
     def test_generate_rpg_layers_organized(self):
         """Test generating organized RPG layers with groups"""
-        tilemap = Tilemap(100, 100, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(100, 100, 32, 32)
 
         layer_ids = AILayerGenerator.generate_rpg_layers(tilemap, organized=True)
 
@@ -101,7 +101,7 @@ class TestAILayerGenerator:
 
     def test_generate_rpg_layers_flat(self):
         """Test generating flat RPG layers without groups"""
-        tilemap = Tilemap(100, 100, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(100, 100, 32, 32)
 
         layer_ids = AILayerGenerator.generate_rpg_layers(tilemap, organized=False)
 
@@ -116,7 +116,7 @@ class TestAILayerGenerator:
 
     def test_generate_space_shooter_layers(self):
         """Test generating space shooter with auto-scrolling stars"""
-        tilemap = Tilemap(100, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(100, 50, 32, 32)
 
         layer_ids = AILayerGenerator.generate_space_shooter_layers(tilemap, star_layers=3)
 
@@ -141,7 +141,7 @@ class TestAILayerGenerator:
 
     def test_generate_space_shooter_star_limit(self):
         """Test star layers are limited correctly"""
-        tilemap = Tilemap(100, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(100, 50, 32, 32)
 
         layer_ids = AILayerGenerator.generate_space_shooter_layers(tilemap, star_layers=10)
 
@@ -156,7 +156,7 @@ class TestAILayerGenerator:
 
     def test_generate_strategy_layers_with_groups(self):
         """Test generating strategy game layers with groups"""
-        tilemap = Tilemap(100, 100, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(100, 100, 32, 32)
 
         layer_ids = AILayerGenerator.generate_strategy_layers(tilemap, use_groups=True)
 
@@ -185,7 +185,7 @@ class TestAILayerGenerator:
 
     def test_generate_strategy_layers_flat(self):
         """Test generating strategy layers without groups"""
-        tilemap = Tilemap(100, 100, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(100, 100, 32, 32)
 
         layer_ids = AILayerGenerator.generate_strategy_layers(tilemap, use_groups=False)
 
@@ -197,18 +197,17 @@ class TestAILayerGenerator:
         assert ground is not None
         assert ground.parent_group_id is None
 
-    def test_suggest_layer_optimization_legacy_warning(self):
-        """Test optimization suggestions for legacy maps"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=False)
+    def test_suggest_layer_optimization_empty_map(self):
+        """Empty enhanced maps should not trigger legacy warnings"""
+        tilemap = Tilemap(50, 50, 32, 32)
 
         suggestions = AILayerGenerator.suggest_layer_optimization(tilemap)
 
-        assert len(suggestions) > 0
-        assert any("enhanced layer system" in s.lower() for s in suggestions)
+        assert suggestions == ["\u2705 Layer structure looks optimized!"]
 
     def test_suggest_layer_optimization_needs_groups(self):
         """Test suggestion to use groups for many layers"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         # Create many layers without groups
         for i in range(10):
@@ -221,7 +220,7 @@ class TestAILayerGenerator:
 
     def test_suggest_layer_optimization_invisible_layers(self):
         """Test suggestion about invisible layers"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         # Create some invisible layers
         layer_id1 = tilemap.create_enhanced_layer("Visible Layer")
@@ -240,7 +239,7 @@ class TestAILayerGenerator:
 
     def test_suggest_layer_optimization_duplicate_names(self):
         """Test suggestion about duplicate layer names"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         tilemap.create_enhanced_layer("Ground")
         tilemap.create_enhanced_layer("Ground")
@@ -253,7 +252,7 @@ class TestAILayerGenerator:
 
     def test_suggest_layer_optimization_empty_layers(self):
         """Test suggestion about empty layers"""
-        tilemap = Tilemap(10, 10, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(10, 10, 32, 32)
 
         # Create empty layer
         layer_id = tilemap.create_enhanced_layer("Empty Layer")
@@ -267,7 +266,7 @@ class TestAILayerGenerator:
 
     def test_suggest_layer_optimization_parallax_without_autoscroll(self):
         """Test suggestion about parallax layers without auto-scroll"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         # Create parallax layer without auto-scroll
         tilemap.create_parallax_background("Background", parallax_x=0.5, auto_scroll_x=0.0)
@@ -279,7 +278,7 @@ class TestAILayerGenerator:
 
     def test_suggest_layer_optimization_optimal(self):
         """Test suggestions when layer structure is optimal"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         # Create a well-structured map with a few layers
         tilemap.create_enhanced_layer("Ground")
@@ -298,7 +297,7 @@ class TestAILayerGenerator:
 
     def test_all_generators_return_valid_ids(self):
         """Test that all generators return valid layer IDs"""
-        tilemap = Tilemap(50, 50, 32, 32, use_enhanced_layers=True)
+        tilemap = Tilemap(50, 50, 32, 32)
 
         # Test each generator
         generators = [
@@ -321,3 +320,4 @@ class TestAILayerGenerator:
                 layer = tilemap.get_enhanced_layer(layer_id)
                 assert layer is not None
                 assert layer.properties.layer_id == layer_id
+
