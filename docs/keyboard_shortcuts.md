@@ -155,7 +155,7 @@ Some shortcuts behave differently depending on the current context:
 
 ### Global Context
 - Available in all modes
-- Examples: `F1` (Debug Console), `F2` (Settings), `F8` (Project Manager)
+- Examples: `F1` (Debug Console), `F2` (Settings)
 
 ### Game Context
 - Active during gameplay
@@ -165,7 +165,7 @@ Some shortcuts behave differently depending on the current context:
 ### Editor Context
 - Active when using editor tools
 - Examples: `Ctrl+Z` (Undo), `Ctrl+Y` (Redo), `Ctrl+H` (History)
-- Includes: `F4` (Level Builder), `F5` (Event Editor), `F6` (Quest Editor), `F7` (Asset Browser), `F11` (Autotile), `F12` (Navmesh)
+- Includes: `F4` (Level Builder), `F5` (Event Editor), `F6` (Database Editor), `F7` (Character Generator), `F8` (Quest Editor), `F11` (Autotile), `F12` (Navmesh)
 
 ### Combat Context
 - Active during combat encounters
@@ -257,10 +257,10 @@ Shortcuts can use modifier keys for combinations:
 - `F3` - Building UI
 - `F4` - Level Builder
 - `F5` - Event Editor
-- `F6` - Quest Editor
-- `F7` - Asset Browser
+- `F6` - Database Editor
+- `F7` - Character Generator
 - `Shift+F7` - AI Animator
-- `F8` - Project Manager
+- `F8` - Quest Editor
 - `F9` - Combat UI
 - `F10` - Game HUD
 - `F11` - Autotile Editor
@@ -330,7 +330,7 @@ Shortcuts can use modifier keys for combinations:
 - Context-sensitive shortcuts prevent most conflicts (same key, different contexts)
 
 ### Workflow Optimization
-- **Editors**: Use F4-F7, F11-F12 for quick editor access
+- **Editors**: Use F4-F8, F11-F12 for quick editor access
 - **Testing**: Use Ctrl+F5 for quick save before testing
 - **Debugging**: Keep F1 (Debug Console) handy for logs
 - **Iteration**: Use Ctrl+Z/Ctrl+Y frequently when designing
@@ -434,8 +434,10 @@ Escape      - Menu/Cancel
 ```
 F4          - Level builder
 F5          - Event editor
-F6          - Quest editor
-F7          - Asset browser
+F6          - Database editor
+F7          - Character generator
+F8          - Quest editor
+F11         - Autotile editor
 F12         - Navmesh editor
 Ctrl+H      - History viewer
 Ctrl+M      - Map manager

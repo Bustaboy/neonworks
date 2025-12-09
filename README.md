@@ -213,22 +213,22 @@ See [LAUNCHER_README.md](LAUNCHER_README.md) for detailed launcher documentation
 
 ```bash
 # Create a new project
-python cli.py create my_game --template turn_based_rpg
+python -m neonworks.cli create my_game --template turn_based_rpg
 
 # List available templates
-python cli.py templates
+python -m neonworks.cli templates
 
 # List all projects
-python cli.py list
+python -m neonworks.cli list
 
 # Open a project in editor mode
-python main.py my_game --editor
+python -m neonworks.main my_game --editor
 
 # Run a project in play mode
-python main.py my_game --run
+python -m neonworks.main my_game --run
 
 # Export a project to executable
-python export_cli.py export my_game
+python -m neonworks.cli export my_game
 ```
 ### 📝 Available Templates
 
@@ -382,10 +382,10 @@ The engine includes several example projects demonstrating various features:
 ### Running Examples
 ```bash
 # Run the JRPG demo
-python main.py jrpg_demo
+python -m neonworks.main jrpg_demo
 
 # Run the simple RPG
-python main.py simple_rpg
+python -m neonworks.main simple_rpg
 
 # Run the UI demo
 python examples/visual_ui_demo.py
